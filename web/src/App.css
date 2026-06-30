@@ -486,7 +486,7 @@ h2 {
 
 .heat-layer {
   mix-blend-mode: multiply;
-  opacity: 0.68;
+  opacity: 0.78;
   pointer-events: none;
 }
 
@@ -527,7 +527,7 @@ h2 {
 }
 
 .heat-core {
-  opacity: 0.58;
+  opacity: 0.68;
   pointer-events: none;
 }
 

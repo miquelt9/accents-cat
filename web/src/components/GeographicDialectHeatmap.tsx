@@ -36,16 +36,28 @@ function projectPoint(point: DialectHeatPoint) {
   return { x, y };
 }
 
+function mix(start: number, end: number, amount: number): number {
+  return start + (end - start) * amount;
+}
+
 function heatColor(weight: number): string {
-  if (weight > 0.44) {
-    return "rgba(208, 72, 48, 0.54)";
+  const clamped = Math.max(0, Math.min(1, weight));
+  const eased = Math.pow(clamped, 0.86);
+
+  let hue: number;
+  if (eased > 0.52) {
+    const hotBlend = (eased - 0.52) / 0.48;
+    hue = mix(26, 8, hotBlend);
+  } else {
+    const coolBlend = eased / 0.52;
+    hue = mix(126, 26, coolBlend);
   }
 
-  if (weight > 0.2) {
-    return "rgba(234, 174, 77, 0.32)";
-  }
+  const saturation = mix(60, 84, eased);
+  const lightness = mix(59, 49, eased);
+  const alpha = 0.08 + Math.pow(clamped, 1.35) * 0.68;
 
-  return "rgba(134, 194, 99, 0.18)";
+  return `hsla(${hue.toFixed(1)} ${saturation.toFixed(1)}% ${lightness.toFixed(1)}% / ${alpha.toFixed(3)})`;
 }
 
 function scoreToFill(score: number): string {
