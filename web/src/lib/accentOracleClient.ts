@@ -1,0 +1,168 @@
+export const DIALECT_ZONES = [
+  "balearic",
+  "central",
+  "northern",
+  "northwestern",
+  "valencian",
+] as const;
+
+export type DialectZone = (typeof DIALECT_ZONES)[number];
+
+export type EvidenceBand = "limited" | "moderate" | "strong";
+
+export type AccentScores = Record<DialectZone, number>;
+
+export interface RegionalHeatPoint {
+  lat: number;
+  lng: number;
+  weight: number;
+  label?: string;
+}
+
+export interface AccentOracleResult {
+  scores: AccentScores;
+  regionalHeatPoints?: RegionalHeatPoint[];
+  topLabel: DialectZone;
+  runnerUpLabel: DialectZone;
+  topTwoGap: number;
+  isAmbiguousTopTwo: boolean;
+  evidenceBand: EvidenceBand;
+  confidenceSummary: string;
+  interpretation: string;
+}
+
+export const DIALECT_ZONE_LABELS: Record<DialectZone, string> = {
+  balearic: "Balear",
+  central: "Central",
+  northern: "Nord",
+  northwestern: "Nord-occidental",
+  valencian: "Valencià",
+};
+
+export interface AccentOracleClient {
+  analyzeRecording(audio: Blob): Promise<AccentOracleResult>;
+}
+
+const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
+
+const BASE_PROFILE: AccentScores = {
+  balearic: 0.18,
+  central: 0.27,
+  northern: 0.14,
+  northwestern: 0.2,
+  valencian: 0.21,
+};
+
+function normalizeScores(scores: AccentScores): AccentScores {
+  const total = DIALECT_ZONES.reduce((sum, label) => sum + scores[label], 0);
+
+  return DIALECT_ZONES.reduce((normalized, label) => {
+    normalized[label] = Number((scores[label] / total).toFixed(3));
+    return normalized;
+  }, {} as AccentScores);
+}
+
+function seededNoise(seed: number, index: number): number {
+  const value = Math.sin(seed * (index + 3) * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function buildMockScores(audio: Blob): AccentScores {
+  const seed = Math.max(audio.size, 1) + audio.type.length * 97;
+  const scores = { ...BASE_PROFILE };
+
+  DIALECT_ZONES.forEach((label, index) => {
+    scores[label] += (seededNoise(seed, index) - 0.5) * 0.12;
+  });
+
+  return normalizeScores(scores);
+}
+
+function getEvidenceBand(audio: Blob, topTwoGap: number): EvidenceBand {
+  if (audio.size < 25_000 || topTwoGap < 0.045) {
+    return "limited";
+  }
+
+  if (audio.size > 180_000 && topTwoGap > 0.12) {
+    return "strong";
+  }
+
+  return "moderate";
+}
+
+function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: boolean): string {
+  if (isAmbiguousTopTwo) {
+    return "Les dues zones principals són properes, així que el mapa mostra un patró de similitud més ampli.";
+  }
+
+  if (evidenceBand === "strong") {
+    return "El senyal simulat és relativament concentrat, però encara no és una estimació exacta d'origen.";
+  }
+
+  if (evidenceBand === "moderate") {
+    return "El senyal simulat detecta una zona principal amb incertesa significativa al voltant.";
+  }
+
+  return "La gravació aporta evidència limitada, així que la incertesa és alta.";
+}
+
+export const mockAccentOracleClient: AccentOracleClient = {
+  async analyzeRecording(audio: Blob): Promise<AccentOracleResult> {
+    await new Promise((resolve) => window.setTimeout(resolve, 650));
+
+    const scores = buildMockScores(audio);
+    const ranked = [...DIALECT_ZONES].sort((a, b) => scores[b] - scores[a]);
+    const topLabel = ranked[0];
+    const runnerUpLabel = ranked[1];
+    const topTwoGap = Number((scores[topLabel] - scores[runnerUpLabel]).toFixed(3));
+    const isAmbiguousTopTwo = topTwoGap < 0.08;
+    const evidenceBand = getEvidenceBand(audio, topTwoGap);
+
+    return {
+      scores,
+      topLabel,
+      runnerUpLabel,
+      topTwoGap,
+      isAmbiguousTopTwo,
+      evidenceBand,
+      confidenceSummary: summarizeConfidence(evidenceBand, isAmbiguousTopTwo),
+      interpretation: `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`,
+    };
+  },
+};
+
+export const apiAccentOracleClient: AccentOracleClient = {
+  async analyzeRecording(audio: Blob): Promise<AccentOracleResult> {
+    const formData = new FormData();
+    const filename = audio instanceof File ? audio.name : "recording.webm";
+    formData.append("audio", audio, filename);
+
+    const response = await fetch(`${API_BASE_URL}/analyze`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      let message = "The model API could not analyze this recording.";
+      try {
+        const payload = (await response.json()) as { detail?: string };
+        if (payload.detail) {
+          message = payload.detail;
+        }
+      } catch {
+        // Keep the generic message if the backend did not return JSON.
+      }
+      throw new Error(message);
+    }
+    return (await response.json()) as AccentOracleResult;
+  },
+};
+
+export function getAccentOracleClient(): AccentOracleClient {
+  return import.meta.env.VITE_ACCENT_ORACLE_MODE === "api"
+    ? apiAccentOracleClient
+    : mockAccentOracleClient;
+}
+
+export function getAccentOracleMode(): "api" | "mock" {
+  return import.meta.env.VITE_ACCENT_ORACLE_MODE === "api" ? "api" : "mock";
+}

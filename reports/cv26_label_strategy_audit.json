@@ -1,0 +1,416 @@
+{
+  "train": {
+    "rows": 1218545,
+    "conservative_rows_by_label": {
+      "balearic": 19472,
+      "central": 534720,
+      "northern": 18434,
+      "northwestern": 47088,
+      "valencian": 28102
+    },
+    "conservative_speakers_by_label": {
+      "balearic": 479,
+      "central": 5223,
+      "northern": 207,
+      "northwestern": 593,
+      "valencian": 481
+    },
+    "expanded_no_tortosi_rows_by_label": {
+      "balearic": 20038,
+      "central": 536591,
+      "northern": 19194,
+      "northwestern": 47341,
+      "valencian": 49599
+    },
+    "expanded_no_tortosi_speakers_by_label": {
+      "balearic": 500,
+      "central": 5264,
+      "northern": 211,
+      "northwestern": 609,
+      "valencian": 536
+    },
+    "top_fine_variant_values": [
+      [
+        "Central",
+        534715
+      ],
+      [
+        "Nord-Occidental",
+        46907
+      ],
+      [
+        "Balear",
+        19472
+      ],
+      [
+        "Septentrional",
+        18425
+      ],
+      [
+        "Tortosí",
+        16202
+      ],
+      [
+        "Valencià meridional",
+        7266
+      ],
+      [
+        "Alacantí",
+        3466
+      ],
+      [
+        "Valencià septentrional",
+        1749
+      ],
+      [
+        "Valencià central",
+        604
+      ]
+    ]
+  },
+  "dev": {
+    "rows": 16416,
+    "conservative_rows_by_label": {
+      "balearic": 291,
+      "central": 1963,
+      "northern": 119,
+      "northwestern": 263,
+      "valencian": 201
+    },
+    "conservative_speakers_by_label": {
+      "balearic": 65,
+      "central": 430,
+      "northern": 26,
+      "northwestern": 59,
+      "valencian": 45
+    },
+    "expanded_no_tortosi_rows_by_label": {
+      "balearic": 309,
+      "central": 2001,
+      "northern": 119,
+      "northwestern": 283,
+      "valencian": 236
+    },
+    "expanded_no_tortosi_speakers_by_label": {
+      "balearic": 69,
+      "central": 438,
+      "northern": 26,
+      "northwestern": 63,
+      "valencian": 53
+    },
+    "top_fine_variant_values": [
+      [
+        "Central",
+        1959
+      ],
+      [
+        "Balear",
+        291
+      ],
+      [
+        "Nord-Occidental",
+        263
+      ],
+      [
+        "Septentrional",
+        119
+      ],
+      [
+        "Valencià central",
+        30
+      ],
+      [
+        "Valencià meridional",
+        26
+      ],
+      [
+        "Alacantí",
+        18
+      ],
+      [
+        "Valencià septentrional",
+        14
+      ],
+      [
+        "Tortosí",
+        5
+      ]
+    ]
+  },
+  "test": {
+    "rows": 16416,
+    "conservative_rows_by_label": {
+      "balearic": 227,
+      "central": 1765,
+      "northern": 61,
+      "northwestern": 245,
+      "valencian": 254
+    },
+    "conservative_speakers_by_label": {
+      "balearic": 78,
+      "central": 608,
+      "northern": 21,
+      "northwestern": 82,
+      "valencian": 91
+    },
+    "expanded_no_tortosi_rows_by_label": {
+      "balearic": 247,
+      "central": 1771,
+      "northern": 67,
+      "northwestern": 250,
+      "valencian": 313
+    },
+    "expanded_no_tortosi_speakers_by_label": {
+      "balearic": 84,
+      "central": 610,
+      "northern": 23,
+      "northwestern": 84,
+      "valencian": 114
+    },
+    "top_fine_variant_values": [
+      [
+        "Central",
+        1765
+      ],
+      [
+        "Nord-Occidental",
+        241
+      ],
+      [
+        "Balear",
+        227
+      ],
+      [
+        "Valencià meridional",
+        93
+      ],
+      [
+        "Septentrional",
+        61
+      ],
+      [
+        "Valencià central",
+        55
+      ],
+      [
+        "Alacantí",
+        39
+      ],
+      [
+        "Valencià septentrional",
+        20
+      ],
+      [
+        "Tortosí",
+        15
+      ]
+    ]
+  },
+  "validated": {
+    "rows": 2343375,
+    "conservative_rows_by_label": {
+      "balearic": 26286,
+      "central": 1210900,
+      "northern": 31977,
+      "northwestern": 81583,
+      "valencian": 49580
+    },
+    "conservative_speakers_by_label": {
+      "balearic": 622,
+      "central": 6275,
+      "northern": 254,
+      "northwestern": 734,
+      "valencian": 618
+    },
+    "expanded_no_tortosi_rows_by_label": {
+      "balearic": 26982,
+      "central": 1213294,
+      "northern": 32815,
+      "northwestern": 81949,
+      "valencian": 110691
+    },
+    "expanded_no_tortosi_speakers_by_label": {
+      "balearic": 653,
+      "central": 6326,
+      "northern": 260,
+      "northwestern": 756,
+      "valencian": 704
+    },
+    "top_fine_variant_values": [
+      [
+        "Central",
+        1210891
+      ],
+      [
+        "Nord-Occidental",
+        81278
+      ],
+      [
+        "Tortosí",
+        39584
+      ],
+      [
+        "Septentrional",
+        31967
+      ],
+      [
+        "Balear",
+        26286
+      ],
+      [
+        "Valencià meridional",
+        13653
+      ],
+      [
+        "Alacantí",
+        4666
+      ],
+      [
+        "Valencià septentrional",
+        2649
+      ],
+      [
+        "Valencià central",
+        764
+      ]
+    ]
+  },
+  "other": {
+    "rows": 228829,
+    "conservative_rows_by_label": {
+      "balearic": 167,
+      "central": 135313,
+      "northern": 191,
+      "northwestern": 20435,
+      "valencian": 1359
+    },
+    "conservative_speakers_by_label": {
+      "balearic": 45,
+      "central": 724,
+      "northern": 32,
+      "northwestern": 81,
+      "valencian": 111
+    },
+    "expanded_no_tortosi_rows_by_label": {
+      "balearic": 167,
+      "central": 135324,
+      "northern": 182,
+      "northwestern": 20440,
+      "valencian": 3364
+    },
+    "expanded_no_tortosi_speakers_by_label": {
+      "balearic": 45,
+      "central": 726,
+      "northern": 31,
+      "northwestern": 82,
+      "valencian": 179
+    },
+    "top_fine_variant_values": [
+      [
+        "Central",
+        135307
+      ],
+      [
+        "Nord-Occidental",
+        20425
+      ],
+      [
+        "Alacantí",
+        1163
+      ],
+      [
+        "Tortosí",
+        926
+      ],
+      [
+        "Valencià meridional",
+        509
+      ],
+      [
+        "Septentrional",
+        182
+      ],
+      [
+        "Balear",
+        167
+      ],
+      [
+        "Valencià central",
+        161
+      ],
+      [
+        "Valencià septentrional",
+        111
+      ]
+    ]
+  },
+  "invalidated": {
+    "rows": 144402,
+    "conservative_rows_by_label": {
+      "balearic": 2650,
+      "central": 75062,
+      "northern": 1028,
+      "northwestern": 2567,
+      "valencian": 3028
+    },
+    "conservative_speakers_by_label": {
+      "balearic": 357,
+      "central": 3232,
+      "northern": 128,
+      "northwestern": 398,
+      "valencian": 357
+    },
+    "expanded_no_tortosi_rows_by_label": {
+      "balearic": 2726,
+      "central": 75145,
+      "northern": 1215,
+      "northwestern": 2577,
+      "valencian": 4580
+    },
+    "expanded_no_tortosi_speakers_by_label": {
+      "balearic": 375,
+      "central": 3256,
+      "northern": 133,
+      "northwestern": 404,
+      "valencian": 422
+    },
+    "top_fine_variant_values": [
+      [
+        "Central",
+        75062
+      ],
+      [
+        "Tortosí",
+        4053
+      ],
+      [
+        "Balear",
+        2650
+      ],
+      [
+        "Nord-Occidental",
+        2555
+      ],
+      [
+        "Alacantí",
+        1482
+      ],
+      [
+        "Septentrional",
+        1027
+      ],
+      [
+        "Valencià meridional",
+        708
+      ],
+      [
+        "Valencià septentrional",
+        80
+      ],
+      [
+        "Valencià central",
+        48
+      ]
+    ]
+  }
+}

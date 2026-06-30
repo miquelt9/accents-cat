@@ -1,0 +1,80 @@
+{
+  "seed": 13,
+  "max_speakers_per_accent": 100,
+  "max_clips_per_speaker": 10,
+  "selected_speakers_per_accent": 97,
+  "benchmark_reserved_speakers": 1531,
+  "ambiguous_speakers_dropped": 0,
+  "source_rows_after_filtering": 820404,
+  "available_speakers_by_label": {
+    "balearic": 383,
+    "central": 5559,
+    "northern": 97,
+    "northwestern": 547,
+    "valencian": 339
+  },
+  "splits": {
+    "train": {
+      "rows": 2366,
+      "speakers": 340,
+      "rows_by_label": {
+        "balearic": 433,
+        "central": 561,
+        "northern": 399,
+        "northwestern": 481,
+        "valencian": 492
+      },
+      "speakers_by_label": {
+        "balearic": 68,
+        "central": 68,
+        "northern": 68,
+        "northwestern": 68,
+        "valencian": 68
+      }
+    },
+    "validation": {
+      "rows": 491,
+      "speakers": 75,
+      "rows_by_label": {
+        "balearic": 76,
+        "central": 115,
+        "northern": 80,
+        "northwestern": 105,
+        "valencian": 115
+      },
+      "speakers_by_label": {
+        "balearic": 15,
+        "central": 15,
+        "northern": 15,
+        "northwestern": 15,
+        "valencian": 15
+      }
+    },
+    "calibration": {
+      "rows": 506,
+      "speakers": 70,
+      "rows_by_label": {
+        "balearic": 96,
+        "central": 120,
+        "northern": 76,
+        "northwestern": 101,
+        "valencian": 113
+      },
+      "speakers_by_label": {
+        "balearic": 14,
+        "central": 14,
+        "northern": 14,
+        "northwestern": 14,
+        "valencian": 14
+      }
+    }
+  },
+  "leakage_checks": {
+    "internal_speaker_overlap": {
+      "train_validation": 0,
+      "train_calibration": 0,
+      "validation_calibration": 0
+    },
+    "benchmark_speaker_overlap": 0
+  }
+}

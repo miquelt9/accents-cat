@@ -1,0 +1,32 @@
+{
+  "manifest": "manifests/all_internal.csv",
+  "out_manifest": "manifests/train_shard_planned_3shards.csv",
+  "target_per_label": 40,
+  "max_shards": 3,
+  "selected_shards": [
+    "audio/ca/train/ca_train_5.tar",
+    "audio/ca/train/ca_train_0.tar",
+    "audio/ca/train/ca_train_4.tar"
+  ],
+  "rows": 200,
+  "speakers": 117,
+  "rows_by_label": {
+    "balearic": 40,
+    "central": 40,
+    "northern": 40,
+    "northwestern": 40,
+    "valencian": 40
+  },
+  "speakers_by_label": {
+    "balearic": 23,
+    "central": 18,
+    "northern": 26,
+    "northwestern": 26,
+    "valencian": 24
+  },
+  "shard_counts": {
+    "audio/ca/train/ca_train_0.tar": 75,
+    "audio/ca/train/ca_train_5.tar": 70,
+    "audio/ca/train/ca_train_4.tar": 55
+  }
+}

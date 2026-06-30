@@ -1,0 +1,18 @@
+{
+  "rows": 742,
+  "speakers": 250,
+  "rows_by_label": {
+    "balearic": 150,
+    "central": 148,
+    "northern": 150,
+    "northwestern": 150,
+    "valencian": 144
+  },
+  "speakers_by_label": {
+    "balearic": 50,
+    "central": 50,
+    "northern": 50,
+    "northwestern": 50,
+    "valencian": 50
+  }
+}

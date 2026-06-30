@@ -1,0 +1,833 @@
+[
+  {
+    "dataset": "projecte-aina/annotated_catalan_common_voice_v17",
+    "file": "corpus/files/annotated_train.tsv",
+    "scanned_rows": 200000,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "central": 37436,
+      "northwestern": 4982,
+      "valencian": 3727,
+      "balearic": 3700,
+      "northern": 1547
+    },
+    "raw_label_counts_top20": {
+      "central": 37436,
+      "northwestern": 4982,
+      "valencian": 3727,
+      "balearic": 3700,
+      "northern": 1547,
+      "learner_es": 189,
+      "other": 106,
+      "learner_oth": 52
+    },
+    "speaker_counts_by_label": {
+      "balearic": 294,
+      "central": 3004,
+      "northern": 124,
+      "northwestern": 379,
+      "valencian": 288
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 0,
+      "assigned_accent_non_empty": 51739
+    }
+  },
+  {
+    "dataset": "projecte-aina/annotated_catalan_common_voice_v17",
+    "file": "corpus/files/annotated_dev.tsv",
+    "scanned_rows": 16391,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "balearic": 208,
+      "central": 1675,
+      "northwestern": 229,
+      "valencian": 181,
+      "northern": 73
+    },
+    "raw_label_counts_top20": {
+      "central": 1675,
+      "northwestern": 229,
+      "balearic": 208,
+      "valencian": 181,
+      "northern": 73,
+      "learner_es": 17,
+      "other": 8
+    },
+    "speaker_counts_by_label": {
+      "balearic": 49,
+      "central": 390,
+      "northern": 16,
+      "northwestern": 54,
+      "valencian": 43
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 0,
+      "assigned_accent_non_empty": 2391
+    }
+  },
+  {
+    "dataset": "projecte-aina/annotated_catalan_common_voice_v17",
+    "file": "corpus/files/annotated_test.tsv",
+    "scanned_rows": 16402,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "balearic": 354,
+      "central": 1942,
+      "northwestern": 301,
+      "valencian": 279,
+      "northern": 81
+    },
+    "raw_label_counts_top20": {
+      "central": 1942,
+      "balearic": 354,
+      "northwestern": 301,
+      "valencian": 279,
+      "northern": 81,
+      "learner_es": 34,
+      "learner_oth": 17,
+      "other": 16
+    },
+    "speaker_counts_by_label": {
+      "balearic": 151,
+      "central": 831,
+      "northern": 35,
+      "northwestern": 130,
+      "valencian": 128
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 0,
+      "assigned_accent_non_empty": 3024
+    }
+  },
+  {
+    "dataset": "projecte-aina/annotated_catalan_common_voice_v17",
+    "file": "corpus/files/annotated_validated.tsv",
+    "scanned_rows": 200000,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "balearic": 3383,
+      "central": 31625,
+      "northwestern": 4172,
+      "valencian": 2974,
+      "northern": 1320
+    },
+    "raw_label_counts_top20": {
+      "central": 31625,
+      "northwestern": 4172,
+      "balearic": 3383,
+      "valencian": 2974,
+      "northern": 1320,
+      "learner_es": 206,
+      "other": 125,
+      "learner_oth": 75
+    },
+    "speaker_counts_by_label": {
+      "balearic": 454,
+      "central": 3679,
+      "northern": 153,
+      "northwestern": 493,
+      "valencian": 402
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 0,
+      "assigned_accent_non_empty": 43880
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/balearic_female.tsv",
+    "scanned_rows": 1665,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "balearic": 1665
+    },
+    "raw_label_counts_top20": {
+      "balearic": 1665
+    },
+    "speaker_counts_by_label": {
+      "balearic": 130,
+      "central": 0,
+      "northern": 0,
+      "northwestern": 0,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1665,
+      "assigned_accent_non_empty": 1665
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/balearic_male.tsv",
+    "scanned_rows": 1616,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "balearic": 1616
+    },
+    "raw_label_counts_top20": {
+      "balearic": 1616
+    },
+    "speaker_counts_by_label": {
+      "balearic": 112,
+      "central": 0,
+      "northern": 0,
+      "northwestern": 0,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1616,
+      "assigned_accent_non_empty": 1616
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/central_female.tsv",
+    "scanned_rows": 1742,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "central": 1742
+    },
+    "raw_label_counts_top20": {
+      "central": 1742
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 301,
+      "northern": 0,
+      "northwestern": 0,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1742,
+      "assigned_accent_non_empty": 1742
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/central_male.tsv",
+    "scanned_rows": 1701,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "central": 1701
+    },
+    "raw_label_counts_top20": {
+      "central": 1701
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 342,
+      "northern": 0,
+      "northwestern": 0,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1701,
+      "assigned_accent_non_empty": 1701
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/northern_female.tsv",
+    "scanned_rows": 1627,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "northern": 1627
+    },
+    "raw_label_counts_top20": {
+      "northern": 1627
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 0,
+      "northern": 55,
+      "northwestern": 0,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1627,
+      "assigned_accent_non_empty": 1627
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/northern_male.tsv",
+    "scanned_rows": 1615,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "northern": 1615
+    },
+    "raw_label_counts_top20": {
+      "northern": 1615
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 0,
+      "northern": 68,
+      "northwestern": 0,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1615,
+      "assigned_accent_non_empty": 1615
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/northwestern_female.tsv",
+    "scanned_rows": 1618,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "northwestern": 1618
+    },
+    "raw_label_counts_top20": {
+      "northwestern": 1618
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 0,
+      "northern": 0,
+      "northwestern": 120,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1618,
+      "assigned_accent_non_empty": 1618
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/northwestern_male.tsv",
+    "scanned_rows": 1626,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "northwestern": 1626
+    },
+    "raw_label_counts_top20": {
+      "northwestern": 1626
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 0,
+      "northern": 0,
+      "northwestern": 133,
+      "valencian": 0
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1626,
+      "assigned_accent_non_empty": 1626
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/valencian_female.tsv",
+    "scanned_rows": 1744,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "valencian": 1744
+    },
+    "raw_label_counts_top20": {
+      "valencian": 1744
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 0,
+      "northern": 0,
+      "northwestern": 0,
+      "valencian": 119
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1744,
+      "assigned_accent_non_empty": 1744
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/valencian_male.tsv",
+    "scanned_rows": 1631,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "valencian": 1631
+    },
+    "raw_label_counts_top20": {
+      "valencian": 1631
+    },
+    "speaker_counts_by_label": {
+      "balearic": 0,
+      "central": 0,
+      "northern": 0,
+      "northwestern": 0,
+      "valencian": 151
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 1631,
+      "assigned_accent_non_empty": 1631
+    }
+  },
+  {
+    "dataset": "projecte-aina/commonvoice_benchmark_catalan_accents",
+    "file": "corpus/files/train.tsv",
+    "scanned_rows": 200000,
+    "columns": [
+      "client_id",
+      "path",
+      "sentence_id",
+      "sentence",
+      "sentence_domain",
+      "up_votes",
+      "down_votes",
+      "age",
+      "gender",
+      "accents",
+      "variant",
+      "locale",
+      "segment",
+      "mean quality",
+      "stdev quality",
+      "annotated_accent",
+      "annotated_accent_agreement",
+      "annotated_gender",
+      "annotated_gender_agreement",
+      "propagated_gender",
+      "propagated_accents",
+      "propagated_accents_norm",
+      "variant_norm",
+      "assigned_accent",
+      "assigned_gender",
+      "duration"
+    ],
+    "label_column": "assigned_accent",
+    "speaker_column": "client_id",
+    "normalized_label_counts": {
+      "balearic": 1190,
+      "central": 31417,
+      "northwestern": 1590,
+      "valencian": 939,
+      "northern": 408
+    },
+    "raw_label_counts_top20": {
+      "noesp": 164025,
+      "central": 31417,
+      "northwestern": 1590,
+      "balearic": 1190,
+      "valencian": 939,
+      "northern": 408,
+      "learner_es": 231,
+      "other": 125,
+      "learner_oth": 75
+    },
+    "speaker_counts_by_label": {
+      "balearic": 248,
+      "central": 3169,
+      "northern": 76,
+      "northwestern": 265,
+      "valencian": 177
+    },
+    "label_source_counts": {
+      "expert_annotated_non_empty": 200000,
+      "assigned_accent_non_empty": 200000
+    }
+  }
+]

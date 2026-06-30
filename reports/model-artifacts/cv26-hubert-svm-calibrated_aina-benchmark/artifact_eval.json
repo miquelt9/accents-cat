@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-calibrated/model.joblib",
+  "eval_index": "embeddings/benchmark-eval-750/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 742,
+  "eval_speakers": 250,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.496,
+  "macro_f1": 0.4977,
+  "top2_accuracy": 0.7049,
+  "log_loss": 1.2392,
+  "brier_score": 0.627,
+  "expected_calibration_error": 0.065,
+  "confusion_matrix": [
+    [
+      111,
+      6,
+      19,
+      10,
+      4
+    ],
+    [
+      9,
+      67,
+      38,
+      22,
+      12
+    ],
+    [
+      9,
+      56,
+      40,
+      35,
+      10
+    ],
+    [
+      2,
+      28,
+      30,
+      56,
+      34
+    ],
+    [
+      4,
+      9,
+      9,
+      28,
+      94
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.8222222222222222,
+      "recall": 0.74,
+      "f1-score": 0.7789473684210526,
+      "support": 150.0
+    },
+    "central": {
+      "precision": 0.4036144578313253,
+      "recall": 0.4527027027027027,
+      "f1-score": 0.4267515923566879,
+      "support": 148.0
+    },
+    "northern": {
+      "precision": 0.29411764705882354,
+      "recall": 0.26666666666666666,
+      "f1-score": 0.27972027972027974,
+      "support": 150.0
+    },
+    "northwestern": {
+      "precision": 0.3708609271523179,
+      "recall": 0.37333333333333335,
+      "f1-score": 0.37209302325581395,
+      "support": 150.0
+    },
+    "valencian": {
+      "precision": 0.6103896103896104,
+      "recall": 0.6527777777777778,
+      "f1-score": 0.6308724832214765,
+      "support": 144.0
+    },
+    "accuracy": 0.49595687331536387,
+    "macro avg": {
+      "precision": 0.5002409729308599,
+      "recall": 0.49709609609609606,
+      "f1-score": 0.4976769493950622,
+      "support": 742.0
+    },
+    "weighted avg": {
+      "precision": 0.49961073196784983,
+      "recall": 0.49595687331536387,
+      "f1-score": 0.4967910700299924,
+      "support": 742.0
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-calibrated/model.joblib",
+  "eval_index": "embeddings/cv26-eval-dev-test/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 532,
+  "eval_speakers": 200,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.5056,
+  "macro_f1": 0.5104,
+  "top2_accuracy": 0.7237,
+  "log_loss": 1.2282,
+  "brier_score": 0.63,
+  "expected_calibration_error": 0.064,
+  "confusion_matrix": [
+    [
+      79,
+      5,
+      12,
+      8,
+      1
+    ],
+    [
+      5,
+      46,
+      34,
+      14,
+      1
+    ],
+    [
+      4,
+      35,
+      40,
+      13,
+      18
+    ],
+    [
+      4,
+      21,
+      21,
+      39,
+      22
+    ],
+    [
+      2,
+      6,
+      9,
+      28,
+      65
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.8404255319148937,
+      "recall": 0.7523809523809524,
+      "f1-score": 0.7939698492462312,
+      "support": 105.0
+    },
+    "central": {
+      "precision": 0.40707964601769914,
+      "recall": 0.46,
+      "f1-score": 0.431924882629108,
+      "support": 100.0
+    },
+    "northern": {
+      "precision": 0.3448275862068966,
+      "recall": 0.36363636363636365,
+      "f1-score": 0.35398230088495575,
+      "support": 110.0
+    },
+    "northwestern": {
+      "precision": 0.38235294117647056,
+      "recall": 0.3644859813084112,
+      "f1-score": 0.37320574162679426,
+      "support": 107.0
+    },
+    "valencian": {
+      "precision": 0.6074766355140186,
+      "recall": 0.5909090909090909,
+      "f1-score": 0.5990783410138248,
+      "support": 110.0
+    },
+    "accuracy": 0.5056390977443609,
+    "macro avg": {
+      "precision": 0.5164324681659958,
+      "recall": 0.5062824776469637,
+      "f1-score": 0.5104322230801828,
+      "support": 532.0
+    },
+    "weighted avg": {
+      "precision": 0.5161990123083021,
+      "recall": 0.5056390977443609,
+      "f1-score": 0.5100169311968006,
+      "support": 532.0
+    }
+  }
+}

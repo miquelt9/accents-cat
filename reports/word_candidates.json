@@ -1,0 +1,792 @@
+{
+  "broad_coverage_words": [
+    {
+      "word": "anar",
+      "total_count": 162,
+      "speaker_count_total": 116,
+      "count_by_label": {
+        "balearic": 27,
+        "central": 33,
+        "northern": 35,
+        "northwestern": 35,
+        "valencian": 32
+      },
+      "speaker_count_by_label": {
+        "balearic": 21,
+        "central": 25,
+        "northern": 25,
+        "northwestern": 25,
+        "valencian": 20
+      }
+    },
+    {
+      "word": "seu",
+      "total_count": 112,
+      "speaker_count_total": 94,
+      "count_by_label": {
+        "balearic": 16,
+        "central": 29,
+        "northern": 20,
+        "northwestern": 25,
+        "valencian": 22
+      },
+      "speaker_count_by_label": {
+        "balearic": 13,
+        "central": 26,
+        "northern": 14,
+        "northwestern": 22,
+        "valencian": 19
+      }
+    },
+    {
+      "word": "vint-i",
+      "total_count": 93,
+      "speaker_count_total": 75,
+      "count_by_label": {
+        "balearic": 24,
+        "central": 22,
+        "northern": 17,
+        "northwestern": 15,
+        "valencian": 15
+      },
+      "speaker_count_by_label": {
+        "balearic": 17,
+        "central": 18,
+        "northern": 12,
+        "northwestern": 14,
+        "valencian": 14
+      }
+    },
+    {
+      "word": "tres",
+      "total_count": 88,
+      "speaker_count_total": 73,
+      "count_by_label": {
+        "balearic": 24,
+        "central": 17,
+        "northern": 17,
+        "northwestern": 17,
+        "valencian": 13
+      },
+      "speaker_count_by_label": {
+        "balearic": 19,
+        "central": 15,
+        "northern": 12,
+        "northwestern": 15,
+        "valencian": 12
+      }
+    },
+    {
+      "word": "seva",
+      "total_count": 89,
+      "speaker_count_total": 72,
+      "count_by_label": {
+        "balearic": 10,
+        "central": 25,
+        "northern": 15,
+        "northwestern": 21,
+        "valencian": 18
+      },
+      "speaker_count_by_label": {
+        "balearic": 9,
+        "central": 19,
+        "northern": 12,
+        "northwestern": 17,
+        "valencian": 15
+      }
+    },
+    {
+      "word": "sant",
+      "total_count": 71,
+      "speaker_count_total": 58,
+      "count_by_label": {
+        "balearic": 14,
+        "central": 21,
+        "northern": 16,
+        "northwestern": 10,
+        "valencian": 10
+      },
+      "speaker_count_by_label": {
+        "balearic": 11,
+        "central": 13,
+        "northern": 15,
+        "northwestern": 9,
+        "valencian": 10
+      }
+    },
+    {
+      "word": "molt",
+      "total_count": 59,
+      "speaker_count_total": 56,
+      "count_by_label": {
+        "balearic": 10,
+        "central": 15,
+        "northern": 11,
+        "northwestern": 10,
+        "valencian": 13
+      },
+      "speaker_count_by_label": {
+        "balearic": 9,
+        "central": 14,
+        "northern": 11,
+        "northwestern": 9,
+        "valencian": 13
+      }
+    },
+    {
+      "word": "dos",
+      "total_count": 60,
+      "speaker_count_total": 54,
+      "count_by_label": {
+        "balearic": 14,
+        "central": 11,
+        "northern": 13,
+        "northwestern": 9,
+        "valencian": 13
+      },
+      "speaker_count_by_label": {
+        "balearic": 12,
+        "central": 8,
+        "northern": 13,
+        "northwestern": 8,
+        "valencian": 13
+      }
+    }
+  ],
+  "distinctive_words": {
+    "balearic": [
+      {
+        "word": "som",
+        "label": "balearic",
+        "label_count": 7,
+        "other_count": 2,
+        "score": 1.9064,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "tan",
+        "label": "balearic",
+        "label_count": 6,
+        "other_count": 8,
+        "score": 0.6743,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "biblioteca",
+        "label": "balearic",
+        "label_count": 9,
+        "other_count": 14,
+        "score": 0.5201,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "maig",
+        "label": "balearic",
+        "label_count": 14,
+        "other_count": 25,
+        "score": 0.3755,
+        "speaker_count_for_label": 11
+      },
+      {
+        "word": "anirà",
+        "label": "balearic",
+        "label_count": 15,
+        "other_count": 28,
+        "score": 0.3309,
+        "speaker_count_for_label": 12
+      },
+      {
+        "word": "planta",
+        "label": "balearic",
+        "label_count": 7,
+        "other_count": 14,
+        "score": 0.297,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "iran",
+        "label": "balearic",
+        "label_count": 15,
+        "other_count": 31,
+        "score": 0.2324,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "d'octubre",
+        "label": "balearic",
+        "label_count": 10,
+        "other_count": 22,
+        "score": 0.188,
+        "speaker_count_for_label": 10
+      },
+      {
+        "word": "diumenge",
+        "label": "balearic",
+        "label_count": 7,
+        "other_count": 16,
+        "score": 0.1718,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "pel",
+        "label": "balearic",
+        "label_count": 12,
+        "other_count": 27,
+        "score": 0.1583,
+        "speaker_count_for_label": 11
+      },
+      {
+        "word": "irà",
+        "label": "balearic",
+        "label_count": 10,
+        "other_count": 23,
+        "score": 0.1454,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "estat",
+        "label": "balearic",
+        "label_count": 8,
+        "other_count": 19,
+        "score": 0.1271,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "d'excursió",
+        "label": "balearic",
+        "label_count": 7,
+        "other_count": 17,
+        "score": 0.1146,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "encara",
+        "label": "balearic",
+        "label_count": 6,
+        "other_count": 15,
+        "score": 0.0989,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "d'agost",
+        "label": "balearic",
+        "label_count": 8,
+        "other_count": 20,
+        "score": 0.0783,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "molts",
+        "label": "balearic",
+        "label_count": 7,
+        "other_count": 18,
+        "score": 0.0606,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "han",
+        "label": "balearic",
+        "label_count": 8,
+        "other_count": 21,
+        "score": 0.0317,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "però",
+        "label": "balearic",
+        "label_count": 14,
+        "other_count": 36,
+        "score": 0.0227,
+        "speaker_count_for_label": 13
+      }
+    ],
+    "central": [
+      {
+        "word": "feina",
+        "label": "central",
+        "label_count": 7,
+        "other_count": 5,
+        "score": 1.0038,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "bona",
+        "label": "central",
+        "label_count": 8,
+        "other_count": 6,
+        "score": 0.9674,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "primers",
+        "label": "central",
+        "label_count": 6,
+        "other_count": 5,
+        "score": 0.8703,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "poc",
+        "label": "central",
+        "label_count": 8,
+        "other_count": 7,
+        "score": 0.8339,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "qualsevol",
+        "label": "central",
+        "label_count": 6,
+        "other_count": 6,
+        "score": 0.7161,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "castell",
+        "label": "central",
+        "label_count": 6,
+        "other_count": 6,
+        "score": 0.7161,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "estava",
+        "label": "central",
+        "label_count": 7,
+        "other_count": 8,
+        "score": 0.5983,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "zero",
+        "label": "central",
+        "label_count": 11,
+        "other_count": 13,
+        "score": 0.562,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "principal",
+        "label": "central",
+        "label_count": 6,
+        "other_count": 8,
+        "score": 0.4648,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "després",
+        "label": "central",
+        "label_count": 16,
+        "other_count": 22,
+        "score": 0.4139,
+        "speaker_count_for_label": 15
+      },
+      {
+        "word": "tenir",
+        "label": "central",
+        "label_count": 9,
+        "other_count": 15,
+        "score": 0.2461,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "ela",
+        "label": "central",
+        "label_count": 7,
+        "other_count": 12,
+        "score": 0.2306,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "estan",
+        "label": "central",
+        "label_count": 6,
+        "other_count": 11,
+        "score": 0.1771,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "diversos",
+        "label": "central",
+        "label_count": 6,
+        "other_count": 11,
+        "score": 0.1771,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "només",
+        "label": "central",
+        "label_count": 10,
+        "other_count": 18,
+        "score": 0.1696,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "dona",
+        "label": "central",
+        "label_count": 7,
+        "other_count": 13,
+        "score": 0.1565,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "tenen",
+        "label": "central",
+        "label_count": 9,
+        "other_count": 17,
+        "score": 0.1283,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "diu",
+        "label": "central",
+        "label_count": 9,
+        "other_count": 17,
+        "score": 0.1283,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "forma",
+        "label": "central",
+        "label_count": 10,
+        "other_count": 19,
+        "score": 0.1183,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "fer",
+        "label": "central",
+        "label_count": 22,
+        "other_count": 42,
+        "score": 0.0904,
+        "speaker_count_for_label": 19
+      },
+      {
+        "word": "número",
+        "label": "central",
+        "label_count": 21,
+        "other_count": 41,
+        "score": 0.0695,
+        "speaker_count_for_label": 18
+      },
+      {
+        "word": "d'anar",
+        "label": "central",
+        "label_count": 18,
+        "other_count": 37,
+        "score": 0.023,
+        "speaker_count_for_label": 17
+      },
+      {
+        "word": "molts",
+        "label": "central",
+        "label_count": 8,
+        "other_count": 17,
+        "score": 0.023,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "meu",
+        "label": "central",
+        "label_count": 7,
+        "other_count": 15,
+        "score": 0.023,
+        "speaker_count_for_label": 7
+      }
+    ],
+    "northern": [
+      {
+        "word": "algunes",
+        "label": "northern",
+        "label_count": 7,
+        "other_count": 6,
+        "score": 1.0768,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "morir",
+        "label": "northern",
+        "label_count": 6,
+        "other_count": 8,
+        "score": 0.692,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "nom",
+        "label": "northern",
+        "label_count": 12,
+        "other_count": 19,
+        "score": 0.5125,
+        "speaker_count_for_label": 12
+      },
+      {
+        "word": "erra",
+        "label": "northern",
+        "label_count": 9,
+        "other_count": 15,
+        "score": 0.4733,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "mai",
+        "label": "northern",
+        "label_count": 7,
+        "other_count": 12,
+        "score": 0.4578,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "persones",
+        "label": "northern",
+        "label_count": 7,
+        "other_count": 12,
+        "score": 0.4578,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "casa",
+        "label": "northern",
+        "label_count": 6,
+        "other_count": 14,
+        "score": 0.1811,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "volen",
+        "label": "northern",
+        "label_count": 13,
+        "other_count": 30,
+        "score": 0.1483,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "quatre",
+        "label": "northern",
+        "label_count": 6,
+        "other_count": 15,
+        "score": 0.1166,
+        "speaker_count_for_label": 6
+      }
+    ],
+    "northwestern": [
+      {
+        "word": "s'ha",
+        "label": "northwestern",
+        "label_count": 8,
+        "other_count": 8,
+        "score": 0.7995,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "pedra",
+        "label": "northwestern",
+        "label_count": 8,
+        "other_count": 9,
+        "score": 0.6941,
+        "speaker_count_for_label": 8
+      },
+      {
+        "word": "diferents",
+        "label": "northwestern",
+        "label_count": 7,
+        "other_count": 9,
+        "score": 0.5763,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "passatge",
+        "label": "northwestern",
+        "label_count": 7,
+        "other_count": 9,
+        "score": 0.5763,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "hora",
+        "label": "northwestern",
+        "label_count": 6,
+        "other_count": 9,
+        "score": 0.4428,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "primer",
+        "label": "northwestern",
+        "label_count": 10,
+        "other_count": 16,
+        "score": 0.3641,
+        "speaker_count_for_label": 10
+      },
+      {
+        "word": "seves",
+        "label": "northwestern",
+        "label_count": 10,
+        "other_count": 19,
+        "score": 0.2016,
+        "speaker_count_for_label": 10
+      },
+      {
+        "word": "totes",
+        "label": "northwestern",
+        "label_count": 7,
+        "other_count": 14,
+        "score": 0.1709,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "poden",
+        "label": "northwestern",
+        "label_count": 8,
+        "other_count": 16,
+        "score": 0.1635,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "d'any",
+        "label": "northwestern",
+        "label_count": 7,
+        "other_count": 15,
+        "score": 0.1063,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "durant",
+        "label": "northwestern",
+        "label_count": 10,
+        "other_count": 21,
+        "score": 0.1063,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "mai",
+        "label": "northwestern",
+        "label_count": 6,
+        "other_count": 13,
+        "score": 0.1063,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "quina",
+        "label": "northwestern",
+        "label_count": 16,
+        "other_count": 34,
+        "score": 0.0773,
+        "speaker_count_for_label": 14
+      }
+    ],
+    "valencian": [
+      {
+        "word": "bitllet",
+        "label": "valencian",
+        "label_count": 8,
+        "other_count": 6,
+        "score": 1.0442,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "dura",
+        "label": "valencian",
+        "label_count": 8,
+        "other_count": 6,
+        "score": 1.0442,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "quant",
+        "label": "valencian",
+        "label_count": 7,
+        "other_count": 7,
+        "score": 0.7929,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "home",
+        "label": "valencian",
+        "label_count": 7,
+        "other_count": 8,
+        "score": 0.6751,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "viu",
+        "label": "valencian",
+        "label_count": 7,
+        "other_count": 11,
+        "score": 0.3874,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "qui",
+        "label": "valencian",
+        "label_count": 13,
+        "other_count": 21,
+        "score": 0.3409,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "dia",
+        "label": "valencian",
+        "label_count": 8,
+        "other_count": 14,
+        "score": 0.2821,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "plaça",
+        "label": "valencian",
+        "label_count": 7,
+        "other_count": 13,
+        "score": 0.2333,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "havia",
+        "label": "valencian",
+        "label_count": 6,
+        "other_count": 12,
+        "score": 0.1738,
+        "speaker_count_for_label": 6
+      },
+      {
+        "word": "totes",
+        "label": "valencian",
+        "label_count": 7,
+        "other_count": 14,
+        "score": 0.1643,
+        "speaker_count_for_label": 7
+      },
+      {
+        "word": "cinc",
+        "label": "valencian",
+        "label_count": 10,
+        "other_count": 20,
+        "score": 0.1463,
+        "speaker_count_for_label": 10
+      },
+      {
+        "word": "tren",
+        "label": "valencian",
+        "label_count": 10,
+        "other_count": 21,
+        "score": 0.0997,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "pels",
+        "label": "valencian",
+        "label_count": 9,
+        "other_count": 19,
+        "score": 0.0997,
+        "speaker_count_for_label": 9
+      },
+      {
+        "word": "fou",
+        "label": "valencian",
+        "label_count": 6,
+        "other_count": 14,
+        "score": 0.0307,
+        "speaker_count_for_label": 6
+      }
+    ]
+  }
+}

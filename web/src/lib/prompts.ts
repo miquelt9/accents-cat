@@ -1,0 +1,3 @@
+export const PRIMARY_READ_ALOUD_PROMPT = `Dissabte al matí, la Júlia va sortir de casa amb una motxilla petita i un llibre vell. Pel camí va trobar tres amics a la plaça, prop d'una font clara, i tots van decidir anar fins al mercat. Feia una mica de vent, però el sol escalfava les pedres del carrer. Després van seure sota un arbre, van parlar de música, de feina i de viatges, i la Júlia va dir que volia tornar-hi demà amb més calma.`;
+
+export const VALIDATION_READ_ALOUD_PROMPT = `La pluja fina cau sobre la vinya vella. El vent xiula pels camps buits mentre el sol escalfa la pedra del carrer.`;

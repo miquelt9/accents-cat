@@ -1,0 +1,111 @@
+:root {
+  --page-text: #18212b;
+  --page-background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 28%),
+    linear-gradient(180deg, #f7f2eb 0%, #f2ece4 100%);
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: #ffffff;
+  --surface-soft: #f7fafc;
+  --surface-elevated: #edf6fb;
+  --surface-border: rgba(23, 34, 45, 0.1);
+  --shadow-strong: 0 24px 70px rgba(74, 59, 43, 0.12);
+  --text-primary: #17222d;
+  --text-secondary: #58616b;
+  --text-muted: #7a8792;
+  --heading-color: #17222d;
+  --accent: #257cac;
+  --accent-strong: #17222d;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgba(37, 124, 172, 0.24);
+  --button-secondary-bg: #ffffff;
+  --button-secondary-text: #17222d;
+  --button-secondary-border: rgba(23, 34, 45, 0.16);
+  --button-secondary-hover: #eef4f8;
+  --warning-bg: #fff7e5;
+  --warning-border: rgba(190, 129, 41, 0.25);
+  --warning-text: #7a551d;
+  --danger: #b94a48;
+  --danger-text: #9a302e;
+  --blockquote-border: #257cac;
+  --waveform-idle: #c5d5de;
+  --waveform-active: #257cac;
+  --map-bg: #dfeef4;
+  --map-sea: #e0edf3;
+  --map-zone-stroke: #ffffff;
+  --map-zone-emphasis: #17222d;
+  --map-label: rgba(23, 34, 45, 0.76);
+  --map-coast: #f8efe1;
+  --map-coast-stroke: rgba(23, 34, 45, 0.16);
+  --legend-text: #17222d;
+  color: var(--page-text);
+  background: #f4efe8;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="dark"] {
+  --page-text: #edf3f7;
+  --page-background:
+    radial-gradient(circle at top left, rgba(78, 122, 150, 0.16), transparent 24%),
+    linear-gradient(180deg, #0f1821 0%, #141f2a 55%, #17222d 100%);
+  --surface: rgba(24, 35, 47, 0.84);
+  --surface-strong: #1b2835;
+  --surface-soft: #15222d;
+  --surface-elevated: #1d3140;
+  --surface-border: rgba(184, 215, 232, 0.12);
+  --shadow-strong: 0 24px 70px rgba(0, 0, 0, 0.34);
+  --text-primary: #edf3f7;
+  --text-secondary: #bfd0db;
+  --text-muted: #9cb0bc;
+  --heading-color: #f5f9fc;
+  --accent: #4ca7d9;
+  --accent-strong: #0f1821;
+  --accent-contrast: #08131b;
+  --accent-glow: rgba(76, 167, 217, 0.28);
+  --button-secondary-bg: rgba(255, 255, 255, 0.05);
+  --button-secondary-text: #edf3f7;
+  --button-secondary-border: rgba(191, 221, 234, 0.16);
+  --button-secondary-hover: rgba(255, 255, 255, 0.08);
+  --warning-bg: rgba(120, 89, 29, 0.18);
+  --warning-border: rgba(230, 187, 96, 0.24);
+  --warning-text: #f7d99c;
+  --danger: #cd6865;
+  --danger-text: #ffb2ad;
+  --blockquote-border: #58b2e3;
+  --waveform-idle: #567181;
+  --waveform-active: #58b2e3;
+  --map-bg: #101c25;
+  --map-sea: #142632;
+  --map-zone-stroke: rgba(238, 246, 251, 0.86);
+  --map-zone-emphasis: #f0f7fb;
+  --map-label: rgba(232, 242, 248, 0.84);
+  --map-coast: #d7cfbf;
+  --map-coast-stroke: rgba(232, 242, 248, 0.24);
+  --legend-text: #edf3f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--page-background);
+  color: var(--text-primary);
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}

@@ -1,0 +1,17 @@
+datacollective
+datasets==3.6.0
+fastapi
+fsspec==2025.3.0
+huggingface_hub
+joblib
+librosa
+pandas
+pyarrow
+python-multipart
+scikit-learn
+soundfile
+torch
+torchcodec
+tqdm
+transformers
+uvicorn

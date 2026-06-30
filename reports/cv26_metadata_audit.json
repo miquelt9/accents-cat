@@ -1,0 +1,1182 @@
+{
+  "train": {
+    "rows": 1218545,
+    "speakers": 26319,
+    "labeled_rows_variant_then_accents": 647816,
+    "labeled_row_percent": 53.16,
+    "rows_by_label": {
+      "balearic": 19472,
+      "central": 534720,
+      "northern": 18434,
+      "northwestern": 47088,
+      "valencian": 28102
+    },
+    "speakers_by_label": {
+      "balearic": 479,
+      "central": 5223,
+      "northern": 207,
+      "northwestern": 593,
+      "valencian": 481
+    },
+    "missing_variant_rows": 569739,
+    "missing_accents_rows": 1058804,
+    "top_variant_values": [
+      [
+        "Central",
+        534715
+      ],
+      [
+        "Nord-Occidental",
+        46907
+      ],
+      [
+        "Balear",
+        19472
+      ],
+      [
+        "Septentrional",
+        18425
+      ],
+      [
+        "Tortosí",
+        16202
+      ],
+      [
+        "Valencià meridional",
+        7266
+      ],
+      [
+        "Alacantí",
+        3466
+      ],
+      [
+        "Valencià septentrional",
+        1749
+      ],
+      [
+        "Valencià central",
+        604
+      ]
+    ],
+    "top_accents_values": [
+      [
+        "central",
+        46871
+      ],
+      [
+        "valencià",
+        28102
+      ],
+      [
+        "valencià|La Vall d'Albaida",
+        16838
+      ],
+      [
+        "nord-occidental|Tortosí",
+        16027
+      ],
+      [
+        "De Mont-roig del Camp (Baix Camp)",
+        9121
+      ],
+      [
+        "aprenent (recent, des d'altres llengües)",
+        3018
+      ],
+      [
+        "Barceloní",
+        2541
+      ],
+      [
+        "Català central",
+        2254
+      ],
+      [
+        "Tortosí",
+        1994
+      ],
+      [
+        "xipella",
+        1546
+      ],
+      [
+        "Català oriental",
+        1178
+      ],
+      [
+        "Pallarės",
+        1106
+      ],
+      [
+        "nord-occidental",
+        1075
+      ],
+      [
+        "balear|central",
+        998
+      ],
+      [
+        "balear",
+        989
+      ],
+      [
+        "mallorquí",
+        961
+      ],
+      [
+        "Empordanès",
+        896
+      ],
+      [
+        "central|nord-occidental",
+        803
+      ],
+      [
+        "nord-oriental",
+        764
+      ],
+      [
+        "Barcelona",
+        676
+      ]
+    ],
+    "top_segment_values": [],
+    "top_age_values": [
+      [
+        "fifties",
+        219838
+      ],
+      [
+        "sixties",
+        188976
+      ],
+      [
+        "fourties",
+        147988
+      ],
+      [
+        "thirties",
+        72271
+      ],
+      [
+        "twenties",
+        63711
+      ],
+      [
+        "seventies",
+        40782
+      ],
+      [
+        "teens",
+        13446
+      ],
+      [
+        "eighties",
+        3606
+      ],
+      [
+        "nineties",
+        42
+      ]
+    ],
+    "top_gender_values": [
+      [
+        "male_masculine",
+        472261
+      ],
+      [
+        "female_feminine",
+        267804
+      ],
+      [
+        "do_not_wish_to_say",
+        248
+      ]
+    ]
+  },
+  "dev": {
+    "rows": 16416,
+    "speakers": 3645,
+    "labeled_rows_variant_then_accents": 2837,
+    "labeled_row_percent": 17.28,
+    "rows_by_label": {
+      "balearic": 291,
+      "central": 1963,
+      "northern": 119,
+      "northwestern": 263,
+      "valencian": 201
+    },
+    "speakers_by_label": {
+      "balearic": 65,
+      "central": 430,
+      "northern": 26,
+      "northwestern": 59,
+      "valencian": 45
+    },
+    "missing_variant_rows": 13691,
+    "missing_accents_rows": 15400,
+    "top_variant_values": [
+      [
+        "Central",
+        1959
+      ],
+      [
+        "Balear",
+        291
+      ],
+      [
+        "Nord-Occidental",
+        263
+      ],
+      [
+        "Septentrional",
+        119
+      ],
+      [
+        "Valencià central",
+        30
+      ],
+      [
+        "Valencià meridional",
+        26
+      ],
+      [
+        "Alacantí",
+        18
+      ],
+      [
+        "Valencià septentrional",
+        14
+      ],
+      [
+        "Tortosí",
+        5
+      ]
+    ],
+    "top_accents_values": [
+      [
+        "central",
+        279
+      ],
+      [
+        "valencià",
+        201
+      ],
+      [
+        "mallorquí",
+        44
+      ],
+      [
+        "nord-occidental",
+        41
+      ],
+      [
+        "balear",
+        31
+      ],
+      [
+        "Lleidatà",
+        28
+      ],
+      [
+        "aprenent (recent, des del castellà)",
+        21
+      ],
+      [
+        "gironí",
+        15
+      ],
+      [
+        "Català central",
+        14
+      ],
+      [
+        "Barceloní",
+        14
+      ],
+      [
+        "central|nord-occidental",
+        13
+      ],
+      [
+        "balear|central",
+        13
+      ],
+      [
+        "Ebrenc",
+        12
+      ],
+      [
+        "central|nord-occidental|septentrional",
+        10
+      ],
+      [
+        "Tortosí",
+        10
+      ],
+      [
+        "valencià|apitxat",
+        9
+      ],
+      [
+        "aprenent (recent, des d'altres llengües)",
+        9
+      ],
+      [
+        "central|septentrional",
+        9
+      ],
+      [
+        "central|Barceloní",
+        9
+      ],
+      [
+        "nord-occidental|valencià|Tortosí",
+        9
+      ]
+    ],
+    "top_segment_values": [],
+    "top_age_values": [
+      [
+        "fourties",
+        269
+      ],
+      [
+        "fifties",
+        177
+      ],
+      [
+        "twenties",
+        147
+      ],
+      [
+        "thirties",
+        131
+      ],
+      [
+        "sixties",
+        79
+      ],
+      [
+        "teens",
+        66
+      ],
+      [
+        "seventies",
+        19
+      ]
+    ],
+    "top_gender_values": [
+      [
+        "male_masculine",
+        440
+      ],
+      [
+        "female_feminine",
+        430
+      ]
+    ]
+  },
+  "test": {
+    "rows": 16416,
+    "speakers": 5932,
+    "labeled_rows_variant_then_accents": 2552,
+    "labeled_row_percent": 15.55,
+    "rows_by_label": {
+      "balearic": 227,
+      "central": 1765,
+      "northern": 61,
+      "northwestern": 245,
+      "valencian": 254
+    },
+    "speakers_by_label": {
+      "balearic": 78,
+      "central": 608,
+      "northern": 21,
+      "northwestern": 82,
+      "valencian": 91
+    },
+    "missing_variant_rows": 13900,
+    "missing_accents_rows": 15231,
+    "top_variant_values": [
+      [
+        "Central",
+        1765
+      ],
+      [
+        "Nord-Occidental",
+        241
+      ],
+      [
+        "Balear",
+        227
+      ],
+      [
+        "Valencià meridional",
+        93
+      ],
+      [
+        "Septentrional",
+        61
+      ],
+      [
+        "Valencià central",
+        55
+      ],
+      [
+        "Alacantí",
+        39
+      ],
+      [
+        "Valencià septentrional",
+        20
+      ],
+      [
+        "Tortosí",
+        15
+      ]
+    ],
+    "top_accents_values": [
+      [
+        "central",
+        484
+      ],
+      [
+        "valencià",
+        257
+      ],
+      [
+        "nord-occidental",
+        41
+      ],
+      [
+        "aprenent (recent, des del castellà)",
+        40
+      ],
+      [
+        "balear",
+        26
+      ],
+      [
+        "balear|central",
+        21
+      ],
+      [
+        "central|nord-occidental",
+        20
+      ],
+      [
+        "mallorquí",
+        16
+      ],
+      [
+        "gironí",
+        15
+      ],
+      [
+        "aprenent (recent, des d'altres llengües)",
+        14
+      ],
+      [
+        "de Barcelona",
+        11
+      ],
+      [
+        "Ebrenc",
+        11
+      ],
+      [
+        "Lleidatà",
+        9
+      ],
+      [
+        "Ribera d'Ebre",
+        8
+      ],
+      [
+        "septentrional",
+        8
+      ],
+      [
+        "septentrional|valencià",
+        7
+      ],
+      [
+        "Empordanès",
+        7
+      ],
+      [
+        "Tortosí amb barreja de català del barcelonès ",
+        7
+      ],
+      [
+        "central|valencià",
+        7
+      ],
+      [
+        "Barceloní",
+        6
+      ]
+    ],
+    "top_segment_values": [
+      [
+        "Benchmark",
+        14
+      ]
+    ],
+    "top_age_values": [
+      [
+        "twenties",
+        164
+      ],
+      [
+        "fourties",
+        162
+      ],
+      [
+        "fifties",
+        151
+      ],
+      [
+        "thirties",
+        99
+      ],
+      [
+        "sixties",
+        88
+      ],
+      [
+        "teens",
+        60
+      ],
+      [
+        "seventies",
+        12
+      ],
+      [
+        "nineties",
+        3
+      ]
+    ],
+    "top_gender_values": [
+      [
+        "male_masculine",
+        405
+      ],
+      [
+        "female_feminine",
+        293
+      ]
+    ]
+  },
+  "validated": {
+    "rows": 2343375,
+    "speakers": 36019,
+    "labeled_rows_variant_then_accents": 1400326,
+    "labeled_row_percent": 59.76,
+    "rows_by_label": {
+      "balearic": 26286,
+      "central": 1210900,
+      "northern": 31977,
+      "northwestern": 81583,
+      "valencian": 49580
+    },
+    "speakers_by_label": {
+      "balearic": 622,
+      "central": 6275,
+      "northern": 254,
+      "northwestern": 734,
+      "valencian": 618
+    },
+    "missing_variant_rows": 931637,
+    "missing_accents_rows": 2032103,
+    "top_variant_values": [
+      [
+        "Central",
+        1210891
+      ],
+      [
+        "Nord-Occidental",
+        81278
+      ],
+      [
+        "Tortosí",
+        39584
+      ],
+      [
+        "Septentrional",
+        31967
+      ],
+      [
+        "Balear",
+        26286
+      ],
+      [
+        "Valencià meridional",
+        13653
+      ],
+      [
+        "Alacantí",
+        4666
+      ],
+      [
+        "Valencià septentrional",
+        2649
+      ],
+      [
+        "Valencià central",
+        764
+      ]
+    ],
+    "top_accents_values": [
+      [
+        "central",
+        85435
+      ],
+      [
+        "valencià|La Vall d'Albaida",
+        54402
+      ],
+      [
+        "valencià",
+        49583
+      ],
+      [
+        "nord-occidental|Tortosí",
+        39370
+      ],
+      [
+        "De Mont-roig del Camp (Baix Camp)",
+        19651
+      ],
+      [
+        "aprenent (recent, des d'altres llengües)",
+        5492
+      ],
+      [
+        "Català central",
+        4084
+      ],
+      [
+        "Barceloní",
+        3251
+      ],
+      [
+        "Tortosí",
+        3201
+      ],
+      [
+        "central|Barceloní",
+        2351
+      ],
+      [
+        "xipella",
+        2093
+      ],
+      [
+        "Català oriental",
+        1694
+      ],
+      [
+        "Pallarės",
+        1541
+      ],
+      [
+        "balear|central",
+        1513
+      ],
+      [
+        "nord-occidental",
+        1475
+      ],
+      [
+        "balear",
+        1393
+      ],
+      [
+        "Empordanès",
+        1209
+      ],
+      [
+        "mallorquí",
+        1185
+      ],
+      [
+        "central|nord-occidental",
+        1090
+      ],
+      [
+        "Lleidatà",
+        1001
+      ]
+    ],
+    "top_segment_values": [
+      [
+        "Benchmark",
+        3948
+      ]
+    ],
+    "top_age_values": [
+      [
+        "sixties",
+        641957
+      ],
+      [
+        "fifties",
+        435611
+      ],
+      [
+        "fourties",
+        291945
+      ],
+      [
+        "thirties",
+        117780
+      ],
+      [
+        "twenties",
+        100611
+      ],
+      [
+        "seventies",
+        77951
+      ],
+      [
+        "teens",
+        18445
+      ],
+      [
+        "eighties",
+        5847
+      ],
+      [
+        "nineties",
+        47
+      ]
+    ],
+    "top_gender_values": [
+      [
+        "male_masculine",
+        1187630
+      ],
+      [
+        "female_feminine",
+        487984
+      ],
+      [
+        "do_not_wish_to_say",
+        259
+      ]
+    ]
+  },
+  "other": {
+    "rows": 228829,
+    "speakers": 2232,
+    "labeled_rows_variant_then_accents": 157465,
+    "labeled_row_percent": 68.81,
+    "rows_by_label": {
+      "balearic": 167,
+      "central": 135313,
+      "northern": 191,
+      "northwestern": 20435,
+      "valencian": 1359
+    },
+    "speakers_by_label": {
+      "balearic": 45,
+      "central": 724,
+      "northern": 32,
+      "northwestern": 81,
+      "valencian": 111
+    },
+    "missing_variant_rows": 69878,
+    "missing_accents_rows": 218899,
+    "top_variant_values": [
+      [
+        "Central",
+        135307
+      ],
+      [
+        "Nord-Occidental",
+        20425
+      ],
+      [
+        "Alacantí",
+        1163
+      ],
+      [
+        "Tortosí",
+        926
+      ],
+      [
+        "Valencià meridional",
+        509
+      ],
+      [
+        "Septentrional",
+        182
+      ],
+      [
+        "Balear",
+        167
+      ],
+      [
+        "Valencià central",
+        161
+      ],
+      [
+        "Valencià septentrional",
+        111
+      ]
+    ],
+    "top_accents_values": [
+      [
+        "central",
+        5645
+      ],
+      [
+        "valencià",
+        1359
+      ],
+      [
+        "nord-occidental|Tortosí",
+        883
+      ],
+      [
+        "valencià|La Vall d'Albaida",
+        705
+      ],
+      [
+        "Català central",
+        325
+      ],
+      [
+        "nord-occidental",
+        207
+      ],
+      [
+        "Camp de Tarragona",
+        200
+      ],
+      [
+        "balear",
+        66
+      ],
+      [
+        "balear|central",
+        43
+      ],
+      [
+        "septentrional",
+        42
+      ],
+      [
+        "aprenent (recent, des del castellà)",
+        33
+      ],
+      [
+        "central|Garrotxi",
+        33
+      ],
+      [
+        "gironí",
+        28
+      ],
+      [
+        "central|septentrional",
+        24
+      ],
+      [
+        "central|Barceloní",
+        20
+      ],
+      [
+        "de Barcelona",
+        19
+      ],
+      [
+        "Filla de catalans originalment amb un accent marcat nord-occidental (de Tremp de principis de segle) però tot aiguat ara pel barceloní i amb algunes influències de l'anglès estatsunidenc en la intonació",
+        16
+      ],
+      [
+        "gironí central",
+        15
+      ],
+      [
+        "central|Oriental|Badaloní",
+        15
+      ],
+      [
+        "aprenent (recent, des d'altres llengües)",
+        13
+      ]
+    ],
+    "top_segment_values": [
+      [
+        "Benchmark",
+        2
+      ]
+    ],
+    "top_age_values": [
+      [
+        "sixties",
+        88130
+      ],
+      [
+        "fifties",
+        79084
+      ],
+      [
+        "seventies",
+        27710
+      ],
+      [
+        "fourties",
+        15807
+      ],
+      [
+        "teens",
+        1521
+      ],
+      [
+        "thirties",
+        905
+      ],
+      [
+        "twenties",
+        606
+      ],
+      [
+        "eighties",
+        3
+      ],
+      [
+        "nineties",
+        3
+      ]
+    ],
+    "top_gender_values": [
+      [
+        "male_masculine",
+        148643
+      ],
+      [
+        "female_feminine",
+        63594
+      ],
+      [
+        "do_not_wish_to_say",
+        49
+      ],
+      [
+        "intersex",
+        10
+      ]
+    ]
+  },
+  "invalidated": {
+    "rows": 144402,
+    "speakers": 18048,
+    "labeled_rows_variant_then_accents": 84335,
+    "labeled_row_percent": 58.4,
+    "rows_by_label": {
+      "balearic": 2650,
+      "central": 75062,
+      "northern": 1028,
+      "northwestern": 2567,
+      "valencian": 3028
+    },
+    "speakers_by_label": {
+      "balearic": 357,
+      "central": 3232,
+      "northern": 128,
+      "northwestern": 398,
+      "valencian": 357
+    },
+    "missing_variant_rows": 56737,
+    "missing_accents_rows": 130366,
+    "top_variant_values": [
+      [
+        "Central",
+        75062
+      ],
+      [
+        "Tortosí",
+        4053
+      ],
+      [
+        "Balear",
+        2650
+      ],
+      [
+        "Nord-Occidental",
+        2555
+      ],
+      [
+        "Alacantí",
+        1482
+      ],
+      [
+        "Septentrional",
+        1027
+      ],
+      [
+        "Valencià meridional",
+        708
+      ],
+      [
+        "Valencià septentrional",
+        80
+      ],
+      [
+        "Valencià central",
+        48
+      ]
+    ],
+    "top_accents_values": [
+      [
+        "nord-occidental|Tortosí",
+        4044
+      ],
+      [
+        "valencià",
+        3029
+      ],
+      [
+        "central",
+        2660
+      ],
+      [
+        "valencià|La Vall d'Albaida",
+        440
+      ],
+      [
+        "Català central",
+        415
+      ],
+      [
+        "aprenent (recent, des d'altres llengües)",
+        390
+      ],
+      [
+        "aprenent (recent, des del castellà)",
+        232
+      ],
+      [
+        "nord-oriental",
+        188
+      ],
+      [
+        "Català oriental",
+        108
+      ],
+      [
+        "Barceloní",
+        96
+      ],
+      [
+        "De Mont-roig del Camp (Baix Camp)",
+        87
+      ],
+      [
+        "mallorquí",
+        81
+      ],
+      [
+        "balear",
+        80
+      ],
+      [
+        "mallorquí|Inca",
+        73
+      ],
+      [
+        "nord-occidental",
+        72
+      ],
+      [
+        "central|septentrional",
+        66
+      ],
+      [
+        "Barcelona",
+        64
+      ],
+      [
+        "gironí",
+        63
+      ],
+      [
+        "central|nord-occidental",
+        60
+      ],
+      [
+        "Català de Mallorca ",
+        52
+      ]
+    ],
+    "top_segment_values": [
+      [
+        "Benchmark",
+        230
+      ]
+    ],
+    "top_age_values": [
+      [
+        "sixties",
+        55108
+      ],
+      [
+        "fifties",
+        12512
+      ],
+      [
+        "fourties",
+        11568
+      ],
+      [
+        "thirties",
+        5465
+      ],
+      [
+        "twenties",
+        5109
+      ],
+      [
+        "teens",
+        3044
+      ],
+      [
+        "seventies",
+        2936
+      ],
+      [
+        "eighties",
+        59
+      ],
+      [
+        "nineties",
+        8
+      ]
+    ],
+    "top_gender_values": [
+      [
+        "male_masculine",
+        79489
+      ],
+      [
+        "female_feminine",
+        15635
+      ],
+      [
+        "do_not_wish_to_say",
+        8
+      ]
+    ]
+  },
+  "_overall_labeled": {
+    "speakers_with_any_label": 8706,
+    "ambiguous_labeled_speakers": 0,
+    "ambiguous_examples": [],
+    "labeled_paths": 1642126
+  }
+}

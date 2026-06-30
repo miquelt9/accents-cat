@@ -1,0 +1,42 @@
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+*~
+*.swp
+
+# Large local artifacts — regenerate from manifests/scripts
+data/
+audio/
+embeddings/
+models/
+
+# Archives and upload bundles (CV26 ~79 GB tar, cloud zips, etc.)
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# Regenerated indexes (see scripts/plan_train_shards.py)
+reports/train_shard_index.json
+
+# Local scratch / duplicate assets (canonical map SVG is web/public/)
+Untitled.png
+image.png
+mv14ydz1x1hcrsle1n3uw7-svg.svg
+
+# Web app build artifacts
+web/node_modules/
+web/dist/

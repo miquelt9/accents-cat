@@ -1,0 +1,367 @@
+{
+  "embedding_index": "embeddings/train-small-dev-test-100/embedding_index.csv",
+  "rows": 100,
+  "speakers": 91,
+  "folds": 5,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "results": [
+    {
+      "model": "majority_dummy",
+      "accuracy": 0.2,
+      "macro_f1": 0.0667,
+      "top2_accuracy": 0.4,
+      "confusion_matrix": [
+        [
+          20,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "classification_report": {
+        "balearic": {
+          "precision": 0.2,
+          "recall": 1.0,
+          "f1-score": 0.3333333333333333,
+          "support": 20.0
+        },
+        "central": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 20.0
+        },
+        "northern": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 20.0
+        },
+        "northwestern": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 20.0
+        },
+        "valencian": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 20.0
+        },
+        "accuracy": 0.2,
+        "macro avg": {
+          "precision": 0.04,
+          "recall": 0.2,
+          "f1-score": 0.06666666666666667,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.04,
+          "recall": 0.2,
+          "f1-score": 0.06666666666666667,
+          "support": 100.0
+        }
+      }
+    },
+    {
+      "model": "logistic_regression",
+      "accuracy": 0.32,
+      "macro_f1": 0.3205,
+      "top2_accuracy": 0.5,
+      "confusion_matrix": [
+        [
+          13,
+          3,
+          3,
+          1,
+          0
+        ],
+        [
+          2,
+          5,
+          8,
+          1,
+          4
+        ],
+        [
+          3,
+          6,
+          2,
+          5,
+          4
+        ],
+        [
+          4,
+          3,
+          8,
+          4,
+          1
+        ],
+        [
+          2,
+          3,
+          5,
+          2,
+          8
+        ]
+      ],
+      "classification_report": {
+        "balearic": {
+          "precision": 0.5416666666666666,
+          "recall": 0.65,
+          "f1-score": 0.5909090909090909,
+          "support": 20.0
+        },
+        "central": {
+          "precision": 0.25,
+          "recall": 0.25,
+          "f1-score": 0.25,
+          "support": 20.0
+        },
+        "northern": {
+          "precision": 0.07692307692307693,
+          "recall": 0.1,
+          "f1-score": 0.08695652173913043,
+          "support": 20.0
+        },
+        "northwestern": {
+          "precision": 0.3076923076923077,
+          "recall": 0.2,
+          "f1-score": 0.24242424242424243,
+          "support": 20.0
+        },
+        "valencian": {
+          "precision": 0.47058823529411764,
+          "recall": 0.4,
+          "f1-score": 0.43243243243243246,
+          "support": 20.0
+        },
+        "accuracy": 0.32,
+        "macro avg": {
+          "precision": 0.3293740573152338,
+          "recall": 0.32,
+          "f1-score": 0.32054445750097926,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.3293740573152338,
+          "recall": 0.32,
+          "f1-score": 0.32054445750097926,
+          "support": 100.0
+        }
+      }
+    },
+    {
+      "model": "linear_svm_calibrated",
+      "accuracy": 0.23,
+      "macro_f1": 0.1823,
+      "top2_accuracy": 0.5,
+      "confusion_matrix": [
+        [
+          1,
+          1,
+          11,
+          7,
+          0
+        ],
+        [
+          0,
+          1,
+          13,
+          5,
+          1
+        ],
+        [
+          0,
+          0,
+          13,
+          7,
+          0
+        ],
+        [
+          1,
+          0,
+          13,
+          6,
+          0
+        ],
+        [
+          0,
+          1,
+          14,
+          3,
+          2
+        ]
+      ],
+      "classification_report": {
+        "balearic": {
+          "precision": 0.5,
+          "recall": 0.05,
+          "f1-score": 0.09090909090909091,
+          "support": 20.0
+        },
+        "central": {
+          "precision": 0.3333333333333333,
+          "recall": 0.05,
+          "f1-score": 0.08695652173913043,
+          "support": 20.0
+        },
+        "northern": {
+          "precision": 0.203125,
+          "recall": 0.65,
+          "f1-score": 0.30952380952380953,
+          "support": 20.0
+        },
+        "northwestern": {
+          "precision": 0.21428571428571427,
+          "recall": 0.3,
+          "f1-score": 0.25,
+          "support": 20.0
+        },
+        "valencian": {
+          "precision": 0.6666666666666666,
+          "recall": 0.1,
+          "f1-score": 0.17391304347826086,
+          "support": 20.0
+        },
+        "accuracy": 0.23,
+        "macro avg": {
+          "precision": 0.38348214285714277,
+          "recall": 0.23000000000000004,
+          "f1-score": 0.18226049313005835,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.38348214285714277,
+          "recall": 0.23,
+          "f1-score": 0.18226049313005835,
+          "support": 100.0
+        }
+      }
+    },
+    {
+      "model": "nearest_centroid",
+      "accuracy": 0.25,
+      "macro_f1": 0.238,
+      "top2_accuracy": 0.48,
+      "confusion_matrix": [
+        [
+          4,
+          2,
+          2,
+          11,
+          1
+        ],
+        [
+          4,
+          3,
+          6,
+          3,
+          4
+        ],
+        [
+          3,
+          2,
+          4,
+          6,
+          5
+        ],
+        [
+          2,
+          2,
+          2,
+          10,
+          4
+        ],
+        [
+          0,
+          4,
+          4,
+          8,
+          4
+        ]
+      ],
+      "classification_report": {
+        "balearic": {
+          "precision": 0.3076923076923077,
+          "recall": 0.2,
+          "f1-score": 0.24242424242424243,
+          "support": 20.0
+        },
+        "central": {
+          "precision": 0.23076923076923078,
+          "recall": 0.15,
+          "f1-score": 0.18181818181818182,
+          "support": 20.0
+        },
+        "northern": {
+          "precision": 0.2222222222222222,
+          "recall": 0.2,
+          "f1-score": 0.21052631578947367,
+          "support": 20.0
+        },
+        "northwestern": {
+          "precision": 0.2631578947368421,
+          "recall": 0.5,
+          "f1-score": 0.3448275862068966,
+          "support": 20.0
+        },
+        "valencian": {
+          "precision": 0.2222222222222222,
+          "recall": 0.2,
+          "f1-score": 0.21052631578947367,
+          "support": 20.0
+        },
+        "accuracy": 0.25,
+        "macro avg": {
+          "precision": 0.249212775528565,
+          "recall": 0.25,
+          "f1-score": 0.23802452840565363,
+          "support": 100.0
+        },
+        "weighted avg": {
+          "precision": 0.24921277552856502,
+          "recall": 0.25,
+          "f1-score": 0.2380245284056536,
+          "support": 100.0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "source_tsv": "data/metadata/cv26-ca/dev.tsv",
+  "out_manifest": "manifests/cv26_dev_eval.csv",
+  "seed": 17,
+  "max_speakers_per_label": 20,
+  "max_clips_per_speaker": 3,
+  "selected_speakers_per_label": 20,
+  "rows": 300,
+  "speakers": 100,
+  "rows_by_label": {
+    "balearic": 60,
+    "central": 60,
+    "northern": 60,
+    "northwestern": 60,
+    "valencian": 60
+  },
+  "speakers_by_label": {
+    "balearic": 20,
+    "central": 20,
+    "northern": 20,
+    "northwestern": 20,
+    "valencian": 20
+  },
+  "available_speakers_by_label": {
+    "balearic": 56,
+    "central": 331,
+    "northern": 21,
+    "northwestern": 55,
+    "valencian": 38
+  },
+  "excluded_reserved_speakers": 148,
+  "reserved_speaker_manifests": [
+    "manifests/benchmark.csv",
+    "manifests/benchmark.csv",
+    "manifests/cv26_train_2250.csv"
+  ],
+  "excluded_ambiguous_speakers": 0,
+  "label_policy": "expanded labels, variant first, controlled accents fallback, Tortosi excluded"
+}
