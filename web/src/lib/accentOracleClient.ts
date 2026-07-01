@@ -53,6 +53,20 @@ const BASE_PROFILE: AccentScores = {
   valencian: 0.21,
 };
 
+const DEV_SMOKE_SPOTLIGHTS: DialectZone[] = [
+  "central",
+  "valencian",
+  "northwestern",
+  "northern",
+  "balearic",
+];
+
+let mockInvocationSeq = 0;
+
+function isDevMockVariationEnabled(): boolean {
+  return import.meta.env.DEV;
+}
+
 function normalizeScores(scores: AccentScores): AccentScores {
   const total = DIALECT_ZONES.reduce((sum, label) => sum + scores[label], 0);
 
@@ -68,11 +82,20 @@ function seededNoise(seed: number, index: number): number {
 }
 
 function buildMockScores(audio: Blob): AccentScores {
-  const seed = Math.max(audio.size, 1) + audio.type.length * 97;
+  const audioSeed = Math.max(audio.size, 1) + audio.type.length * 97;
   const scores = { ...BASE_PROFILE };
 
+  let seed = audioSeed;
+  if (isDevMockVariationEnabled()) {
+    mockInvocationSeq += 1;
+    seed = audioSeed + mockInvocationSeq * 7919 + (performance.now() * 1000) % 97_003;
+    const spotlight = DEV_SMOKE_SPOTLIGHTS[(mockInvocationSeq - 1) % DEV_SMOKE_SPOTLIGHTS.length];
+    scores[spotlight] += 0.24;
+  }
+
+  const noiseAmplitude = isDevMockVariationEnabled() ? 0.2 : 0.12;
   DIALECT_ZONES.forEach((label, index) => {
-    scores[label] += (seededNoise(seed, index) - 0.5) * 0.12;
+    scores[label] += (seededNoise(seed, index) - 0.5) * noiseAmplitude;
   });
 
   return normalizeScores(scores);

@@ -1,0 +1,34 @@
+---
+description: Web app React/TypeScript conventions
+globs: "web/**"
+alwaysApply: false
+---
+
+# Web frontend
+
+## Stack
+
+Vite + React + TypeScript. No router — phase state in `App.tsx`.
+
+## Inference modes
+
+- Default: `mockAccentOracleClient` in `accentOracleClient.ts`
+- API: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL`
+
+## UI language
+
+User-facing strings in **Catalan**. Keep accessibility (`aria-*`, `aria-live` on analysis status).
+
+## Heatmap
+
+`GeographicDialectHeatmap` colors comarques via `buildComarcaHeatFills(scores)`. Scores are the single source of truth from the model.
+
+## Validation flow
+
+API mode: `needsValidation()` → second prompt → `pickBetterResult()`. Do not skip this when tightening confidence thresholds.
+
+## Checks after changes
+
+```bash
+cd web && npm run lint && npm run build
+```

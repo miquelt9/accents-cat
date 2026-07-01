@@ -1,0 +1,208 @@
+{
+  "dialect_groups": {
+    "ca-northern": {
+      "macro_dialect": "northern",
+      "comarques": ["catalunya-nord"]
+    },
+    "ca-nwestern": {
+      "macro_dialect": "northwestern",
+      "comarques": [
+        "vielha",
+        "pallars-sobira",
+        "alta-ribagorca",
+        "cerdanya",
+        "alt-urgell",
+        "pallars-jussa",
+        "noguera",
+        "solsones",
+        "bergueda",
+        "andorra",
+        "ardemuz",
+        "segria",
+        "urgell",
+        "pla-urgell",
+        "garrigues",
+        "terra-alta",
+        "baix-ebre",
+        "montsia",
+        "rebera-ebre"
+      ]
+    },
+    "ca-central": {
+      "macro_dialect": "central",
+      "comarques": [
+        "alt-emporda",
+        "baix-emporda",
+        "garrotxa",
+        "ripolles",
+        "girones",
+        "la-selva",
+        "pla-de-estany",
+        "osona",
+        "segarra",
+        "bages",
+        "valles-oriental",
+        "valles-occidental",
+        "maresme",
+        "barcelones",
+        "baix-llobregat",
+        "garraf",
+        "anoia",
+        "alt-penedes",
+        "baix-penedes",
+        "alt-camp",
+        "baix-camp",
+        "conca-de-barbera",
+        "priorat",
+        "tarragones"
+      ]
+    },
+    "ca-balear": {
+      "macro_dialect": "balearic",
+      "comarques": ["mallorca", "menorca", "eivissa", "formentera", "cabrera"]
+    }
+  },
+  "valencia_zones": [
+    {
+      "id": "ca-valencia-northern",
+      "macro_dialect": "valencian",
+      "bounds": { "xmin": 0, "xmax": 600, "ymin": 0, "ymax": 420 }
+    },
+    {
+      "id": "ca-valencia-central",
+      "macro_dialect": "valencian",
+      "bounds": { "xmin": 0, "xmax": 600, "ymin": 420, "ymax": 560 }
+    },
+    {
+      "id": "ca-valencia-southern",
+      "macro_dialect": "valencian",
+      "bounds": { "xmin": 0, "xmax": 380, "ymin": 560, "ymax": 720 }
+    },
+    {
+      "id": "ca-valencia-alacant",
+      "macro_dialect": "valencian",
+      "bounds": { "xmin": 0, "xmax": 400, "ymin": 720, "ymax": 1200 }
+    },
+    {
+      "id": "ca-valencia-tortosi",
+      "macro_dialect": "valencian",
+      "bounds": { "xmin": 280, "xmax": 1200, "ymin": 520, "ymax": 1200 }
+    }
+  ],
+  "display_names": {
+    "vielha": "Vielha",
+    "pallars-sobira": "Pallars Sobirà",
+    "alta-ribagorca": "Alta Ribagorça",
+    "cerdanya": "Cerdanya",
+    "alt-urgell": "Alt Urgell",
+    "pallars-jussa": "Pallars Jussà",
+    "noguera": "Noguera",
+    "solsones": "Solsonès",
+    "bergueda": "Berguedà",
+    "andorra": "Andorra",
+    "ardemuz": "Ardemuz",
+    "segria": "Segrià",
+    "urgell": "Urgell",
+    "pla-urgell": "Pla d'Urgell",
+    "garrigues": "Garrigues",
+    "terra-alta": "Terra Alta",
+    "baix-ebre": "Baix Ebre",
+    "montsia": "Montsià",
+    "rebera-ebre": "Ribera d'Ebre",
+    "alt-emporda": "Alt Empordà",
+    "baix-emporda": "Baix Empordà",
+    "garrotxa": "Garrotxa",
+    "ripolles": "Ripollès",
+    "girones": "Gironès",
+    "la-selva": "La Selva",
+    "pla-de-estany": "Pla de l'Estany",
+    "osona": "Osona",
+    "segarra": "Segarra",
+    "bages": "Bages",
+    "valles-oriental": "Vallès Oriental",
+    "valles-occidental": "Vallès Occidental",
+    "maresme": "Maresme",
+    "barcelones": "Barcelonès",
+    "baix-llobregat": "Baix Llobregat",
+    "garraf": "Garraf",
+    "anoia": "Anoia",
+    "alt-penedes": "Alt Penedès",
+    "baix-penedes": "Baix Penedès",
+    "alt-camp": "Alt Camp",
+    "baix-camp": "Baix Camp",
+    "conca-de-barbera": "Conca de Barberà",
+    "priorat": "Priorat",
+    "tarragones": "Tarragonès",
+    "catalunya-nord": "Catalunya Nord",
+    "mallorca": "Mallorca",
+    "menorca": "Menorca",
+    "eivissa": "Eivissa",
+    "formentera": "Formentera",
+    "cabrera": "Cabrera",
+    "valencia-northern": "Castelló",
+    "valencia-central": "València",
+    "valencia-southern": "Costera",
+    "valencia-alacant": "Alacant",
+    "valencia-tortosi": "Baix Maestrat",
+    "valencia": "País Valencià"
+  },
+  "decoration_groups": {
+    "deco-sea": ["background-shadow-sea", "sea"],
+    "deco-background": [
+      "background-peninsula",
+      "illes-balears-background",
+      "andorra-background",
+      "ardemuz-background",
+      "ponent",
+      "ponent-nord-1",
+      "ponent-sud",
+      "ponent-nord-2"
+    ],
+    "deco-borders": [
+      "valencia-border",
+      "murcia-border",
+      "catalunya-border",
+      "arago-border"
+    ],
+    "deco-alguer": [
+      "alguer-island",
+      "alguer-ciutat",
+      "alguer-minimap",
+      "alguer"
+    ],
+    "deco-compass": ["rosa-vents"],
+    "deco-scale": ["escala", "escala-nombre"]
+  },
+  "excluded_decorations": [
+    "catalunya",
+    "catalunya-nord-1",
+    "catalunya-nord-2",
+    "catalunya-nord-border",
+    "alguer-border",
+    "viehla"
+  ],
+  "decoration_labels": [
+    "background-shadow-sea",
+    "sea",
+    "background-peninsula",
+    "alguer-island",
+    "ardemuz-background",
+    "valencia-border",
+    "murcia-border",
+    "andorra-background",
+    "alguer-ciutat",
+    "alguer-minimap",
+    "rosa-vents",
+    "escala",
+    "escala-nombre",
+    "ponent",
+    "ponent-nord-1",
+    "ponent-sud",
+    "ponent-nord-2",
+    "catalunya-border",
+    "arago-border",
+    "illes-balears-background",
+    "alguer"
+  ],
+  "comarques_transform": "matrix(1.1969817,-0.03168873,0.03175022,1.1946399,338.65538,106.1312)"
+}

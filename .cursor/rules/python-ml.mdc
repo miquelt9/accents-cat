@@ -1,0 +1,30 @@
+---
+description: Python ML scripts and backend conventions
+globs: "{scripts/**,backend/**,notebooks/**}"
+alwaysApply: false
+---
+
+# Python / ML
+
+## Stack
+
+`torch`, `transformers`, `librosa`, `scikit-learn`, `pandas`, `fastapi`, `joblib`
+
+## Default encoder
+
+`BSC-LT/hubert-base-ca-2k` with mean+std pooling (1536-d). Wav2Vec2 is experimental only.
+
+## Inference artifact
+
+- Path: `models/cv26-hubert-svm-calibrated/`
+- Backend loads encoder + `model.joblib`; response must match `AccentOracleResult` in `web/src/lib/accentOracleClient.ts`
+
+## Data rules
+
+- Split by **speaker ID**, never by clip
+- CV26: prefer `train.tsv`, `variant` label, exclude `Tortosí` unless policy changes
+- Write evaluation results to `reports/` with reproducible CLI commands
+
+## Scripts pattern
+
+CLI scripts in `scripts/` use `argparse`, write manifests to `manifests/`, outputs to `data/` or `embeddings/` (local only).

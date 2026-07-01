@@ -81,13 +81,10 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
   }
 
   return (
-    <section className="card recorder-card" aria-labelledby="recorder-title">
-      <div className="recorder-copy">
-        <h2 id="recorder-title" className="visually-hidden">
-          Gravació de veu
-        </h2>
-        <p>Llegeix el text amb veu natural i prem el micròfon per començar.</p>
-      </div>
+    <div className="recorder-panel" aria-labelledby="recorder-title">
+      <h2 id="recorder-title" className="visually-hidden">
+        Gravació de veu
+      </h2>
 
       <div className="recorder-stage">
         <MicrophoneWaveform isActive={isRecording} stream={activeStream} theme={theme} />
@@ -108,6 +105,6 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
       </div>
 
       {error && <p className="error-message">{error}</p>}
-    </section>
+    </div>
   );
 }

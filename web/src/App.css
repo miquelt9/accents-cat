@@ -272,13 +272,13 @@ h2 {
   justify-self: start;
 }
 
-.recorder-card {
-  display: grid;
-  gap: 1.25rem;
+.prompt-card .recorder-panel {
+  margin-top: 1.5rem;
 }
 
-.recorder-copy p {
-  margin: 0;
+.recorder-panel {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .recorder-stage {
@@ -463,12 +463,28 @@ h2 {
 }
 
 .geographic-map {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.geographic-map-stack {
+  aspect-ratio: 1000 / 1000;
   background: var(--map-bg);
   border: 1px solid var(--surface-border);
   border-radius: 24px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
-  height: auto;
   overflow: hidden;
+  width: 100%;
+}
+
+.geographic-map-stack .geographic-map {
+  display: block;
+  height: 100%;
   width: 100%;
 }
 
@@ -478,26 +494,6 @@ h2 {
 
 .geo-sea {
   fill: var(--map-sea);
-}
-
-.geo-reference-map {
-  pointer-events: none;
-}
-
-.heat-layer {
-  mix-blend-mode: multiply;
-  opacity: 0.78;
-  pointer-events: none;
-}
-
-:root[data-theme="dark"] .heat-layer,
-:root[data-theme="dark"] .heat-core-layer {
-  mix-blend-mode: screen;
-}
-
-.heat-core-layer {
-  mix-blend-mode: multiply;
-  pointer-events: none;
 }
 
 .geo-land {

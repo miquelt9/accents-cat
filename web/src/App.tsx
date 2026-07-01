@@ -167,9 +167,9 @@ function App() {
                 <blockquote>{activePrompt}</blockquote>
               </>
             )}
-          </section>
 
-          <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
+            <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
+          </section>
 
           {isAnalyzing && (
             <section className="analysis-status" aria-live="polite">
@@ -189,10 +189,7 @@ function App() {
               La segona mostra no ha millorat la confiança; mostrem el resultat de la primera lectura.
             </p>
           )}
-          <GeographicDialectHeatmap
-            regionalHeatPoints={result.regionalHeatPoints}
-            scores={result.scores}
-          />
+          <GeographicDialectHeatmap scores={result.scores} />
           <button className="secondary restart-button" onClick={resetFlow} type="button">
             Torna a començar
           </button>

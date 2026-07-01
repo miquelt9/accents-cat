@@ -1,0 +1,29 @@
+---
+description: Core project context for Catalan Accent Oracle
+alwaysApply: true
+---
+
+# Catalan Accent Oracle
+
+Research prototype: read-aloud Catalan → five macro-dialect similarity scores → comarca heatmap. **Not** geographic origin detection.
+
+## Layout
+
+- `web/` — React UI (Catalan copy)
+- `backend/app.py` — FastAPI inference
+- `scripts/` — ML pipeline
+- `models/`, `data/`, `embeddings/` — gitignored local artifacts
+
+## Dialect labels (fixed order)
+
+`balearic`, `central`, `northern`, `northwestern`, `valencian`
+
+## Conventions
+
+- Minimal, focused diffs; match existing style
+- Never commit secrets or large binaries
+- Speaker-grouped train/eval splits
+- Map: `web/public/map-paisos-catalans.svg` + `buildComarcaHeat.ts` (not legacy `buildHeatmapPoints.ts`)
+- `comarcaMapMeta.ts` is generated — edit via `scripts/refactor_catalan_map.py`
+
+See `AGENTS.md` and `docs/ML_PIPELINE.md` for details.
