@@ -12,10 +12,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_SVG = ROOT / "map-paisos-catalans.svg"
-BACKUP_SVG = ROOT / "map-paisos-catalans.svg.bak"
-OUTPUT_SVG = ROOT / "map-paisos-catalans.svg"
-PUBLIC_SVG = ROOT / "web" / "public" / "map-paisos-catalans.svg"
+# Canonical filled map lives under web/public (served + linework source).
+SOURCE_SVG = ROOT / "web" / "public" / "map-paisos-catalans.svg"
+BACKUP_SVG = ROOT / "web" / "public" / "map-paisos-catalans.svg.bak"
+OUTPUT_SVG = SOURCE_SVG
 CONFIG_PATH = ROOT / "scripts" / "comarca_dialect_map.json"
 META_TS = ROOT / "web" / "src" / "lib" / "comarcaMapMeta.ts"
 
@@ -1114,14 +1114,10 @@ def main() -> None:
             text.text = meta.display_name
 
     write_svg_file(svg, OUTPUT_SVG)
-
-    PUBLIC_SVG.parent.mkdir(parents=True, exist_ok=True)
-    write_svg_file(svg, PUBLIC_SVG)
     emit_meta_ts(metas)
 
     counts = verify_groups(svg)
     print("Refactored map written to:", OUTPUT_SVG)
-    print("Public copy:", PUBLIC_SVG)
     print("Metadata:", META_TS)
     print("\nDialect group path counts:")
     for group_id, count in counts.items():

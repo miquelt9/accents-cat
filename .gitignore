@@ -32,8 +32,9 @@ models/
 # Regenerated indexes (see scripts/plan_train_shards.py)
 reports/train_shard_index.json
 
-# Local scratch / duplicate assets (canonical map SVG is web/public/)
+# Local scratch / duplicate assets (canonical map SVGs are under web/public/)
 /map-oracle-linework.svg
+/map-paisos-catalans.svg
 *.svg.bak
 Untitled.png
 image.png

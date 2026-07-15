@@ -25,7 +25,6 @@ from shapely.validation import make_valid
 
 ROOT = Path(__file__).resolve().parents[1]
 SVG_PATH = ROOT / "web" / "public" / "map-oracle-linework.svg"
-ROOT_SVG_PATH = ROOT / "map-oracle-linework.svg"
 META_TS = ROOT / "web" / "src" / "lib" / "comarcaMapMeta.ts"
 
 SVG_NS = "http://www.w3.org/2000/svg"
@@ -441,7 +440,6 @@ def main() -> None:
     strip_silhouette(root)
 
     write_svg(root, SVG_PATH)
-    write_svg(root, ROOT_SVG_PATH)
 
     _, polys, _ = collect(root)
     update_centroids(polys)

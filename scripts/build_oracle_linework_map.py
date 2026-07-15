@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build a BoldVoice-style linework SVG from the refactored comarca map.
 
-Reads web/public/map-paisos-catalans.svg (or root map-paisos-catalans.svg),
-strips decorations/labels, and writes a void-stage linework asset with the
-same comarca-{slug} IDs for the interactive results map.
+Reads web/public/map-paisos-catalans.svg, strips decorations/labels, and writes
+web/public/map-oracle-linework.svg with the same comarca-{slug} IDs for the
+interactive results map.
 """
 
 from __future__ import annotations
@@ -13,12 +13,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_CANDIDATES = [
-    ROOT / "web" / "public" / "map-paisos-catalans.svg",
-    ROOT / "map-paisos-catalans.svg",
-]
+SOURCE_SVG = ROOT / "web" / "public" / "map-paisos-catalans.svg"
 OUTPUT_SVG = ROOT / "web" / "public" / "map-oracle-linework.svg"
-ROOT_OUTPUT_SVG = ROOT / "map-oracle-linework.svg"
 
 SVG_NS = "http://www.w3.org/2000/svg"
 VIEWBOX = "170 100 1000 1000"
@@ -32,10 +28,9 @@ def local_tag(el: ET.Element) -> str:
 
 
 def find_source() -> Path:
-    for path in SOURCE_CANDIDATES:
-        if path.exists():
-            return path
-    raise SystemExit("Missing source map SVG (web/public or root map-paisos-catalans.svg)")
+    if SOURCE_SVG.exists():
+        return SOURCE_SVG
+    raise SystemExit(f"Missing source map SVG: {SOURCE_SVG}")
 
 
 def strip_presentation(el: ET.Element) -> None:
@@ -224,14 +219,12 @@ def main() -> None:
     root = ET.parse(source_path).getroot()
     svg = build_linework_svg(root)
     write_svg(svg, OUTPUT_SVG)
-    write_svg(svg, ROOT_OUTPUT_SVG)
 
     region_count = len(
         [el for el in svg.iter() if (el.get("id") or "").startswith("comarca-")]
     )
     print(f"Source: {source_path}")
     print(f"Linework SVG: {OUTPUT_SVG}")
-    print(f"Root copy: {ROOT_OUTPUT_SVG}")
     print(f"Comarca regions: {region_count}")
 
     snap = ROOT / "scripts" / "snap_oracle_communities.py"

@@ -18,7 +18,7 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 | Comarca heat (legacy) | `web/src/lib/buildComarcaHeat.ts` | Score → fills for offline experiments; not painted on the oracle stage. |
 | Comarca metadata | `web/src/lib/comarcaMapMeta.ts` | **Generated** by `scripts/refactor_catalan_map.py` — do not hand-edit. |
 | Map asset (results) | `web/public/map-oracle-linework.svg` | Canonical interactive linework map. Built by `scripts/build_oracle_linework_map.py` (chains community snap). |
-| Map asset (legacy filled) | `web/public/map-paisos-catalans.svg` | Filled choropleth source geometry; still used to generate linework. |
+| Map asset (legacy filled) | `web/public/map-paisos-catalans.svg` | Filled choropleth source geometry; edit this, then rebuild linework. |
 | Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/feedback`, `/client-info`. |
 | User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio for consented API recordings/feedback. Manual delete by UUID (no admin UI in v1). |
 | ML scripts | `scripts/` | Audits, manifests, audio prep, embeddings, training, evaluation. |
