@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { GeographicDialectHeatmap } from "./components/GeographicDialectHeatmap";
+import { ResultsMapStage } from "./components/ResultsMapStage";
+import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
+import { ResultsFeedback } from "./components/ResultsFeedback";
 import {
   DIALECT_ZONE_LABELS,
   getAccentOracleClient,
   getAccentOracleMode,
   type AccentOracleResult,
 } from "./lib/accentOracleClient";
+import {
+  isDevToolsEnabled,
+  setModeOverride,
+  syncDevFlagFromUrl,
+  type AccentOracleMode,
+} from "./lib/devFlags";
 import { needsValidation, pickBetterResult } from "./lib/needsValidation";
 import { PRIMARY_READ_ALOUD_PROMPT, VALIDATION_READ_ALOUD_PROMPT } from "./lib/prompts";
+import { appendLedgerEntry } from "./lib/submissionLedger";
 
-type AppPhase = "landing" | "recording" | "validation" | "results";
+type AppPhase = "landing" | "recording" | "validation" | "results" | "manage-data";
 type Theme = "light" | "dark";
 
-const accentOracleClient = getAccentOracleClient();
-const accentOracleMode = getAccentOracleMode();
 const THEME_STORAGE_KEY = "accent-oracle-theme";
 
 function getInitialTheme(): Theme {
@@ -31,27 +38,56 @@ function getInitialTheme(): Theme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
+function getInitialDevToolsEnabled(): boolean {
+  syncDevFlagFromUrl();
+  return isDevToolsEnabled();
+}
+
 function App() {
   const [phase, setPhase] = useState<AppPhase>("landing");
+  const [returnPhase, setReturnPhase] = useState<AppPhase>("landing");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [result, setResult] = useState<AccentOracleResult | null>(null);
   const [pendingResult, setPendingResult] = useState<AccentOracleResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [keptFirstResult, setKeptFirstResult] = useState(false);
+  const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
+  const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  function openManageData() {
+    setReturnPhase(phase === "manage-data" ? "landing" : phase);
+    setPhase("manage-data");
+  }
+
+  function closeManageData() {
+    setPhase(returnPhase === "manage-data" ? "landing" : returnPhase);
+  }
+
   function resetFlow() {
     setPhase("landing");
+    setReturnPhase("landing");
     setResult(null);
     setPendingResult(null);
     setIsAnalyzing(false);
     setAnalysisError(null);
     setKeptFirstResult(false);
+  }
+
+  function rememberRecording(nextResult: AccentOracleResult) {
+    if (nextResult.recordingId) {
+      appendLedgerEntry(nextResult.recordingId, "recording");
+    }
+  }
+
+  function switchOracleMode(nextMode: AccentOracleMode) {
+    setModeOverride(nextMode);
+    setAccentOracleMode(nextMode);
   }
 
   async function analyzeRecording(audio: Blob) {
@@ -60,7 +96,8 @@ function App() {
     setKeptFirstResult(false);
 
     try {
-      const nextResult = await accentOracleClient.analyzeRecording(audio);
+      const nextResult = await getAccentOracleClient().analyzeRecording(audio);
+      rememberRecording(nextResult);
       const shouldAutoRequestValidation = accentOracleMode === "api" && needsValidation(nextResult);
 
       if (phase === "recording") {
@@ -107,9 +144,28 @@ function App() {
   const activePrompt =
     phase === "validation" ? VALIDATION_READ_ALOUD_PROMPT : PRIMARY_READ_ALOUD_PROMPT;
 
+  const showPrivacyFooter = phase === "landing" || phase === "results";
+  const analysisStatusText =
+    accentOracleMode === "api" && devToolsEnabled
+      ? "Analitzant la mostra… La inferència pot trigar una mica en CPU."
+      : "Analitzant la mostra…";
+
   return (
     <main className={`app-shell ${phase === "landing" ? "landing-main" : ""}`.trim()}>
       <div className="theme-toggle-row">
+        {devToolsEnabled && (
+          <div className="dev-tools-bar" role="group" aria-label="Eines de desenvolupament">
+            <span className="dev-tools-label">Dev</span>
+            <button
+              aria-pressed={accentOracleMode === "mock"}
+              className="dev-mode-toggle"
+              onClick={() => switchOracleMode(accentOracleMode === "mock" ? "api" : "mock")}
+              type="button"
+            >
+              Mode: {accentOracleMode === "mock" ? "mock" : "API"}
+            </button>
+          </div>
+        )}
         <button
           aria-label={`Canvia al mode ${theme === "light" ? "fosc" : "clar"}`}
           aria-pressed={theme === "dark"}
@@ -173,9 +229,7 @@ function App() {
 
           {isAnalyzing && (
             <section className="analysis-status" aria-live="polite">
-              {accentOracleMode === "api"
-                ? "Analitzant la mostra… La inferència pot trigar una mica en CPU."
-                : "Analitzant la mostra…"}
+              {analysisStatusText}
             </section>
           )}
           {analysisError && <p className="error-message">{analysisError}</p>}
@@ -184,16 +238,27 @@ function App() {
 
       {phase === "results" && result && (
         <>
-          {keptFirstResult && (
+          {devToolsEnabled && keptFirstResult && (
             <p className="validation-kept-note">
               La segona mostra no ha millorat la confiança; mostrem el resultat de la primera lectura.
             </p>
           )}
-          <GeographicDialectHeatmap scores={result.scores} />
+          <ResultsMapStage scores={result.scores} />
+          <ResultsFeedback recordingId={result.recordingId} />
           <button className="secondary restart-button" onClick={resetFlow} type="button">
             Torna a començar
           </button>
         </>
+      )}
+
+      {phase === "manage-data" && <ManageMyData onBack={closeManageData} />}
+
+      {showPrivacyFooter && (
+        <footer className="privacy-footer">
+          <button className="privacy-link" onClick={openManageData} type="button">
+            Gestiona les meves dades
+          </button>
+        </footer>
       )}
     </main>
   );

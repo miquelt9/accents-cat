@@ -9,6 +9,7 @@ pandas
 pyarrow
 python-multipart
 scikit-learn
+shapely
 soundfile
 torch
 torchcodec

@@ -10,13 +10,17 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 
 | Layer | Path | Role |
 | --- | --- | --- |
-| Web UI | `web/` | Vite + React + TypeScript. Catalan copy. Phases: landing → recording → optional validation → results. |
-| Inference client | `web/src/lib/accentOracleClient.ts` | `mock` (default) or `api` via `VITE_ACCENT_ORACLE_MODE`. Shared `AccentOracleResult` shape. |
-| Heatmap | `web/src/components/GeographicDialectHeatmap.tsx` | Loads SVG, applies comarca fills from scores. |
-| Comarca coloring | `web/src/lib/buildComarcaHeat.ts` | Score → per-comarca fill. Do not confuse with legacy `buildHeatmapPoints.ts` / `dialectGeoAnchors.ts`. |
+| Web UI | `web/` | Vite + React + TypeScript. Catalan copy. Phases: landing → recording → optional validation → results → manage-data. |
+| Inference client | `web/src/lib/accentOracleClient.ts` | `mock` (default) or `api` via `VITE_ACCENT_ORACLE_MODE` (dev override via `devFlags.ts`). Shared `AccentOracleResult` shape (`recordingId?`). Also `submitFeedback` / `fetchClientInfo`. |
+| Submission ledger | `web/src/lib/submissionLedger.ts` | Browser `localStorage` list of recording/feedback IDs (cap ~50) for Manage My Data. |
+| Results map | `web/src/components/ResultsMapStage.tsx` | Ranking sidebar + interactive linework map. |
+| Interactive map | `web/src/components/map/DialectMap.tsx` | Framer Motion pan/zoom, focus, pin/label callout. |
+| Comarca heat (legacy) | `web/src/lib/buildComarcaHeat.ts` | Score → fills for offline experiments; not painted on the oracle stage. |
 | Comarca metadata | `web/src/lib/comarcaMapMeta.ts` | **Generated** by `scripts/refactor_catalan_map.py` — do not hand-edit. |
-| Map asset | `web/public/map-paisos-catalans.svg` | Canonical map for the app. Root `map-paisos-catalans.svg` / `paisos_catalans.svg` are source/working copies. |
-| Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult`. |
+| Map asset (results) | `web/public/map-oracle-linework.svg` | Canonical interactive linework map. Built by `scripts/build_oracle_linework_map.py` (chains community snap). |
+| Map asset (legacy filled) | `web/public/map-paisos-catalans.svg` | Filled choropleth source geometry; still used to generate linework. |
+| Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/feedback`, `/client-info`. |
+| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio for consented API recordings/feedback. Manual delete by UUID (no admin UI in v1). |
 | ML scripts | `scripts/` | Audits, manifests, audio prep, embeddings, training, evaluation. |
 | Artifacts | `models/`, `embeddings/`, `data/` | **Gitignored.** Never commit large binaries or secrets. |
 | Reports | `reports/` | Human-readable experiment logs. Update when changing evaluation methodology. |
@@ -27,7 +31,16 @@ Fixed label order everywhere (backend metadata, frontend types, heatmap):
 
 `balearic`, `central`, `northern`, `northwestern`, `valencian`
 
-API response fields must stay aligned with `AccentOracleResult` in `accentOracleClient.ts`. Optional future field: `regionalHeatPoints` for finer maps.
+API response fields must stay aligned with `AccentOracleResult` in `accentOracleClient.ts`. Optional future field: `regionalHeatPoints` for finer maps. Optional `recordingId` is set by the API (and by mock with a client UUID).
+
+### Feedback + Manage My Data
+
+- `POST /feedback` body: `{ recordingId, wasCorrect: boolean | null, selfReportedDialect?, notes? }` → `{ feedbackId }`.
+- Self-report values: `balearic` \| `central` \| `northern` \| `northwestern` \| `valencian` \| `mixed` \| `unknown`.
+- `GET /client-info` → `{ ip, userAgent }` for the Manage My Data page (API mode).
+- UI: `ResultsFeedback` after the heatmap; footer link «Gestiona les meves dades» → `manage-data` phase.
+- Privacy contact in UI is a **placeholder**: `privacy@example.com` (clearly marked provisional). Deletion is email → manual soft-delete by ID, not an automated API in v1.
+- Do not frame feedback or results as geographic origin detection.
 
 ## Safe edit boundaries
 
@@ -57,6 +70,8 @@ cd web && npm install && npm run dev
 
 Mock mode needs no backend. Test API mode with backend running and `VITE_ACCENT_ORACLE_MODE=api`.
 
+Developer status messages (CPU inference hint, “second sample did not improve”, mock IP label) and the in-UI mock/API toggle are off by default. Enable with `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`web/src/lib/devFlags.ts`; persists as `localStorage` `accent-oracle-dev=1`).
+
 ### Backend / inference
 
 ```bash
@@ -68,10 +83,10 @@ Requires `models/cv26-hubert-svm-calibrated/` locally. First request is slow (mo
 
 ### Map changes
 
-1. Edit SVG or `scripts/comarca_dialect_map.json`.
-2. Run `scripts/refactor_catalan_map.py`.
-3. Copy/sync SVG to `web/public/map-paisos-catalans.svg`.
-4. Adjust `buildComarcaHeat.ts` only if coloring logic changes.
+1. Edit SVG source or `scripts/comarca_dialect_map.json`.
+2. Run `scripts/refactor_catalan_map.py` (filled map + `comarcaMapMeta.ts`).
+3. Run `scripts/build_oracle_linework_map.py` to refresh `web/public/map-oracle-linework.svg` (extracts paths + snaps floating communities). Requires `shapely`.
+4. Adjust `DialectMap` / stage CSS only if interaction or styling changes.
 
 ### New model version
 
@@ -101,8 +116,9 @@ Keep backend and mock client thresholds in sync when changing UX.
 
 ## Open questions / planned work
 
+- Ingest consented `data/user_submissions/` into training (not automatic in v1).
 - Finer-grained heat via `regionalHeatPoints`.
-- Real-user recording corpus for threshold tuning.
+- Real-user recording corpus for threshold tuning (northern speaker bottleneck).
 - Public deployment (hosting, model size, WASM vs server inference).
 - `Tortosí` and other transitional labels in CV26 metadata.
 

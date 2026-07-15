@@ -14,14 +14,15 @@ Vite + React + TypeScript. No router — phase state in `App.tsx`.
 
 - Default: `mockAccentOracleClient` in `accentOracleClient.ts`
 - API: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL`
+- Dev tools: `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`devFlags.ts` / `localStorage`) — CPU/validation diagnostic copy + mock/API toggle; off by default
 
 ## UI language
 
 User-facing strings in **Catalan**. Keep accessibility (`aria-*`, `aria-live` on analysis status).
 
-## Heatmap
+## Results map
 
-`GeographicDialectHeatmap` colors comarques via `buildComarcaHeatFills(scores)`. Scores are the single source of truth from the model.
+`ResultsMapStage` drives `DialectMap` on `map-oracle-linework.svg`: linework stage, one selected comarca, ranking sync. Scores remain the model source of truth for the sidebar; the map focuses a hotspot comarca per dialect (`dialectHotspots.ts`).
 
 ## Validation flow
 

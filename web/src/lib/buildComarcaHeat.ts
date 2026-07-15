@@ -1,6 +1,7 @@
 import type { AccentScores, DialectZone } from "./accentOracleClient";
 import { DIALECT_ZONES } from "./accentOracleClient";
 import { COMARCA_MAP_META, type ComarcaMapEntry } from "./comarcaMapMeta";
+import { hotspotComarcaForZone } from "./dialectHotspots";
 
 export interface ComarcaHeatEntry {
   comarca: ComarcaMapEntry;
@@ -11,14 +12,6 @@ interface MapPoint {
   x: number;
   y: number;
 }
-
-const HOTSPOT_SLUG_BY_DIALECT: Record<DialectZone, string> = {
-  central: "barcelones",
-  northwestern: "osona",
-  northern: "catalunya-nord",
-  valencian: "valencia",
-  balearic: "mallorca",
-};
 
 /** When central pairs with one of these in the top two, blend their anchor points. */
 const CENTRAL_BLEND_PARTNERS = new Set<DialectZone>([
@@ -59,14 +52,6 @@ function comarcaCoords(comarca: ComarcaMapEntry): MapPoint {
       x: comarca.centroidX,
       y: comarca.centroidY,
     }
-  );
-}
-
-function hotspotComarcaForZone(zone: DialectZone): ComarcaMapEntry | undefined {
-  const slug = HOTSPOT_SLUG_BY_DIALECT[zone];
-  return (
-    COMARCA_MAP_META.find((entry) => entry.slug === slug) ??
-    COMARCA_MAP_META.find((entry) => entry.macroDialect === zone)
   );
 }
 

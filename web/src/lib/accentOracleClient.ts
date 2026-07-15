@@ -1,3 +1,5 @@
+import { isDevToolsEnabled, resolveAccentOracleMode } from "./devFlags";
+
 export const DIALECT_ZONES = [
   "balearic",
   "central",
@@ -7,6 +9,8 @@ export const DIALECT_ZONES = [
 ] as const;
 
 export type DialectZone = (typeof DIALECT_ZONES)[number];
+
+export type SelfReportedDialect = DialectZone | "mixed" | "unknown";
 
 export type EvidenceBand = "limited" | "moderate" | "strong";
 
@@ -29,6 +33,23 @@ export interface AccentOracleResult {
   evidenceBand: EvidenceBand;
   confidenceSummary: string;
   interpretation: string;
+  recordingId?: string;
+}
+
+export interface FeedbackPayload {
+  recordingId: string;
+  wasCorrect: boolean | null;
+  selfReportedDialect?: SelfReportedDialect;
+  notes?: string;
+}
+
+export interface FeedbackResponse {
+  feedbackId: string;
+}
+
+export interface ClientInfo {
+  ip: string;
+  userAgent: string;
 }
 
 export const DIALECT_ZONE_LABELS: Record<DialectZone, string> = {
@@ -37,6 +58,12 @@ export const DIALECT_ZONE_LABELS: Record<DialectZone, string> = {
   northern: "Nord",
   northwestern: "Nord-occidental",
   valencian: "Valencià",
+};
+
+export const SELF_REPORTED_DIALECT_LABELS: Record<SelfReportedDialect, string> = {
+  ...DIALECT_ZONE_LABELS,
+  mixed: "Mixt / de frontera",
+  unknown: "No ho sé",
 };
 
 export interface AccentOracleClient {
@@ -65,6 +92,14 @@ let mockInvocationSeq = 0;
 
 function isDevMockVariationEnabled(): boolean {
   return import.meta.env.DEV;
+}
+
+export function createClientId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function normalizeScores(scores: AccentScores): AccentScores {
@@ -129,6 +164,18 @@ function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: bool
   return "La gravació aporta evidència limitada, així que la incertesa és alta.";
 }
 
+async function readErrorMessage(response: Response, fallback: string): Promise<string> {
+  try {
+    const payload = (await response.json()) as { detail?: string };
+    if (payload.detail) {
+      return payload.detail;
+    }
+  } catch {
+    // Keep the generic message if the backend did not return JSON.
+  }
+  return fallback;
+}
+
 export const mockAccentOracleClient: AccentOracleClient = {
   async analyzeRecording(audio: Blob): Promise<AccentOracleResult> {
     await new Promise((resolve) => window.setTimeout(resolve, 650));
@@ -150,6 +197,7 @@ export const mockAccentOracleClient: AccentOracleClient = {
       evidenceBand,
       confidenceSummary: summarizeConfidence(evidenceBand, isAmbiguousTopTwo),
       interpretation: `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`,
+      recordingId: createClientId(),
     };
   },
 };
@@ -165,27 +213,50 @@ export const apiAccentOracleClient: AccentOracleClient = {
       body: formData,
     });
     if (!response.ok) {
-      let message = "The model API could not analyze this recording.";
-      try {
-        const payload = (await response.json()) as { detail?: string };
-        if (payload.detail) {
-          message = payload.detail;
-        }
-      } catch {
-        // Keep the generic message if the backend did not return JSON.
-      }
-      throw new Error(message);
+      throw new Error(
+        await readErrorMessage(response, "L'API del model no ha pogut analitzar aquesta gravació."),
+      );
     }
     return (await response.json()) as AccentOracleResult;
   },
 };
 
+export async function submitFeedback(payload: FeedbackPayload): Promise<FeedbackResponse> {
+  if (getAccentOracleMode() === "mock") {
+    await new Promise((resolve) => window.setTimeout(resolve, 200));
+    return { feedbackId: createClientId() };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, "No s'ha pogut enviar el comentari."));
+  }
+  return (await response.json()) as FeedbackResponse;
+}
+
+export async function fetchClientInfo(): Promise<ClientInfo> {
+  if (getAccentOracleMode() === "mock") {
+    return {
+      ip: isDevToolsEnabled() ? "no disponible (mode mock)" : "no disponible",
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+    };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/client-info`);
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, "No s'ha pogut obtenir la informació del client."));
+  }
+  return (await response.json()) as ClientInfo;
+}
+
 export function getAccentOracleClient(): AccentOracleClient {
-  return import.meta.env.VITE_ACCENT_ORACLE_MODE === "api"
-    ? apiAccentOracleClient
-    : mockAccentOracleClient;
+  return getAccentOracleMode() === "api" ? apiAccentOracleClient : mockAccentOracleClient;
 }
 
 export function getAccentOracleMode(): "api" | "mock" {
-  return import.meta.env.VITE_ACCENT_ORACLE_MODE === "api" ? "api" : "mock";
+  return resolveAccentOracleMode();
 }

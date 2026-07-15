@@ -10,9 +10,12 @@ import joblib
 import librosa
 import numpy as np
 import torch
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 from transformers import AutoFeatureExtractor, AutoModel
+
+from backend import storage
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +24,7 @@ MODEL_PATH = MODEL_DIR / "model.joblib"
 METADATA_PATH = MODEL_DIR / "metadata.json"
 MIN_AUDIO_SECONDS = 1.5
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+MAX_NOTES_CHARS = 2000
 
 app = FastAPI(title="Catalan Accent Oracle API")
 app.add_middleware(
@@ -30,6 +34,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class FeedbackRequest(BaseModel):
+    recordingId: str | None = None
+    wasCorrect: bool | None = None
+    selfReportedDialect: str | None = None
+    notes: str | None = Field(default=None, max_length=MAX_NOTES_CHARS)
 
 
 @lru_cache(maxsize=1)
@@ -72,12 +83,16 @@ def extract_embedding(path: Path) -> np.ndarray:
     audio = load_audio(path, sampling_rate)
     duration = len(audio) / sampling_rate if sampling_rate else 0
     if duration < MIN_AUDIO_SECONDS:
+        min_secs = f"{MIN_AUDIO_SECONDS:.1f}".replace(".", ",")
         raise HTTPException(
             status_code=422,
-            detail=f"Recording is too short. Please provide at least {MIN_AUDIO_SECONDS:.1f} seconds.",
+            detail=f"La gravació és massa curta. Calen almenys {min_secs} segons.",
         )
     if not np.isfinite(audio).all() or float(np.max(np.abs(audio))) < 0.005:
-        raise HTTPException(status_code=422, detail="Recording is silent or too quiet to analyze.")
+        raise HTTPException(
+            status_code=422,
+            detail="La gravació és silenciosa o massa fluixa per analitzar-la.",
+        )
     inputs = feature_extractor(audio, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}
     with torch.inference_mode():
@@ -125,6 +140,16 @@ def build_result(probabilities: np.ndarray) -> dict[str, Any]:
     }
 
 
+def client_ip(request: Request) -> str | None:
+    if request.client is None:
+        return None
+    return request.client.host
+
+
+def client_user_agent(request: Request) -> str | None:
+    return request.headers.get("user-agent")
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     metadata = load_metadata()
@@ -136,20 +161,67 @@ def health() -> dict[str, Any]:
     }
 
 
+@app.get("/client-info")
+def get_client_info(request: Request) -> dict[str, Any]:
+    return {
+        "ip": client_ip(request),
+        "userAgent": client_user_agent(request),
+    }
+
+
 @app.post("/analyze")
-async def analyze(audio: UploadFile = File(...)) -> dict[str, Any]:
+async def analyze(request: Request, audio: UploadFile = File(...)) -> dict[str, Any]:
     payload = await audio.read()
     if not payload:
-        raise HTTPException(status_code=400, detail="No audio uploaded.")
+        raise HTTPException(status_code=400, detail="No s'ha enviat cap àudio.")
     if len(payload) > MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=413, detail="Audio upload is too large.")
+        raise HTTPException(status_code=413, detail="L'àudio enviat és massa gran.")
 
     suffix = Path(audio.filename or "recording.webm").suffix or ".webm"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=True) as temp:
-        temp.write(payload)
-        temp.flush()
-        embedding = extract_embedding(Path(temp.name)).reshape(1, -1)
-    classifier = load_classifier()
-    probabilities = classifier.predict_proba(embedding)[0]
-    probabilities = probabilities / probabilities.sum()
-    return build_result(probabilities)
+    recording_id, audio_path = storage.save_audio(payload, suffix)
+
+    try:
+        embedding = extract_embedding(audio_path).reshape(1, -1)
+        classifier = load_classifier()
+        probabilities = classifier.predict_proba(embedding)[0]
+        probabilities = probabilities / probabilities.sum()
+        result = build_result(probabilities)
+    except HTTPException:
+        audio_path.unlink(missing_ok=True)
+        raise
+    except Exception:
+        audio_path.unlink(missing_ok=True)
+        raise
+
+    storage.insert_submission(
+        submission_id=recording_id,
+        ip=client_ip(request),
+        user_agent=client_user_agent(request),
+        audio_path=audio_path,
+        scores=result["scores"],
+        top_label=result["topLabel"],
+        evidence_band=result["evidenceBand"],
+    )
+    result["recordingId"] = recording_id
+    return result
+
+
+@app.post("/feedback")
+def submit_feedback(body: FeedbackRequest) -> dict[str, str]:
+    dialect = body.selfReportedDialect
+    if dialect is not None and dialect not in storage.SELF_REPORTED_DIALECTS:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "selfReportedDialect must be one of: "
+                + ", ".join(storage.SELF_REPORTED_DIALECTS)
+            ),
+        )
+
+    feedback_id = storage.insert_feedback(
+        recording_id=body.recordingId,
+        was_correct=body.wasCorrect,
+        self_reported_dialect=dialect,
+        notes=body.notes,
+    )
+    return {"feedbackId": feedback_id}

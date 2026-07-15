@@ -55,7 +55,16 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
    npm run dev
    ```
 
-**API endpoints:** `GET /health`, `POST /analyze` (multipart field `audio`).
+**API endpoints:**
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Liveness |
+| `POST` | `/analyze` | Multipart field `audio` → dialect scores + `recordingId` |
+| `POST` | `/feedback` | JSON `{ recordingId, wasCorrect, selfReportedDialect?, notes? }` → `{ feedbackId }` |
+| `GET` | `/client-info` | Server-seen `{ ip, userAgent }` for Manage My Data |
+
+Consented submissions (audio + metadata + feedback) live under gitignored `data/user_submissions/` (SQLite + audio files). Deletion is manual via the placeholder privacy email shown in the app.
 
 ## How it works
 
@@ -63,7 +72,7 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 flowchart LR
   subgraph web [Web app]
     Rec[Recorder / upload]
-    Map[Comarca heatmap SVG]
+    Map[Interactive linework SVG]
     Rec --> Client[accentOracleClient]
     Client --> Map
   end
@@ -81,7 +90,7 @@ flowchart LR
 1. User reads a fixed Catalan prompt ([`web/src/lib/prompts.ts`](web/src/lib/prompts.ts)).
 2. Audio is sent to the mock client or the FastAPI backend ([`backend/app.py`](backend/app.py)).
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
-4. Five dialect scores drive [`GeographicDialectHeatmap`](web/src/components/GeographicDialectHeatmap.tsx), which colors comarques on [`web/public/map-paisos-catalans.svg`](web/public/map-paisos-catalans.svg) via [`buildComarcaHeat.ts`](web/src/lib/buildComarcaHeat.ts).
+4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 
 In API mode, low-confidence or ambiguous top-two results trigger an optional **validation** pass with a shorter second prompt ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
@@ -94,6 +103,8 @@ In API mode, low-confidence or ambiguous top-two results trigger an optional **v
 | Top-2 accuracy | ~72% | ~70% |
 
 Encoder: `BSC-LT/hubert-base-ca-2k`. Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)`. Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
+
+**Speaker scarcity:** the balanced set is capped by the **northern** dialect (~96 usable speakers after benchmark holdout), while central has thousands. Consenting user recordings plus self-reported dialect labels (via post-result feedback) are the main path to more speaker diversity beyond CV26.
 
 Suitable for a **local research prototype**, not a polished public release without more real-user testing and UX guardrails.
 
@@ -109,6 +120,7 @@ proj-accents/
 ├── reports/             # Audits, baselines, evaluation write-ups
 ├── docs/                # Deeper documentation
 ├── data/                # Local only (gitignored): raw archives, audio
+│   └── user_submissions/  # API mode: SQLite + stored audio/feedback
 ├── embeddings/          # Local only (gitignored)
 └── models/              # Local only (gitignored): joblib artifacts
 ```
@@ -134,6 +146,7 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | --- | --- |
 | `VITE_ACCENT_ORACLE_MODE` | `api` or omit for mock |
 | `VITE_ACCENT_ORACLE_API_URL` | Backend base URL (default `http://localhost:8000`) |
+| `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals, mock IP label) + mock/API toggle. Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
 
 ## Development checks
 
@@ -154,6 +167,9 @@ See **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/) for archit
 - [x] Dataset metadata audits and balanced manifests
 - [x] HuBERT + calibrated SVM baseline (~50% top-1, ~72% top-2)
 - [x] Local FastAPI + web prototype with comarca heatmap
+- [x] Manage My Data view + post-result self-identification feedback (frontend; backend store in progress)
+- [ ] Persist consented API submissions (`data/user_submissions/`) and wire deletion workflow
+- [ ] Grow speaker diversity via consented user recordings + self-labels (northern bottleneck)
 - [ ] More real-user recordings and threshold tuning
 - [ ] Optional finer-grained `regionalHeatPoints` in API responses
 - [ ] Public deployment polish

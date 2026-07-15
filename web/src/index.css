@@ -36,6 +36,26 @@
   --map-label: rgba(23, 34, 45, 0.76);
   --map-coast: #f8efe1;
   --map-coast-stroke: rgba(23, 34, 45, 0.16);
+  --map-stage: #e6f0f5;
+  --map-stage-wash: rgba(37, 124, 172, 0.14);
+  --map-line: rgba(35, 68, 88, 0.48);
+  --map-line-hover: rgba(23, 52, 72, 0.82);
+  --map-selection-fill: rgba(37, 124, 172, 0.28);
+  --map-selection-stroke: #1f6f9c;
+  --map-selection-glow: rgba(37, 124, 172, 0.42);
+  --map-callout-bg: #257cac;
+  --map-overlay-bg: rgba(255, 255, 255, 0.92);
+  --map-overlay-border: rgba(23, 34, 45, 0.1);
+  --map-overlay-text: #17222d;
+  --map-hint-bg: rgba(255, 255, 255, 0.82);
+  --map-hint-text: rgba(23, 34, 45, 0.72);
+  --results-emphasis-bg:
+    radial-gradient(circle at top right, rgba(37, 124, 172, 0.16), transparent 45%),
+    linear-gradient(160deg, #eaf4f9, #d5e8f1);
+  --results-emphasis-text: #17222d;
+  --results-emphasis-muted: #3d6a82;
+  --results-emphasis-inset: rgba(37, 124, 172, 0.22);
+  --results-emphasis-bar: #257cac;
   --legend-text: #17222d;
   color: var(--page-text);
   background: #f4efe8;
@@ -83,6 +103,26 @@
   --map-label: rgba(232, 242, 248, 0.84);
   --map-coast: #d7cfbf;
   --map-coast-stroke: rgba(232, 242, 248, 0.24);
+  --map-stage: #0c141c;
+  --map-stage-wash: rgba(76, 167, 217, 0.2);
+  --map-line: rgba(120, 180, 210, 0.65);
+  --map-line-hover: rgba(220, 240, 250, 0.95);
+  --map-selection-fill: rgba(245, 250, 255, 0.94);
+  --map-selection-stroke: #ffffff;
+  --map-selection-glow: rgba(76, 167, 217, 0.6);
+  --map-callout-bg: #4ca7d9;
+  --map-overlay-bg: rgba(8, 14, 20, 0.78);
+  --map-overlay-border: rgba(184, 215, 232, 0.14);
+  --map-overlay-text: rgba(232, 242, 248, 0.94);
+  --map-hint-bg: rgba(8, 14, 20, 0.55);
+  --map-hint-text: rgba(232, 242, 248, 0.88);
+  --results-emphasis-bg:
+    radial-gradient(circle at top right, rgba(37, 124, 172, 0.18), transparent 45%),
+    linear-gradient(160deg, #17222d, #274356);
+  --results-emphasis-text: #ffffff;
+  --results-emphasis-muted: #bfddea;
+  --results-emphasis-inset: rgba(37, 124, 172, 0.28);
+  --results-emphasis-bar: #ffffff;
   --legend-text: #edf3f7;
 }
 
