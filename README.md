@@ -36,15 +36,17 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
    pip install -r requirements.txt
    ```
 
-2. **Model artifact** — not in git. Train or copy `models/cv26-hubert-svm-calibrated/` (`model.joblib` + `metadata.json`). See [docs/ML_PIPELINE.md](docs/ML_PIPELINE.md).
+2. **Model artifact** — **not in git** (`models/` is gitignored). Collaborators should either:
+   - Ask the repo owner for a copy of `models/cv26-hubert-svm-calibrated/` (`model.joblib` + `metadata.json` — small joblib artifact), or
+   - Train their own via [docs/ML_PIPELINE.md](docs/ML_PIPELINE.md).
+
+   On first inference, Transformers downloads **HuBERT** (`BSC-LT/hubert-base-ca-2k`) from Hugging Face into the local cache. The first `POST /analyze` on CPU is slow (model load); later requests are faster.
 
 3. **Start the API:**
 
    ```bash
    uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
    ```
-
-   First `/analyze` request loads HuBERT on CPU and can take several seconds.
 
 4. **Start the web app in API mode:**
 
@@ -64,7 +66,7 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | `POST` | `/feedback` | JSON `{ recordingId, wasCorrect, selfReportedDialect?, notes? }` → `{ feedbackId }` |
 | `GET` | `/client-info` | Server-seen `{ ip, userAgent }` for Manage My Data |
 
-Consented submissions (audio + metadata + feedback) live under gitignored `data/user_submissions/` (SQLite + audio files). Deletion is manual via the placeholder privacy email shown in the app.
+Consented submissions (audio + metadata + feedback) live under gitignored `data/user_submissions/` (SQLite + audio files). Deletion is **manual** (email the placeholder contact in the UI → soft-delete by UUID); there is no automated deletion API in v1.
 
 ## How it works
 
@@ -158,18 +160,33 @@ cd web && npm run lint && npm run build
 python scripts/audit_aina_tsv_metadata.py --max-rows 200000
 ```
 
-## For AI agents
+## Collaborating
 
-See **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/) for architecture notes, conventions, and safe edit boundaries.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for a short contributor checklist. Summary:
+
+| Path | What you need |
+| --- | --- |
+| **Mock-first** | `cd web && npm install && npm run dev` — no backend or model |
+| **API mode** | Python venv + `models/cv26-hubert-svm-calibrated/` (from owner or train) + uvicorn + `VITE_ACCENT_ORACLE_MODE=api` |
+| **Dev UI** | `?dev=1` or `VITE_ACCENT_ORACLE_DEV=1` — CPU hint, mock/API toggle, validation internals |
+
+License: [AGPL-3.0](LICENSE). Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/).
 
 ## Status & next steps
 
+**Done (research prototype):**
+
 - [x] Dataset metadata audits and balanced manifests
 - [x] HuBERT + calibrated SVM baseline (~50% top-1, ~72% top-2)
-- [x] Local FastAPI + web prototype with comarca heatmap
-- [x] Manage My Data view + post-result self-identification feedback (frontend; backend store in progress)
-- [ ] Persist consented API submissions (`data/user_submissions/`) and wire deletion workflow
-- [ ] Grow speaker diversity via consented user recordings + self-labels (northern bottleneck)
+- [x] Local FastAPI + web prototype with interactive linework map
+- [x] Post-result feedback + Manage My Data (ledger in the browser; backend store under `data/user_submissions/`)
+
+**Known limitations / not production-ready:**
+
+- [ ] Privacy contact is a **placeholder** (`privacy@example.com`); deletion is email → manual soft-delete by ID (no self-serve API)
+- [ ] Map community snap is **visual placement**, not true geographic topology
+- [ ] User submissions are **not** auto-ingested into training
+- [ ] Grow speaker diversity via consented recordings + self-labels (northern bottleneck)
 - [ ] More real-user recordings and threshold tuning
 - [ ] Optional finer-grained `regionalHeatPoints` in API responses
-- [ ] Public deployment polish
+- [ ] Public deployment polish (hosting, model size, WASM vs server inference)

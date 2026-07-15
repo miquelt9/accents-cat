@@ -33,6 +33,8 @@ models/
 reports/train_shard_index.json
 
 # Local scratch / duplicate assets (canonical map SVG is web/public/)
+/map-oracle-linework.svg
+*.svg.bak
 Untitled.png
 image.png
 mv14ydz1x1hcrsle1n3uw7-svg.svg
