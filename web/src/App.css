@@ -418,6 +418,23 @@ h2 {
   margin-top: 1.5rem;
 }
 
+.persist-consent {
+  align-items: flex-start;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.92rem;
+  gap: 0.65rem;
+  line-height: 1.45;
+  margin-top: 1.25rem;
+}
+
+.persist-consent input {
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
 .recorder-panel {
   display: grid;
   gap: 0.75rem;

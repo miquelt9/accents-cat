@@ -64,8 +64,9 @@ export function ManageMyData({ onBack }: ManageMyDataProps) {
       <p className="eyebrow">Privadesa</p>
       <h2>Gestiona les meves dades</h2>
       <p>
-        Si vols demanar la supressió de les teves gravacions o comentaris, copia la informació següent i
-        envia-la a{" "}
+        L&apos;àudio només es desa al servidor si ho autoritzes explícitament abans d&apos;analitzar. Si
+        vols demanar la supressió de les teves gravacions (quan n&apos;hi hagi) o comentaris, copia la
+        informació següent i envia-la a{" "}
         <a className="inline-link" href={mailtoHref}>
           {PRIVACY_EMAIL}
         </a>{" "}

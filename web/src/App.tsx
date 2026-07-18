@@ -54,6 +54,7 @@ function App() {
   const [keptFirstResult, setKeptFirstResult] = useState(false);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
+  const [persistConsent, setPersistConsent] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -77,6 +78,7 @@ function App() {
     setIsAnalyzing(false);
     setAnalysisError(null);
     setKeptFirstResult(false);
+    setPersistConsent(false);
   }
 
   function rememberRecording(nextResult: AccentOracleResult) {
@@ -96,7 +98,9 @@ function App() {
     setKeptFirstResult(false);
 
     try {
-      const nextResult = await getAccentOracleClient().analyzeRecording(audio);
+      const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
+        persist: persistConsent,
+      });
       rememberRecording(nextResult);
       const shouldAutoRequestValidation = accentOracleMode === "api" && needsValidation(nextResult);
 
@@ -223,6 +227,18 @@ function App() {
                 <blockquote>{activePrompt}</blockquote>
               </>
             )}
+
+            <label className="persist-consent">
+              <input
+                checked={persistConsent}
+                disabled={isAnalyzing}
+                onChange={(event) => setPersistConsent(event.target.checked)}
+                type="checkbox"
+              />
+              <span>
+                Desa aquesta gravació al servidor per millorar el model (opcional; desactivat per defecte).
+              </span>
+            </label>
 
             <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
           </section>

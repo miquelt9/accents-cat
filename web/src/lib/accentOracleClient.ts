@@ -1,4 +1,5 @@
 import { isDevToolsEnabled, resolveAccentOracleMode } from "./devFlags";
+import { getEvidenceBand } from "./evidenceBand";
 
 export const DIALECT_ZONES = [
   "balearic",
@@ -36,6 +37,11 @@ export interface AccentOracleResult {
   recordingId?: string;
 }
 
+export interface AnalyzeRecordingOptions {
+  /** When true, ask the API to persist audio (`persist=1`). Default: false. */
+  persist?: boolean;
+}
+
 export interface FeedbackPayload {
   recordingId: string;
   wasCorrect: boolean | null;
@@ -67,10 +73,16 @@ export const SELF_REPORTED_DIALECT_LABELS: Record<SelfReportedDialect, string> =
 };
 
 export interface AccentOracleClient {
-  analyzeRecording(audio: Blob): Promise<AccentOracleResult>;
+  analyzeRecording(audio: Blob, options?: AnalyzeRecordingOptions): Promise<AccentOracleResult>;
 }
 
 const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
+
+/** Client-side fetch timeout for `/analyze` (CPU HuBERT can be slow). */
+const ANALYZE_TIMEOUT_MS = 120_000;
+
+const SERVICE_SATURATED_MESSAGE = "El servei està saturat. Torna-ho a provar.";
+const ANALYZE_TIMEOUT_MESSAGE = "La petició ha trigat massa. Torna-ho a provar.";
 
 const BASE_PROFILE: AccentScores = {
   balearic: 0.18,
@@ -136,18 +148,6 @@ function buildMockScores(audio: Blob): AccentScores {
   return normalizeScores(scores);
 }
 
-function getEvidenceBand(audio: Blob, topTwoGap: number): EvidenceBand {
-  if (audio.size < 25_000 || topTwoGap < 0.045) {
-    return "limited";
-  }
-
-  if (audio.size > 180_000 && topTwoGap > 0.12) {
-    return "strong";
-  }
-
-  return "moderate";
-}
-
 function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: boolean): string {
   if (isAmbiguousTopTwo) {
     return "Les dues zones principals són properes, així que el mapa mostra un patró de similitud més ampli.";
@@ -186,7 +186,7 @@ export const mockAccentOracleClient: AccentOracleClient = {
     const runnerUpLabel = ranked[1];
     const topTwoGap = Number((scores[topLabel] - scores[runnerUpLabel]).toFixed(3));
     const isAmbiguousTopTwo = topTwoGap < 0.08;
-    const evidenceBand = getEvidenceBand(audio, topTwoGap);
+    const evidenceBand = getEvidenceBand(topTwoGap, scores[topLabel]);
 
     return {
       scores,
@@ -203,15 +203,34 @@ export const mockAccentOracleClient: AccentOracleClient = {
 };
 
 export const apiAccentOracleClient: AccentOracleClient = {
-  async analyzeRecording(audio: Blob): Promise<AccentOracleResult> {
+  async analyzeRecording(audio: Blob, options?: AnalyzeRecordingOptions): Promise<AccentOracleResult> {
     const formData = new FormData();
     const filename = audio instanceof File ? audio.name : "recording.webm";
     formData.append("audio", audio, filename);
+    formData.append("persist", options?.persist ? "1" : "0");
 
-    const response = await fetch(`${API_BASE_URL}/analyze`, {
-      method: "POST",
-      body: formData,
-    });
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), ANALYZE_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/analyze`, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw new Error(ANALYZE_TIMEOUT_MESSAGE, { cause: error });
+      }
+      throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+
+    if (response.status === 503) {
+      throw new Error(SERVICE_SATURATED_MESSAGE);
+    }
     if (!response.ok) {
       throw new Error(
         await readErrorMessage(response, "L'API del model no ha pogut analitzar aquesta gravació."),

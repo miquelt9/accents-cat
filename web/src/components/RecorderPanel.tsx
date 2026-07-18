@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { MicrophoneWaveform } from "./MicrophoneWaveform";
 
+/** Matches backend `MIN_AUDIO_SECONDS`. */
+export const MIN_RECORD_SECONDS = 1.5;
+
 interface RecorderPanelProps {
   onRecordingReady: (audio: Blob) => void;
   disabled?: boolean;
@@ -23,6 +26,7 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const startedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -50,15 +54,25 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
         }
       };
       recorder.onstop = () => {
-        const audio = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        onRecordingReady(audio);
+        const elapsedMs = startedAtRef.current == null ? 0 : performance.now() - startedAtRef.current;
+        startedAtRef.current = null;
         stream.getTracks().forEach((track) => track.stop());
         setActiveStream(null);
+
+        if (elapsedMs / 1000 < MIN_RECORD_SECONDS) {
+          const minSecs = MIN_RECORD_SECONDS.toFixed(1).replace(".", ",");
+          setError(`La gravació és massa curta. Calen almenys ${minSecs} segons.`);
+          return;
+        }
+
+        const audio = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        onRecordingReady(audio);
       };
 
       recorderRef.current = recorder;
       streamRef.current = stream;
       setActiveStream(stream);
+      startedAtRef.current = performance.now();
       recorder.start();
       setIsRecording(true);
     } catch {

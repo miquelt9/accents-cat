@@ -4,7 +4,7 @@ import { COMARCA_MAP_META, type ComarcaMapEntry } from "./comarcaMapMeta";
 /** Representative comarca slug for each macro-dialect (map focus / pin). */
 export const HOTSPOT_SLUG_BY_DIALECT: Record<DialectZone, string> = {
   central: "barcelones",
-  northwestern: "osona",
+  northwestern: "segria",
   northern: "catalunya-nord",
   valencian: "valencia",
   balearic: "mallorca",

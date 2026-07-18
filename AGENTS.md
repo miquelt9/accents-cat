@@ -20,7 +20,7 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 | Map asset (results) | `web/public/map-oracle-linework.svg` | Canonical interactive linework map. Built by `scripts/build_oracle_linework_map.py` (chains community snap). |
 | Map asset (legacy filled) | `web/public/map-paisos-catalans.svg` | Filled choropleth source geometry; edit this, then rebuild linework. |
 | Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/feedback`, `/client-info`. |
-| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio for consented API recordings/feedback. Manual delete by UUID (no admin UI in v1). |
+| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio when `/analyze` sends `persist=1`. Soft-delete: `python scripts/soft_delete_submission.py <uuid>` (no admin UI in v1). |
 | ML scripts | `scripts/` | Audits, manifests, audio prep, embeddings, training, evaluation. |
 | Artifacts | `models/`, `embeddings/`, `data/` | **Gitignored.** Never commit large binaries or secrets. Inference classifier mirror: [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (`model.joblib` + `metadata.json`). |
 | Reports | `reports/` | Human-readable experiment logs. Update when changing evaluation methodology. |
@@ -31,7 +31,14 @@ Fixed label order everywhere (backend metadata, frontend types, heatmap):
 
 `balearic`, `central`, `northern`, `northwestern`, `valencian`
 
-API response fields must stay aligned with `AccentOracleResult` in `accentOracleClient.ts`. Optional future field: `regionalHeatPoints` for finer maps. Optional `recordingId` is set by the API (and by mock with a client UUID).
+API response fields must stay aligned with `AccentOracleResult` in `accentOracleClient.ts`. Optional future field: `regionalHeatPoints` for finer maps. Optional `recordingId` is set by the API only when the client opts in to persistence (mock may still invent a client UUID).
+
+### `/analyze` persistence + load guards
+
+- FormData: required `audio`; optional `persist` — store audio + DB row + return `recordingId` **only** when `persist` is exactly `"1"`. Otherwise analyze ephemerally (temp file removed; no `recordingId`).
+- Encode concurrency: in-process slot limit (`ORACLE_ENCODE_CONCURRENCY`, default `1`) → HTTP 503 + `Retry-After` when full. HuBERT `extract_embedding` runs in `asyncio.to_thread`.
+- IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` (30/60s).
+- Audio caps: min 1.5 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 25) + 20 MB upload.
 
 ### Feedback + Manage My Data
 
@@ -39,7 +46,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - Self-report values: `balearic` \| `central` \| `northern` \| `northwestern` \| `valencian` \| `mixed` \| `unknown`.
 - `GET /client-info` → `{ ip, userAgent }` for the Manage My Data page (API mode).
 - UI: `ResultsFeedback` after the heatmap; footer link «Gestiona les meves dades» → `manage-data` phase.
-- Privacy contact in UI is a **placeholder**: `privacy@example.com` (clearly marked provisional). Deletion is email → manual soft-delete by ID, not an automated API in v1.
+- Privacy contact in UI is a **placeholder**: `privacy@example.com` (clearly marked provisional). Deletion is email → `python scripts/soft_delete_submission.py <uuid>`, not an automated API in v1.
 - Do not frame feedback or results as geographic origin detection.
 
 ## Safe edit boundaries
@@ -107,7 +114,8 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 
 From `backend/app.py`:
 
-- Min audio: 1.5 s; max upload: 20 MB.
+- Min audio: 1.5 s; max duration: 25 s (env `ORACLE_MAX_AUDIO_SECONDS`); max upload: 20 MB.
+- Encode concurrency default 1; analyze rate 10/min; feedback rate 30/min (see env knobs above).
 - `evidenceBand`: `limited` if top-two gap &lt; 0.08 or confidence &lt; 0.32; `strong` if gap &gt; 0.18 and confidence &gt; 0.48.
 - Frontend `needsValidation`: `limited` band or `isAmbiguousTopTwo` in API mode.
 

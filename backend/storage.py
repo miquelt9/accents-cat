@@ -123,6 +123,41 @@ def submission_exists(submission_id: str) -> bool:
     return row is not None
 
 
+def soft_delete_submission(submission_id: str) -> bool:
+    """Soft-delete a submission: set deleted_at and unlink (or zero) its audio.
+
+    Returns False if no row exists for ``submission_id``. Idempotent when already
+    soft-deleted (still attempts audio cleanup).
+    """
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT audio_path, deleted_at FROM submissions WHERE id = ?",
+            (submission_id,),
+        ).fetchone()
+        if row is None:
+            return False
+        audio_path_str, deleted_at = row
+        if deleted_at is None:
+            conn.execute(
+                "UPDATE submissions SET deleted_at = ? WHERE id = ?",
+                (_utc_now_iso(), submission_id),
+            )
+            conn.commit()
+
+    path = Path(audio_path_str)
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    if path.is_file():
+        try:
+            path.unlink()
+        except OSError:
+            try:
+                path.write_bytes(b"")
+            except OSError:
+                pass
+    return True
+
+
 def insert_feedback(
     *,
     recording_id: str | None,

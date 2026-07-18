@@ -86,6 +86,38 @@ def test_insert_feedback_links_when_submission_exists(isolated_storage: Path) ->
     assert row == (submission_id, 1, "central")
 
 
+def test_soft_delete_submission_sets_deleted_at_and_removes_audio(
+    isolated_storage: Path,
+) -> None:
+    submission_id, audio_path = storage.save_audio(b"to-delete", ".webm")
+    storage.insert_submission(
+        submission_id=submission_id,
+        ip="127.0.0.1",
+        user_agent="pytest",
+        audio_path=audio_path,
+        scores={"central": 1.0},
+        top_label="central",
+        evidence_band="moderate",
+    )
+    assert audio_path.exists()
+    assert storage.submission_exists(submission_id) is True
+
+    assert storage.soft_delete_submission(submission_id) is True
+    assert storage.submission_exists(submission_id) is False
+    assert not audio_path.exists()
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        deleted_at = conn.execute(
+            "SELECT deleted_at FROM submissions WHERE id = ?",
+            (submission_id,),
+        ).fetchone()[0]
+    assert deleted_at is not None
+
+    # Idempotent: already soft-deleted still succeeds
+    assert storage.soft_delete_submission(submission_id) is True
+    assert storage.soft_delete_submission("missing-id") is False
+
+
 def test_feedback_skips_missing_or_soft_deleted(isolated_storage: Path) -> None:
     missing_feedback = storage.insert_feedback(
         recording_id="does-not-exist",
@@ -110,12 +142,7 @@ def test_feedback_skips_missing_or_soft_deleted(isolated_storage: Path) -> None:
         top_label="valencian",
         evidence_band="limited",
     )
-    with sqlite3.connect(storage.DB_PATH) as conn:
-        conn.execute(
-            "UPDATE submissions SET deleted_at = ? WHERE id = ?",
-            ("2026-01-01T00:00:00+00:00", submission_id),
-        )
-        conn.commit()
+    assert storage.soft_delete_submission(submission_id) is True
 
     assert storage.submission_exists(submission_id) is False
     soft_deleted_feedback = storage.insert_feedback(
