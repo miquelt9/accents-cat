@@ -7,8 +7,10 @@ Run after scripts/build_oracle_linework_map.py (also invoked by that script):
   python3 scripts/snap_oracle_communities.py
 
 Steps:
-1. Idempotently nudge Catalunya-Nord / Andorra / València into Catalonia
-   (shapely nearest-points + slight overshoot so facing strokes sit closer)
+1. Idempotently nudge Catalunya-Nord / Andorra into Catalonia
+   (shapely nearest-points + slight overshoot so facing strokes sit closer).
+   País Valencià is left in source position — the cartographic gap to
+   Catalonia is intentional on the filled map and should not be closed.
 2. Refresh centroids in comarcaMapMeta.ts
 """
 
@@ -32,7 +34,7 @@ ET.register_namespace("", SVG_NS)
 
 TOKEN = re.compile(r"[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?")
 ISLANDS = {"mallorca", "menorca", "eivissa", "formentera", "cabrera"}
-FLOATING = ("catalunya-nord", "catalunya-nord-2", "andorra", "valencia")
+FLOATING = ("catalunya-nord", "catalunya-nord-2", "andorra")
 SNAP_ATTR = "data-oracle-snap"
 # Close remaining gap, then push a little past so double-strokes coincide.
 JOIN_EPS = 0.35
@@ -44,7 +46,6 @@ JOIN_BANDS: dict[str, tuple[float, float, float, float]] = {
     # x0, y0, x1, y1
     "catalunya-nord": (600.0, 180.0, 780.0, 250.0),
     "andorra": (540.0, 160.0, 620.0, 230.0),
-    "valencia": (350.0, 500.0, 430.0, 590.0),
 }
 
 
@@ -302,7 +303,6 @@ def compute_translates(
     targets: dict[str, list[tuple[float, float]]] = {
         "catalunya-nord": nord_pts,
         "andorra": polys.get("andorra", []),
-        "valencia": polys.get("valencia", []),
     }
 
     for key, pts in targets.items():
@@ -334,17 +334,12 @@ def compute_translates(
                 out[key] = (0.0, overshoot)
             elif key == "andorra":
                 out[key] = (0.15 * overshoot, overshoot)
-            elif key == "valencia":
-                out[key] = (overshoot * 0.35, -overshoot)
             else:
                 out[key] = (0.0, 0.0)
             continue
         ux, uy = dx / length, dy / length
         # Close remaining gap (if any), then slight overshoot so facing strokes coincide.
-        travel = max(0.0, dist) + overshoot
-        # Valencia's facing corridor can be ~15–20px; others stay modest.
-        travel_cap = 22.0 if key == "valencia" else 6.0
-        travel = min(travel, travel_cap)
+        travel = min(max(0.0, dist) + overshoot, 6.0)
         out[key] = (ux * travel, uy * travel)
 
     # Mirror nord translation onto the secondary piece.
@@ -422,13 +417,14 @@ def main() -> None:
     root = ET.parse(SVG_PATH).getroot()
     els, polys, _parent_map = collect(root)
 
-    # Undo any prior snap before measuring, so deltas are absolute from the baked build.
-    for slug in FLOATING:
-        if slug in els:
-            old = read_snap(els[slug])
+    # Undo any prior snap before measuring, so deltas are absolute from the baked
+    # build. Clear leftover attrs on former floaters (e.g. valencia) too.
+    for slug, el in list(els.items()):
+        old = read_snap(el)
+        if old != (0.0, 0.0) or el.get(SNAP_ATTR) is not None:
             if old != (0.0, 0.0):
-                prepend_translate(els[slug], -old[0], -old[1])
-                els[slug].attrib.pop(SNAP_ATTR, None)
+                prepend_translate(el, -old[0], -old[1])
+            el.attrib.pop(SNAP_ATTR, None)
 
     _, polys, _ = collect(root)
     translates = compute_translates(polys)

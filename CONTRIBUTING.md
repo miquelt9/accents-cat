@@ -10,7 +10,15 @@ This is a **research prototype**, not a production product. Small, focused PRs t
 cd web && npm install && npm run dev
 ```
 
-**API mode (real scores):** needs `models/cv26-hubert-svm-calibrated/` locally — ask the maintainer for a copy, or train via [docs/ML_PIPELINE.md](docs/ML_PIPELINE.md). Then start FastAPI and run the web app with `VITE_ACCENT_ORACLE_MODE=api`. Details in the README.
+**API mode (real scores):** download the classifier, then start FastAPI and run the web app with `VITE_ACCENT_ORACLE_MODE=api`:
+
+```bash
+mkdir -p models/cv26-hubert-svm-calibrated
+hf download miquelt-9/cv26-hubert-svm-calibrated \
+  --local-dir models/cv26-hubert-svm-calibrated
+```
+
+Or train via [docs/ML_PIPELINE.md](docs/ML_PIPELINE.md). Details in the README.
 
 Developer diagnostics (CPU hint, mock/API toggle, etc.) are off by default. Enable with `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1`.
 

@@ -59,7 +59,7 @@ export const COMARCA_MAP_META: ComarcaMapEntry[] = [
   { id: "comarca-eivissa", slug: "eivissa", dialectGroup: "ca-balear", macroDialect: "balearic", centroidX: 547.88, centroidY: 856.01 },
   { id: "comarca-cabrera", slug: "cabrera", dialectGroup: "ca-balear", macroDialect: "balearic", centroidX: 764.90, centroidY: 826.85 },
   { id: "comarca-formentera", slug: "formentera", dialectGroup: "ca-balear", macroDialect: "balearic", centroidX: 555.09, centroidY: 908.52 },
-  { id: "comarca-valencia", slug: "valencia", dialectGroup: "ca-valencia", macroDialect: "valencian", centroidX: 272.15, centroidY: 754.73 },
+  { id: "comarca-valencia", slug: "valencia", dialectGroup: "ca-valencia", macroDialect: "valencian", centroidX: 264.43, centroidY: 772.18 },
   { id: "comarca-andorra", slug: "andorra", dialectGroup: "ca-nwestern", macroDialect: "northwestern", centroidX: 572.80, centroidY: 187.26 },
   { id: "comarca-ardemuz", slug: "ardemuz", dialectGroup: "ca-nwestern", macroDialect: "northwestern", centroidX: 163.72, centroidY: 653.57 },
 ];

@@ -36,11 +36,17 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
    pip install -r requirements.txt
    ```
 
-2. **Model artifact** — **not in git** (`models/` is gitignored). Collaborators should either:
-   - Ask the repo owner for a copy of `models/cv26-hubert-svm-calibrated/` (`model.joblib` + `metadata.json` — small joblib artifact), or
-   - Train their own via [docs/ML_PIPELINE.md](docs/ML_PIPELINE.md).
+2. **Model artifact** — **not in git** (`models/` is gitignored). After step 1, `hf` is available via `huggingface_hub`. Download the published classifier ([`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated)):
 
-   On first inference, Transformers downloads **HuBERT** (`BSC-LT/hubert-base-ca-2k`) from Hugging Face into the local cache. The first `POST /analyze` on CPU is slow (model load); later requests are faster.
+   ```bash
+   mkdir -p models/cv26-hubert-svm-calibrated
+   hf download miquelt-9/cv26-hubert-svm-calibrated \
+     --local-dir models/cv26-hubert-svm-calibrated
+   ```
+
+   That pulls `model.joblib` + `metadata.json` (~225 KB; Hub may also drop a model-card `README.md` in the same folder — fine to keep). Alternatively, train your own via [docs/ML_PIPELINE.md](docs/ML_PIPELINE.md).
+
+   On first inference, Transformers downloads **HuBERT** (`BSC-LT/hubert-base-ca-2k`) into the local HF cache (~hundreds of MB). The first `POST /analyze` on CPU is slow (model load); later requests are faster.
 
 3. **Start the API:**
 
@@ -104,7 +110,7 @@ In API mode, low-confidence or ambiguous top-two results trigger an optional **v
 | Macro F1 | ~51% | ~50% |
 | Top-2 accuracy | ~72% | ~70% |
 
-Encoder: `BSC-LT/hubert-base-ca-2k`. Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)`. Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
+Encoder: `BSC-LT/hubert-base-ca-2k`. Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)` — published at [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated). Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
 
 **Speaker scarcity:** the balanced set is capped by the **northern** dialect (~96 usable speakers after benchmark holdout), while central has thousands. Consenting user recordings plus self-reported dialect labels (via post-result feedback) are the main path to more speaker diversity beyond CV26.
 
@@ -127,7 +133,7 @@ proj-accents/
 └── models/              # Local only (gitignored): joblib artifacts
 ```
 
-Large artifacts (`data/`, `embeddings/`, `models/`, `*.tar.gz`, `*.zip`) stay out of git. Regenerate from manifests and scripts.
+Large artifacts (`data/`, `embeddings/`, `models/`, `*.tar.gz`, `*.zip`) stay out of git. The inference classifier is published on Hugging Face (see Quick start); training data/embeddings are regenerated from manifests and scripts.
 
 ## ML & dataset work
 
@@ -167,7 +173,7 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for a short contributor checklist. Su
 | Path | What you need |
 | --- | --- |
 | **Mock-first** | `cd web && npm install && npm run dev` — no backend or model |
-| **API mode** | Python venv + `models/cv26-hubert-svm-calibrated/` (from owner or train) + uvicorn + `VITE_ACCENT_ORACLE_MODE=api` |
+| **API mode** | Python venv + `hf download miquelt-9/cv26-hubert-svm-calibrated --local-dir models/cv26-hubert-svm-calibrated` + uvicorn + `VITE_ACCENT_ORACLE_MODE=api` |
 | **Dev UI** | `?dev=1` or `VITE_ACCENT_ORACLE_DEV=1` — CPU hint, mock/API toggle, validation internals |
 
 License: [AGPL-3.0](LICENSE). Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/).

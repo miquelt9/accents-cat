@@ -201,6 +201,8 @@ Artifact paths:
 - `models/cv26-hubert-svm-calibrated/model.joblib`
 - `models/cv26-hubert-svm-calibrated/metadata.json`
 
+Published copy (for local API without retraining): [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) — `hf download miquelt-9/cv26-hubert-svm-calibrated --local-dir models/cv26-hubert-svm-calibrated`.
+
 External benchmark: [`reports/aina_benchmark_evaluation.md`](../reports/aina_benchmark_evaluation.md).
 
 ## Script word candidates

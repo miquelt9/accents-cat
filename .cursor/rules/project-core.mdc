@@ -12,7 +12,7 @@ Research prototype: read-aloud Catalan → five macro-dialect similarity scores 
 - `web/` — React UI (Catalan copy)
 - `backend/app.py` — FastAPI inference
 - `scripts/` — ML pipeline
-- `models/`, `data/`, `embeddings/` — gitignored local artifacts
+- `models/`, `data/`, `embeddings/` — gitignored local artifacts; classifier: `hf download miquelt-9/cv26-hubert-svm-calibrated --local-dir models/cv26-hubert-svm-calibrated`
 
 ## Dialect labels (fixed order)
 
