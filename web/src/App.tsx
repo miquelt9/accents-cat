@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
-import { ResultsFeedback } from "./components/ResultsFeedback";
-import { ResultsResearchConsent } from "./components/ResultsResearchConsent";
+import { ResultsConsentFeedback } from "./components/ResultsConsentFeedback";
 import {
   DIALECT_ZONE_LABELS,
   getAccentOracleClient,
@@ -72,13 +71,60 @@ function App() {
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
   const [activePrompt, setActivePrompt] = useState<ReadAloudPrompt | null>(null);
   const [primaryPromptId, setPrimaryPromptId] = useState<string | null>(null);
+  const [preConsented, setPreConsented] = useState(false);
+  const [researchRetained, setResearchRetained] = useState(false);
+  const leavePurgeRef = useRef({ phase, result, researchRetained, accentOracleMode });
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  useEffect(() => {
+    leavePurgeRef.current = { phase, result, researchRetained, accentOracleMode };
+  }, [phase, result, researchRetained, accentOracleMode]);
+
+  useEffect(() => {
+    function purgePendingOnLeave() {
+      const { phase: currentPhase, result: currentResult, researchRetained: retained, accentOracleMode: mode } =
+        leavePurgeRef.current;
+      if (currentPhase !== "results" || retained || mode !== "api" || !currentResult?.recordingId) {
+        return;
+      }
+      void submitResearchConsent({ recordingId: currentResult.recordingId, consent: false }).catch(() => {
+        // Best-effort purge when the user abandons results without opting in.
+      });
+    }
+
+    function handlePageHide() {
+      purgePendingOnLeave();
+    }
+
+    window.addEventListener("pagehide", handlePageHide);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        purgePendingOnLeave();
+      }
+    });
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, []);
+
+  function declinePendingRecording(recordingId: string | undefined) {
+    if (!recordingId || accentOracleMode !== "api" || researchRetained) {
+      return;
+    }
+    void submitResearchConsent({ recordingId, consent: false }).catch(() => {
+      // Best-effort purge of pending audio when research was not retained.
+    });
+  }
+
   function openOverlay(next: AppPhase) {
+    if (phase === "results" && next !== "privacy" && next !== "terms") {
+      declinePendingRecording(result?.recordingId);
+    }
     setReturnPhase(OVERLAY_PHASES.has(phase) ? returnPhase : phase);
     setPhase(next);
   }
@@ -92,6 +138,7 @@ function App() {
   }
 
   function resetFlow() {
+    declinePendingRecording(result?.recordingId);
     setPhase("landing");
     setReturnPhase("landing");
     setResult(null);
@@ -101,6 +148,8 @@ function App() {
     setKeptFirstResult(false);
     setActivePrompt(null);
     setPrimaryPromptId(null);
+    setPreConsented(false);
+    setResearchRetained(false);
   }
 
   function startRecording() {
@@ -198,7 +247,8 @@ function App() {
     setPhase("results");
   }
 
-  const showPrivacyFooter = phase === "landing" || phase === "results";
+  const showPrivacyFooter =
+    phase === "landing" || phase === "recording" || phase === "validation" || phase === "results";
   const analysisStatusText =
     accentOracleMode === "api" && devToolsEnabled
       ? "Analitzant la mostra… La inferència pot trigar una mica en CPU."
@@ -243,6 +293,24 @@ function App() {
             <button className="primary hero-link" onClick={startRecording} type="button">
               Descobreix el resultat
             </button>
+            <label className="research-consent-check landing-preconsent">
+              <input
+                checked={preConsented}
+                onChange={(event) => setPreConsented(event.target.checked)}
+                type="checkbox"
+              />
+              <span>
+                Tinc 18 anys o més i accepto desar la meva gravació per a recerca, sense compte (opcional).
+              </span>
+            </label>
+            <p className="landing-hint">
+              Si ho marques, podem guardar l&apos;àudio i metadades (incloent-hi l&apos;IP) per entrenar models.
+              Detalls a la{" "}
+              <button className="privacy-link legal-inline-link" onClick={() => openLegalDoc("privacy")} type="button">
+                Política de privadesa
+              </button>
+              .
+            </p>
           </div>
         </section>
       )}
@@ -254,21 +322,24 @@ function App() {
               <>
                 <p className="eyebrow">Segona mostra</p>
                 <h2>No n&apos;hem prou segur — volem una segona mostra</h2>
-                {pendingResult && (
+                {devToolsEnabled && pendingResult && (
                   <p className="validation-note">
-                    Les zones més properes són{" "}
-                    <strong>{DIALECT_ZONE_LABELS[pendingResult.topLabel]}</strong> i{" "}
-                    <strong>{DIALECT_ZONE_LABELS[pendingResult.runnerUpLabel]}</strong>. Una segona lectura
-                    pot ajudar a afinar el resultat.
+                    <span className="dev-only-hint">*dev mode</span> Les zones més properes són{" "}
+                    <strong>{DIALECT_ZONE_LABELS[pendingResult.topLabel]}</strong> (
+                    {Math.round(pendingResult.scores[pendingResult.topLabel] * 100)}%) i{" "}
+                    <strong>{DIALECT_ZONE_LABELS[pendingResult.runnerUpLabel]}</strong> (
+                    {Math.round(pendingResult.scores[pendingResult.runnerUpLabel] * 100)}%).
                   </p>
                 )}
                 <p className="read-instruction">Llegeix aquest text en veu alta</p>
                 <blockquote>{activePrompt.text}</blockquote>
-                <div className="validation-actions">
-                  <button className="secondary" disabled={isAnalyzing} onClick={skipValidation} type="button">
-                    Mostra el resultat igualment
-                  </button>
-                </div>
+                {devToolsEnabled && (
+                  <div className="validation-actions">
+                    <button className="secondary" disabled={isAnalyzing} onClick={skipValidation} type="button">
+                      <span className="dev-only-hint">*dev mode</span> Mostra el resultat igualment
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -276,29 +347,6 @@ function App() {
                 <p className="read-instruction">Llegeix aquest text en veu alta</p>
                 <blockquote>{activePrompt.text}</blockquote>
               </>
-            )}
-
-            {accentOracleMode === "api" && (
-              <p className="recording-privacy-note">
-                L&apos;àudio s&apos;analitza al servidor a Espanya. No es desa per a entrenament tret que ho
-                acceptis després del resultat, d&apos;acord amb la{" "}
-                <button
-                  className="privacy-link legal-inline-link"
-                  onClick={() => openLegalDoc("privacy")}
-                  type="button"
-                >
-                  Política de privadesa
-                </button>{" "}
-                i els{" "}
-                <button
-                  className="privacy-link legal-inline-link"
-                  onClick={() => openLegalDoc("terms")}
-                  type="button"
-                >
-                  Termes d&apos;ús
-                </button>
-                .
-              </p>
             )}
 
             <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
@@ -317,15 +365,17 @@ function App() {
         <>
           {devToolsEnabled && keptFirstResult && (
             <p className="validation-kept-note">
-              La segona mostra no ha millorat la confiança; mostrem el resultat de la primera lectura.
+              <span className="dev-only-hint">*dev mode</span> La segona mostra no ha millorat la
+              confiança; mostrem el resultat de la primera lectura.
             </p>
           )}
           <ResultsMapStage scores={result.scores} />
-          <ResultsResearchConsent
+          <ResultsConsentFeedback
+            preConsented={preConsented}
             recordingId={result.recordingId}
             onOpenLegalDoc={openLegalDoc}
+            onResearchRetained={() => setResearchRetained(true)}
           />
-          <ResultsFeedback recordingId={result.recordingId} />
           <button className="secondary restart-button" onClick={resetFlow} type="button">
             Torna a començar
           </button>

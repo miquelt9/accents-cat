@@ -104,9 +104,31 @@ def test_confirm_research_consent(isolated_storage: Path) -> None:
 
 def test_decline_research_consent_removes_audio(isolated_storage: Path) -> None:
     submission_id, audio_path = _insert_sample()
+    feedback_id = storage.insert_feedback(
+        recording_id=submission_id,
+        was_correct=False,
+        self_reported_dialect="valencian",
+        notes="free-text note",
+    )
+
     assert storage.decline_research_consent(submission_id) is True
     assert storage.submission_exists(submission_id) is False
     assert not audio_path.exists()
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        feedback = conn.execute(
+            "SELECT submission_id, notes, self_reported_dialect, was_correct "
+            "FROM feedback WHERE id = ?",
+            (feedback_id,),
+        ).fetchone()
+    assert feedback == (None, None, "valencian", 0)
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        path_row = conn.execute(
+            "SELECT audio_path FROM submissions WHERE id = ?",
+            (submission_id,),
+        ).fetchone()
+    assert path_row == ("",)
 
 
 def test_insert_feedback_links_when_submission_exists(isolated_storage: Path) -> None:
@@ -223,6 +245,12 @@ def test_feedback_skips_missing_or_soft_deleted(isolated_storage: Path) -> None:
 
 def test_purge_expired_pending(isolated_storage: Path) -> None:
     submission_id, audio_path = _insert_sample()
+    feedback_id = storage.insert_feedback(
+        recording_id=submission_id,
+        was_correct=True,
+        self_reported_dialect="central",
+        notes="ttl note",
+    )
     past = (datetime.now(timezone.utc) - timedelta(hours=1)).replace(microsecond=0).isoformat()
     with sqlite3.connect(storage.DB_PATH) as conn:
         conn.execute(
@@ -235,6 +263,48 @@ def test_purge_expired_pending(isolated_storage: Path) -> None:
     assert storage.submission_exists(submission_id) is False
     assert not audio_path.exists()
     assert storage.confirm_research_consent(submission_id, policy_version="v") is False
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        feedback = conn.execute(
+            "SELECT submission_id, notes, self_reported_dialect, was_correct "
+            "FROM feedback WHERE id = ?",
+            (feedback_id,),
+        ).fetchone()
+    assert feedback == (None, None, "central", 1)
+
+
+def test_purge_expired_research_consent(isolated_storage: Path) -> None:
+    submission_id, audio_path = _insert_sample()
+    assert storage.confirm_research_consent(submission_id, policy_version="v1") is True
+    storage.insert_feedback(
+        recording_id=submission_id,
+        was_correct=True,
+        self_reported_dialect="northern",
+        notes="keep-me-not",
+    )
+
+    old = (datetime.now(timezone.utc) - timedelta(days=365 * 4)).replace(microsecond=0).isoformat()
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        conn.execute(
+            "UPDATE submissions SET consent_at = ? WHERE id = ?",
+            (old, submission_id),
+        )
+        conn.commit()
+
+    assert storage.purge_expired_research_consent() == 1
+    assert storage.submission_exists(submission_id) is False
+    assert not audio_path.exists()
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        row = conn.execute(
+            "SELECT ip, user_agent, audio_path, research_consent FROM submissions WHERE id = ?",
+            (submission_id,),
+        ).fetchone()
+        feedback = conn.execute(
+            "SELECT submission_id, was_correct, self_reported_dialect, notes FROM feedback",
+        ).fetchone()
+    assert row == (None, None, "", 0)
+    assert feedback == (None, None, None, None)
 
 
 def test_ensure_storage_adds_prompt_and_consent_columns_to_legacy_db(

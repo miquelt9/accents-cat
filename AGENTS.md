@@ -35,7 +35,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 
 ### `/analyze` storage + load guards
 
-- FormData: required `audio`; optional `promptId` / `promptText` (web always sends both; max 64 / 500 chars). Successful analyzes write a **pending** audio + DB row (including prompt fields) and return `recordingId`. Pending rows expire (`ORACLE_PENDING_CONSENT_TTL_SECONDS`, default 1800). Recording UI discloses Spain-hosted analysis; **research retention** is opt-in on the results screen (`ResultsResearchConsent`).
+- FormData: required `audio`; optional `promptId` / `promptText` (web always sends both; max 64 / 500 chars). Successful analyzes write a **pending** audio + DB row (including prompt fields) and return `recordingId`. Pending rows expire (`ORACLE_PENDING_CONSENT_TTL_SECONDS`, default 1800). **Research retention** is opt-in via landing pre-consent (auto-promote on results) or the results progressive funnel (`ResultsConsentFeedback`); footer links cover Privadesa / Termes on landing, recording, validation, and results.
 - `POST /research-consent` body: `{ recordingId, consent, ageConfirmed?, policyVersion? }` → promotes pending → `research_consent=1` (+ `consent_at`, `policy_version`) or soft-deletes on decline. Train later **only** on `research_consent=1 AND deleted_at IS NULL`.
 - Encode concurrency: in-process slot limit (`ORACLE_ENCODE_CONCURRENCY`, default `1`) → HTTP 503 + `Retry-After` when full. HuBERT `extract_embedding` runs in `asyncio.to_thread`.
 - IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` and `/research-consent` (30/60s). Set `ORACLE_TRUST_PROXY=1` behind a reverse proxy so `X-Forwarded-For` is used for IP.
@@ -46,11 +46,13 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - `POST /feedback` body: `{ recordingId, wasCorrect: boolean | null, selfReportedDialect?, notes? }` → `{ feedbackId }`.
 - Self-report values: `balearic` \| `central` \| `northern` \| `northwestern` \| `valencian` \| `mixed` \| `unknown`.
 - `GET /client-info` → `{ ip, userAgent }` for the Manage My Data page (API mode).
-- UI: `ResultsResearchConsent` then `ResultsFeedback` after the heatmap; footer link «Gestiona les meves dades» → `manage-data` phase. Ledger lists only recordings the user opted to store for research.
-- Soft-delete scrubs IP / User-Agent / prompt / scores, clears consent fields, removes audio, and clears linked feedback fields.
-- Privacy contact + controller name come from build env: `VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME` ([`web/.env.example`](web/.env.example)). Until set, UI shows provisional `privacy@example.com`. Deletion is email → `python scripts/soft_delete_submission.py <uuid>`, not an automated API in v1.
+- UI: `ResultsConsentFeedback` after the heatmap — landing pre-consent auto-promotes pending audio; otherwise Sí/No → dialect if No → research opt-in → feedback then consent; leaving results without retention declines pending audio (API mode). Footer link «Gestiona les meves dades» → `manage-data` phase. Ledger lists only recordings the user opted to store for research.
+- Soft-delete (operator / Manage My Data) scrubs IP / User-Agent / prompt / scores, clears consent fields, clears `audio_path`, removes audio, and clears linked feedback fields. Decline / pending TTL purge also scrub IP/UA/audio but **keep** feedback calibration (`was_correct`, `self_reported_dialect`) while **unlinking** `submission_id` (no join to the tombstone).
+- Research-consented rows keep **IP + User-Agent with the audio** for later training and coarse IP geolocation (not anonymity). Train filter: `research_consent=1 AND deleted_at IS NULL`.
+- Retention: max ~3 years from consent (`ORACLE_RESEARCH_RETENTION_YEARS`, default 3). Operator purge: `python scripts/purge_expired_research.py`. Per-ID delete: `python scripts/soft_delete_submission.py <uuid>`.
+- Privacy contact + controller name come from build env: `VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME` ([`web/.env.example`](web/.env.example)). Until set, UI shows provisional `privacy@example.com`. Deletion is email → soft-delete script, not an automated API in v1.
 - In-app Catalan **Política de privadesa** / **Termes d'ús**: [`web/src/lib/legalDocs.ts`](web/src/lib/legalDocs.ts) (`LEGAL_POLICY_VERSION` must match backend `ORACLE_POLICY_VERSION` / default). Not legal advice; set contact + controller name before public launch.
-- Do not frame feedback or results as geographic origin detection.
+- Do not frame feedback or results as geographic origin detection; IP geolocation for corpus context is disclosed separately in Privadesa.
 
 ## Safe edit boundaries
 
@@ -149,8 +151,9 @@ Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts
 
 1. Set `VITE_PRIVACY_EMAIL` + `VITE_CONTROLLER_NAME` and rebuild the web app; confirm Privadesa no longer says «provisional».
 2. Host API + data in Spain / EEE; set `ORACLE_TRUST_PROXY=1` if TLS terminates in front of uvicorn; optionally name the VPS provider in the privacy «Encàrrecs» section.
-3. Smoke-test: analyze without opt-in → after decline or TTL, no audio file; opt-in → `research_consent=1` + `consent_at` + `policy_version`.
+3. Smoke-test: analyze without opt-in → after decline or TTL, no audio file; opt-in → `research_consent=1` + `consent_at` + `policy_version` (IP retained with audio).
 4. Soft-delete a test UUID → audio gone, IP/UA/scores scrubbed.
-5. Optional: short review with a Spanish privacy lawyer before going viral.
+5. Optional: run `python scripts/purge_expired_research.py --dry-run` after setting old `consent_at` in a test DB.
+6. Optional: short review with a Spanish privacy lawyer before going viral.
 
 When unsure about linguistic labeling policy, read `reports/cv26_label_strategy_audit.json` before changing manifest builders.

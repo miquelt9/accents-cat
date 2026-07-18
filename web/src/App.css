@@ -283,8 +283,28 @@ h2 {
   margin: 0;
 }
 
+.landing-preconsent {
+  margin-top: 1rem;
+  max-width: 36rem;
+}
+
+.consent-saved-banner {
+  background: var(--success-bg, color-mix(in srgb, var(--accent) 12%, transparent));
+  border: 1px solid var(--success-border, color-mix(in srgb, var(--accent) 28%, transparent));
+}
+
+.consent-saved-banner p:last-child {
+  margin: 0;
+}
+
 .validation-note {
   margin-top: 0.75rem;
+}
+
+.dev-only-hint {
+  color: var(--text-muted);
+  font-size: 0.88em;
+  font-weight: 600;
 }
 
 .validation-actions {
@@ -475,13 +495,6 @@ h2 {
 
 .prompt-card .recorder-panel {
   margin-top: 1.5rem;
-}
-
-.recording-privacy-note {
-  color: var(--text-secondary);
-  font-size: 0.92rem;
-  line-height: 1.45;
-  margin: 1.25rem 0 0;
 }
 
 .recorder-panel {

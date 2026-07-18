@@ -52,17 +52,20 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Quines dades recollim",
         paragraphs: [
-          "En mode API, quan envies una gravació per analitzar-la, el servidor la processa temporalment per calcular les puntuacions. Si després del resultat acceptes desar-la per a recerca, podem conservar: l'arxiu d'àudio (dada personal; la veu pot permetre identificar o reconèixer una persona), la data, l'adreça IP, el User-Agent del navegador, les puntuacions del model, la versió de la política acceptada i, si n'envies, el comentari o l'autoidentificació dialectal.",
-          "Si no acceptes el desament per a recerca (o deixa caducar el termini), esborrem l'àudio pendent i no l'utilitzem per a entrenament.",
+          "En mode API, quan envies una gravació per analitzar-la, el servidor la processa temporalment per calcular les puntuacions. Pots donar el consentiment per desar-la per a recerca de dues maneres: (a) abans d'enregistrar, mitjançant una casella a la pantalla inicial; o (b) després de veure el resultat, en un flux progressiu que pot incloure una pregunta de feedback abans de l'opció de desament.",
+          "Si acceptes el desament per a recerca (per qualsevol d'aquestes vies), podem conservar: l'arxiu d'àudio (dada personal; la veu pot permetre identificar o reconèixer una persona), la data, l'adreça IP, el User-Agent del navegador, les puntuacions del model, la versió de la política acceptada i les metadades de feedback associades a la gravació mitjançant un identificador de gravació. L'IP es conserva juntament amb l'àudio per a la recerca (incloent-hi una localització aproximada i gruixuda derivada de l'IP, no una adreça precisa ni el lloc de naixement).",
+          "Al flux de resultats, pots indicar si consideres que l'estimació ha encertat o no, i —si indiques que no l'hem encertat— la zona macrodialectal amb què t'autoidentifiques (balear, central, septentrional, nord-occidental, valencià, mixt o desconegut). Aquesta informació serveix per calibrar el model i es tracta com a similitud acústica amb una zona dialectal, no com a prova d'origen geogràfic ni de residència. També pots afegir un comentari opcional.",
+          "Si no acceptes el desament per a recerca, esborrem l'àudio pendent immediatament quan ho indiquis explícitament a la pantalla de resultats (o en sortir sense haver optat per desar-la), i esborrem també l'IP i el User-Agent d'aquella fila. Les respostes de feedback que hagis enviat es poden conservar sense enllaç a la gravació (sense identificador de gravació) per a calibratge agregat del model; no utilitzem l'àudio per a entrenament.",
           "En mode mock (simulació local), l'àudio no s'envia a un servidor d'aquest projecte; només es processa al teu navegador amb resultats ficticis.",
-          "No demanem nom, correu electrònic ni creació de compte per utilitzar l'oracle.",
+          "No demanem nom, correu electrònic ni creació de compte per utilitzar l'oracle. El tractament amb consentiment de recerca és pseudònim (identificador de gravació), no anònim.",
         ],
       },
       {
         heading: "Per a què les fem servir",
         paragraphs: [
           "Per retornar-te una estimació de similitud acústica amb cinc zones macrodialectals catalanes (tractament transitori necessari per prestar el servei que demanes).",
-          "Només si ho acceptes explícitament després del resultat: per millorar el model i la recerca (avaluació, calibratge i entrenament futur), sempre tractant el resultat com a similitud acústica i no com a origen geogràfic ni identitat.",
+          "Al flux de resultats, per calibrar el model amb les teves respostes sobre l'encert de l'estimació i, si escau, la zona macrodialectal autoinformada, sempre com a similitud acústica i no com a origen geogràfic ni identitat.",
+          "Només si ho acceptes explícitament (a la pantalla inicial o al flux de resultats): per emmagatzemar l'àudio, l'IP, el User-Agent i metadades associades per a recerca i entrenament futur del prototip, incloent-hi l'ús de l'IP per inferir una localització aproximada (gruixuda) que ajudi a contextualitzar el corpus geogràficament. Això no equival a determinar el teu lloc de naixement ni la teva identitat dialectal personal.",
           "Per atendre sol·licituds de gestió o supressió de dades.",
         ],
       },
@@ -70,14 +73,16 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
         heading: "Base jurídica",
         paragraphs: [
           "L'anàlisi puntual (sense desament per a entrenament) es fa per prestar el servei que sol·licites en enviar la gravació (art. 6.1.b RGPD) i, quan correspongui, amb el teu consentiment a utilitzar el prototip.",
-          "El desament de l'àudio i metadades per a recerca i entrenament es basa en el teu consentiment explícit i específic (art. 6.1.a RGPD), mitjançant l'opció que apareix després del resultat. Pots retirar-lo demanant la supressió; això no afectarà la licitud del tractament anterior.",
+          "El desament de l'àudio, l'IP i metadades per a recerca i entrenament (incloent-hi la localització aproximada derivada de l'IP) es basa en el teu consentiment explícit i específic (art. 6.1.a RGPD), mitjançant la casella de la pantalla inicial o l'opció de desament del flux progressiu de resultats (després del feedback, si escau). Pots retirar-lo demanant la supressió; això no afectarà la licitud del tractament anterior.",
+          "Les respostes de feedback dialectal al flux de resultats (encert i correcció de zona macrodialectal) es basen en el teu consentiment explícit en participar-hi (art. 6.1.a RGPD). Si també acceptes el desament de l'àudio, el feedback queda associat a la gravació mitjançant l'identificador de gravació.",
         ],
       },
       {
         heading: "Conservació i seguretat",
         paragraphs: [
-          "Les gravacions pendents de consentiment es conserven un temps curt (per defecte fins a 30 minuts) perquè puguis acceptar o rebutjar el desament després de veure el resultat; després s'esborren.",
-          "Si acceptes la recerca, conservem l'àudio i metadades mentre el prototip de recerca estigui actiu, amb un màxim de 3 anys des del consentiment, o fins que atenguem una sol·licitud de supressió, llevat d'obligacions legals de conservació.",
+          "Les gravacions pendents de consentiment es guarden temporalment al servidor mentre decideixes. Si rebutges explícitament el desament a la pantalla de resultats, o surts sense haver optat per desar-la, esborrem l'àudio immediatament de l'emmagatzematge temporal i esborrem l'IP i el User-Agent d'aquella fila.",
+          "Si abandones la sessió sense prendre una decisió, l'àudio pendent s'esborra automàticament al cap d'un termini curt (per defecte fins a 30 minuts). Aquesta finestra només és una mesura de seguretat per a sessions abandonades, no un període de retenció actiu.",
+          "Si acceptes la recerca, conservem l'àudio, l'IP i metadades mentre el prototip de recerca estigui actiu, amb un màxim de 3 anys des del consentiment, o fins que atenguem una sol·licitud de supressió, llevat d'obligacions legals de conservació. Passat aquest termini, es poden esborrar amb l'eina d'operador de retenció.",
           "Apliquem mesures tècniques i organitzatives raonables per a un prototip de recerca (accés restringit al servidor i esborrat manual per identificador). No prometem el mateix nivell de controls que un servei comercial certificat.",
         ],
       },
@@ -99,13 +104,13 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Menors",
         paragraphs: [
-          "El servei està pensat per a persones de 18 anys o més. Per desar una gravació per a recerca cal confirmar l'edat. No recollim dades de menors de forma intencionada.",
+          "El servei està pensat per a persones de 18 anys o més. Per desar una gravació per a recerca cal confirmar l'edat, ja sigui a la casella de la pantalla inicial o en el flux de resultats. No recollim dades de menors de forma intencionada.",
         ],
       },
       {
         heading: "Canvis",
         paragraphs: [
-          "Podem actualitzar aquesta política. La data d'entrada en vigor figura al capdamunt. L'ús continuat del servei després d'un canvi implica que has pogut revisar la versió actual; el consentiment de recerca es demana de nou per a cada gravació que vulguis desar.",
+          "Podem actualitzar aquesta política. La data d'entrada en vigor figura al capdamunt. L'ús continuat del servei després d'un canvi implica que has pogut revisar la versió actual; el consentiment de recerca es demana de nou per a cada gravació que vulguis desar, tant si optes a la pantalla inicial com al flux de resultats.",
         ],
       },
     ],
@@ -128,14 +133,14 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Edat",
         paragraphs: [
-          "Has de tenir com a mínim 18 anys per utilitzar el servei. El desament per a recerca requereix una confirmació explícita d'edat.",
+          "Has de tenir com a mínim 18 anys per utilitzar el servei. El desament per a recerca requereix una confirmació explícita d'edat, ja sigui mitjançant la casella de la pantalla inicial o en el flux de resultats.",
         ],
       },
       {
         heading: "Gravacions i llicència de recerca",
         paragraphs: [
-          "En mode API, l'àudio s'envia al servidor a Espanya per analitzar-lo. El desament durable per a recerca i entrenament només es fa si ho acceptes explícitament després de veure el resultat, d'acord amb la Política de privadesa i el RGPD/LOPDGDD.",
-          "Si acceptes, conserves els drets sobre la teva veu i ens atorgues una llicència no exclusiva, gratuïta i mundial per emmagatzemar, processar i utilitzar aquesta gravació i el feedback associat amb finalitats de recerca i millora del prototip (incloent-hi entrenar i publicar models o embeddings derivats). No venem l'àudio en brut. No publiquem l'àudio original sense una decisió addicional i avís.",
+          "En mode API, l'àudio s'envia al servidor a Espanya per analitzar-lo. El desament durable per a recerca i entrenament només es fa si ho acceptes explícitament: mitjançant la casella de la pantalla inicial abans d'enregistrar, o mitjançant l'opció de desament del flux progressiu de resultats (després del feedback, si escau), d'acord amb la Política de privadesa i el RGPD/LOPDGDD.",
+          "Si acceptes, conserves els drets sobre la teva veu i ens atorgues una llicència no exclusiva, gratuïta i mundial per emmagatzemar, processar i utilitzar aquesta gravació, l'adreça IP associada (incloent-hi una localització aproximada derivada de l'IP) i el feedback dialectal associat (incloent-hi correccions de zona macrodialectal i comentaris opcionals) amb finalitats de recerca i millora del prototip, incloent-hi l'entrenament i la publicació de models o embeddings derivats de codi obert. No venem l'àudio en brut. No publiquem l'àudio original sense una decisió addicional i avís.",
           "Pots demanar la supressió seguint el procediment de «Gestiona les meves dades».",
         ],
       },

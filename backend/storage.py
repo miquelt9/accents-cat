@@ -253,8 +253,13 @@ def confirm_research_consent(submission_id: str, *, policy_version: str) -> bool
 
 
 def decline_research_consent(submission_id: str) -> bool:
-    """User declined research storage: soft-delete pending audio + scrub PII."""
-    return soft_delete_submission(submission_id)
+    """User declined research storage: purge pending audio + scrub submission PII.
+
+    Linked feedback keeps calibration fields (``was_correct``,
+    ``self_reported_dialect``) but is unlinked from the tombstone
+    (``submission_id`` cleared). Free-text ``notes`` are cleared.
+    """
+    return _soft_delete_submission(submission_id, scrub_feedback_calibration=False)
 
 
 def purge_expired_pending() -> int:
@@ -276,16 +281,65 @@ def purge_expired_pending() -> int:
         ids = [row[0] for row in rows]
 
     for submission_id in ids:
+        if _soft_delete_submission(submission_id, scrub_feedback_calibration=False):
+            purged += 1
+    return purged
+
+
+RESEARCH_RETENTION_YEARS = max(
+    1,
+    int(os.environ.get("ORACLE_RESEARCH_RETENTION_YEARS", "3")),
+)
+
+
+def purge_expired_research_consent() -> int:
+    """Full soft-delete research rows past the retention window (default 3 years).
+
+    Uses ``consent_at`` when set, otherwise ``created_at``. Scrubs IP/UA/audio and
+    feedback content (same as operator soft-delete). Returns count purged.
+    """
+    ensure_storage()
+    cutoff = (_utc_now() - timedelta(days=365 * RESEARCH_RETENTION_YEARS)).isoformat()
+    purged = 0
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT id FROM submissions
+            WHERE deleted_at IS NULL
+              AND research_consent = 1
+              AND COALESCE(consent_at, created_at) <= ?
+            """,
+            (cutoff,),
+        ).fetchall()
+        ids = [row[0] for row in rows]
+
+    for submission_id in ids:
         if soft_delete_submission(submission_id):
             purged += 1
     return purged
 
 
 def soft_delete_submission(submission_id: str) -> bool:
-    """Soft-delete a submission: scrub PII, remove audio, clear linked feedback.
+    """Operator/Manage My Data deletion: full scrub including feedback content.
 
     Returns False if no row exists for ``submission_id``. Idempotent when already
     soft-deleted (still attempts audio cleanup).
+    """
+    return _soft_delete_submission(submission_id, scrub_feedback_calibration=True)
+
+
+def _soft_delete_submission(
+    submission_id: str,
+    *,
+    scrub_feedback_calibration: bool,
+) -> bool:
+    """Soft-delete a submission: scrub PII and remove audio.
+
+    When ``scrub_feedback_calibration`` is False (decline / TTL purge), linked
+    feedback keeps ``was_correct`` and ``self_reported_dialect``, clears
+    ``notes``, and sets ``submission_id`` to NULL. When True (operator delete),
+    all feedback fields are cleared and ``submission_id`` is unlinked.
+    Always clears the ``audio_path`` string to empty after unlinking the file.
     """
     with _connect() as conn:
         row = conn.execute(
@@ -310,20 +364,39 @@ def soft_delete_submission(submission_id: str) -> bool:
                     consent_at = NULL,
                     policy_version = NULL,
                     research_consent = 0,
-                    pending_expires_at = NULL
+                    pending_expires_at = NULL,
+                    audio_path = ''
                 WHERE id = ?
                 """,
                 (_utc_now_iso(), submission_id),
             )
+            if scrub_feedback_calibration:
+                conn.execute(
+                    """
+                    UPDATE feedback
+                    SET notes = NULL,
+                        self_reported_dialect = NULL,
+                        was_correct = NULL,
+                        submission_id = NULL
+                    WHERE submission_id = ?
+                    """,
+                    (submission_id,),
+                )
+            else:
+                conn.execute(
+                    """
+                    UPDATE feedback
+                    SET notes = NULL,
+                        submission_id = NULL
+                    WHERE submission_id = ?
+                    """,
+                    (submission_id,),
+                )
+            conn.commit()
+        else:
+            # Idempotent re-entry: still clear path string if leftover
             conn.execute(
-                """
-                UPDATE feedback
-                SET notes = NULL,
-                    self_reported_dialect = NULL,
-                    was_correct = NULL,
-                    submission_id = NULL
-                WHERE submission_id = ?
-                """,
+                "UPDATE submissions SET audio_path = '' WHERE id = ? AND audio_path IS NOT NULL AND audio_path != ''",
                 (submission_id,),
             )
             conn.commit()
