@@ -26,7 +26,7 @@ User-facing strings in **Catalan**. Keep accessibility (`aria-*`, `aria-live` on
 
 ## Validation flow
 
-API mode: `needsValidation()` → second prompt → `pickBetterResult()`. Do not skip this when tightening confidence thresholds.
+API mode: `needsValidation()` skips a second take only when top score ≥ 0.50 and top-two gap ≥ 0.15; otherwise pick a different prompt from `prompts.ts` → `pickBetterResult()`. Send `promptId` / `promptText` with each `/analyze`.
 
 ## Checks after changes
 

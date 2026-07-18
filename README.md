@@ -82,11 +82,11 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Liveness |
-| `POST` | `/analyze` | Multipart `audio` → dialect scores + `recordingId` (audio stored) |
+| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText`) → dialect scores + `recordingId` (audio + prompt stored) |
 | `POST` | `/feedback` | JSON `{ recordingId, wasCorrect, selfReportedDialect?, notes? }` → `{ feedbackId }` |
 | `GET` | `/client-info` | Server-seen `{ ip, userAgent }` for Manage My Data |
 
-Successful `/analyze` calls store audio + metadata under gitignored `data/user_submissions/` (SQLite + audio files) and return `recordingId`. The recording UI discloses this; deletion is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1.
+Successful `/analyze` calls store audio + metadata (including the read-aloud `promptId` / `promptText`) under gitignored `data/user_submissions/` (SQLite + audio files) and return `recordingId`. The recording UI discloses this; deletion is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1.
 
 Backend load guards (env overrides): `ORACLE_ENCODE_CONCURRENCY` (default `1`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_ENCODE_RETRY_AFTER` (default `5`).
 
@@ -111,12 +111,12 @@ flowchart LR
   SVM -->|5 dialect scores| Client
 ```
 
-1. User reads a fixed Catalan prompt ([`web/src/lib/prompts.ts`](web/src/lib/prompts.ts)).
-2. Audio is sent to the mock client or the FastAPI backend ([`backend/app.py`](backend/app.py)).
+1. User reads a short Catalan prompt drawn from a dialect-sensitive pool ([`web/src/lib/prompts.ts`](web/src/lib/prompts.ts)).
+2. Audio is sent to the mock client or the FastAPI backend ([`backend/app.py`](backend/app.py)), with the prompt id/text for storage.
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
 4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 
-In API mode, low-confidence or ambiguous top-two results trigger an optional **validation** pass with a shorter second prompt ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
+In API mode, a second take is requested unless the first result clears a confidence bar (top score ≥ 0.50 and top-two gap ≥ 0.15); the second prompt is a different sentence from the same pool ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
 ## Current model (research snapshot)
 

@@ -4,6 +4,8 @@ import {
   isStrongerEvidence,
   needsValidation,
   pickBetterResult,
+  SKIP_VALIDATION_MIN_GAP,
+  SKIP_VALIDATION_MIN_TOP_SCORE,
 } from "./needsValidation";
 
 function result(
@@ -28,25 +30,66 @@ function result(
 }
 
 describe("needsValidation", () => {
-  it("returns true when evidenceBand is limited", () => {
+  it("returns false when top score and gap clear the skip bar", () => {
     expect(
-      needsValidation(result({ evidenceBand: "limited", isAmbiguousTopTwo: false })),
+      needsValidation(
+        result({
+          evidenceBand: "strong",
+          isAmbiguousTopTwo: false,
+          scores: {
+            balearic: 0.08,
+            central: 0.55,
+            northern: 0.12,
+            northwestern: 0.13,
+            valencian: 0.12,
+          },
+          topTwoGap: 0.42,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("returns true when top score is below the threshold", () => {
+    expect(
+      needsValidation(
+        result({
+          evidenceBand: "moderate",
+          isAmbiguousTopTwo: false,
+          scores: {
+            balearic: 0.15,
+            central: 0.4,
+            northern: 0.2,
+            northwestern: 0.15,
+            valencian: 0.1,
+          },
+          topTwoGap: 0.2,
+        }),
+      ),
     ).toBe(true);
   });
 
-  it("returns true when isAmbiguousTopTwo even if band is moderate", () => {
+  it("returns true when top-two gap is below the threshold", () => {
     expect(
-      needsValidation(result({ evidenceBand: "moderate", isAmbiguousTopTwo: true })),
+      needsValidation(
+        result({
+          evidenceBand: "moderate",
+          isAmbiguousTopTwo: true,
+          scores: {
+            balearic: 0.1,
+            central: 0.42,
+            northern: 0.35,
+            northwestern: 0.08,
+            valencian: 0.05,
+          },
+          topTwoGap: 0.07,
+        }),
+      ),
     ).toBe(true);
   });
 
-  it("returns false for clear moderate/strong results", () => {
-    expect(
-      needsValidation(result({ evidenceBand: "moderate", isAmbiguousTopTwo: false })),
-    ).toBe(false);
-    expect(
-      needsValidation(result({ evidenceBand: "strong", isAmbiguousTopTwo: false })),
-    ).toBe(false);
+  it("uses the documented skip thresholds", () => {
+    expect(SKIP_VALIDATION_MIN_TOP_SCORE).toBe(0.5);
+    expect(SKIP_VALIDATION_MIN_GAP).toBe(0.15);
   });
 });
 

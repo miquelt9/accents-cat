@@ -41,6 +41,8 @@ def ensure_storage() -> None:
                 scores_json TEXT NOT NULL,
                 top_label TEXT NOT NULL,
                 evidence_band TEXT NOT NULL,
+                prompt_id TEXT,
+                prompt_text TEXT,
                 deleted_at TEXT
             );
 
@@ -55,7 +57,16 @@ def ensure_storage() -> None:
             );
             """
         )
+        _ensure_column(conn, "submissions", "prompt_id", "TEXT")
+        _ensure_column(conn, "submissions", "prompt_text", "TEXT")
         conn.commit()
+
+
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, decl: str) -> None:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    existing = {row[1] for row in rows}
+    if column not in existing:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
 
 
 def _connect() -> sqlite3.Connection:
@@ -84,6 +95,8 @@ def insert_submission(
     scores: dict[str, Any],
     top_label: str,
     evidence_band: str,
+    prompt_id: str | None = None,
+    prompt_text: str | None = None,
 ) -> str:
     ensure_storage()
     try:
@@ -96,8 +109,9 @@ def insert_submission(
             """
             INSERT INTO submissions (
                 id, created_at, ip, user_agent, audio_path,
-                scores_json, top_label, evidence_band, deleted_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                scores_json, top_label, evidence_band,
+                prompt_id, prompt_text, deleted_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
             """,
             (
                 submission_id,
@@ -108,6 +122,8 @@ def insert_submission(
                 json.dumps(scores, ensure_ascii=False),
                 top_label,
                 evidence_band,
+                prompt_id,
+                prompt_text,
             ),
         )
         conn.commit()

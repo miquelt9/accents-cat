@@ -43,19 +43,24 @@ def test_save_audio_and_submission_round_trip(isolated_storage: Path) -> None:
         scores=scores,
         top_label="central",
         evidence_band="moderate",
+        prompt_id="pluja-vinya",
+        prompt_text="La pluja fina cau sobre la vinya vella.",
     )
 
     assert storage.submission_exists(submission_id) is True
 
     with sqlite3.connect(storage.DB_PATH) as conn:
         row = conn.execute(
-            "SELECT top_label, evidence_band, audio_path FROM submissions WHERE id = ?",
+            "SELECT top_label, evidence_band, audio_path, prompt_id, prompt_text "
+            "FROM submissions WHERE id = ?",
             (submission_id,),
         ).fetchone()
     assert row is not None
     assert row[0] == "central"
     assert row[1] == "moderate"
     assert Path(row[2]).name == audio_path.name
+    assert row[3] == "pluja-vinya"
+    assert row[4] == "La pluja fina cau sobre la vinya vella."
 
 
 def test_insert_feedback_links_when_submission_exists(isolated_storage: Path) -> None:
@@ -157,6 +162,34 @@ def test_feedback_skips_missing_or_soft_deleted(isolated_storage: Path) -> None:
             (soft_deleted_feedback,),
         ).fetchone()
     assert row == (None,)
+
+
+def test_ensure_storage_adds_prompt_columns_to_legacy_db(isolated_storage: Path) -> None:
+    storage.AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        conn.execute(
+            """
+            CREATE TABLE submissions (
+                id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                ip TEXT,
+                user_agent TEXT,
+                audio_path TEXT NOT NULL,
+                scores_json TEXT NOT NULL,
+                top_label TEXT NOT NULL,
+                evidence_band TEXT NOT NULL,
+                deleted_at TEXT
+            )
+            """
+        )
+        conn.commit()
+
+    storage.ensure_storage()
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(submissions)").fetchall()}
+    assert "prompt_id" in columns
+    assert "prompt_text" in columns
 
 
 def test_self_reported_dialect_membership() -> None:

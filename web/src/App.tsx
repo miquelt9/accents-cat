@@ -19,7 +19,12 @@ import {
 } from "./lib/devFlags";
 import type { LegalDocId } from "./lib/legalDocs";
 import { needsValidation, pickBetterResult } from "./lib/needsValidation";
-import { PRIMARY_READ_ALOUD_PROMPT, VALIDATION_READ_ALOUD_PROMPT } from "./lib/prompts";
+import {
+  pickPrimaryReadAloudPrompt,
+  pickReadAloudPrompt,
+  rememberLastPromptId,
+  type ReadAloudPrompt,
+} from "./lib/prompts";
 import { appendLedgerEntry } from "./lib/submissionLedger";
 
 type AppPhase =
@@ -64,6 +69,8 @@ function App() {
   const [keptFirstResult, setKeptFirstResult] = useState(false);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
+  const [activePrompt, setActivePrompt] = useState<ReadAloudPrompt | null>(null);
+  const [primaryPromptId, setPrimaryPromptId] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -91,6 +98,29 @@ function App() {
     setIsAnalyzing(false);
     setAnalysisError(null);
     setKeptFirstResult(false);
+    setActivePrompt(null);
+    setPrimaryPromptId(null);
+  }
+
+  function startRecording() {
+    const prompt = pickPrimaryReadAloudPrompt();
+    setActivePrompt(prompt);
+    setPrimaryPromptId(prompt.id);
+    setPendingResult(null);
+    setResult(null);
+    setAnalysisError(null);
+    setKeptFirstResult(false);
+    setPhase("recording");
+  }
+
+  function startValidation(firstResult: AccentOracleResult) {
+    const excludeIds = primaryPromptId ? [primaryPromptId] : activePrompt ? [activePrompt.id] : [];
+    const prompt = pickReadAloudPrompt(excludeIds);
+    rememberLastPromptId(prompt.id);
+    setActivePrompt(prompt);
+    setPendingResult(firstResult);
+    setResult(null);
+    setPhase("validation");
   }
 
   function rememberRecording(nextResult: AccentOracleResult) {
@@ -105,20 +135,26 @@ function App() {
   }
 
   async function analyzeRecording(audio: Blob) {
+    if (!activePrompt) {
+      setAnalysisError("No s'ha pogut carregar el text a llegir. Torna a començar.");
+      return;
+    }
+
     setAnalysisError(null);
     setIsAnalyzing(true);
     setKeptFirstResult(false);
 
     try {
-      const nextResult = await getAccentOracleClient().analyzeRecording(audio);
+      const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
+        promptId: activePrompt.id,
+        promptText: activePrompt.text,
+      });
       rememberRecording(nextResult);
       const shouldAutoRequestValidation = accentOracleMode === "api" && needsValidation(nextResult);
 
       if (phase === "recording") {
         if (shouldAutoRequestValidation) {
-          setPendingResult(nextResult);
-          setResult(null);
-          setPhase("validation");
+          startValidation(nextResult);
           return;
         }
 
@@ -154,9 +190,6 @@ function App() {
     setKeptFirstResult(false);
     setPhase("results");
   }
-
-  const activePrompt =
-    phase === "validation" ? VALIDATION_READ_ALOUD_PROMPT : PRIMARY_READ_ALOUD_PROMPT;
 
   const showPrivacyFooter = phase === "landing" || phase === "results";
   const analysisStatusText =
@@ -200,14 +233,14 @@ function App() {
               Llegeix un text en veu alta i descobreix amb quines zones dialectals del català la teva veu
               sona més similar.
             </p>
-            <button className="primary hero-link" onClick={() => setPhase("recording")} type="button">
+            <button className="primary hero-link" onClick={startRecording} type="button">
               Descobreix el resultat
             </button>
           </div>
         </section>
       )}
 
-      {(phase === "recording" || phase === "validation") && (
+      {(phase === "recording" || phase === "validation") && activePrompt && (
         <>
           <section className="card prompt-card">
             {phase === "validation" ? (
@@ -223,7 +256,7 @@ function App() {
                   </p>
                 )}
                 <p className="read-instruction">Llegeix aquest text en veu alta</p>
-                <blockquote>{activePrompt}</blockquote>
+                <blockquote>{activePrompt.text}</blockquote>
                 <div className="validation-actions">
                   <button className="secondary" disabled={isAnalyzing} onClick={skipValidation} type="button">
                     Mostra el resultat igualment
@@ -234,7 +267,7 @@ function App() {
               <>
                 <p className="eyebrow">Primera mostra</p>
                 <p className="read-instruction">Llegeix aquest text en veu alta</p>
-                <blockquote>{activePrompt}</blockquote>
+                <blockquote>{activePrompt.text}</blockquote>
               </>
             )}
 

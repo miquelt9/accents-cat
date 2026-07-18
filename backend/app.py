@@ -11,7 +11,7 @@ import joblib
 import librosa
 import numpy as np
 import torch
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from transformers import AutoFeatureExtractor, AutoModel
@@ -33,6 +33,8 @@ MIN_AUDIO_SECONDS = 1.5
 MAX_AUDIO_SECONDS = float(os.environ.get("ORACLE_MAX_AUDIO_SECONDS", "25"))
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 MAX_NOTES_CHARS = 2000
+MAX_PROMPT_TEXT_CHARS = 500
+MAX_PROMPT_ID_CHARS = 64
 
 # Viral-load guards (stdlib; in-process only — not multi-worker safe)
 ENCODE_CONCURRENCY = max(1, int(os.environ.get("ORACLE_ENCODE_CONCURRENCY", "1")))
@@ -191,10 +193,42 @@ def get_client_info(request: Request) -> dict[str, str | None]:
     }
 
 
+def _normalize_prompt_fields(
+    prompt_id: str | None,
+    prompt_text: str | None,
+) -> tuple[str | None, str | None]:
+    normalized_id: str | None = None
+    if prompt_id is not None:
+        stripped_id = prompt_id.strip()
+        if not stripped_id:
+            raise HTTPException(status_code=422, detail="promptId no pot ser buit.")
+        if len(stripped_id) > MAX_PROMPT_ID_CHARS:
+            raise HTTPException(status_code=422, detail="promptId és massa llarg.")
+        normalized_id = stripped_id
+
+    normalized_text: str | None = None
+    if prompt_text is not None:
+        stripped_text = prompt_text.strip()
+        if not stripped_text:
+            raise HTTPException(status_code=422, detail="promptText no pot ser buit.")
+        if len(stripped_text) > MAX_PROMPT_TEXT_CHARS:
+            raise HTTPException(status_code=422, detail="promptText és massa llarg.")
+        normalized_text = stripped_text
+
+    return normalized_id, normalized_text
+
+
 @app.post("/analyze")
-async def analyze(request: Request, audio: UploadFile = File(...)) -> dict[str, Any]:
+async def analyze(
+    request: Request,
+    audio: UploadFile = File(...),
+    promptId: str | None = Form(default=None),
+    promptText: str | None = Form(default=None),
+) -> dict[str, Any]:
     if not _analyze_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
+
+    prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
 
     payload = await audio.read()
     if not payload:
@@ -238,6 +272,8 @@ async def analyze(request: Request, audio: UploadFile = File(...)) -> dict[str, 
             scores=result["scores"],
             top_label=result["topLabel"],
             evidence_band=result["evidenceBand"],
+            prompt_id=prompt_id,
+            prompt_text=prompt_text,
         )
         result["recordingId"] = recording_id
         return result

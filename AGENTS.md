@@ -35,7 +35,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 
 ### `/analyze` storage + load guards
 
-- FormData: required `audio`. Successful analyzes always store audio + DB row and return `recordingId`. UI discloses this on the recording screen (API mode); Manage My Data + soft-delete CLI for deletion.
+- FormData: required `audio`; optional `promptId` / `promptText` (web always sends both; max 64 / 500 chars). Successful analyzes always store audio + DB row (including prompt fields) and return `recordingId`. UI discloses this on the recording screen (API mode); Manage My Data + soft-delete CLI for deletion.
 - Encode concurrency: in-process slot limit (`ORACLE_ENCODE_CONCURRENCY`, default `1`) → HTTP 503 + `Retry-After` when full. HuBERT `extract_embedding` runs in `asyncio.to_thread`.
 - IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` (30/60s).
 - Audio caps: min 1.5 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 25) + 20 MB upload.
@@ -118,9 +118,11 @@ From `backend/app.py`:
 - Min audio: 1.5 s; max duration: 25 s (env `ORACLE_MAX_AUDIO_SECONDS`); max upload: 20 MB.
 - Encode concurrency default 1; analyze rate 10/min; feedback rate 30/min (see env knobs above).
 - `evidenceBand`: `limited` if top-two gap &lt; 0.08 or confidence &lt; 0.32; `strong` if gap &gt; 0.18 and confidence &gt; 0.48.
-- Frontend `needsValidation`: `limited` band or `isAmbiguousTopTwo` in API mode.
+- Frontend `needsValidation` (API mode): request a second take unless top score ≥ 0.50 **and** top-two gap ≥ 0.15 ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
-Keep backend and mock client thresholds in sync when changing UX.
+Keep backend and mock client evidence-band thresholds in sync when changing map copy; validation gate is independent.
+
+Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts.ts); `/analyze` stores `promptId` + `promptText` on the submission row.
 
 ## Documentation
 
