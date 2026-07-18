@@ -10,6 +10,7 @@ import {
 } from "../lib/accentOracleClient";
 import { LEGAL_POLICY_VERSION, type LegalDocId } from "../lib/legalDocs";
 import { appendLedgerEntry } from "../lib/submissionLedger";
+import { LegalDocument } from "./LegalDocument";
 
 const SELF_REPORT_OPTIONS: SelfReportedDialect[] = [...DIALECT_ZONES, "mixed", "unknown"];
 
@@ -18,7 +19,6 @@ type FunnelStep = "promoting" | "ask" | "dialect" | "consent" | "done";
 interface ResultsConsentFeedbackProps {
   recordingId?: string;
   preConsented: boolean;
-  onOpenLegalDoc?: (docId: LegalDocId) => void;
   onResearchRetained?: () => void;
 }
 
@@ -71,13 +71,13 @@ function ThumbDownIcon() {
 export function ResultsConsentFeedback({
   recordingId,
   preConsented,
-  onOpenLegalDoc,
   onResearchRetained,
 }: ResultsConsentFeedbackProps) {
   const reduceMotion = useReducedMotion();
   const sheetPanelRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState<FunnelStep>(preConsented && recordingId ? "promoting" : "ask");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [legalDoc, setLegalDoc] = useState<LegalDocId | null>(null);
   const [promoted, setPromoted] = useState(false);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
   const [selectedDialect, setSelectedDialect] = useState<SelfReportedDialect | undefined>();
@@ -137,7 +137,7 @@ export function ResultsConsentFeedback({
   }, [preConsented, recordingId, promoted, step, onResearchRetained]);
 
   function dismissSheet() {
-    if (isSubmitting) {
+    if (isSubmitting || legalDoc) {
       return;
     }
     setSheetOpen(false);
@@ -148,28 +148,37 @@ export function ResultsConsentFeedback({
   }
 
   useEffect(() => {
-    if (!sheetOpen) {
+    if (!sheetOpen && !legalDoc) {
       return;
     }
 
-    sheetPanelRef.current?.focus();
-
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        if (!isSubmitting) {
-          setSheetOpen(false);
-          setStep("ask");
-          setWasCorrect(null);
-          setSelectedDialect(undefined);
-          setError(null);
-        }
+      if (event.key !== "Escape") {
+        return;
+      }
+      event.preventDefault();
+      if (legalDoc) {
+        setLegalDoc(null);
+        return;
+      }
+      if (!isSubmitting) {
+        setSheetOpen(false);
+        setStep("ask");
+        setWasCorrect(null);
+        setSelectedDialect(undefined);
+        setError(null);
       }
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [sheetOpen, isSubmitting]);
+  }, [sheetOpen, legalDoc, isSubmitting]);
+
+  useEffect(() => {
+    if (sheetOpen && !legalDoc) {
+      sheetPanelRef.current?.focus();
+    }
+  }, [sheetOpen, legalDoc]);
 
   async function submitFeedbackOnly(nextWasCorrect: boolean, dialect?: SelfReportedDialect) {
     setIsSubmitting(true);
@@ -396,17 +405,13 @@ export function ResultsConsentFeedback({
                   <p>
                     Vull col·laborar a la millora de models en català amb la meva gravació (tinc 18
                     anys o més).{" "}
-                    {onOpenLegalDoc ? (
-                      <button
-                        className="privacy-link legal-inline-link"
-                        onClick={() => onOpenLegalDoc("privacy")}
-                        type="button"
-                      >
-                        Política de privadesa
-                      </button>
-                    ) : (
-                      "Política de privadesa"
-                    )}
+                    <button
+                      className="privacy-link legal-inline-link"
+                      onClick={() => setLegalDoc("privacy")}
+                      type="button"
+                    >
+                      Política de privadesa
+                    </button>
                   </p>
 
                   <div className="feedback-actions">
@@ -435,6 +440,16 @@ export function ResultsConsentFeedback({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {legalDoc && (
+        <div className="feedback-legal-layer" role="presentation">
+          <LegalDocument
+            docId={legalDoc}
+            onBack={() => setLegalDoc(null)}
+            onOpenOther={setLegalDoc}
+          />
+        </div>
+      )}
     </>
   );
 }

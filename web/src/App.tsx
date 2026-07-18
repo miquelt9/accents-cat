@@ -460,7 +460,6 @@ function App() {
           <ResultsConsentFeedback
             preConsented={preConsented}
             recordingId={result.recordingId}
-            onOpenLegalDoc={openLegalDoc}
             onResearchRetained={() => setResearchRetained(true)}
           />
           <div className="results-share-row">
@@ -483,10 +482,10 @@ function App() {
               </svg>
               Comparteix
             </button>
+            <button className="secondary" onClick={resetFlow} type="button">
+              Torna a començar
+            </button>
           </div>
-          <button className="secondary restart-button" onClick={resetFlow} type="button">
-            Torna a començar
-          </button>
           {shareOpen && (
             <ShareResultsModal
               scores={result.scores}

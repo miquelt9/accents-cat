@@ -230,7 +230,7 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
   }
 
   async function handleShare() {
-    if (isBusy || isSharing) {
+    if (!canShare || isBusy || isSharing) {
       return;
     }
     setIsBusy(true);
@@ -241,13 +241,9 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
       if (!imageUrl) {
         return;
       }
-      if (canShare) {
-        await shareImage(imageUrl, "Oracle d'accents", caption, {
-          fileName,
-        });
-      } else {
-        downloadPng(imageUrl, fileName);
-      }
+      await shareImage(imageUrl, "Oracle d'accents", caption, {
+        fileName,
+      });
     } catch (err) {
       if (!isCaptureAbortError(err)) {
         console.error("Share failed:", err);
@@ -333,7 +329,7 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
       className="share-modal"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="share-modal-title"
+      aria-label="Comparteix el resultat"
     >
       <button
         type="button"
@@ -343,7 +339,6 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
       />
       <div className="share-modal-panel">
         <div className="share-modal-header">
-          <h2 id="share-modal-title">Comparteix el resultat</h2>
           <button
             type="button"
             className="share-modal-close"
@@ -444,41 +439,46 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
         )}
 
         <div className={`share-modal-actions${canShare ? " is-native" : ""}`}>
-          <button type="button" className="primary" disabled={busy} onClick={() => void handleShare()}>
-            {busy ? "Preparant…" : "Comparteix"}
-          </button>
           {canShare ? (
+            <>
+              <button
+                type="button"
+                className="primary"
+                disabled={busy}
+                onClick={() => void handleShare()}
+              >
+                {busy ? "Preparant…" : "Comparteix"}
+              </button>
+              <button
+                type="button"
+                className="secondary share-modal-download"
+                disabled={busy}
+                onClick={() => void handleDownload()}
+                aria-label="Desa la imatge"
+              >
+                <DownloadIcon />
+              </button>
+              <button
+                type="button"
+                className="secondary share-modal-copy"
+                disabled={busy}
+                onClick={() => void handleCopy()}
+                aria-label="Copia el text"
+              >
+                <span>
+                  <CopyIcon />
+                  {copied ? "Copiat" : "Copia el text"}
+                </span>
+              </button>
+            </>
+          ) : (
             <button
               type="button"
               className="secondary share-modal-download"
               disabled={busy}
               onClick={() => void handleDownload()}
-              aria-label="Desa la imatge"
             >
-              <DownloadIcon />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="secondary"
-              disabled={busy}
-              onClick={() => void handleDownload()}
-            >
-              Desa la imatge
-            </button>
-          )}
-          {canShare && (
-            <button
-              type="button"
-              className="secondary share-modal-copy"
-              disabled={busy}
-              onClick={() => void handleCopy()}
-              aria-label="Copia el text"
-            >
-              <span>
-                <CopyIcon />
-                {copied ? "Copiat" : "Copia el text"}
-              </span>
+              {busy ? "Preparant…" : "Desa la imatge"}
             </button>
           )}
         </div>

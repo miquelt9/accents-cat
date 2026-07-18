@@ -316,15 +316,12 @@ h2 {
   margin-bottom: 0;
 }
 
-.restart-button {
-  justify-self: center;
-  margin-top: 0.35rem;
-}
-
 .results-share-row {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   justify-content: center;
-  margin-top: 0.15rem;
+  margin-top: 0.35rem;
 }
 
 .results-share-button {
@@ -373,15 +370,7 @@ h2 {
 .share-modal-header {
   align-items: center;
   display: flex;
-  gap: 0.75rem;
-  justify-content: space-between;
-}
-
-.share-modal-header h2 {
-  color: var(--heading-color);
-  font-size: 1.05rem;
-  font-weight: 750;
-  margin: 0;
+  justify-content: flex-end;
 }
 
 .share-modal-close {
@@ -660,6 +649,14 @@ h2 {
 }
 
 .share-modal-download {
+  background: var(--surface-strong);
+}
+
+.share-modal-download:hover:not(:disabled) {
+  background: var(--surface-elevated);
+}
+
+.share-modal-actions.is-native .share-modal-download {
   align-items: center;
   display: inline-flex;
   justify-content: center;
@@ -784,6 +781,20 @@ h2 {
   padding: 0;
   position: fixed;
   z-index: 70;
+}
+
+.feedback-legal-layer {
+  background: var(--page-background);
+  inset: 0;
+  overflow: auto;
+  padding: 1rem 1rem 2rem;
+  position: fixed;
+  z-index: 85;
+}
+
+.feedback-legal-layer .legal-doc-card {
+  margin: 0 auto;
+  max-width: 40rem;
 }
 
 .feedback-sheet-backdrop {
