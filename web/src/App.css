@@ -310,9 +310,26 @@ h2 {
 }
 
 .feedback-card,
+.research-consent-card,
 .manage-data-card {
   display: grid;
   gap: 0.85rem;
+}
+
+.research-consent-check {
+  align-items: flex-start;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.research-consent-check input {
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.2rem;
 }
 
 .feedback-actions {

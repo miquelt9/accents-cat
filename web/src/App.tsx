@@ -5,10 +5,12 @@ import { ResultsMapStage } from "./components/ResultsMapStage";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
 import { ResultsFeedback } from "./components/ResultsFeedback";
+import { ResultsResearchConsent } from "./components/ResultsResearchConsent";
 import {
   DIALECT_ZONE_LABELS,
   getAccentOracleClient,
   getAccentOracleMode,
+  submitResearchConsent,
   type AccentOracleResult,
 } from "./lib/accentOracleClient";
 import {
@@ -25,7 +27,6 @@ import {
   rememberLastPromptId,
   type ReadAloudPrompt,
 } from "./lib/prompts";
-import { appendLedgerEntry } from "./lib/submissionLedger";
 
 type AppPhase =
   | "landing"
@@ -123,10 +124,13 @@ function App() {
     setPhase("validation");
   }
 
-  function rememberRecording(nextResult: AccentOracleResult) {
-    if (nextResult.recordingId) {
-      appendLedgerEntry(nextResult.recordingId, "recording");
+  function discardPendingRecording(recordingId: string | undefined) {
+    if (!recordingId || accentOracleMode !== "api") {
+      return;
     }
+    void submitResearchConsent({ recordingId, consent: false }).catch(() => {
+      // Best-effort cleanup of the unused validation sample.
+    });
   }
 
   function switchOracleMode(nextMode: AccentOracleMode) {
@@ -149,7 +153,6 @@ function App() {
         promptId: activePrompt.id,
         promptText: activePrompt.text,
       });
-      rememberRecording(nextResult);
       const shouldAutoRequestValidation = accentOracleMode === "api" && needsValidation(nextResult);
 
       if (phase === "recording") {
@@ -166,6 +169,10 @@ function App() {
 
       if (phase === "validation" && pendingResult) {
         const chosen = pickBetterResult(pendingResult, nextResult);
+        const discarded = chosen === pendingResult ? nextResult : pendingResult;
+        if (discarded.recordingId && discarded.recordingId !== chosen.recordingId) {
+          discardPendingRecording(discarded.recordingId);
+        }
         setKeptFirstResult(chosen === pendingResult && nextResult !== pendingResult);
         setResult(chosen);
         setPendingResult(null);
@@ -273,8 +280,8 @@ function App() {
 
             {accentOracleMode === "api" && (
               <p className="recording-privacy-note">
-                En analitzar, la gravació es desa al servidor per millorar el model de recerca, d&apos;acord
-                amb la{" "}
+                L&apos;àudio s&apos;analitza al servidor a Espanya. No es desa per a entrenament tret que ho
+                acceptis després del resultat, d&apos;acord amb la{" "}
                 <button
                   className="privacy-link legal-inline-link"
                   onClick={() => openLegalDoc("privacy")}
@@ -290,7 +297,7 @@ function App() {
                 >
                   Termes d&apos;ús
                 </button>
-                . Pots demanar-ne la supressió des de «Gestiona les meves dades».
+                .
               </p>
             )}
 
@@ -314,6 +321,10 @@ function App() {
             </p>
           )}
           <ResultsMapStage scores={result.scores} />
+          <ResultsResearchConsent
+            recordingId={result.recordingId}
+            onOpenLegalDoc={openLegalDoc}
+          />
           <ResultsFeedback recordingId={result.recordingId} />
           <button className="secondary restart-button" onClick={resetFlow} type="button">
             Torna a començar

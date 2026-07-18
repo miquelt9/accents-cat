@@ -11,16 +11,16 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 | Layer | Path | Role |
 | --- | --- | --- |
 | Web UI | `web/` | Vite + React + TypeScript. Catalan copy. Phases: landing → recording → optional validation → results → manage-data. |
-| Inference client | `web/src/lib/accentOracleClient.ts` | `mock` (default) or `api` via `VITE_ACCENT_ORACLE_MODE` (dev override via `devFlags.ts`). Shared `AccentOracleResult` shape (`recordingId?`). Also `submitFeedback` / `fetchClientInfo`. |
-| Submission ledger | `web/src/lib/submissionLedger.ts` | Browser `localStorage` list of recording/feedback IDs (cap ~50) for Manage My Data. |
+| Inference client | `web/src/lib/accentOracleClient.ts` | `mock` (default) or `api` via `VITE_ACCENT_ORACLE_MODE` (dev override via `devFlags.ts`). Shared `AccentOracleResult` shape (`recordingId?`). Also `submitFeedback` / `submitResearchConsent` / `fetchClientInfo`. |
+| Submission ledger | `web/src/lib/submissionLedger.ts` | Browser `localStorage` list of **research-consented** recording IDs + feedback IDs (cap ~50) for Manage My Data. |
 | Results map | `web/src/components/ResultsMapStage.tsx` | Ranking sidebar + interactive linework map. |
 | Interactive map | `web/src/components/map/DialectMap.tsx` | Framer Motion pan/zoom, focus, pin/label callout. |
 | Comarca heat (legacy) | `web/src/lib/buildComarcaHeat.ts` | Score → fills for offline experiments; not painted on the oracle stage. |
 | Comarca metadata | `web/src/lib/comarcaMapMeta.ts` | **Generated** by `scripts/refactor_catalan_map.py` — do not hand-edit. |
 | Map asset (results) | `web/public/map-oracle-linework.svg` | Canonical interactive linework map. Built by `scripts/build_oracle_linework_map.py` (chains community snap). |
 | Map asset (legacy filled) | `web/public/map-paisos-catalans.svg` | Filled choropleth source geometry; edit this, then rebuild linework. |
-| Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/feedback`, `/client-info`. |
-| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio for successful `/analyze` calls. Soft-delete: `python scripts/soft_delete_submission.py <uuid>` (no admin UI in v1). |
+| Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/research-consent`, `/feedback`, `/client-info`. |
+| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio: `/analyze` creates **pending** rows; durable research storage only after `POST /research-consent` with `consent: true`. Soft-delete: `python scripts/soft_delete_submission.py <uuid>` (no admin UI in v1). |
 | ML scripts | `scripts/` | Audits, manifests, audio prep, embeddings, training, evaluation. |
 | Artifacts | `models/`, `embeddings/`, `data/` | **Gitignored.** Never commit large binaries or secrets. Inference classifier mirror: [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (`model.joblib` + `metadata.json`). |
 | Reports | `reports/` | Human-readable experiment logs. Update when changing evaluation methodology. |
@@ -35,9 +35,10 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 
 ### `/analyze` storage + load guards
 
-- FormData: required `audio`; optional `promptId` / `promptText` (web always sends both; max 64 / 500 chars). Successful analyzes always store audio + DB row (including prompt fields) and return `recordingId`. UI discloses this on the recording screen (API mode); Manage My Data + soft-delete CLI for deletion.
+- FormData: required `audio`; optional `promptId` / `promptText` (web always sends both; max 64 / 500 chars). Successful analyzes write a **pending** audio + DB row (including prompt fields) and return `recordingId`. Pending rows expire (`ORACLE_PENDING_CONSENT_TTL_SECONDS`, default 1800). Recording UI discloses Spain-hosted analysis; **research retention** is opt-in on the results screen (`ResultsResearchConsent`).
+- `POST /research-consent` body: `{ recordingId, consent, ageConfirmed?, policyVersion? }` → promotes pending → `research_consent=1` (+ `consent_at`, `policy_version`) or soft-deletes on decline. Train later **only** on `research_consent=1 AND deleted_at IS NULL`.
 - Encode concurrency: in-process slot limit (`ORACLE_ENCODE_CONCURRENCY`, default `1`) → HTTP 503 + `Retry-After` when full. HuBERT `extract_embedding` runs in `asyncio.to_thread`.
-- IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` (30/60s).
+- IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` and `/research-consent` (30/60s). Set `ORACLE_TRUST_PROXY=1` behind a reverse proxy so `X-Forwarded-For` is used for IP.
 - Audio caps: min 1.5 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 25) + 20 MB upload.
 
 ### Feedback + Manage My Data
@@ -45,9 +46,10 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - `POST /feedback` body: `{ recordingId, wasCorrect: boolean | null, selfReportedDialect?, notes? }` → `{ feedbackId }`.
 - Self-report values: `balearic` \| `central` \| `northern` \| `northwestern` \| `valencian` \| `mixed` \| `unknown`.
 - `GET /client-info` → `{ ip, userAgent }` for the Manage My Data page (API mode).
-- UI: `ResultsFeedback` after the heatmap; footer link «Gestiona les meves dades» → `manage-data` phase.
-- Privacy contact in UI is a **placeholder**: `privacy@example.com` (clearly marked provisional). Deletion is email → `python scripts/soft_delete_submission.py <uuid>`, not an automated API in v1.
-- In-app Catalan **Política de privadesa** / **Termes d'ús**: [`web/src/lib/legalDocs.ts`](web/src/lib/legalDocs.ts), shown via footer + recording disclosure (`privacy` / `terms` phases). Not legal advice; replace contact before public launch.
+- UI: `ResultsResearchConsent` then `ResultsFeedback` after the heatmap; footer link «Gestiona les meves dades» → `manage-data` phase. Ledger lists only recordings the user opted to store for research.
+- Soft-delete scrubs IP / User-Agent / prompt / scores, clears consent fields, removes audio, and clears linked feedback fields.
+- Privacy contact + controller name come from build env: `VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME` ([`web/.env.example`](web/.env.example)). Until set, UI shows provisional `privacy@example.com`. Deletion is email → `python scripts/soft_delete_submission.py <uuid>`, not an automated API in v1.
+- In-app Catalan **Política de privadesa** / **Termes d'ús**: [`web/src/lib/legalDocs.ts`](web/src/lib/legalDocs.ts) (`LEGAL_POLICY_VERSION` must match backend `ORACLE_POLICY_VERSION` / default). Not legal advice; set contact + controller name before public launch.
 - Do not frame feedback or results as geographic origin detection.
 
 ## Safe edit boundaries
@@ -116,13 +118,14 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 From `backend/app.py`:
 
 - Min audio: 1.5 s; max duration: 25 s (env `ORACLE_MAX_AUDIO_SECONDS`); max upload: 20 MB.
-- Encode concurrency default 1; analyze rate 10/min; feedback rate 30/min (see env knobs above).
+- Encode concurrency default 1; analyze rate 10/min; feedback/research-consent rate 30/min (see env knobs above).
+- Pending research-consent TTL default 30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`).
 - `evidenceBand`: `limited` if top-two gap &lt; 0.08 or confidence &lt; 0.32; `strong` if gap &gt; 0.18 and confidence &gt; 0.48.
 - Frontend `needsValidation` (API mode): request a second take unless top score ≥ 0.50 **and** top-two gap ≥ 0.15 ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
 Keep backend and mock client evidence-band thresholds in sync when changing map copy; validation gate is independent.
 
-Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts.ts); `/analyze` stores `promptId` + `promptText` on the submission row.
+Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts.ts); `/analyze` stores `promptId` + `promptText` on the pending submission row.
 
 ## Documentation
 
@@ -135,10 +138,19 @@ Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts
 
 ## Open questions / planned work
 
-- Ingest consented `data/user_submissions/` into training (not automatic in v1).
+- Ingest **research-consented** `data/user_submissions/` into training (filter `research_consent=1`; not automatic in v1).
 - Finer-grained heat via `regionalHeatPoints`.
 - Real-user recording corpus for threshold tuning (northern speaker bottleneck).
 - Public deployment (hosting, model size, WASM vs server inference).
+- Replace placeholder privacy email / controller name (`VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME`) before launch.
 - `Tortosí` and other transitional labels in CV26 metadata.
+
+### Public release checklist (Spain)
+
+1. Set `VITE_PRIVACY_EMAIL` + `VITE_CONTROLLER_NAME` and rebuild the web app; confirm Privadesa no longer says «provisional».
+2. Host API + data in Spain / EEE; set `ORACLE_TRUST_PROXY=1` if TLS terminates in front of uvicorn; optionally name the VPS provider in the privacy «Encàrrecs» section.
+3. Smoke-test: analyze without opt-in → after decline or TTL, no audio file; opt-in → `research_consent=1` + `consent_at` + `policy_version`.
+4. Soft-delete a test UUID → audio gone, IP/UA/scores scrubbed.
+5. Optional: short review with a Spanish privacy lawyer before going viral.
 
 When unsure about linguistic labeling policy, read `reports/cv26_label_strategy_audit.json` before changing manifest builders.

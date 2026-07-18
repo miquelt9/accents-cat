@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Soft-delete a consented user submission by UUID (operator tool).
+"""Soft-delete a user submission by UUID (operator tool).
 
-Sets ``deleted_at`` in SQLite and unlinks (or zeros) the stored audio file.
+Sets ``deleted_at``, scrubs IP / User-Agent / prompt text, clears linked
+feedback fields, and unlinks (or zeros) the stored audio file.
 Run from the repo root so ``backend`` imports resolve::
 
     python scripts/soft_delete_submission.py <recording-uuid>

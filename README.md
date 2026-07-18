@@ -82,13 +82,14 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Liveness |
-| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText`) → dialect scores + `recordingId` (audio + prompt stored) |
+| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText`) → dialect scores + `recordingId` (pending audio until research consent) |
+| `POST` | `/research-consent` | JSON `{ recordingId, consent, ageConfirmed?, policyVersion? }` → keep for research or delete pending audio |
 | `POST` | `/feedback` | JSON `{ recordingId, wasCorrect, selfReportedDialect?, notes? }` → `{ feedbackId }` |
 | `GET` | `/client-info` | Server-seen `{ ip, userAgent }` for Manage My Data |
 
-Successful `/analyze` calls store audio + metadata (including the read-aloud `promptId` / `promptText`) under gitignored `data/user_submissions/` (SQLite + audio files) and return `recordingId`. The recording UI discloses this; deletion is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1.
+Successful `/analyze` calls create a **pending** row under gitignored `data/user_submissions/` (SQLite + audio) and return `recordingId`. Durable research storage happens only if the user opts in on the results screen (`POST /research-consent`). Pending audio expires after ~30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`). Deletion of consented rows is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1. Future training must use only `research_consent=1` rows.
 
-Backend load guards (env overrides): `ORACLE_ENCODE_CONCURRENCY` (default `1`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_ENCODE_RETRY_AFTER` (default `5`).
+Backend load guards (env overrides): `ORACLE_ENCODE_CONCURRENCY` (default `1`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_ENCODE_RETRY_AFTER` (default `5`), `ORACLE_PENDING_CONSENT_TTL_SECONDS` (default `1800`), `ORACLE_TRUST_PROXY` (default off).
 
 ## How it works
 
@@ -205,14 +206,22 @@ License: [AGPL-3.0](LICENSE). Architecture and safe edit boundaries for humans a
 - [x] Dataset metadata audits and balanced manifests
 - [x] HuBERT + calibrated SVM baseline (~50% top-1, ~72% top-2)
 - [x] Local FastAPI + web prototype with interactive linework map
-- [x] Post-result feedback + Manage My Data (ledger in the browser; backend store under `data/user_submissions/`)
+- [x] Post-result research opt-in + feedback + Manage My Data (ledger lists consented recording IDs; pending audio under `data/user_submissions/`)
 
 **Known limitations / not production-ready:**
 
-- [ ] Privacy contact is a **placeholder** (`privacy@example.com`); deletion is email → manual soft-delete by ID (no self-serve API)
+- [ ] Set `VITE_PRIVACY_EMAIL` + `VITE_CONTROLLER_NAME` before public launch (see [`web/.env.example`](web/.env.example)); deletion is email → manual soft-delete by ID (no self-serve API)
 - [ ] Map community snap is **visual placement**, not true geographic topology
-- [ ] User submissions are **not** auto-ingested into training
+- [ ] User submissions are **not** auto-ingested into training (filter `research_consent=1` when you do)
 - [ ] Grow speaker diversity via consented recordings + self-labels (northern bottleneck)
 - [ ] More real-user recordings and threshold tuning
 - [ ] Optional finer-grained `regionalHeatPoints` in API responses
 - [ ] Public deployment polish (hosting, model size, WASM vs server inference)
+
+### Public release checklist (Spain research)
+
+1. Configure privacy identity: `VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME` → rebuild web.
+2. Confirm server + storage in Spain / EEE; `ORACLE_TRUST_PROXY=1` behind a reverse proxy.
+3. Verify pending → decline/TTL deletes audio; opt-in sets `research_consent=1`.
+4. Soft-delete a test UUID and confirm scrub + audio removal.
+5. Optional lawyer check before viral traffic.

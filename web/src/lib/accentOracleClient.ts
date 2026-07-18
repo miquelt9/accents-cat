@@ -259,6 +259,47 @@ export async function submitFeedback(payload: FeedbackPayload): Promise<Feedback
   return (await response.json()) as FeedbackResponse;
 }
 
+export interface ResearchConsentPayload {
+  recordingId: string;
+  consent: boolean;
+  ageConfirmed?: boolean;
+  policyVersion?: string;
+}
+
+export interface ResearchConsentResponse {
+  recordingId: string;
+  researchConsent: boolean;
+}
+
+export async function submitResearchConsent(
+  payload: ResearchConsentPayload,
+): Promise<ResearchConsentResponse> {
+  if (getAccentOracleMode() === "mock") {
+    await new Promise((resolve) => window.setTimeout(resolve, 200));
+    return {
+      recordingId: payload.recordingId,
+      researchConsent: payload.consent,
+    };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/research-consent`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      recordingId: payload.recordingId,
+      consent: payload.consent,
+      ageConfirmed: payload.ageConfirmed ?? false,
+      policyVersion: payload.policyVersion,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(
+      await readErrorMessage(response, "No s'ha pogut desar l'elecció de consentiment."),
+    );
+  }
+  return (await response.json()) as ResearchConsentResponse;
+}
+
 export async function fetchClientInfo(): Promise<ClientInfo> {
   if (getAccentOracleMode() === "mock") {
     return {

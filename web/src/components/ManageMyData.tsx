@@ -65,9 +65,9 @@ export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDat
       <p className="eyebrow">Privadesa</p>
       <h2>Gestiona les meves dades</h2>
       <p>
-        En mode API, les gravacions analitzades es desen al servidor per millorar el model de recerca. Si
-        vols demanar la supressió de les teves gravacions o comentaris, copia la informació següent i
-        envia-la a{" "}
+        En mode API, només desem al servidor les gravacions que has acceptat desar per a recerca després
+        del resultat. Si vols demanar la supressió de les teves gravacions o comentaris, copia la
+        informació següent i envia-la a{" "}
         <a className="inline-link" href={mailtoHref}>
           {PRIVACY_EMAIL}
         </a>
@@ -77,7 +77,7 @@ export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDat
             <span className="manage-data-placeholder">(adreça provisional)</span>
           </>
         ) : null}
-        . Processarem les sol·licituds manualment. Més detalls a la{" "}
+        . Processarem les sol·licituds manualment (normalment en un termini de 30 dies). Més detalls a la{" "}
         {onOpenPrivacy ? (
           <button className="privacy-link legal-inline-link" onClick={onOpenPrivacy} type="button">
             Política de privadesa

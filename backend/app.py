@@ -43,6 +43,17 @@ ANALYZE_RATE_WINDOW_SECONDS = float(os.environ.get("ORACLE_ANALYZE_RATE_WINDOW",
 FEEDBACK_RATE_LIMIT = max(1, int(os.environ.get("ORACLE_FEEDBACK_RATE_LIMIT", "30")))
 FEEDBACK_RATE_WINDOW_SECONDS = float(os.environ.get("ORACLE_FEEDBACK_RATE_WINDOW", "60"))
 ENCODE_RETRY_AFTER_SECONDS = int(os.environ.get("ORACLE_ENCODE_RETRY_AFTER", "5"))
+TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
+# Must stay aligned with web/src/lib/legalDocs.ts LEGAL_POLICY_VERSION.
+DEFAULT_POLICY_VERSION = os.environ.get(
+    "ORACLE_POLICY_VERSION",
+    "18 de juliol de 2026",
+)
+MAX_POLICY_VERSION_CHARS = 64
 
 app = FastAPI(title="Catalan Accent Oracle API")
 app.add_middleware(
@@ -59,6 +70,13 @@ class FeedbackRequest(BaseModel):
     wasCorrect: bool | None = None
     selfReportedDialect: str | None = None
     notes: str | None = Field(default=None, max_length=MAX_NOTES_CHARS)
+
+
+class ResearchConsentRequest(BaseModel):
+    recordingId: str
+    consent: bool
+    policyVersion: str | None = Field(default=None, max_length=MAX_POLICY_VERSION_CHARS)
+    ageConfirmed: bool = False
 
 
 _analyze_limiter = SlidingWindowRateLimiter(ANALYZE_RATE_LIMIT, ANALYZE_RATE_WINDOW_SECONDS)
@@ -165,6 +183,12 @@ def build_result(probabilities: np.ndarray) -> dict[str, Any]:
 
 
 def client_ip(request: Request) -> str | None:
+    if TRUST_PROXY:
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            first = forwarded.split(",")[0].strip()
+            if first:
+                return first
     if request.client is None:
         return None
     return request.client.host
@@ -228,6 +252,7 @@ async def analyze(
     if not _analyze_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
 
+    storage.purge_expired_pending()
     prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
 
     payload = await audio.read()
@@ -264,6 +289,7 @@ async def analyze(
             audio_path.unlink(missing_ok=True)
             raise
 
+        # Pending only: durable research storage requires POST /research-consent.
         storage.insert_submission(
             submission_id=recording_id,
             ip=client_ip(request),
@@ -281,6 +307,45 @@ async def analyze(
         if acquired:
             async with _encode_lock:
                 _encode_inflight -= 1
+
+
+@app.post("/research-consent")
+def submit_research_consent(
+    request: Request,
+    body: ResearchConsentRequest,
+) -> dict[str, Any]:
+    if not _feedback_limiter.allow(_rate_limit_key(request)):
+        _raise_rate_limited()
+
+    recording_id = body.recordingId.strip()
+    if not recording_id:
+        raise HTTPException(status_code=422, detail="recordingId és obligatori.")
+
+    if body.consent:
+        if not body.ageConfirmed:
+            raise HTTPException(
+                status_code=422,
+                detail="Cal confirmar que tens 18 anys o més per desar la gravació.",
+            )
+        policy_version = (body.policyVersion or DEFAULT_POLICY_VERSION).strip()
+        if not policy_version or len(policy_version) > MAX_POLICY_VERSION_CHARS:
+            raise HTTPException(status_code=422, detail="policyVersion no és vàlid.")
+        if not storage.confirm_research_consent(recording_id, policy_version=policy_version):
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "No s'ha trobat una gravació pendent, o el termini per acceptar "
+                    "ha caducat."
+                ),
+            )
+        return {"recordingId": recording_id, "researchConsent": True}
+
+    if not storage.decline_research_consent(recording_id):
+        raise HTTPException(
+            status_code=404,
+            detail="No s'ha trobat aquesta gravació.",
+        )
+    return {"recordingId": recording_id, "researchConsent": False}
 
 
 @app.post("/feedback")

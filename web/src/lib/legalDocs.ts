@@ -1,4 +1,4 @@
-import { PRIVACY_EMAIL } from "./privacyContact";
+import { CONTROLLER_NAME, PRIVACY_EMAIL, PRIVACY_EMAIL_IS_PLACEHOLDER } from "./privacyContact";
 
 export type LegalDocId = "privacy" | "terms";
 
@@ -16,7 +16,25 @@ export interface LegalDocumentContent {
   sections: LegalSection[];
 }
 
-const EFFECTIVE_DATE = "18 de juliol de 2026";
+/** Keep in sync with backend ``DEFAULT_POLICY_VERSION`` / ``ORACLE_POLICY_VERSION``. */
+export const LEGAL_POLICY_VERSION = "18 de juliol de 2026";
+
+const EFFECTIVE_DATE = LEGAL_POLICY_VERSION;
+
+function controllerParagraph(): string {
+  const identity = CONTROLLER_NAME
+    ? `${CONTROLLER_NAME}, persona física que opera aquest prototip a Espanya`
+    : "la persona física que opera aquest prototip a Espanya (identitat a completar abans del llançament públic)";
+  const provisional = PRIVACY_EMAIL_IS_PLACEHOLDER
+    ? " (adreça provisional mentre el projecte no té un contacte definitiu)"
+    : "";
+  return `El responsable del tractament és ${identity}. Per a sol·licituds de privadesa o exercici de drets, escriu a ${PRIVACY_EMAIL}${provisional}.`;
+}
+
+function contactParagraph(): string {
+  const provisional = PRIVACY_EMAIL_IS_PLACEHOLDER ? " (adreça provisional)" : "";
+  return `Per a preguntes sobre aquests termes o la privadesa: ${PRIVACY_EMAIL}${provisional}.`;
+}
 
 export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
   privacy: {
@@ -29,14 +47,13 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
     sections: [
       {
         heading: "Responsable del tractament",
-        paragraphs: [
-          `El responsable del tractament és la persona física que opera aquest prototip a Espanya. Per a sol·licituds de privadesa o exercici de drets, escriu a ${PRIVACY_EMAIL} (adreça provisional mentre el projecte no té un contacte definitiu).`,
-        ],
+        paragraphs: [controllerParagraph()],
       },
       {
         heading: "Quines dades recollim",
         paragraphs: [
-          "En mode API, quan envies una gravació per analitzar-la, podem desar: l'arxiu d'àudio (dada personal; la veu pot permetre identificar o reconèixer una persona), la data, l'adreça IP, el User-Agent del navegador, les puntuacions del model i, si n'envies, el comentari o l'autoidentificació dialectal.",
+          "En mode API, quan envies una gravació per analitzar-la, el servidor la processa temporalment per calcular les puntuacions. Si després del resultat acceptes desar-la per a recerca, podem conservar: l'arxiu d'àudio (dada personal; la veu pot permetre identificar o reconèixer una persona), la data, l'adreça IP, el User-Agent del navegador, les puntuacions del model, la versió de la política acceptada i, si n'envies, el comentari o l'autoidentificació dialectal.",
+          "Si no acceptes el desament per a recerca (o deixa caducar el termini), esborrem l'àudio pendent i no l'utilitzem per a entrenament.",
           "En mode mock (simulació local), l'àudio no s'envia a un servidor d'aquest projecte; només es processa al teu navegador amb resultats ficticis.",
           "No demanem nom, correu electrònic ni creació de compte per utilitzar l'oracle.",
         ],
@@ -44,51 +61,51 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Per a què les fem servir",
         paragraphs: [
-          "Per retornar-te una estimació de similitud acústica amb cinc zones macrodialectals catalanes.",
-          "Per millorar el model i la recerca (avaluació, calibratge i entrenament futur), sempre tractant el resultat com a similitud acústica i no com a origen geogràfic ni identitat.",
+          "Per retornar-te una estimació de similitud acústica amb cinc zones macrodialectals catalanes (tractament transitori necessari per prestar el servei que demanes).",
+          "Només si ho acceptes explícitament després del resultat: per millorar el model i la recerca (avaluació, calibratge i entrenament futur), sempre tractant el resultat com a similitud acústica i no com a origen geogràfic ni identitat.",
           "Per atendre sol·licituds de gestió o supressió de dades.",
         ],
       },
       {
         heading: "Base jurídica",
         paragraphs: [
-          "La base principal és el teu consentiment: en utilitzar el mode API i enviar una gravació, acceptes que l'àudio i les metadades associades es desin i s'utilitzin amb les finalitats descrites aquí i als Termes d'ús (art. 6.1.a RGPD).",
-          "Si no hi estàs d'acord, no enviïs gravacions al servidor (pots sortir o quedar-te en mode mock). Pots retirar el consentiment demanant la supressió de les dades ja enviades; això no afectarà la licitud del tractament anterior.",
+          "L'anàlisi puntual (sense desament per a entrenament) es fa per prestar el servei que sol·licites en enviar la gravació (art. 6.1.b RGPD) i, quan correspongui, amb el teu consentiment a utilitzar el prototip.",
+          "El desament de l'àudio i metadades per a recerca i entrenament es basa en el teu consentiment explícit i específic (art. 6.1.a RGPD), mitjançant l'opció que apareix després del resultat. Pots retirar-lo demanant la supressió; això no afectarà la licitud del tractament anterior.",
         ],
       },
       {
         heading: "Conservació i seguretat",
         paragraphs: [
-          "Conservem les gravacions i metadades mentre siguin necessàries per a les finalitats de recerca indicades o fins que atenguem una sol·licitud de supressió, llevat d'obligacions legals de conservació.",
+          "Les gravacions pendents de consentiment es conserven un temps curt (per defecte fins a 30 minuts) perquè puguis acceptar o rebutjar el desament després de veure el resultat; després s'esborren.",
+          "Si acceptes la recerca, conservem l'àudio i metadades mentre el prototip de recerca estigui actiu, amb un màxim de 3 anys des del consentiment, o fins que atenguem una sol·licitud de supressió, llevat d'obligacions legals de conservació.",
           "Apliquem mesures tècniques i organitzatives raonables per a un prototip de recerca (accés restringit al servidor i esborrat manual per identificador). No prometem el mateix nivell de controls que un servei comercial certificat.",
         ],
       },
       {
         heading: "Encàrrecs, allotjament i transferències",
         paragraphs: [
-          "No venem les teves dades personals. Podem fer servir proveïdors tècnics (allotjament, infraestructura) estrictament per operar el servei. Podem divulgar dades si la llei ho exigeix.",
-          "Els models o components de tercers (per exemple, codificadors d'àudio) es poden executar al servidor per generar les puntuacions; no impliquen cedir el teu àudio amb finalitats de màrqueting.",
-          "Si l'allotjament o algun proveïdor tracta dades fora de l'Espai Econòmic Europeu, ho farem només amb les garanties exigides pel RGPD (per exemple, clàusules contractuals tipus o decisions d'adequació), en la mesura que correspongui al desplegament concret.",
+          "No venem les teves dades personals. El tractament i l'allotjament del servei es fan a Espanya / dins de l'Espai Econòmic Europeu. Podem fer servir proveïdors tècnics (allotjament, infraestructura) estrictament per operar el servei. Podem divulgar dades si la llei ho exigeix.",
+          "Els models o components de tercers (per exemple, codificadors d'àudio) s'executen al servidor a Espanya per generar les puntuacions; no impliquen cedir el teu àudio amb finalitats de màrqueting.",
         ],
       },
       {
         heading: "Els teus drets",
         paragraphs: [
           "Pots exercir els drets d'accés, rectificació, supressió, limitació, portabilitat i oposició, i el dret a retirar el consentiment, quan correspongui.",
-          `Fes-ho des de «Gestiona les meves dades» (hi trobaràs IP, User-Agent i IDs locals) o escrivint a ${PRIVACY_EMAIL} amb els IDs de gravació o comentari. Les sol·licituds es processen manualment.`,
+          `Fes-ho des de «Gestiona les meves dades» (hi trobaràs IP, User-Agent i IDs locals de gravacions que has acceptat desar) o escrivint a ${PRIVACY_EMAIL} amb els IDs de gravació o comentari. Les sol·licituds es processen manualment, normalment en un termini de 30 dies.`,
           "També pots presentar una reclamació davant l'Agència Espanyola de Protecció de Dades (AEPD): https://www.aepd.es.",
         ],
       },
       {
         heading: "Menors",
         paragraphs: [
-          "El servei està pensat per a persones de 18 anys o més. No recollim dades de menors de forma intencionada.",
+          "El servei està pensat per a persones de 18 anys o més. Per desar una gravació per a recerca cal confirmar l'edat. No recollim dades de menors de forma intencionada.",
         ],
       },
       {
         heading: "Canvis",
         paragraphs: [
-          "Podem actualitzar aquesta política. La data d'entrada en vigor figura al capdamunt. L'ús continuat del servei després d'un canvi implica que has pogut revisar la versió actual.",
+          "Podem actualitzar aquesta política. La data d'entrada en vigor figura al capdamunt. L'ús continuat del servei després d'un canvi implica que has pogut revisar la versió actual; el consentiment de recerca es demana de nou per a cada gravació que vulguis desar.",
         ],
       },
     ],
@@ -111,14 +128,14 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Edat",
         paragraphs: [
-          "Has de tenir com a mínim 18 anys per utilitzar el servei.",
+          "Has de tenir com a mínim 18 anys per utilitzar el servei. El desament per a recerca requereix una confirmació explícita d'edat.",
         ],
       },
       {
         heading: "Gravacions i llicència de recerca",
         paragraphs: [
-          "En mode API, quan envies àudio per analitzar-lo, es desa al servidor amb metadades tècniques (com ara IP i User-Agent) i pot utilitzar-se per millorar models i avaluacions de recerca, d'acord amb la Política de privadesa i el RGPD/LOPDGDD.",
-          "Conserves els drets sobre la teva veu; ens atorgues una llicència no exclusiva, gratuïta i mundial per emmagatzemar, processar i utilitzar aquesta gravació i el feedback associat amb finalitats de recerca i millora del prototip.",
+          "En mode API, l'àudio s'envia al servidor a Espanya per analitzar-lo. El desament durable per a recerca i entrenament només es fa si ho acceptes explícitament després de veure el resultat, d'acord amb la Política de privadesa i el RGPD/LOPDGDD.",
+          "Si acceptes, conserves els drets sobre la teva veu i ens atorgues una llicència no exclusiva, gratuïta i mundial per emmagatzemar, processar i utilitzar aquesta gravació i el feedback associat amb finalitats de recerca i millora del prototip (incloent-hi entrenar i publicar models o embeddings derivats). No venem l'àudio en brut. No publiquem l'àudio original sense una decisió addicional i avís.",
           "Pots demanar la supressió seguint el procediment de «Gestiona les meves dades».",
         ],
       },
@@ -157,9 +174,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       },
       {
         heading: "Contacte",
-        paragraphs: [
-          `Per a preguntes sobre aquests termes o la privadesa: ${PRIVACY_EMAIL} (adreça provisional).`,
-        ],
+        paragraphs: [contactParagraph()],
       },
     ],
   },
