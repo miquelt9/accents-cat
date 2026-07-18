@@ -57,6 +57,22 @@
   --results-emphasis-inset: rgba(37, 124, 172, 0.22);
   --results-emphasis-bar: #257cac;
   --legend-text: #17222d;
+  --share-card-bg: #ffffff;
+  --share-card-border: rgba(23, 34, 45, 0.12);
+  --share-card-shadow: 0 24px 60px rgba(74, 59, 43, 0.14);
+  --share-card-brand: #1f6f9c;
+  --share-card-bar-track: rgba(37, 124, 172, 0.12);
+  --share-card-bar-border: rgba(37, 124, 172, 0.32);
+  --share-card-bar-fill: linear-gradient(90deg, #2dd4bf, #257cac);
+  --share-card-divider: rgba(23, 34, 45, 0.1);
+  --share-modal-backdrop: rgba(23, 34, 45, 0.45);
+  --share-social-bg: #ffffff;
+  --share-social-border: rgba(23, 34, 45, 0.12);
+  --share-social-hover: #eef4f8;
+  --share-social-whatsapp: #059669;
+  --share-social-telegram: #0284c7;
+  --share-social-facebook: #2563eb;
+  --share-social-instagram: #db2777;
   color: var(--page-text);
   background: #f4efe8;
   font-family:
@@ -124,6 +140,22 @@
   --results-emphasis-inset: rgba(37, 124, 172, 0.28);
   --results-emphasis-bar: #ffffff;
   --legend-text: #edf3f7;
+  --share-card-bg: #0f1a22;
+  --share-card-border: rgba(45, 212, 191, 0.22);
+  --share-card-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --share-card-brand: #2dd4bf;
+  --share-card-bar-track: rgba(45, 212, 191, 0.12);
+  --share-card-bar-border: rgba(45, 212, 191, 0.35);
+  --share-card-bar-fill: linear-gradient(90deg, #2dd4bf, #257cac);
+  --share-card-divider: rgba(184, 215, 232, 0.12);
+  --share-modal-backdrop: rgba(8, 14, 20, 0.72);
+  --share-social-bg: rgba(15, 26, 34, 0.92);
+  --share-social-border: rgba(184, 215, 232, 0.18);
+  --share-social-hover: rgba(255, 255, 255, 0.08);
+  --share-social-whatsapp: #6ee7b7;
+  --share-social-telegram: #7dd3fc;
+  --share-social-facebook: #93c5fd;
+  --share-social-instagram: #f9a8d4;
 }
 
 * {

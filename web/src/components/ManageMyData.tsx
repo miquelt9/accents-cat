@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchClientInfo, getAccentOracleMode } from "../lib/accentOracleClient";
-import { isDevToolsEnabled } from "../lib/devFlags";
+import { isDevToolsEnabled, isMockMode, type AccentOracleMode } from "../lib/devFlags";
 import { PRIVACY_EMAIL, PRIVACY_EMAIL_IS_PLACEHOLDER } from "../lib/privacyContact";
 import { getFeedbackIds, getRecordingIds } from "../lib/submissionLedger";
 
@@ -10,8 +10,8 @@ interface ManageMyDataProps {
   onOpenTerms?: () => void;
 }
 
-function unavailableIpLabel(mode: "api" | "mock"): string {
-  if (mode === "mock" && isDevToolsEnabled()) {
+function unavailableIpLabel(mode: AccentOracleMode): string {
+  if (isMockMode(mode) && isDevToolsEnabled()) {
     return "no disponible (mode mock)";
   }
   return "no disponible";
@@ -19,7 +19,7 @@ function unavailableIpLabel(mode: "api" | "mock"): string {
 
 export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDataProps) {
   const mode = getAccentOracleMode();
-  const [ip, setIp] = useState(mode === "mock" ? unavailableIpLabel(mode) : "Carregant…");
+  const [ip, setIp] = useState(isMockMode(mode) ? unavailableIpLabel(mode) : "Carregant…");
   const [recordingIds] = useState(() => getRecordingIds());
   const [feedbackIds] = useState(() => getFeedbackIds());
   const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";

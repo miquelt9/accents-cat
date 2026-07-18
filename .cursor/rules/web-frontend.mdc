@@ -12,9 +12,9 @@ Vite + React + TypeScript. No router — phase state in `App.tsx`.
 
 ## Inference modes
 
-- Default: `mockAccentOracleClient` in `accentOracleClient.ts`
+- Default: `mockAccentOracleClient` (`mock-fail` via `devFlags`)
 - API: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL`
-- Dev tools: `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`devFlags.ts` / `localStorage`) — CPU/validation diagnostic copy + mock/API toggle; off by default
+- Dev tools: `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`devFlags.ts` / `localStorage`) — Mode cycles **API → mock fail → mock success**; off by default
 
 ## UI language
 
@@ -26,7 +26,7 @@ User-facing strings in **Catalan**. Keep accessibility (`aria-*`, `aria-live` on
 
 ## Validation flow
 
-API mode: `needsValidation()` skips a second take only when top score ≥ 0.50 and top-two gap ≥ 0.15; otherwise pick a different prompt from `prompts.ts` → `pickBetterResult()`. Send `promptId` / `promptText` with each `/analyze`.
+`needsValidation()` skips a mandatory second take only when top score ≥ 0.50 and top-two gap ≥ 0.15; otherwise a different prompt from `prompts.ts` → `mergeValidationResults()` (same top → clearer take; different tops → average). If the merged result is still uncertain, offer an optional third take. Send `promptId` / `promptText` with each `/analyze`. Consent/`recordingId` stay on the first take; decline unused pending ids.
 
 ## Checks after changes
 

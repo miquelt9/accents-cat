@@ -1,4 +1,10 @@
-import { isDevToolsEnabled, resolveAccentOracleMode } from "./devFlags";
+import {
+  isApiMode,
+  isDevToolsEnabled,
+  isMockMode,
+  resolveAccentOracleMode,
+  type AccentOracleMode,
+} from "./devFlags";
 import { getEvidenceBand } from "./evidenceBand";
 
 export const DIALECT_ZONES = [
@@ -84,26 +90,47 @@ const ANALYZE_TIMEOUT_MS = 120_000;
 const SERVICE_SATURATED_MESSAGE = "El servei està saturat. Torna-ho a provar.";
 const ANALYZE_TIMEOUT_MESSAGE = "La petició ha trigat massa. Torna-ho a provar.";
 
-const BASE_PROFILE: AccentScores = {
-  balearic: 0.18,
-  central: 0.27,
-  northern: 0.14,
-  northwestern: 0.2,
-  valencian: 0.21,
+/** Uncertain first take (fails needsValidation). */
+const MOCK_FAIL_TAKE_1: AccentScores = {
+  balearic: 0.1,
+  central: 0.38,
+  northern: 0.32,
+  northwestern: 0.1,
+  valencian: 0.1,
 };
 
-const DEV_SMOKE_SPOTLIGHTS: DialectZone[] = [
-  "central",
-  "valencian",
-  "northwestern",
-  "northern",
-  "balearic",
-];
+/** Disagreeing second take (different top → average stays soft). */
+const MOCK_FAIL_TAKE_2: AccentScores = {
+  balearic: 0.1,
+  central: 0.28,
+  northern: 0.1,
+  northwestern: 0.12,
+  valencian: 0.4,
+};
 
-let mockInvocationSeq = 0;
+/** Optional third: soft confirmation toward central. */
+const MOCK_FAIL_TAKE_3: AccentScores = {
+  balearic: 0.08,
+  central: 0.42,
+  northern: 0.2,
+  northwestern: 0.15,
+  valencian: 0.15,
+};
 
-function isDevMockVariationEnabled(): boolean {
-  return import.meta.env.DEV;
+/** Clear first take (skips validation). */
+const MOCK_SUCCESS_TAKE_1: AccentScores = {
+  balearic: 0.08,
+  central: 0.55,
+  northern: 0.12,
+  northwestern: 0.13,
+  valencian: 0.12,
+};
+
+let mockAnalyzeOrdinal = 0;
+
+/** Reset deterministic mock take counter (call when starting a new recording flow). */
+export function resetMockAnalyzeOrdinal(): void {
+  mockAnalyzeOrdinal = 0;
 }
 
 export function createClientId(): string {
@@ -123,31 +150,6 @@ function normalizeScores(scores: AccentScores): AccentScores {
   }, {} as AccentScores);
 }
 
-function seededNoise(seed: number, index: number): number {
-  const value = Math.sin(seed * (index + 3) * 12.9898) * 43758.5453;
-  return value - Math.floor(value);
-}
-
-function buildMockScores(audio: Blob): AccentScores {
-  const audioSeed = Math.max(audio.size, 1) + audio.type.length * 97;
-  const scores = { ...BASE_PROFILE };
-
-  let seed = audioSeed;
-  if (isDevMockVariationEnabled()) {
-    mockInvocationSeq += 1;
-    seed = audioSeed + mockInvocationSeq * 7919 + (performance.now() * 1000) % 97_003;
-    const spotlight = DEV_SMOKE_SPOTLIGHTS[(mockInvocationSeq - 1) % DEV_SMOKE_SPOTLIGHTS.length];
-    scores[spotlight] += 0.24;
-  }
-
-  const noiseAmplitude = isDevMockVariationEnabled() ? 0.2 : 0.12;
-  DIALECT_ZONES.forEach((label, index) => {
-    scores[label] += (seededNoise(seed, index) - 0.5) * noiseAmplitude;
-  });
-
-  return normalizeScores(scores);
-}
-
 function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: boolean): string {
   if (isAmbiguousTopTwo) {
     return "Les dues zones principals són properes, així que el mapa mostra un patró de similitud més ampli.";
@@ -164,6 +166,46 @@ function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: bool
   return "La gravació aporta evidència limitada, així que la incertesa és alta.";
 }
 
+/** Build a full result from a score vector (used by mock client and validation merge). */
+export function buildResultFromScores(
+  rawScores: AccentScores,
+  recordingId?: string,
+): AccentOracleResult {
+  const scores = normalizeScores(rawScores);
+  const ranked = [...DIALECT_ZONES].sort((a, b) => scores[b] - scores[a]);
+  const topLabel = ranked[0];
+  const runnerUpLabel = ranked[1];
+  const topTwoGap = Number((scores[topLabel] - scores[runnerUpLabel]).toFixed(3));
+  const isAmbiguousTopTwo = topTwoGap < 0.08;
+  const evidenceBand = getEvidenceBand(topTwoGap, scores[topLabel]);
+
+  return {
+    scores,
+    topLabel,
+    runnerUpLabel,
+    topTwoGap,
+    isAmbiguousTopTwo,
+    evidenceBand,
+    confidenceSummary: summarizeConfidence(evidenceBand, isAmbiguousTopTwo),
+    interpretation: `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`,
+    recordingId,
+  };
+}
+
+function scoresForMockMode(mode: AccentOracleMode, takeIndex: number): AccentScores {
+  if (mode === "mock-success") {
+    return { ...MOCK_SUCCESS_TAKE_1 };
+  }
+
+  if (takeIndex <= 1) {
+    return { ...MOCK_FAIL_TAKE_1 };
+  }
+  if (takeIndex === 2) {
+    return { ...MOCK_FAIL_TAKE_2 };
+  }
+  return { ...MOCK_FAIL_TAKE_3 };
+}
+
 async function readErrorMessage(response: Response, fallback: string): Promise<string> {
   try {
     const payload = (await response.json()) as { detail?: string };
@@ -178,28 +220,14 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
 
 export const mockAccentOracleClient: AccentOracleClient = {
   async analyzeRecording(audio: Blob, prompt: AnalyzePromptMeta): Promise<AccentOracleResult> {
+    void audio;
     void prompt;
     await new Promise((resolve) => window.setTimeout(resolve, 650));
 
-    const scores = buildMockScores(audio);
-    const ranked = [...DIALECT_ZONES].sort((a, b) => scores[b] - scores[a]);
-    const topLabel = ranked[0];
-    const runnerUpLabel = ranked[1];
-    const topTwoGap = Number((scores[topLabel] - scores[runnerUpLabel]).toFixed(3));
-    const isAmbiguousTopTwo = topTwoGap < 0.08;
-    const evidenceBand = getEvidenceBand(topTwoGap, scores[topLabel]);
-
-    return {
-      scores,
-      topLabel,
-      runnerUpLabel,
-      topTwoGap,
-      isAmbiguousTopTwo,
-      evidenceBand,
-      confidenceSummary: summarizeConfidence(evidenceBand, isAmbiguousTopTwo),
-      interpretation: `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`,
-      recordingId: createClientId(),
-    };
+    mockAnalyzeOrdinal += 1;
+    const mode = resolveAccentOracleMode();
+    const scores = scoresForMockMode(mode, mockAnalyzeOrdinal);
+    return buildResultFromScores(scores, createClientId());
   },
 };
 
@@ -243,7 +271,7 @@ export const apiAccentOracleClient: AccentOracleClient = {
 };
 
 export async function submitFeedback(payload: FeedbackPayload): Promise<FeedbackResponse> {
-  if (getAccentOracleMode() === "mock") {
+  if (isMockMode(getAccentOracleMode())) {
     await new Promise((resolve) => window.setTimeout(resolve, 200));
     return { feedbackId: createClientId() };
   }
@@ -274,7 +302,7 @@ export interface ResearchConsentResponse {
 export async function submitResearchConsent(
   payload: ResearchConsentPayload,
 ): Promise<ResearchConsentResponse> {
-  if (getAccentOracleMode() === "mock") {
+  if (isMockMode(getAccentOracleMode())) {
     await new Promise((resolve) => window.setTimeout(resolve, 200));
     return {
       recordingId: payload.recordingId,
@@ -301,7 +329,7 @@ export async function submitResearchConsent(
 }
 
 export async function fetchClientInfo(): Promise<ClientInfo> {
-  if (getAccentOracleMode() === "mock") {
+  if (isMockMode(getAccentOracleMode())) {
     return {
       ip: isDevToolsEnabled() ? "no disponible (mode mock)" : "no disponible",
       userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
@@ -316,9 +344,9 @@ export async function fetchClientInfo(): Promise<ClientInfo> {
 }
 
 export function getAccentOracleClient(): AccentOracleClient {
-  return getAccentOracleMode() === "api" ? apiAccentOracleClient : mockAccentOracleClient;
+  return isApiMode(getAccentOracleMode()) ? apiAccentOracleClient : mockAccentOracleClient;
 }
 
-export function getAccentOracleMode(): "api" | "mock" {
+export function getAccentOracleMode(): AccentOracleMode {
   return resolveAccentOracleMode();
 }

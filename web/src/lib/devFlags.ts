@@ -3,7 +3,9 @@
 export const DEV_TOOLS_STORAGE_KEY = "accent-oracle-dev";
 export const MODE_OVERRIDE_STORAGE_KEY = "accent-oracle-mode-override";
 
-export type AccentOracleMode = "api" | "mock";
+export type AccentOracleMode = "api" | "mock-fail" | "mock-success";
+
+const MODE_CYCLE: AccentOracleMode[] = ["api", "mock-fail", "mock-success"];
 
 function readStorage(key: string): string | null {
   if (typeof window === "undefined") {
@@ -31,6 +33,17 @@ function writeStorage(key: string, value: string | null): void {
   } catch {
     // Ignore quota / private-mode failures.
   }
+}
+
+function parseMode(value: string | null): AccentOracleMode | null {
+  if (value === "api" || value === "mock-fail" || value === "mock-success") {
+    return value;
+  }
+  // Legacy override from the two-way mock/API toggle.
+  if (value === "mock") {
+    return "mock-fail";
+  }
+  return null;
 }
 
 /** Apply `?dev=1` / `?dev=0` to localStorage, then strip the query param. */
@@ -66,15 +79,11 @@ export function isDevToolsEnabled(): boolean {
 }
 
 export function getEnvAccentOracleMode(): AccentOracleMode {
-  return import.meta.env.VITE_ACCENT_ORACLE_MODE === "api" ? "api" : "mock";
+  return import.meta.env.VITE_ACCENT_ORACLE_MODE === "api" ? "api" : "mock-fail";
 }
 
 export function getModeOverride(): AccentOracleMode | null {
-  const value = readStorage(MODE_OVERRIDE_STORAGE_KEY);
-  if (value === "api" || value === "mock") {
-    return value;
-  }
-  return null;
+  return parseMode(readStorage(MODE_OVERRIDE_STORAGE_KEY));
 }
 
 export function setModeOverride(mode: AccentOracleMode): void {
@@ -90,4 +99,27 @@ export function resolveAccentOracleMode(): AccentOracleMode {
   }
 
   return getEnvAccentOracleMode();
+}
+
+export function isMockMode(mode: AccentOracleMode): boolean {
+  return mode === "mock-fail" || mode === "mock-success";
+}
+
+export function isApiMode(mode: AccentOracleMode): boolean {
+  return mode === "api";
+}
+
+export function cycleAccentOracleMode(current: AccentOracleMode): AccentOracleMode {
+  const index = MODE_CYCLE.indexOf(current);
+  return MODE_CYCLE[(index + 1) % MODE_CYCLE.length];
+}
+
+export function accentOracleModeLabel(mode: AccentOracleMode): string {
+  if (mode === "api") {
+    return "API";
+  }
+  if (mode === "mock-fail") {
+    return "mock fail";
+  }
+  return "mock success";
 }

@@ -10,7 +10,7 @@ Record yourself reading a short Catalan passage (or upload audio), and the app s
 | --- | --- |
 | Compare your recording to five macro Catalan dialect areas | Pinpoint your town, comarca, or birthplace |
 | Show calibrated similarity scores on a map of the Catalan-speaking territories | Replace linguistic expertise or self-identification |
-| Offer a second recording when confidence is low (API mode) | Guarantee accuracy on short or noisy clips |
+| Mandatory second take when confidence is low; optional third if still unsure | Guarantee accuracy on short or noisy clips |
 
 **Dialect zones:** `central`, `valencian`, `northwestern`, `northern`, `balearic`.
 
@@ -117,7 +117,7 @@ flowchart LR
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
 4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 
-In API mode, a second take is requested unless the first result clears a confidence bar (top score ≥ 0.50 and top-two gap ≥ 0.15); the second prompt is a different sentence from the same pool ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
+When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15), a **mandatory second take** is required before results; takes are merged with agreement-aware logic (same top → clearer take; different tops → average scores). If the merged result is still uncertain, an **optional third** take is offered ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
 ## Current model (research snapshot)
 
@@ -171,7 +171,8 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | --- | --- |
 | `VITE_ACCENT_ORACLE_MODE` | `api` or omit for mock |
 | `VITE_ACCENT_ORACLE_API_URL` | Backend base URL (default `http://localhost:8000`) |
-| `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals, mock IP label) + mock/API toggle. Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
+| `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals, mock IP label) + Mode cycle (**API → mock fail → mock success**). Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
+| `VITE_PUBLIC_SITE_URL` | Optional promo URL on the results share card (defaults to `window.location.host`). Native image share needs HTTPS (`isSecureContext`); on plain HTTP LAN, the UI downloads the PNG instead. |
 
 ## Development checks
 

@@ -5,21 +5,26 @@ import { ResultsMapStage } from "./components/ResultsMapStage";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
 import { ResultsConsentFeedback } from "./components/ResultsConsentFeedback";
+import { ShareResultsModal } from "./components/ShareResultsModal";
 import {
   DIALECT_ZONE_LABELS,
   getAccentOracleClient,
   getAccentOracleMode,
+  resetMockAnalyzeOrdinal,
   submitResearchConsent,
   type AccentOracleResult,
 } from "./lib/accentOracleClient";
 import {
+  accentOracleModeLabel,
+  cycleAccentOracleMode,
+  isApiMode,
   isDevToolsEnabled,
   setModeOverride,
   syncDevFlagFromUrl,
   type AccentOracleMode,
 } from "./lib/devFlags";
 import type { LegalDocId } from "./lib/legalDocs";
-import { needsValidation, pickBetterResult } from "./lib/needsValidation";
+import { mergeValidationResults, needsValidation } from "./lib/needsValidation";
 import {
   pickPrimaryReadAloudPrompt,
   pickReadAloudPrompt,
@@ -31,6 +36,8 @@ type AppPhase =
   | "landing"
   | "recording"
   | "validation"
+  | "offer-third"
+  | "refine"
   | "results"
   | "manage-data"
   | "privacy"
@@ -66,13 +73,14 @@ function App() {
   const [pendingResult, setPendingResult] = useState<AccentOracleResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [keptFirstResult, setKeptFirstResult] = useState(false);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
   const [activePrompt, setActivePrompt] = useState<ReadAloudPrompt | null>(null);
   const [primaryPromptId, setPrimaryPromptId] = useState<string | null>(null);
+  const [usedPromptIds, setUsedPromptIds] = useState<string[]>([]);
   const [preConsented, setPreConsented] = useState(false);
   const [researchRetained, setResearchRetained] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const leavePurgeRef = useRef({ phase, result, researchRetained, accentOracleMode });
 
   useEffect(() => {
@@ -88,7 +96,14 @@ function App() {
     function purgePendingOnLeave() {
       const { phase: currentPhase, result: currentResult, researchRetained: retained, accentOracleMode: mode } =
         leavePurgeRef.current;
-      if (currentPhase !== "results" || retained || mode !== "api" || !currentResult?.recordingId) {
+      if (
+        (currentPhase !== "results" &&
+          currentPhase !== "offer-third" &&
+          currentPhase !== "refine") ||
+        retained ||
+        !isApiMode(mode) ||
+        !currentResult?.recordingId
+      ) {
         return;
       }
       void submitResearchConsent({ recordingId: currentResult.recordingId, consent: false }).catch(() => {
@@ -113,7 +128,7 @@ function App() {
   }, []);
 
   function declinePendingRecording(recordingId: string | undefined) {
-    if (!recordingId || accentOracleMode !== "api" || researchRetained) {
+    if (!recordingId || !isApiMode(accentOracleMode) || researchRetained) {
       return;
     }
     void submitResearchConsent({ recordingId, consent: false }).catch(() => {
@@ -121,8 +136,19 @@ function App() {
     });
   }
 
+  function discardPendingRecording(recordingId: string | undefined) {
+    if (!recordingId || !isApiMode(accentOracleMode)) {
+      return;
+    }
+    void submitResearchConsent({ recordingId, consent: false }).catch(() => {
+      // Best-effort cleanup of unused validation / refine samples.
+    });
+  }
+
   function openOverlay(next: AppPhase) {
-    if (phase === "results" && next !== "privacy" && next !== "terms") {
+    const holdingPending =
+      phase === "results" || phase === "offer-third" || phase === "refine";
+    if (holdingPending && next !== "privacy" && next !== "terms") {
       declinePendingRecording(result?.recordingId);
     }
     setReturnPhase(OVERLAY_PHASES.has(phase) ? returnPhase : phase);
@@ -139,52 +165,81 @@ function App() {
 
   function resetFlow() {
     declinePendingRecording(result?.recordingId);
+    resetMockAnalyzeOrdinal();
     setPhase("landing");
     setReturnPhase("landing");
     setResult(null);
     setPendingResult(null);
     setIsAnalyzing(false);
     setAnalysisError(null);
-    setKeptFirstResult(false);
     setActivePrompt(null);
     setPrimaryPromptId(null);
+    setUsedPromptIds([]);
     setPreConsented(false);
     setResearchRetained(false);
+    setShareOpen(false);
+  }
+
+  function goToResultsOrOfferThird(next: AccentOracleResult) {
+    setResult(next);
+    setPendingResult(null);
+    setPhase(needsValidation(next) ? "offer-third" : "results");
   }
 
   function startRecording() {
+    resetMockAnalyzeOrdinal();
     const prompt = pickPrimaryReadAloudPrompt();
     setActivePrompt(prompt);
     setPrimaryPromptId(prompt.id);
+    setUsedPromptIds([prompt.id]);
     setPendingResult(null);
     setResult(null);
     setAnalysisError(null);
-    setKeptFirstResult(false);
     setPhase("recording");
   }
 
   function startValidation(firstResult: AccentOracleResult) {
-    const excludeIds = primaryPromptId ? [primaryPromptId] : activePrompt ? [activePrompt.id] : [];
+    const excludeIds = usedPromptIds.length
+      ? usedPromptIds
+      : primaryPromptId
+        ? [primaryPromptId]
+        : activePrompt
+          ? [activePrompt.id]
+          : [];
     const prompt = pickReadAloudPrompt(excludeIds);
     rememberLastPromptId(prompt.id);
     setActivePrompt(prompt);
+    setUsedPromptIds((ids) => [...ids, prompt.id]);
     setPendingResult(firstResult);
     setResult(null);
     setPhase("validation");
   }
 
-  function discardPendingRecording(recordingId: string | undefined) {
-    if (!recordingId || accentOracleMode !== "api") {
-      return;
-    }
-    void submitResearchConsent({ recordingId, consent: false }).catch(() => {
-      // Best-effort cleanup of the unused validation sample.
-    });
+  function startRefine() {
+    const excludeIds = usedPromptIds.length
+      ? usedPromptIds
+      : primaryPromptId
+        ? [primaryPromptId]
+        : activePrompt
+          ? [activePrompt.id]
+          : [];
+    const prompt = pickReadAloudPrompt(excludeIds);
+    rememberLastPromptId(prompt.id);
+    setActivePrompt(prompt);
+    setUsedPromptIds((ids) => [...ids, prompt.id]);
+    setAnalysisError(null);
+    setPhase("refine");
   }
 
-  function switchOracleMode(nextMode: AccentOracleMode) {
+  function skipThird() {
+    setPhase("results");
+  }
+
+  function switchOracleMode() {
+    const nextMode = cycleAccentOracleMode(accentOracleMode);
     setModeOverride(nextMode);
     setAccentOracleMode(nextMode);
+    resetMockAnalyzeOrdinal();
   }
 
   async function analyzeRecording(audio: Blob) {
@@ -195,36 +250,38 @@ function App() {
 
     setAnalysisError(null);
     setIsAnalyzing(true);
-    setKeptFirstResult(false);
 
     try {
       const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
         promptId: activePrompt.id,
         promptText: activePrompt.text,
       });
-      const shouldAutoRequestValidation = accentOracleMode === "api" && needsValidation(nextResult);
 
       if (phase === "recording") {
-        if (shouldAutoRequestValidation) {
+        if (needsValidation(nextResult)) {
           startValidation(nextResult);
           return;
         }
 
-        setResult(nextResult);
-        setPendingResult(null);
-        setPhase("results");
+        goToResultsOrOfferThird(nextResult);
         return;
       }
 
       if (phase === "validation" && pendingResult) {
-        const chosen = pickBetterResult(pendingResult, nextResult);
-        const discarded = chosen === pendingResult ? nextResult : pendingResult;
-        if (discarded.recordingId && discarded.recordingId !== chosen.recordingId) {
-          discardPendingRecording(discarded.recordingId);
+        const merged = mergeValidationResults(pendingResult, nextResult);
+        if (nextResult.recordingId && nextResult.recordingId !== merged.recordingId) {
+          discardPendingRecording(nextResult.recordingId);
         }
-        setKeptFirstResult(chosen === pendingResult && nextResult !== pendingResult);
-        setResult(chosen);
-        setPendingResult(null);
+        goToResultsOrOfferThird(merged);
+        return;
+      }
+
+      if (phase === "refine" && result) {
+        const merged = mergeValidationResults(result, nextResult);
+        if (nextResult.recordingId && nextResult.recordingId !== merged.recordingId) {
+          discardPendingRecording(nextResult.recordingId);
+        }
+        setResult(merged);
         setPhase("results");
       }
     } catch (error) {
@@ -241,18 +298,22 @@ function App() {
       return;
     }
 
-    setResult(pendingResult);
-    setPendingResult(null);
-    setKeptFirstResult(false);
-    setPhase("results");
+    goToResultsOrOfferThird(pendingResult);
   }
 
   const showPrivacyFooter =
-    phase === "landing" || phase === "recording" || phase === "validation" || phase === "results";
+    phase === "landing" ||
+    phase === "recording" ||
+    phase === "validation" ||
+    phase === "offer-third" ||
+    phase === "refine" ||
+    phase === "results";
   const analysisStatusText =
-    accentOracleMode === "api" && devToolsEnabled
+    devToolsEnabled && isApiMode(accentOracleMode)
       ? "Analitzant la mostra… La inferència pot trigar una mica en CPU."
       : "Analitzant la mostra…";
+  const showRecorder =
+    (phase === "recording" || phase === "validation" || phase === "refine") && activePrompt;
 
   return (
     <main className={`app-shell ${phase === "landing" ? "landing-main" : ""}`.trim()}>
@@ -261,12 +322,12 @@ function App() {
           <div className="dev-tools-bar" role="group" aria-label="Eines de desenvolupament">
             <span className="dev-tools-label">Dev</span>
             <button
-              aria-pressed={accentOracleMode === "mock"}
+              aria-pressed={!isApiMode(accentOracleMode)}
               className="dev-mode-toggle"
-              onClick={() => switchOracleMode(accentOracleMode === "mock" ? "api" : "mock")}
+              onClick={switchOracleMode}
               type="button"
             >
-              Mode: {accentOracleMode === "mock" ? "mock" : "API"}
+              Mode: {accentOracleModeLabel(accentOracleMode)}
             </button>
           </div>
         )}
@@ -300,28 +361,56 @@ function App() {
                 type="checkbox"
               />
               <span>
-                Tinc 18 anys o més i accepto desar la meva gravació per a recerca, sense compte (opcional).
+                Vull col·laborar a la millora de models en català amb la meva gravació (tinc 18 anys o més).{" "}
+                <button
+                  className="privacy-link legal-inline-link"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openLegalDoc("privacy");
+                  }}
+                  type="button"
+                >
+                  Política de privadesa
+                </button>
               </span>
             </label>
-            <p className="landing-hint">
-              Si ho marques, podem guardar l&apos;àudio i metadades (incloent-hi l&apos;IP) per entrenar models.
-              Detalls a la{" "}
-              <button className="privacy-link legal-inline-link" onClick={() => openLegalDoc("privacy")} type="button">
-                Política de privadesa
-              </button>
-              .
-            </p>
           </div>
         </section>
       )}
 
-      {(phase === "recording" || phase === "validation") && activePrompt && (
+      {phase === "offer-third" && result && (
+        <section className="card prompt-card offer-third-card" aria-label="Tercera lectura opcional">
+          <h2>Ens dones una última oportunitat?</h2>
+          <p>
+            Pots fer una tercera lectura per refinar el mapa, o continuar amb el resultat actual.
+          </p>
+          {devToolsEnabled && (
+            <p className="validation-note">
+              <span className="dev-only-hint">*dev mode</span> Zones més properes:{" "}
+              <strong>{DIALECT_ZONE_LABELS[result.topLabel]}</strong> (
+              {Math.round(result.scores[result.topLabel] * 100)}%) i{" "}
+              <strong>{DIALECT_ZONE_LABELS[result.runnerUpLabel]}</strong> (
+              {Math.round(result.scores[result.runnerUpLabel] * 100)}%).
+            </p>
+          )}
+          <div className="validation-actions">
+            <button className="primary" onClick={startRefine} type="button">
+              Sí, llegeix de nou
+            </button>
+            <button className="secondary" onClick={skipThird} type="button">
+              No, veure resultats
+            </button>
+          </div>
+        </section>
+      )}
+
+      {showRecorder && (
         <>
           <section className="card prompt-card">
             {phase === "validation" ? (
               <>
-                <p className="eyebrow">Segona mostra</p>
-                <h2>No n&apos;hem prou segur — volem una segona mostra</h2>
+                <h2>Encara no n&apos;estem del tot segurs</h2>
                 {devToolsEnabled && pendingResult && (
                   <p className="validation-note">
                     <span className="dev-only-hint">*dev mode</span> Les zones més properes són{" "}
@@ -341,34 +430,32 @@ function App() {
                   </div>
                 )}
               </>
+            ) : phase === "refine" ? (
+              <>
+                <h2>Ens dones una última oportunitat?</h2>
+                <p className="read-instruction">Llegeix aquest text en veu alta</p>
+                <blockquote>{activePrompt.text}</blockquote>
+              </>
             ) : (
               <>
-                <p className="eyebrow">Primera mostra</p>
                 <p className="read-instruction">Llegeix aquest text en veu alta</p>
                 <blockquote>{activePrompt.text}</blockquote>
               </>
             )}
 
             <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
+            {isAnalyzing && (
+              <p className="analysis-status" aria-live="polite">
+                {analysisStatusText}
+              </p>
+            )}
+            {analysisError && <p className="error-message">{analysisError}</p>}
           </section>
-
-          {isAnalyzing && (
-            <section className="analysis-status" aria-live="polite">
-              {analysisStatusText}
-            </section>
-          )}
-          {analysisError && <p className="error-message">{analysisError}</p>}
         </>
       )}
 
       {phase === "results" && result && (
         <>
-          {devToolsEnabled && keptFirstResult && (
-            <p className="validation-kept-note">
-              <span className="dev-only-hint">*dev mode</span> La segona mostra no ha millorat la
-              confiança; mostrem el resultat de la primera lectura.
-            </p>
-          )}
           <ResultsMapStage scores={result.scores} />
           <ResultsConsentFeedback
             preConsented={preConsented}
@@ -376,9 +463,37 @@ function App() {
             onOpenLegalDoc={openLegalDoc}
             onResearchRetained={() => setResearchRetained(true)}
           />
+          <div className="results-share-row">
+            <button
+              className="secondary results-share-button"
+              onClick={() => setShareOpen(true)}
+              type="button"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="18" cy="5" r="3" fill="currentColor" />
+                <circle cx="6" cy="12" r="3" fill="currentColor" />
+                <circle cx="18" cy="19" r="3" fill="currentColor" />
+                <path
+                  d="M8.6 13.5 15.4 17.1M15.4 6.9 8.6 10.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="1.75"
+                />
+              </svg>
+              Comparteix
+            </button>
+          </div>
           <button className="secondary restart-button" onClick={resetFlow} type="button">
             Torna a començar
           </button>
+          {shareOpen && (
+            <ShareResultsModal
+              scores={result.scores}
+              theme={theme}
+              onClose={() => setShareOpen(false)}
+            />
+          )}
         </>
       )}
 

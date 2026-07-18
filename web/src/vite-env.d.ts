@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_PRIVACY_EMAIL?: string;
   /** Natural-person controller name shown in the privacy policy. */
   readonly VITE_CONTROLLER_NAME?: string;
+  /** Public site URL for share-card promo footer (defaults to window.location.host). */
+  readonly VITE_PUBLIC_SITE_URL?: string;
 }
 
 interface ImportMeta {

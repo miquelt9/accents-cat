@@ -10,8 +10,8 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 
 | Layer | Path | Role |
 | --- | --- | --- |
-| Web UI | `web/` | Vite + React + TypeScript. Catalan copy. Phases: landing → recording → optional validation → results → manage-data. |
-| Inference client | `web/src/lib/accentOracleClient.ts` | `mock` (default) or `api` via `VITE_ACCENT_ORACLE_MODE` (dev override via `devFlags.ts`). Shared `AccentOracleResult` shape (`recordingId?`). Also `submitFeedback` / `submitResearchConsent` / `fetchClientInfo`. |
+| Web UI | `web/` | Vite + React + TypeScript. Catalan copy. Phases: landing → recording → mandatory validation when unsure → results → optional third refine → manage-data. |
+| Inference client | `web/src/lib/accentOracleClient.ts` | `mock-fail` (default) or `api` via `VITE_ACCENT_ORACLE_MODE`; with `?dev=1`, Mode cycles `api` / `mock-fail` / `mock-success`. Shared `AccentOracleResult` shape (`recordingId?`). Also `submitFeedback` / `submitResearchConsent` / `fetchClientInfo`. |
 | Submission ledger | `web/src/lib/submissionLedger.ts` | Browser `localStorage` list of **research-consented** recording IDs + feedback IDs (cap ~50) for Manage My Data. |
 | Results map | `web/src/components/ResultsMapStage.tsx` | Ranking sidebar + interactive linework map. |
 | Interactive map | `web/src/components/map/DialectMap.tsx` | Framer Motion pan/zoom, focus, pin/label callout. |
@@ -83,7 +83,9 @@ cd web && npm install && npm run dev
 
 Mock mode needs no backend. Test API mode with backend running and `VITE_ACCENT_ORACLE_MODE=api`.
 
-Developer status messages (CPU inference hint, “second sample did not improve”, mock IP label) and the in-UI mock/API toggle are off by default. Enable with `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`web/src/lib/devFlags.ts`; persists as `localStorage` `accent-oracle-dev=1`).
+Developer status messages (CPU inference hint, mock IP label) and the in-UI Mode cycle (**API → mock fail → mock success**) are off by default. Enable with `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`web/src/lib/devFlags.ts`; persists as `localStorage` `accent-oracle-dev=1`). Use **mock fail** to force the mandatory-second + optional-third path; **mock success** for a clear first take.
+
+Results **Comparteix** uses the Web Share API with a PNG (`navigator.share({ files })`) on capable phones. That requires a secure context (`window.isSecureContext` — HTTPS or localhost). On plain `http://` LAN IPs, native share is unavailable and the UI falls back to downloading the image; test share on a deployed HTTPS host (or add Vite HTTPS locally if you need phone LAN testing).
 
 ### Backend / inference
 
@@ -123,7 +125,7 @@ From `backend/app.py`:
 - Encode concurrency default 1; analyze rate 10/min; feedback/research-consent rate 30/min (see env knobs above).
 - Pending research-consent TTL default 30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`).
 - `evidenceBand`: `limited` if top-two gap &lt; 0.08 or confidence &lt; 0.32; `strong` if gap &gt; 0.18 and confidence &gt; 0.48.
-- Frontend `needsValidation` (API mode): request a second take unless top score ≥ 0.50 **and** top-two gap ≥ 0.15 ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
+- Frontend `needsValidation`: mandatory second take unless top score ≥ 0.50 **and** top-two gap ≥ 0.15; merge with `mergeValidationResults` (same top → clearer; else average). If still uncertain, optional third take ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
 Keep backend and mock client evidence-band thresholds in sync when changing map copy; validation gate is independent.
 
