@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import tempfile
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -12,7 +11,7 @@ import joblib
 import librosa
 import numpy as np
 import torch
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from transformers import AutoFeatureExtractor, AutoModel
@@ -193,11 +192,7 @@ def get_client_info(request: Request) -> dict[str, str | None]:
 
 
 @app.post("/analyze")
-async def analyze(
-    request: Request,
-    audio: UploadFile = File(...),
-    persist: str | None = Form(default=None),
-) -> dict[str, Any]:
+async def analyze(request: Request, audio: UploadFile = File(...)) -> dict[str, Any]:
     if not _analyze_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
 
@@ -207,7 +202,6 @@ async def analyze(
     if len(payload) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="L'àudio enviat és massa gran.")
 
-    should_persist = persist == "1"
     suffix = Path(audio.filename or "recording.webm").suffix or ".webm"
 
     global _encode_inflight
@@ -221,15 +215,7 @@ async def analyze(
     recording_id: str | None = None
     audio_path: Path | None = None
     try:
-        if should_persist:
-            recording_id, audio_path = storage.save_audio(payload, suffix)
-        else:
-            tmp = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
-            try:
-                tmp.write(payload)
-            finally:
-                tmp.close()
-            audio_path = Path(tmp.name)
+        recording_id, audio_path = storage.save_audio(payload, suffix)
 
         try:
             embedding = (await asyncio.to_thread(extract_embedding, audio_path)).reshape(1, -1)
@@ -238,32 +224,27 @@ async def analyze(
             probabilities = probabilities / probabilities.sum()
             result = build_result(probabilities)
         except HTTPException:
-            if should_persist and audio_path is not None:
-                audio_path.unlink(missing_ok=True)
+            audio_path.unlink(missing_ok=True)
             raise
         except Exception:
-            if should_persist and audio_path is not None:
-                audio_path.unlink(missing_ok=True)
+            audio_path.unlink(missing_ok=True)
             raise
 
-        if should_persist and recording_id is not None and audio_path is not None:
-            storage.insert_submission(
-                submission_id=recording_id,
-                ip=client_ip(request),
-                user_agent=client_user_agent(request),
-                audio_path=audio_path,
-                scores=result["scores"],
-                top_label=result["topLabel"],
-                evidence_band=result["evidenceBand"],
-            )
-            result["recordingId"] = recording_id
+        storage.insert_submission(
+            submission_id=recording_id,
+            ip=client_ip(request),
+            user_agent=client_user_agent(request),
+            audio_path=audio_path,
+            scores=result["scores"],
+            top_label=result["topLabel"],
+            evidence_band=result["evidenceBand"],
+        )
+        result["recordingId"] = recording_id
         return result
     finally:
         if acquired:
             async with _encode_lock:
                 _encode_inflight -= 1
-        if not should_persist and audio_path is not None:
-            audio_path.unlink(missing_ok=True)
 
 
 @app.post("/feedback")

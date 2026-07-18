@@ -37,11 +37,6 @@ export interface AccentOracleResult {
   recordingId?: string;
 }
 
-export interface AnalyzeRecordingOptions {
-  /** When true, ask the API to persist audio (`persist=1`). Default: false. */
-  persist?: boolean;
-}
-
 export interface FeedbackPayload {
   recordingId: string;
   wasCorrect: boolean | null;
@@ -73,7 +68,7 @@ export const SELF_REPORTED_DIALECT_LABELS: Record<SelfReportedDialect, string> =
 };
 
 export interface AccentOracleClient {
-  analyzeRecording(audio: Blob, options?: AnalyzeRecordingOptions): Promise<AccentOracleResult>;
+  analyzeRecording(audio: Blob): Promise<AccentOracleResult>;
 }
 
 const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
@@ -203,11 +198,10 @@ export const mockAccentOracleClient: AccentOracleClient = {
 };
 
 export const apiAccentOracleClient: AccentOracleClient = {
-  async analyzeRecording(audio: Blob, options?: AnalyzeRecordingOptions): Promise<AccentOracleResult> {
+  async analyzeRecording(audio: Blob): Promise<AccentOracleResult> {
     const formData = new FormData();
     const filename = audio instanceof File ? audio.name : "recording.webm";
     formData.append("audio", audio, filename);
-    formData.append("persist", options?.persist ? "1" : "0");
 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), ANALYZE_TIMEOUT_MS);

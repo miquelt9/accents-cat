@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchClientInfo, getAccentOracleMode } from "../lib/accentOracleClient";
 import { isDevToolsEnabled } from "../lib/devFlags";
+import { PRIVACY_EMAIL, PRIVACY_EMAIL_IS_PLACEHOLDER } from "../lib/privacyContact";
 import { getFeedbackIds, getRecordingIds } from "../lib/submissionLedger";
-
-const PRIVACY_EMAIL = "privacy@example.com";
 
 interface ManageMyDataProps {
   onBack: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenTerms?: () => void;
 }
 
 function unavailableIpLabel(mode: "api" | "mock"): string {
@@ -16,7 +17,7 @@ function unavailableIpLabel(mode: "api" | "mock"): string {
   return "no disponible";
 }
 
-export function ManageMyData({ onBack }: ManageMyDataProps) {
+export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDataProps) {
   const mode = getAccentOracleMode();
   const [ip, setIp] = useState(mode === "mock" ? unavailableIpLabel(mode) : "Carregant…");
   const [recordingIds] = useState(() => getRecordingIds());
@@ -64,14 +65,35 @@ export function ManageMyData({ onBack }: ManageMyDataProps) {
       <p className="eyebrow">Privadesa</p>
       <h2>Gestiona les meves dades</h2>
       <p>
-        L&apos;àudio només es desa al servidor si ho autoritzes explícitament abans d&apos;analitzar. Si
-        vols demanar la supressió de les teves gravacions (quan n&apos;hi hagi) o comentaris, copia la
-        informació següent i envia-la a{" "}
+        En mode API, les gravacions analitzades es desen al servidor per millorar el model de recerca. Si
+        vols demanar la supressió de les teves gravacions o comentaris, copia la informació següent i
+        envia-la a{" "}
         <a className="inline-link" href={mailtoHref}>
           {PRIVACY_EMAIL}
-        </a>{" "}
-        <span className="manage-data-placeholder">(adreça provisional)</span>. Processarem les
-        sol·licituds manualment.
+        </a>
+        {PRIVACY_EMAIL_IS_PLACEHOLDER ? (
+          <>
+            {" "}
+            <span className="manage-data-placeholder">(adreça provisional)</span>
+          </>
+        ) : null}
+        . Processarem les sol·licituds manualment. Més detalls a la{" "}
+        {onOpenPrivacy ? (
+          <button className="privacy-link legal-inline-link" onClick={onOpenPrivacy} type="button">
+            Política de privadesa
+          </button>
+        ) : (
+          "Política de privadesa"
+        )}{" "}
+        i als{" "}
+        {onOpenTerms ? (
+          <button className="privacy-link legal-inline-link" onClick={onOpenTerms} type="button">
+            Termes d&apos;ús
+          </button>
+        ) : (
+          "Termes d'ús"
+        )}
+        .
       </p>
 
       <dl className="manage-data-list">

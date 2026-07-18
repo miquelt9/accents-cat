@@ -20,7 +20,7 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 | Map asset (results) | `web/public/map-oracle-linework.svg` | Canonical interactive linework map. Built by `scripts/build_oracle_linework_map.py` (chains community snap). |
 | Map asset (legacy filled) | `web/public/map-paisos-catalans.svg` | Filled choropleth source geometry; edit this, then rebuild linework. |
 | Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/feedback`, `/client-info`. |
-| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio when `/analyze` sends `persist=1`. Soft-delete: `python scripts/soft_delete_submission.py <uuid>` (no admin UI in v1). |
+| User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio for successful `/analyze` calls. Soft-delete: `python scripts/soft_delete_submission.py <uuid>` (no admin UI in v1). |
 | ML scripts | `scripts/` | Audits, manifests, audio prep, embeddings, training, evaluation. |
 | Artifacts | `models/`, `embeddings/`, `data/` | **Gitignored.** Never commit large binaries or secrets. Inference classifier mirror: [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (`model.joblib` + `metadata.json`). |
 | Reports | `reports/` | Human-readable experiment logs. Update when changing evaluation methodology. |
@@ -31,11 +31,11 @@ Fixed label order everywhere (backend metadata, frontend types, heatmap):
 
 `balearic`, `central`, `northern`, `northwestern`, `valencian`
 
-API response fields must stay aligned with `AccentOracleResult` in `accentOracleClient.ts`. Optional future field: `regionalHeatPoints` for finer maps. Optional `recordingId` is set by the API only when the client opts in to persistence (mock may still invent a client UUID).
+API response fields must stay aligned with `AccentOracleResult` in `accentOracleClient.ts`. Optional future field: `regionalHeatPoints` for finer maps. Optional `recordingId` is set by the API on successful analyze (mock invents a client UUID).
 
-### `/analyze` persistence + load guards
+### `/analyze` storage + load guards
 
-- FormData: required `audio`; optional `persist` — store audio + DB row + return `recordingId` **only** when `persist` is exactly `"1"`. Otherwise analyze ephemerally (temp file removed; no `recordingId`).
+- FormData: required `audio`. Successful analyzes always store audio + DB row and return `recordingId`. UI discloses this on the recording screen (API mode); Manage My Data + soft-delete CLI for deletion.
 - Encode concurrency: in-process slot limit (`ORACLE_ENCODE_CONCURRENCY`, default `1`) → HTTP 503 + `Retry-After` when full. HuBERT `extract_embedding` runs in `asyncio.to_thread`.
 - IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` (30/60s).
 - Audio caps: min 1.5 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 25) + 20 MB upload.
@@ -47,6 +47,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - `GET /client-info` → `{ ip, userAgent }` for the Manage My Data page (API mode).
 - UI: `ResultsFeedback` after the heatmap; footer link «Gestiona les meves dades» → `manage-data` phase.
 - Privacy contact in UI is a **placeholder**: `privacy@example.com` (clearly marked provisional). Deletion is email → `python scripts/soft_delete_submission.py <uuid>`, not an automated API in v1.
+- In-app Catalan **Política de privadesa** / **Termes d'ús**: [`web/src/lib/legalDocs.ts`](web/src/lib/legalDocs.ts), shown via footer + recording disclosure (`privacy` / `terms` phases). Not legal advice; replace contact before public launch.
 - Do not frame feedback or results as geographic origin detection.
 
 ## Safe edit boundaries

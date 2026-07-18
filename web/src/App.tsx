@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
@@ -16,14 +17,23 @@ import {
   syncDevFlagFromUrl,
   type AccentOracleMode,
 } from "./lib/devFlags";
+import type { LegalDocId } from "./lib/legalDocs";
 import { needsValidation, pickBetterResult } from "./lib/needsValidation";
 import { PRIMARY_READ_ALOUD_PROMPT, VALIDATION_READ_ALOUD_PROMPT } from "./lib/prompts";
 import { appendLedgerEntry } from "./lib/submissionLedger";
 
-type AppPhase = "landing" | "recording" | "validation" | "results" | "manage-data";
+type AppPhase =
+  | "landing"
+  | "recording"
+  | "validation"
+  | "results"
+  | "manage-data"
+  | "privacy"
+  | "terms";
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "accent-oracle-theme";
+const OVERLAY_PHASES = new Set<AppPhase>(["manage-data", "privacy", "terms"]);
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
@@ -54,20 +64,23 @@ function App() {
   const [keptFirstResult, setKeptFirstResult] = useState(false);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
-  const [persistConsent, setPersistConsent] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
-  function openManageData() {
-    setReturnPhase(phase === "manage-data" ? "landing" : phase);
-    setPhase("manage-data");
+  function openOverlay(next: AppPhase) {
+    setReturnPhase(OVERLAY_PHASES.has(phase) ? returnPhase : phase);
+    setPhase(next);
   }
 
-  function closeManageData() {
-    setPhase(returnPhase === "manage-data" ? "landing" : returnPhase);
+  function closeOverlay() {
+    setPhase(OVERLAY_PHASES.has(returnPhase) ? "landing" : returnPhase);
+  }
+
+  function openLegalDoc(docId: LegalDocId) {
+    openOverlay(docId);
   }
 
   function resetFlow() {
@@ -78,7 +91,6 @@ function App() {
     setIsAnalyzing(false);
     setAnalysisError(null);
     setKeptFirstResult(false);
-    setPersistConsent(false);
   }
 
   function rememberRecording(nextResult: AccentOracleResult) {
@@ -98,9 +110,7 @@ function App() {
     setKeptFirstResult(false);
 
     try {
-      const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
-        persist: persistConsent,
-      });
+      const nextResult = await getAccentOracleClient().analyzeRecording(audio);
       rememberRecording(nextResult);
       const shouldAutoRequestValidation = accentOracleMode === "api" && needsValidation(nextResult);
 
@@ -228,17 +238,28 @@ function App() {
               </>
             )}
 
-            <label className="persist-consent">
-              <input
-                checked={persistConsent}
-                disabled={isAnalyzing}
-                onChange={(event) => setPersistConsent(event.target.checked)}
-                type="checkbox"
-              />
-              <span>
-                Desa aquesta gravació al servidor per millorar el model (opcional; desactivat per defecte).
-              </span>
-            </label>
+            {accentOracleMode === "api" && (
+              <p className="recording-privacy-note">
+                En analitzar, la gravació es desa al servidor per millorar el model de recerca, d&apos;acord
+                amb la{" "}
+                <button
+                  className="privacy-link legal-inline-link"
+                  onClick={() => openLegalDoc("privacy")}
+                  type="button"
+                >
+                  Política de privadesa
+                </button>{" "}
+                i els{" "}
+                <button
+                  className="privacy-link legal-inline-link"
+                  onClick={() => openLegalDoc("terms")}
+                  type="button"
+                >
+                  Termes d&apos;ús
+                </button>
+                . Pots demanar-ne la supressió des de «Gestiona les meves dades».
+              </p>
+            )}
 
             <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
           </section>
@@ -267,12 +288,34 @@ function App() {
         </>
       )}
 
-      {phase === "manage-data" && <ManageMyData onBack={closeManageData} />}
+      {phase === "manage-data" && (
+        <ManageMyData
+          onBack={closeOverlay}
+          onOpenPrivacy={() => openLegalDoc("privacy")}
+          onOpenTerms={() => openLegalDoc("terms")}
+        />
+      )}
+
+      {(phase === "privacy" || phase === "terms") && (
+        <LegalDocument docId={phase} onBack={closeOverlay} onOpenOther={openLegalDoc} />
+      )}
 
       {showPrivacyFooter && (
         <footer className="privacy-footer">
-          <button className="privacy-link" onClick={openManageData} type="button">
+          <button className="privacy-link" onClick={() => openOverlay("manage-data")} type="button">
             Gestiona les meves dades
+          </button>
+          <span className="privacy-footer-sep" aria-hidden="true">
+            ·
+          </span>
+          <button className="privacy-link" onClick={() => openLegalDoc("privacy")} type="button">
+            Privadesa
+          </button>
+          <span className="privacy-footer-sep" aria-hidden="true">
+            ·
+          </span>
+          <button className="privacy-link" onClick={() => openLegalDoc("terms")} type="button">
+            Termes
           </button>
         </footer>
       )}

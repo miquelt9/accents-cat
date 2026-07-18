@@ -82,13 +82,11 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Liveness |
-| `POST` | `/analyze` | Multipart `audio` (+ optional `persist=1`) → dialect scores; `recordingId` only when persisted |
+| `POST` | `/analyze` | Multipart `audio` → dialect scores + `recordingId` (audio stored) |
 | `POST` | `/feedback` | JSON `{ recordingId, wasCorrect, selfReportedDialect?, notes? }` → `{ feedbackId }` |
 | `GET` | `/client-info` | Server-seen `{ ip, userAgent }` for Manage My Data |
 
-**Persist contract:** `/analyze` stores audio + DB row and returns `recordingId` only when FormData includes `persist=1`. Without it, the API still scores the clip but uses a temp file (deleted after inference) and omits `recordingId`.
-
-Consented submissions (audio + metadata + feedback) live under gitignored `data/user_submissions/` (SQLite + audio files). Deletion is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1.
+Successful `/analyze` calls store audio + metadata under gitignored `data/user_submissions/` (SQLite + audio files) and return `recordingId`. The recording UI discloses this; deletion is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1.
 
 Backend load guards (env overrides): `ORACLE_ENCODE_CONCURRENCY` (default `1`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_ENCODE_RETRY_AFTER` (default `5`).
 
