@@ -14,6 +14,17 @@ Record yourself reading a short Catalan passage (or upload audio), and the app s
 
 **Dialect zones:** `central`, `valencian`, `northwestern`, `northern`, `balearic`.
 
+## Prerequisites
+
+| Need | Mock UI | Local API |
+| --- | --- | --- |
+| Node.js 20+ (npm) | yes | yes |
+| Python 3.11+ + venv | no | yes |
+| System **ffmpeg** on `PATH` | no | yes — browser recordings are WebM; `librosa` needs ffmpeg to decode them |
+| Disk / network | small | `pip install` pulls PyTorch + Transformers (multi‑GB); first analyze also caches HuBERT (`BSC-LT/hubert-base-ca-2k`) |
+
+CORS is limited to `http://localhost:5173` and `http://127.0.0.1:5173`. If Vite prints a different port, free 5173 or open the app on 5173 so the browser origin matches.
+
 ## Quick start — web demo
 
 The fastest way to explore the product flow is the browser app with a **mock scorer** (no model download):
@@ -21,10 +32,10 @@ The fastest way to explore the product flow is the browser app with a **mock sco
 ```bash
 cd web
 npm install
-npm run dev
+VITE_ACCENT_ORACLE_DEV=1 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`). Record or upload audio, read the prompt aloud, and view the heatmap.
+Open the URL Vite prints (usually `http://localhost:5173`). Record or upload audio, read the prompt aloud, and view the heatmap. With the dev flag you get the mock/API toggle and diagnostic UI (or use `?dev=1` instead).
 
 ### With the real model (local API)
 
@@ -54,12 +65,15 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
    uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
    ```
 
+   Sanity check: `curl -s http://127.0.0.1:8000/health` should show `"ok": true` once the classifier files are in place (encoder loads lazily on first `/analyze`).
+
 4. **Start the web app in API mode:**
 
    ```bash
    cd web
    VITE_ACCENT_ORACLE_MODE=api \
    VITE_ACCENT_ORACLE_API_URL=http://localhost:8000 \
+   VITE_ACCENT_ORACLE_DEV=1 \
    npm run dev
    ```
 
@@ -158,13 +172,17 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 
 ## Development checks
 
-```bash
-# Web
-cd web && npm run lint && npm run build
+Before substantive web/backend PRs, run the same lightweight checks CI will enforce (no model download, no HuBERT, no ffmpeg):
 
-# Python (from repo root, venv active)
-python scripts/audit_aina_tsv_metadata.py --max-rows 200000
+```bash
+# Web — lint, production build, unit tests
+cd web && npm run lint && npm run build && npm test
+
+# Python — unit tests (from repo root; use requirements-dev.txt, not full torch stack)
+pytest -q
 ```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs these on pull requests and pushes to `main`. Optional ML audits (e.g. `python scripts/audit_aina_tsv_metadata.py --max-rows 200000`) stay local.
 
 ## Collaborating
 
@@ -172,9 +190,9 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for a short contributor checklist. Su
 
 | Path | What you need |
 | --- | --- |
-| **Mock-first** | `cd web && npm install && npm run dev` — no backend or model |
-| **API mode** | Python venv + `hf download miquelt-9/cv26-hubert-svm-calibrated --local-dir models/cv26-hubert-svm-calibrated` + uvicorn + `VITE_ACCENT_ORACLE_MODE=api` |
-| **Dev UI** | `?dev=1` or `VITE_ACCENT_ORACLE_DEV=1` — CPU hint, mock/API toggle, validation internals |
+| **Mock-first** | `cd web && npm install && VITE_ACCENT_ORACLE_DEV=1 npm run dev` — no backend or model |
+| **API mode** | Python venv + `hf download miquelt-9/cv26-hubert-svm-calibrated --local-dir models/cv26-hubert-svm-calibrated` + uvicorn + `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_DEV=1` |
+| **Dev UI** | Included via `VITE_ACCENT_ORACLE_DEV=1` above, or `?dev=1` in the browser (persists in `localStorage`; `?dev=0` clears) |
 
 License: [AGPL-3.0](LICENSE). Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/).
 

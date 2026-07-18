@@ -16,6 +16,11 @@ from pydantic import BaseModel, Field
 from transformers import AutoFeatureExtractor, AutoModel
 
 from backend import storage
+from backend.scoring import (
+    build_result as _build_result,
+    confidence_summary as _confidence_summary,
+    evidence_band as _evidence_band,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -101,43 +106,16 @@ def extract_embedding(path: Path) -> np.ndarray:
 
 
 def evidence_band(top_two_gap: float, confidence: float) -> str:
-    if top_two_gap < 0.08 or confidence < 0.32:
-        return "limited"
-    if top_two_gap > 0.18 and confidence > 0.48:
-        return "strong"
-    return "moderate"
+    return _evidence_band(top_two_gap, confidence)
 
 
 def confidence_summary(band: str, ambiguous: bool) -> str:
-    if ambiguous:
-        return "Top two areas are close, so the map intentionally shows a broader similarity pattern."
-    if band == "strong":
-        return "The model signal is relatively concentrated, but still not an exact origin estimate."
-    if band == "moderate":
-        return "The model has a leading area with meaningful uncertainty around it."
-    return "The recording offers limited evidence, so uncertainty is high."
+    return _confidence_summary(band, ambiguous)
 
 
 def build_result(probabilities: np.ndarray) -> dict[str, Any]:
-    metadata = load_metadata()
-    labels = metadata["labels"]
-    scores = {label: round(float(probabilities[index]), 4) for index, label in enumerate(labels)}
-    ranked = sorted(labels, key=lambda label: scores[label], reverse=True)
-    top_label = ranked[0]
-    runner_up = ranked[1]
-    gap = round(scores[top_label] - scores[runner_up], 4)
-    ambiguous = gap < 0.08
-    band = evidence_band(gap, scores[top_label])
-    return {
-        "scores": scores,
-        "topLabel": top_label,
-        "runnerUpLabel": runner_up,
-        "topTwoGap": gap,
-        "isAmbiguousTopTwo": ambiguous,
-        "evidenceBand": band,
-        "confidenceSummary": confidence_summary(band, ambiguous),
-        "interpretation": f"This recording sounds most similar to {top_label.title()} Catalan areas in the current model.",
-    }
+    labels = load_metadata()["labels"]
+    return _build_result(probabilities, labels)
 
 
 def client_ip(request: Request) -> str | None:

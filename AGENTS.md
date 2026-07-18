@@ -49,7 +49,8 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - Keep UI copy in **Catalan** unless explicitly translating.
 - Preserve speaker-grouped splits in any new training/eval code.
 - Match existing patterns: minimal diffs, no drive-by refactors.
-- Run `cd web && npm run lint && npm run build` after substantive web changes.
+- After substantive web changes: `cd web && npm run lint && npm run build && npm test`.
+- After substantive backend/helper changes: `pytest -q` (dev deps via `requirements-dev.txt`; CI does not install full `requirements.txt`).
 - Document new experiments under `reports/` with reproducible commands.
 
 ### Do not
@@ -84,7 +85,8 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 
 - Classifier Hub id: `miquelt-9/cv26-hubert-svm-calibrated` (small joblib; keep out of git).
 - Encoder `BSC-LT/hubert-base-ca-2k` downloads into the HF cache on first `/analyze` (slow on CPU).
-- Web: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL=http://localhost:8000`.
+- System **ffmpeg** required so `librosa` can decode browser WebM recordings.
+- Web: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL=http://localhost:8000` (+ `VITE_ACCENT_ORACLE_DEV=1` for diagnostics). CORS allowlist is Vite’s default `5173` only.
 
 ### Map changes
 
