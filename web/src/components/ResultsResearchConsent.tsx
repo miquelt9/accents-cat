@@ -65,7 +65,7 @@ export function ResultsResearchConsent({
         <p className="eyebrow">Recerca</p>
         <h2>Gràcies per contribuir</h2>
         <p>
-          Hem desat aquesta gravació per a recerca i entrenament de models de català. Pots demanar-ne la
+          Hem desat aquesta gravació per a recerca i entrenament de models en català. Pots demanar-ne la
           supressió des de «Gestiona les meves dades».
         </p>
       </section>

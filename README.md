@@ -77,6 +77,17 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
    npm run dev
    ```
 
+   Dev server uses HTTPS (self-signed) so mic works on localhost. For a phone on the same Wi‑Fi:
+
+   ```bash
+   VITE_ACCENT_ORACLE_MODE=api \
+   VITE_ACCENT_ORACLE_API_URL= \
+   VITE_ACCENT_ORACLE_DEV=1 \
+   npm run dev:lan
+   ```
+
+   Open the printed `https://<lan-ip>:5173/` URL and accept the certificate warning. Empty `VITE_ACCENT_ORACLE_API_URL` makes the app call the Vite proxy (same origin → backend on `:8000`).
+
 **API endpoints:**
 
 | Method | Path | Purpose |

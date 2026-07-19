@@ -1,5 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useDragControls,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type PanInfo,
+} from "motion/react";
 import {
   createClientId,
   DIALECT_ZONES,
@@ -12,7 +21,8 @@ import { LEGAL_POLICY_VERSION, type LegalDocId } from "../lib/legalDocs";
 import { appendLedgerEntry } from "../lib/submissionLedger";
 import { LegalDocument } from "./LegalDocument";
 
-const SELF_REPORT_OPTIONS: SelfReportedDialect[] = [...DIALECT_ZONES, "mixed", "unknown"];
+const SHEET_DISMISS_OFFSET_PX = 110;
+const SHEET_DISMISS_VELOCITY = 720;
 
 type FunnelStep = "promoting" | "ask" | "dialect" | "consent" | "done";
 
@@ -68,6 +78,20 @@ function ThumbDownIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.75"
+      />
+    </svg>
+  );
+}
+
 export function ResultsConsentFeedback({
   recordingId,
   preConsented,
@@ -75,6 +99,12 @@ export function ResultsConsentFeedback({
 }: ResultsConsentFeedbackProps) {
   const reduceMotion = useReducedMotion();
   const sheetPanelRef = useRef<HTMLDivElement>(null);
+  const dragControls = useDragControls();
+  const sheetY = useMotionValue(0);
+  const backdropOpacity = useTransform(sheetY, [0, 260], [1, 0.2]);
+  const [isCompact, setIsCompact] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 639px)").matches : false,
+  );
   const [step, setStep] = useState<FunnelStep>(preConsented && recordingId ? "promoting" : "ask");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [legalDoc, setLegalDoc] = useState<LegalDocId | null>(null);
@@ -84,6 +114,36 @@ export function ResultsConsentFeedback({
   const [researchSaved, setResearchSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const canDragSheet = isCompact && !reduceMotion && !isSubmitting;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const syncCompact = () => setIsCompact(mediaQuery.matches);
+
+    syncCompact();
+    mediaQuery.addEventListener("change", syncCompact);
+    return () => mediaQuery.removeEventListener("change", syncCompact);
+  }, []);
+
+  useEffect(() => {
+    if (!sheetOpen) {
+      sheetY.set(0);
+      return;
+    }
+    if (reduceMotion) {
+      sheetY.set(0);
+      return;
+    }
+    sheetY.set(36);
+    const controls = animate(sheetY, 0, {
+      type: "spring",
+      stiffness: 420,
+      damping: 38,
+      mass: 0.85,
+    });
+    return () => controls.stop();
+  }, [sheetOpen, reduceMotion, sheetY]);
 
   useEffect(() => {
     if (!preConsented || !recordingId || promoted || step !== "promoting") {
@@ -147,6 +207,32 @@ export function ResultsConsentFeedback({
     setError(null);
   }
 
+  function handleSheetDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
+    if (!canDragSheet) {
+      return;
+    }
+    if (info.offset.y > SHEET_DISMISS_OFFSET_PX || info.velocity.y > SHEET_DISMISS_VELOCITY) {
+      dismissSheet();
+      return;
+    }
+    void animate(sheetY, 0, {
+      type: "spring",
+      stiffness: 460,
+      damping: 40,
+      mass: 0.8,
+    });
+  }
+
+  function startSheetDrag(event: ReactPointerEvent) {
+    if (!canDragSheet || legalDoc) {
+      return;
+    }
+    if ((event.target as HTMLElement | null)?.closest(".feedback-sheet-close")) {
+      return;
+    }
+    dragControls.start(event);
+  }
+
   useEffect(() => {
     if (!sheetOpen && !legalDoc) {
       return;
@@ -179,6 +265,18 @@ export function ResultsConsentFeedback({
       sheetPanelRef.current?.focus();
     }
   }, [sheetOpen, legalDoc]);
+
+  useEffect(() => {
+    if (!sheetOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [sheetOpen]);
 
   async function submitFeedbackOnly(nextWasCorrect: boolean, dialect?: SelfReportedDialect) {
     setIsSubmitting(true);
@@ -289,8 +387,7 @@ export function ResultsConsentFeedback({
         <h2>Gràcies per la teva ajuda</h2>
         {researchSaved ? (
           <p>
-            Hem desat la gravació per a recerca i el teu comentari ens ajuda a millorar el model de
-            similitud dialectal. Pots demanar-ne la supressió des de «Gestiona les meves dades».
+            Hem desat aquesta gravació per a recerca i entrenament de models en català.
           </p>
         ) : preConsented ? (
           <p>El teu comentari ens ajuda a millorar el model de similitud dialectal.</p>
@@ -355,10 +452,11 @@ export function ResultsConsentFeedback({
             exit={reduceMotion ? undefined : { opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <button
+            <motion.button
               aria-label="Tanca"
               className="feedback-sheet-backdrop"
               onClick={dismissSheet}
+              style={{ opacity: backdropOpacity }}
               type="button"
             />
             <motion.div
@@ -368,11 +466,34 @@ export function ResultsConsentFeedback({
               aria-modal="true"
               aria-labelledby={sheetTitleId}
               tabIndex={-1}
-              initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? undefined : { opacity: 0, y: 28 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              style={{ y: sheetY }}
+              drag={canDragSheet ? "y" : false}
+              dragControls={dragControls}
+              dragListener={false}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.62 }}
+              onDragEnd={handleSheetDragEnd}
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reduceMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
+              <div
+                className={`feedback-sheet-chrome${canDragSheet ? " is-draggable" : ""}`}
+                onPointerDown={startSheetDrag}
+              >
+                <div className="feedback-sheet-handle" aria-hidden="true" />
+                <button
+                  aria-label="Tanca"
+                  className="feedback-sheet-close"
+                  disabled={isSubmitting}
+                  onClick={dismissSheet}
+                  type="button"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+
               {step === "dialect" && (
                 <div className="feedback-sheet-body">
                   <h2 id="feedback-sheet-dialect-title">
@@ -384,7 +505,7 @@ export function ResultsConsentFeedback({
                     role="group"
                     aria-label="Zona d'autoidentificació"
                   >
-                    {SELF_REPORT_OPTIONS.map((option) => (
+                    {DIALECT_ZONES.map((option) => (
                       <button
                         key={option}
                         className="secondary feedback-dialect-option"
@@ -395,6 +516,28 @@ export function ResultsConsentFeedback({
                         {SELF_REPORTED_DIALECT_LABELS[option]}
                       </button>
                     ))}
+                  </div>
+                  <div
+                    className="feedback-dialect-fallbacks"
+                    role="group"
+                    aria-label="Altres opcions"
+                  >
+                    <button
+                      className="secondary feedback-dialect-option feedback-dialect-option--fallback"
+                      disabled={isSubmitting}
+                      onClick={() => handleDialect("mixed")}
+                      type="button"
+                    >
+                      {SELF_REPORTED_DIALECT_LABELS.mixed}
+                    </button>
+                    <button
+                      className="secondary feedback-dialect-option feedback-dialect-option--fallback"
+                      disabled={isSubmitting}
+                      onClick={() => handleDialect("unknown")}
+                      type="button"
+                    >
+                      {SELF_REPORTED_DIALECT_LABELS.unknown}
+                    </button>
                   </div>
                 </div>
               )}

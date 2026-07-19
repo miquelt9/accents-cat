@@ -85,7 +85,7 @@ Mock mode needs no backend. Test API mode with backend running and `VITE_ACCENT_
 
 Developer status messages (CPU inference hint, mock IP label) and the in-UI Mode cycle (**API → mock fail → mock success**) are off by default. Enable with `VITE_ACCENT_ORACLE_DEV=1` or `?dev=1` (`web/src/lib/devFlags.ts`; persists as `localStorage` `accent-oracle-dev=1`). Use **mock fail** to force the mandatory-second + optional-third path; **mock success** for a clear first take.
 
-Results **Comparteix** uses the Web Share API with a PNG (`navigator.share({ files })`) on capable phones. That requires a secure context (`window.isSecureContext` — HTTPS or localhost). On plain `http://` LAN IPs, native share is unavailable and the UI falls back to downloading the image; test share on a deployed HTTPS host (or add Vite HTTPS locally if you need phone LAN testing).
+Results **Comparteix** uses the Web Share API with a PNG (`navigator.share({ files })`) on capable phones. That requires a secure context (`window.isSecureContext` — HTTPS or localhost). Mic recording has the same requirement. For phone LAN testing, use `npm run dev:lan` (Vite `@vitejs/plugin-basic-ssl` + `--host`); open the printed `https://<lan-ip>:5173/` URL and accept the self-signed cert warning. In API mode set `VITE_ACCENT_ORACLE_API_URL=` (empty) so the Vite proxy forwards to `127.0.0.1:8000` same-origin (avoids mixed content). On plain `http://` LAN IPs, mic/share stay blocked.
 
 ### Backend / inference
 
@@ -100,7 +100,7 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 - Classifier Hub id: `miquelt-9/cv26-hubert-svm-calibrated` (small joblib; keep out of git).
 - Encoder `BSC-LT/hubert-base-ca-2k` downloads into the HF cache on first `/analyze` (slow on CPU).
 - System **ffmpeg** required so `librosa` can decode browser WebM recordings.
-- Web: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL=http://localhost:8000` (+ `VITE_ACCENT_ORACLE_DEV=1` for diagnostics). CORS allowlist is Vite’s default `5173` only.
+- Web: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL=http://localhost:8000` (+ `VITE_ACCENT_ORACLE_DEV=1` for diagnostics). Phone LAN: `npm run dev:lan` with empty `VITE_ACCENT_ORACLE_API_URL` (Vite HTTPS + API proxy). CORS allowlist is Vite’s `5173` (http/https localhost).
 
 ### Map changes
 

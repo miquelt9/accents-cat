@@ -82,7 +82,7 @@ export function MicrophoneWaveform({ stream, isActive, theme }: MicrophoneWavefo
       ref={canvasRef}
       className="microphone-waveform"
       width={320}
-      height={80}
+      height={56}
       aria-hidden="true"
     />
   );

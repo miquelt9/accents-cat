@@ -316,7 +316,9 @@ function App() {
     (phase === "recording" || phase === "validation" || phase === "refine") && activePrompt;
 
   return (
-    <main className={`app-shell ${phase === "landing" ? "landing-main" : ""}`.trim()}>
+    <main
+      className={`app-shell ${phase === "landing" ? "landing-main" : ""} ${showRecorder ? "recording-main" : ""}`.trim()}
+    >
       <div className="theme-toggle-row">
         {devToolsEnabled && (
           <div className="dev-tools-bar" role="group" aria-label="Eines de desenvolupament">
