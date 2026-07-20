@@ -138,7 +138,7 @@ When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15
 | Macro F1 | ~51% | ~50% |
 | Top-2 accuracy | ~72% | ~70% |
 
-Encoder: `BSC-LT/hubert-base-ca-2k`. Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)` — published at [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated). Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
+Encoder: `BSC-LT/hubert-base-ca-2k` (**Apache-2.0**, © 2025 BSC Language Technologies Unit — see [`NOTICE`](../NOTICE)). Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)` — published at [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (MIT for the sklearn artifact only; does not redistribute HuBERT weights). Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
 
 **Speaker scarcity:** the balanced set is capped by the **northern** dialect (~96 usable speakers after benchmark holdout), while central has thousands. Consenting user recordings plus self-reported dialect labels (via post-result feedback) are the main path to more speaker diversity beyond CV26.
 
@@ -209,7 +209,13 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for a short contributor checklist. Su
 | **API mode** | Python venv + `hf download miquelt-9/cv26-hubert-svm-calibrated --local-dir models/cv26-hubert-svm-calibrated` + uvicorn + `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_DEV=1` |
 | **Dev UI** | Included via `VITE_ACCENT_ORACLE_DEV=1` above, or `?dev=1` in the browser (persists in `localStorage`; `?dev=0` clears) |
 
-License: [AGPL-3.0](LICENSE). Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/).
+## License
+
+- **This repository** (app code, scripts, docs): [AGPL-3.0](LICENSE). Keep it — Apache-2.0 on the upstream encoder does **not** require changing the project license.
+- **Inference classifier** on the Hub (`miquelt-9/cv26-hubert-svm-calibrated`, sklearn `joblib` only): MIT (see that model card).
+- **Speech encoder** [`BSC-LT/hubert-base-ca-2k`](https://huggingface.co/BSC-LT/hubert-base-ca-2k): **Apache-2.0**, © 2025 Language Technologies Unit, Barcelona Supercomputing Center. Attribution and notices: **[NOTICE](NOTICE)**. The encoder is downloaded at runtime; this repo does not vendor or redistribute its weights.
+
+Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AGENTS.md)** and [`.cursor/rules/`](.cursor/rules/).
 
 ## Status & next steps
 

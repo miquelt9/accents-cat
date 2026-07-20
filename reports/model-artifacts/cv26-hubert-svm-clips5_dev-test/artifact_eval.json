@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-clips5/model.joblib",
+  "eval_index": "embeddings/cv26-eval-dev-test/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 532,
+  "eval_speakers": 200,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.4925,
+  "macro_f1": 0.5006,
+  "top2_accuracy": 0.7162,
+  "log_loss": 1.2434,
+  "brier_score": 0.6354,
+  "expected_calibration_error": 0.0439,
+  "confusion_matrix": [
+    [
+      78,
+      4,
+      15,
+      7,
+      1
+    ],
+    [
+      4,
+      50,
+      34,
+      11,
+      1
+    ],
+    [
+      3,
+      38,
+      35,
+      16,
+      18
+    ],
+    [
+      5,
+      17,
+      23,
+      39,
+      23
+    ],
+    [
+      1,
+      4,
+      17,
+      28,
+      60
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.8571428571428571,
+      "recall": 0.7428571428571429,
+      "f1-score": 0.7959183673469388,
+      "support": 105.0
+    },
+    "central": {
+      "precision": 0.4424778761061947,
+      "recall": 0.5,
+      "f1-score": 0.4694835680751174,
+      "support": 100.0
+    },
+    "northern": {
+      "precision": 0.28225806451612906,
+      "recall": 0.3181818181818182,
+      "f1-score": 0.29914529914529914,
+      "support": 110.0
+    },
+    "northwestern": {
+      "precision": 0.38613861386138615,
+      "recall": 0.3644859813084112,
+      "f1-score": 0.375,
+      "support": 107.0
+    },
+    "valencian": {
+      "precision": 0.5825242718446602,
+      "recall": 0.5454545454545454,
+      "f1-score": 0.5633802816901409,
+      "support": 110.0
+    },
+    "accuracy": 0.4924812030075188,
+    "macro avg": {
+      "precision": 0.5101083366942454,
+      "recall": 0.49419589756038357,
+      "f1-score": 0.5005855032514992,
+      "support": 532.0
+    },
+    "weighted avg": {
+      "precision": 0.5088170607020199,
+      "recall": 0.4924812030075188,
+      "f1-score": 0.49910263020834345,
+      "support": 532.0
+    }
+  }
+}

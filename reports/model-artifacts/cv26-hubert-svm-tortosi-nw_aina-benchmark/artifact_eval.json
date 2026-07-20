@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-tortosi-nw/model.joblib",
+  "eval_index": "embeddings/benchmark-eval-750/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 742,
+  "eval_speakers": 250,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.4623,
+  "macro_f1": 0.4611,
+  "top2_accuracy": 0.6739,
+  "log_loss": 1.2928,
+  "brier_score": 0.6518,
+  "expected_calibration_error": 0.0871,
+  "confusion_matrix": [
+    [
+      108,
+      12,
+      12,
+      9,
+      9
+    ],
+    [
+      3,
+      58,
+      31,
+      36,
+      20
+    ],
+    [
+      9,
+      55,
+      33,
+      32,
+      21
+    ],
+    [
+      3,
+      33,
+      22,
+      53,
+      39
+    ],
+    [
+      5,
+      11,
+      9,
+      28,
+      91
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.84375,
+      "recall": 0.72,
+      "f1-score": 0.7769784172661871,
+      "support": 150.0
+    },
+    "central": {
+      "precision": 0.3431952662721893,
+      "recall": 0.3918918918918919,
+      "f1-score": 0.3659305993690852,
+      "support": 148.0
+    },
+    "northern": {
+      "precision": 0.308411214953271,
+      "recall": 0.22,
+      "f1-score": 0.25680933852140075,
+      "support": 150.0
+    },
+    "northwestern": {
+      "precision": 0.33544303797468356,
+      "recall": 0.35333333333333333,
+      "f1-score": 0.34415584415584416,
+      "support": 150.0
+    },
+    "valencian": {
+      "precision": 0.5055555555555555,
+      "recall": 0.6319444444444444,
+      "f1-score": 0.5617283950617284,
+      "support": 144.0
+    },
+    "accuracy": 0.46226415094339623,
+    "macro avg": {
+      "precision": 0.46727101495113993,
+      "recall": 0.46343393393393395,
+      "f1-score": 0.46112051887484906,
+      "support": 742.0
+    },
+    "weighted avg": {
+      "precision": 0.46729587243595316,
+      "recall": 0.46226415094339623,
+      "f1-score": 0.46056355469949906,
+      "support": 742.0
+    }
+  }
+}

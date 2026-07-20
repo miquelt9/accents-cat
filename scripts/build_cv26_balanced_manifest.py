@@ -57,13 +57,22 @@ class Cv26ManifestSummary:
     reserved_speaker_manifests: list[str]
     excluded_ambiguous_speakers: int
     label_policy: str
+    tortosi_policy: str
+    min_up_votes: int | None
+    max_down_votes: int | None
+    rows_before_vote_filter: int
+    rows_after_vote_filter: int
 
 
 def normalize_text(value: Any) -> str:
     return " ".join(str(value or "").strip().lower().replace("_", " ").replace("-", " ").split())
 
 
-def expanded_label(value: Any) -> str | None:
+def is_tortosi(text: str) -> bool:
+    return text == "tortosi" or text == "tortosí" or "tortosi" in text or "tortosí" in text
+
+
+def expanded_label(value: Any, tortosi_policy: str = "exclude") -> str | None:
     text = normalize_text(value)
     if not text:
         return None
@@ -75,7 +84,11 @@ def expanded_label(value: Any) -> str | None:
         return "northern"
     if text in {"nord occidental", "northwestern", "occidental", "lleidata", "lleidatà"}:
         return "northwestern"
-    if text == "tortosi" or text == "tortosí" or "tortosi" in text or "tortosí" in text:
+    if is_tortosi(text):
+        if tortosi_policy == "northwestern":
+            return "northwestern"
+        if tortosi_policy == "valencian":
+            return "valencian"
         return None
     if (
         text in {"valencia", "valencià", "valencian", "alacanti", "alacantí"}
@@ -87,11 +100,30 @@ def expanded_label(value: Any) -> str | None:
     return None
 
 
-def choose_label(row: pd.Series) -> str | None:
-    return expanded_label(row.get("variant")) or expanded_label(row.get("accents"))
+def choose_label(row: pd.Series, tortosi_policy: str = "exclude") -> str | None:
+    return expanded_label(row.get("variant"), tortosi_policy) or expanded_label(
+        row.get("accents"), tortosi_policy
+    )
 
 
-def read_cv26_tsv(path: Path) -> pd.DataFrame:
+def apply_vote_filter(
+    df: pd.DataFrame,
+    min_up_votes: int | None,
+    max_down_votes: int | None,
+) -> pd.DataFrame:
+    if min_up_votes is None and max_down_votes is None:
+        return df
+    filtered = df.copy()
+    if "up_votes" in filtered.columns and min_up_votes is not None:
+        up = pd.to_numeric(filtered["up_votes"], errors="coerce").fillna(0)
+        filtered = filtered[up >= min_up_votes]
+    if "down_votes" in filtered.columns and max_down_votes is not None:
+        down = pd.to_numeric(filtered["down_votes"], errors="coerce").fillna(0)
+        filtered = filtered[down <= max_down_votes]
+    return filtered.copy()
+
+
+def read_cv26_tsv(path: Path, tortosi_policy: str = "exclude") -> pd.DataFrame:
     df = pd.read_csv(
         path,
         sep="\t",
@@ -103,7 +135,7 @@ def read_cv26_tsv(path: Path) -> pd.DataFrame:
     )
     available = [column for column in KEEP_COLUMNS if column in df.columns]
     df = df[available].copy()
-    df["label"] = df.apply(choose_label, axis=1)
+    df["label"] = df.apply(lambda row: choose_label(row, tortosi_policy), axis=1)
     df = df[df["label"].isin(LABELS)].copy()
     df["source_dataset"] = "common_voice_26_ca"
     df["source_file"] = path.name
@@ -167,6 +199,9 @@ def write_markdown(summary: Cv26ManifestSummary, path: Path) -> None:
         f"- Output manifest: `{summary.out_manifest}`",
         f"- Seed: `{summary.seed}`",
         f"- Label policy: {summary.label_policy}",
+        f"- Tortosí policy: `{summary.tortosi_policy}`",
+        f"- Vote filter: min_up_votes=`{summary.min_up_votes}`, max_down_votes=`{summary.max_down_votes}`",
+        f"- Rows before/after vote filter: `{summary.rows_before_vote_filter}` / `{summary.rows_after_vote_filter}`",
         f"- Max speakers per label requested: `{summary.max_speakers_per_label}`",
         f"- Selected speakers per label: `{summary.selected_speakers_per_label}`",
         f"- Max clips per speaker: `{summary.max_clips_per_speaker}`",
@@ -184,6 +219,14 @@ def write_markdown(summary: Cv26ManifestSummary, path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def label_policy_text(tortosi_policy: str) -> str:
+    if tortosi_policy == "exclude":
+        tortosi_bit = "Tortosi excluded"
+    else:
+        tortosi_bit = f"Tortosi mapped to {tortosi_policy}"
+    return f"expanded labels, variant first, controlled accents fallback, {tortosi_bit}"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--metadata-dir", type=Path, default=Path("data/metadata/cv26-ca"))
@@ -192,6 +235,24 @@ def main() -> None:
     parser.add_argument("--max-speakers-per-label", type=int, default=150)
     parser.add_argument("--max-clips-per-speaker", type=int, default=3)
     parser.add_argument("--seed", type=int, default=13)
+    parser.add_argument(
+        "--tortosi-policy",
+        choices=["exclude", "northwestern", "valencian"],
+        default="exclude",
+        help="How to map Tortosí variant/accent labels.",
+    )
+    parser.add_argument(
+        "--min-up-votes",
+        type=int,
+        default=None,
+        help="Keep clips with up_votes >= this value (optional quality filter).",
+    )
+    parser.add_argument(
+        "--max-down-votes",
+        type=int,
+        default=None,
+        help="Keep clips with down_votes <= this value (optional quality filter).",
+    )
     parser.add_argument(
         "--reserved-speakers-manifest",
         type=Path,
@@ -202,7 +263,10 @@ def main() -> None:
     args = parser.parse_args()
 
     source_tsv = args.metadata_dir / f"{args.source_split}.tsv"
-    df = read_cv26_tsv(source_tsv)
+    df = read_cv26_tsv(source_tsv, tortosi_policy=args.tortosi_policy)
+    rows_before_vote = int(len(df))
+    df = apply_vote_filter(df, args.min_up_votes, args.max_down_votes)
+    rows_after_vote = int(len(df))
     reserved_manifest_paths = args.reserved_speakers_manifest or [Path("manifests/benchmark.csv")]
     reserved = reserved_speakers(reserved_manifest_paths)
     before_reserved = set(df["client_id"].dropna().unique().tolist())
@@ -238,7 +302,12 @@ def main() -> None:
         excluded_reserved_speakers=excluded_reserved,
         reserved_speaker_manifests=[str(path) for path in reserved_manifest_paths],
         excluded_ambiguous_speakers=ambiguous_count,
-        label_policy="expanded labels, variant first, controlled accents fallback, Tortosi excluded",
+        label_policy=label_policy_text(args.tortosi_policy),
+        tortosi_policy=args.tortosi_policy,
+        min_up_votes=args.min_up_votes,
+        max_down_votes=args.max_down_votes,
+        rows_before_vote_filter=rows_before_vote,
+        rows_after_vote_filter=rows_after_vote,
     )
     summary_path = args.out_manifest.with_suffix(".summary.md")
     json_path = args.out_manifest.with_suffix(".summary.json")

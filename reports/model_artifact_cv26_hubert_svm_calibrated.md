@@ -6,8 +6,8 @@ This is the current inference candidate for the Catalan Accent Oracle prototype.
 
 - Model: `models/cv26-hubert-svm-calibrated/model.joblib`
 - Metadata: `models/cv26-hubert-svm-calibrated/metadata.json`
-- Encoder: `BSC-LT/hubert-base-ca-2k`
-- Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)`
+- Encoder: `BSC-LT/hubert-base-ca-2k` (Apache-2.0; attribution in repo root `NOTICE`)
+- Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)` (MIT on Hub for this joblib artifact)
 - Embedding: mean + standard deviation pooling over HuBERT last hidden states
 - Labels: `balearic`, `central`, `northern`, `northwestern`, `valencian`
 

@@ -76,7 +76,7 @@ def test_confirm_research_consent(isolated_storage: Path) -> None:
     assert (
         storage.confirm_research_consent(
             submission_id,
-            policy_version="18 de juliol de 2026",
+            policy_version="19 de juliol de 2026",
         )
         is True
     )
@@ -89,14 +89,14 @@ def test_confirm_research_consent(isolated_storage: Path) -> None:
             "FROM submissions WHERE id = ?",
             (submission_id,),
         ).fetchone()
-    assert row == (1, row[1], "18 de juliol de 2026", None)
+    assert row == (1, row[1], "19 de juliol de 2026", None)
     assert row[1] is not None
 
     # Already consented
     assert (
         storage.confirm_research_consent(
             submission_id,
-            policy_version="18 de juliol de 2026",
+            policy_version="19 de juliol de 2026",
         )
         is False
     )

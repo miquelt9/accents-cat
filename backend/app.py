@@ -51,7 +51,7 @@ TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
 # Must stay aligned with web/src/lib/legalDocs.ts LEGAL_POLICY_VERSION.
 DEFAULT_POLICY_VERSION = os.environ.get(
     "ORACLE_POLICY_VERSION",
-    "18 de juliol de 2026",
+    "19 de juliol de 2026",
 )
 MAX_POLICY_VERSION_CHARS = 64
 

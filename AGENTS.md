@@ -98,7 +98,7 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
 - Classifier Hub id: `miquelt-9/cv26-hubert-svm-calibrated` (small joblib; keep out of git).
-- Encoder `BSC-LT/hubert-base-ca-2k` downloads into the HF cache on first `/analyze` (slow on CPU).
+- Encoder `BSC-LT/hubert-base-ca-2k` (Apache-2.0; see root [`NOTICE`](NOTICE)) downloads into the HF cache on first `/analyze` (slow on CPU).
 - System **ffmpeg** required so `librosa` can decode browser WebM recordings.
 - Web: `VITE_ACCENT_ORACLE_MODE=api` + `VITE_ACCENT_ORACLE_API_URL=http://localhost:8000` (+ `VITE_ACCENT_ORACLE_DEV=1` for diagnostics). Phone LAN: `npm run dev:lan` with empty `VITE_ACCENT_ORACLE_API_URL` (Vite HTTPS + API proxy). CORS allowlist is Vite’s `5173` (http/https localhost).
 
@@ -147,7 +147,7 @@ Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts
 - Real-user recording corpus for threshold tuning (northern speaker bottleneck).
 - Public deployment (hosting, model size, WASM vs server inference).
 - Replace placeholder privacy email / controller name (`VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME`) before launch.
-- `Tortosí` and other transitional labels in CV26 metadata.
+- `Tortosí` and other transitional labels in CV26 metadata — **keep excluded** from the five-way train set (Phase 3 ablation: mapping to NW or Valencian hurt AINA; see [`reports/model_improvement_phase1.md`](reports/model_improvement_phase1.md)).
 
 ### Public release checklist (Spain)
 

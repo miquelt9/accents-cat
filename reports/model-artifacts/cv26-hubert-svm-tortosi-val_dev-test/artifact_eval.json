@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-tortosi-val/model.joblib",
+  "eval_index": "embeddings/cv26-eval-dev-test/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 532,
+  "eval_speakers": 200,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.5056,
+  "macro_f1": 0.5101,
+  "top2_accuracy": 0.7086,
+  "log_loss": 1.2231,
+  "brier_score": 0.6303,
+  "expected_calibration_error": 0.0727,
+  "confusion_matrix": [
+    [
+      79,
+      4,
+      12,
+      9,
+      1
+    ],
+    [
+      5,
+      47,
+      34,
+      11,
+      3
+    ],
+    [
+      5,
+      32,
+      43,
+      17,
+      13
+    ],
+    [
+      5,
+      15,
+      20,
+      39,
+      28
+    ],
+    [
+      1,
+      13,
+      9,
+      26,
+      61
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.8315789473684211,
+      "recall": 0.7523809523809524,
+      "f1-score": 0.79,
+      "support": 105.0
+    },
+    "central": {
+      "precision": 0.42342342342342343,
+      "recall": 0.47,
+      "f1-score": 0.44549763033175355,
+      "support": 100.0
+    },
+    "northern": {
+      "precision": 0.3644067796610169,
+      "recall": 0.39090909090909093,
+      "f1-score": 0.37719298245614036,
+      "support": 110.0
+    },
+    "northwestern": {
+      "precision": 0.38235294117647056,
+      "recall": 0.3644859813084112,
+      "f1-score": 0.37320574162679426,
+      "support": 107.0
+    },
+    "valencian": {
+      "precision": 0.5754716981132075,
+      "recall": 0.5545454545454546,
+      "f1-score": 0.5648148148148148,
+      "support": 110.0
+    },
+    "accuracy": 0.5056390977443609,
+    "macro avg": {
+      "precision": 0.5154467579485079,
+      "recall": 0.5064642958287818,
+      "f1-score": 0.5101422338459006,
+      "support": 532.0
+    },
+    "weighted avg": {
+      "precision": 0.5149558817238226,
+      "recall": 0.5056390977443609,
+      "f1-score": 0.5094993140733973,
+      "support": 532.0
+    }
+  }
+}

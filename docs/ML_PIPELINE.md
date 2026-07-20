@@ -59,7 +59,7 @@ CV26 metadata (no audio extraction):
 - Metadata: `data/metadata/cv26-ca`
 - Reports: `reports/cv26_metadata_audit.md`, `reports/cv26_label_strategy_audit.json`
 
-**Recommendation:** use `train.tsv` only for training expansion, speaker-balanced sampling, `variant` as primary label, controlled `accents` fallback, exclude `Tortosí` until dialect policy is decided. Do not mix `validated.tsv` with official train/dev/test as independent data.
+**Recommendation:** use `train.tsv` only for training expansion, speaker-balanced sampling, `variant` as primary label, controlled `accents` fallback, **exclude `Tortosí`** (ablation: mapping to NW/Valencian hurt AINA — see `reports/model_improvement_phase1.md`). Optional quality filter: `--min-up-votes 2 --max-down-votes 0`. Do not mix `validated.tsv` with official train/dev/test as independent data.
 
 Viewer-only schema check:
 
@@ -92,6 +92,23 @@ python scripts/build_cv26_balanced_manifest.py \
 ```
 
 Target 2,250 clips → 1,440 after benchmark speaker reservation (96 speakers/dialect × 3 clips).
+
+Best follow-up train set from the 2026-07 improvement run: 5 clips/speaker + vote filter:
+
+```bash
+python scripts/build_cv26_balanced_manifest.py \
+  --metadata-dir data/metadata/cv26-ca \
+  --source-split train \
+  --out-manifest manifests/cv26_train_clips5_votes.csv \
+  --max-speakers-per-label 150 \
+  --max-clips-per-speaker 5 \
+  --min-up-votes 2 \
+  --max-down-votes 0 \
+  --tortosi-policy exclude \
+  --seed 13
+```
+
+See `reports/model_improvement_phase1.md` for eval numbers (`models/cv26-hubert-svm-clips5-votes`).
 
 ## Audio preparation
 

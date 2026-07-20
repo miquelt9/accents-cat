@@ -45,11 +45,12 @@ def load_embeddings(index_path: Path) -> tuple[np.ndarray, np.ndarray, pd.DataFr
     return np.vstack(vectors), df["label"].to_numpy(), df
 
 
-def build_model() -> Any:
+def build_model(c_value: float = 1.0, calibration_method: str = "sigmoid") -> Any:
     return make_pipeline(
         StandardScaler(),
         CalibratedClassifierCV(
-            LinearSVC(class_weight="balanced", random_state=13),
+            LinearSVC(C=c_value, class_weight="balanced", random_state=13, max_iter=10_000),
+            method=calibration_method,
             cv=3,
         ),
     )
@@ -60,16 +61,27 @@ def main() -> None:
     parser.add_argument("--train-index", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, default=Path("models/cv26-hubert-svm-calibrated"))
     parser.add_argument("--encoder-model-name", default=DEFAULT_ENCODER)
+    parser.add_argument("--c", type=float, default=1.0, help="LinearSVC C regularization.")
+    parser.add_argument(
+        "--calibration-method",
+        choices=["sigmoid", "isotonic"],
+        default="sigmoid",
+    )
+    parser.add_argument("--notes", default="")
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     x, y, df = load_embeddings(args.train_index)
-    model = build_model()
+    model = build_model(c_value=args.c, calibration_method=args.calibration_method)
     model.fit(x, y)
 
     model_path = args.out_dir / "model.joblib"
     joblib.dump(model, model_path)
 
+    default_notes = (
+        "Current CPU baseline candidate. Input must be a pooled HuBERT embedding with "
+        "the same mean+std pooling used by scripts/extract_hubert_embeddings.py."
+    )
     metadata = ModelMetadata(
         created_at=datetime.now(timezone.utc).isoformat(),
         model_type="standard_scaler_plus_calibrated_linear_svm",
@@ -84,10 +96,7 @@ def main() -> None:
             label: int(df.loc[df["label"] == label, "client_id"].nunique()) for label in LABELS
         },
         embedding_dim=int(x.shape[1]),
-        notes=(
-            "Current CPU baseline candidate. Input must be a pooled HuBERT embedding with "
-            "the same mean+std pooling used by scripts/extract_hubert_embeddings.py."
-        ),
+        notes=args.notes or f"{default_notes} C={args.c}, calibration={args.calibration_method}.",
     )
     (args.out_dir / "metadata.json").write_text(
         json.dumps(asdict(metadata), indent=2, ensure_ascii=False),

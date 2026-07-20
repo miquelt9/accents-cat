@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-tortosi-val/model.joblib",
+  "eval_index": "embeddings/benchmark-eval-750/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 742,
+  "eval_speakers": 250,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.4798,
+  "macro_f1": 0.4773,
+  "top2_accuracy": 0.7035,
+  "log_loss": 1.2518,
+  "brier_score": 0.6332,
+  "expected_calibration_error": 0.0828,
+  "confusion_matrix": [
+    [
+      111,
+      12,
+      16,
+      8,
+      3
+    ],
+    [
+      6,
+      68,
+      32,
+      24,
+      18
+    ],
+    [
+      7,
+      67,
+      29,
+      31,
+      16
+    ],
+    [
+      1,
+      27,
+      26,
+      54,
+      42
+    ],
+    [
+      4,
+      12,
+      7,
+      27,
+      94
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.8604651162790697,
+      "recall": 0.74,
+      "f1-score": 0.7956989247311828,
+      "support": 150.0
+    },
+    "central": {
+      "precision": 0.3655913978494624,
+      "recall": 0.4594594594594595,
+      "f1-score": 0.40718562874251496,
+      "support": 148.0
+    },
+    "northern": {
+      "precision": 0.2636363636363636,
+      "recall": 0.19333333333333333,
+      "f1-score": 0.2230769230769231,
+      "support": 150.0
+    },
+    "northwestern": {
+      "precision": 0.375,
+      "recall": 0.36,
+      "f1-score": 0.3673469387755102,
+      "support": 150.0
+    },
+    "valencian": {
+      "precision": 0.5433526011560693,
+      "recall": 0.6527777777777778,
+      "f1-score": 0.5930599369085173,
+      "support": 144.0
+    },
+    "accuracy": 0.4797843665768194,
+    "macro avg": {
+      "precision": 0.48160909578419303,
+      "recall": 0.4811141141141141,
+      "f1-score": 0.47727367044692964,
+      "support": 742.0
+    },
+    "weighted avg": {
+      "precision": 0.4814225383227889,
+      "recall": 0.4797843665768194,
+      "f1-score": 0.4765263099140985,
+      "support": 742.0
+    }
+  }
+}

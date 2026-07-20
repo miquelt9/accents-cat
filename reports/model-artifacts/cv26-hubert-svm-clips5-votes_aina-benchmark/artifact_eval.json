@@ -1,0 +1,102 @@
+{
+  "model": "models/cv26-hubert-svm-clips5-votes/model.joblib",
+  "eval_index": "embeddings/benchmark-eval-750/embedding_index.csv",
+  "eval_source_file": null,
+  "eval_rows": 742,
+  "eval_speakers": 250,
+  "labels": [
+    "balearic",
+    "central",
+    "northern",
+    "northwestern",
+    "valencian"
+  ],
+  "accuracy": 0.5202,
+  "macro_f1": 0.5157,
+  "top2_accuracy": 0.7183,
+  "log_loss": 1.2199,
+  "brier_score": 0.6095,
+  "expected_calibration_error": 0.0655,
+  "confusion_matrix": [
+    [
+      121,
+      12,
+      8,
+      6,
+      3
+    ],
+    [
+      10,
+      70,
+      33,
+      20,
+      15
+    ],
+    [
+      10,
+      63,
+      39,
+      28,
+      10
+    ],
+    [
+      3,
+      29,
+      20,
+      62,
+      36
+    ],
+    [
+      6,
+      8,
+      11,
+      25,
+      94
+    ]
+  ],
+  "classification_report": {
+    "balearic": {
+      "precision": 0.8066666666666666,
+      "recall": 0.8066666666666666,
+      "f1-score": 0.8066666666666666,
+      "support": 150.0
+    },
+    "central": {
+      "precision": 0.38461538461538464,
+      "recall": 0.47297297297297297,
+      "f1-score": 0.42424242424242425,
+      "support": 148.0
+    },
+    "northern": {
+      "precision": 0.35135135135135137,
+      "recall": 0.26,
+      "f1-score": 0.2988505747126437,
+      "support": 150.0
+    },
+    "northwestern": {
+      "precision": 0.4397163120567376,
+      "recall": 0.41333333333333333,
+      "f1-score": 0.4261168384879725,
+      "support": 150.0
+    },
+    "valencian": {
+      "precision": 0.5949367088607594,
+      "recall": 0.6527777777777778,
+      "f1-score": 0.6225165562913907,
+      "support": 144.0
+    },
+    "accuracy": 0.5202156334231806,
+    "macro avg": {
+      "precision": 0.5154572847101799,
+      "recall": 0.5211501501501502,
+      "f1-score": 0.5156786120802196,
+      "support": 742.0
+    },
+    "weighted avg": {
+      "precision": 0.5151672675340156,
+      "recall": 0.5202156334231806,
+      "f1-score": 0.5150611521212015,
+      "support": 742.0
+    }
+  }
+}

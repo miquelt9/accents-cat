@@ -17,7 +17,7 @@ export interface LegalDocumentContent {
 }
 
 /** Keep in sync with backend ``DEFAULT_POLICY_VERSION`` / ``ORACLE_POLICY_VERSION``. */
-export const LEGAL_POLICY_VERSION = "18 de juliol de 2026";
+export const LEGAL_POLICY_VERSION = "19 de juliol de 2026";
 
 const EFFECTIVE_DATE = LEGAL_POLICY_VERSION;
 
@@ -90,7 +90,8 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
         heading: "Encàrrecs, allotjament i transferències",
         paragraphs: [
           "No venem les teves dades personals. El tractament i l'allotjament del servei es fan a Espanya / dins de l'Espai Econòmic Europeu. Podem fer servir proveïdors tècnics (allotjament, infraestructura) estrictament per operar el servei. Podem divulgar dades si la llei ho exigeix.",
-          "Els models o components de tercers (per exemple, codificadors d'àudio) s'executen al servidor a Espanya per generar les puntuacions; no impliquen cedir el teu àudio amb finalitats de màrqueting.",
+          "Els models o components de tercers s'executen al servidor a Espanya per generar les puntuacions; no impliquen cedir el teu àudio amb finalitats de màrqueting.",
+          "El codificador de veu utilitzat en mode API és HuBERT català (BSC-LT/hubert-base-ca-2k), de la Language Technologies Unit del Barcelona Supercomputing Center, sota llicència Apache-2.0. Es descarrega i s'executa al servidor; no cedim el teu àudio a BSC amb finalitats de màrqueting.",
         ],
       },
       {
@@ -154,7 +155,8 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Propietat intel·lectual",
         paragraphs: [
-          "El codi, el disseny, els textos de l'interfície i els actius del prototip pertanyen als seus autors o llicenciants. Se't concedeix un dret limitat d'ús personal no comercial del servei tal com s'ofereix.",
+          "El codi, el disseny, els textos de l'interfície i els actius del prototip pertanyen als seus autors o llicenciants. El codi del repositori es publica sota AGPL-3.0. Se't concedeix un dret limitat d'ús personal no comercial del servei tal com s'ofereix.",
+          "El codificador HuBERT català (BSC-LT/hubert-base-ca-2k) és © 2025 Language Technologies Unit, Barcelona Supercomputing Center, i es regeix per la llicència Apache-2.0. El classificador publicat a Hugging Face (capçalera sklearn) té la seva pròpia llicència (MIT) i no redistribueix els pesos d'HuBERT modificats.",
         ],
       },
       {
