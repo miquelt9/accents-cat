@@ -18,6 +18,7 @@ import {
 import { selfReportedDialectFromComarques } from "../lib/comarcaDisplay";
 import { LEGAL_POLICY_VERSION, type LegalDocId } from "../lib/legalDocs";
 import { appendLedgerEntry } from "../lib/submissionLedger";
+import { trackUiEvent } from "../lib/telemetry";
 import { ComarcaPicker } from "./ComarcaPicker";
 import { LegalDocument } from "./LegalDocument";
 
@@ -173,6 +174,7 @@ export function ResultsConsentFeedback({
         if (cancelled) {
           return;
         }
+        trackUiEvent("research_consent_accepted");
         appendLedgerEntry(retainedRecordingId, "recording");
         onResearchRetained?.();
         setPromoted(true);
@@ -386,6 +388,7 @@ export function ResultsConsentFeedback({
           ageConfirmed: true,
           policyVersion: LEGAL_POLICY_VERSION,
         });
+        trackUiEvent("research_consent_accepted");
         appendLedgerEntry(recordingId, "recording");
         onResearchRetained?.();
       }

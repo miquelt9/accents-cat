@@ -23,7 +23,11 @@ Record yourself reading a short Catalan passage (or upload audio), and the app s
 | System **ffmpeg** on `PATH` | no | yes — browser recordings are WebM; `librosa` needs ffmpeg to decode them |
 | Disk / network | small | `pip install` pulls PyTorch + Transformers (multi‑GB); first analyze also caches HuBERT (`BSC-LT/hubert-base-ca-2k`) |
 
-CORS is limited to `http://localhost:5173` and `http://127.0.0.1:5173`. If Vite prints a different port, free 5173 or open the app on 5173 so the browser origin matches.
+For local API development, CORS defaults to `http://localhost:5173` and
+`http://127.0.0.1:5173` (HTTP and HTTPS). If Vite prints a different port,
+free 5173 or open the app on 5173 so the browser origin matches. Production
+origins are configured with `ORACLE_CORS_ORIGINS`; same-origin deployments do
+not need an extra browser origin.
 
 ## Quick start — web demo
 
@@ -92,7 +96,7 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/health` | Liveness |
+| `GET` | `/health` | Legacy model health / Better Stack compatibility |
 | `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText`) → dialect scores + `recordingId` (pending audio until research consent) |
 | `POST` | `/research-consent` | JSON `{ recordingId, consent, ageConfirmed?, policyVersion? }` → keep for research or delete pending audio |
 | `POST` | `/feedback` | JSON `{ feedbackId?, recordingId, wasCorrect?, comarca?, selfReportedDialect?, notes? }` → `{ feedbackId }` (upserts when `feedbackId` is sent) |
@@ -101,7 +105,7 @@ No IP address or User-Agent is stored: the caller IP only feeds the in-memory ra
 
 Successful `/analyze` calls create a **pending** row under gitignored `data/user_submissions/` (SQLite + audio) and return `recordingId`. Durable research storage happens only if the user opts in on the results screen (`POST /research-consent`). Pending audio expires after ~30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`). Deletion of consented rows is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1. Future training must use only `research_consent=1` rows.
 
-Backend load guards (env overrides): `ORACLE_ENCODE_CONCURRENCY` (default `1`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_ENCODE_RETRY_AFTER` (default `5`), `ORACLE_PENDING_CONSENT_TTL_SECONDS` (default `1800`), `ORACLE_TRUST_PROXY` (default off).
+Backend load guards (env overrides): `ORACLE_WORKERS` (fixed at startup; default is `1` for 1–2 logical CPUs, `2` for 3–4, `4` for 5–8, and `min(cpu_count // 2, 8)` above that), `ORACLE_MAX_QUEUE_SIZE` (default `20` waiting jobs), `ORACLE_ENCODE_RETRY_AFTER` (default `5`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_PENDING_CONSENT_TTL_SECONDS` (default `1800`), and `ORACLE_TRUST_PROXY` (default off). `ORACLE_ENCODE_CONCURRENCY` remains a deprecated compatibility fallback when `ORACLE_WORKERS` is unset. The queue is process-local and bounded; requests beyond worker capacity plus the waiting queue receive HTTP `503` rather than waiting without limit.
 
 ## How it works
 
@@ -139,7 +143,7 @@ When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15
 | Macro F1 | ~51% | ~50% |
 | Top-2 accuracy | ~72% | ~70% |
 
-Encoder: `BSC-LT/hubert-base-ca-2k` (**Apache-2.0**, © 2025 BSC Language Technologies Unit — see [`NOTICE`](../NOTICE)). Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)` — published at [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (MIT for the sklearn artifact only; does not redistribute HuBERT weights). Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
+Encoder: `BSC-LT/hubert-base-ca-2k` (**Apache-2.0**, © 2025 BSC Language Technologies Unit — see [`NOTICE`](NOTICE)). Classifier: `StandardScaler` + `CalibratedClassifierCV(LinearSVC)` — published at [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (MIT for the sklearn artifact only; does not redistribute HuBERT weights). Trained on 1,440 balanced CV26 clips (96 speakers × 3 clips × 5 dialects). Details: [`reports/model_artifact_cv26_hubert_svm_calibrated.md`](reports/model_artifact_cv26_hubert_svm_calibrated.md).
 
 **Speaker scarcity:** the balanced set is capped by the **northern** dialect (~96 usable speakers after benchmark holdout), while central has thousands. Consenting user recordings plus self-reported dialect labels (via post-result feedback) are the main path to more speaker diversity beyond CV26.
 
@@ -185,9 +189,109 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | `VITE_ACCENT_ORACLE_API_URL` | Backend base URL (default `http://localhost:8000`) |
 | `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals) + Mode cycle (**API → mock fail → mock success**). Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
 | `VITE_PUBLIC_SITE_URL` | Optional promo URL on the results share card (defaults to `window.location.host`). Native image share needs HTTPS (`isSecureContext`); on plain HTTP LAN, the UI downloads the PNG instead. |
+| `VITE_SENTRY_DSN` | Frontend Sentry DSN (omit to disable) |
+| `VITE_SENTRY_ENVIRONMENT` | Sentry environment (default `development`; Sentry stays off in development unless `VITE_SENTRY_ENABLE_DEV=1`) |
+| `VITE_SENTRY_RELEASE` | Release string tagged on events |
+| `VITE_SENTRY_ENABLE_DEV` | `1` to allow Sentry in development when DSN is set |
+
+Backend observability (set in the shell / process env for uvicorn — see [`.env.example`](.env.example)):
+
+| Variable | Purpose |
+| --- | --- |
+| `SENTRY_DSN` | Backend Sentry DSN (omit to disable) |
+| `SENTRY_ENVIRONMENT` | Sentry environment (default `development`; off in development unless `SENTRY_ENABLE_DEV=1`) |
+| `SENTRY_RELEASE` / `ORACLE_APP_VERSION` / `ORACLE_GIT_SHA` | Release string (`SENTRY_RELEASE` wins; otherwise the API combines version + short SHA) |
+| `SENTRY_ENABLE_DEV` | `1` to allow Sentry + `/sentry-debug` outside production |
+| `GRAFANA_OTLP_ENDPOINT` | Grafana Cloud OTLP base URL (e.g. `https://otlp-gateway-…/otlp`) |
+| `GRAFANA_OTLP_API_KEY` | Grafana Cloud OTLP Basic auth token |
+
+Never commit real DSNs or API keys.
+
+## Observability
+
+Lightweight production monitoring with a hard privacy boundary: **no audio, request bodies, transcripts, comarca, recording IDs, consent payloads, or filenames** are sent to any vendor.
+
+### Sentry (application errors)
+
+**Purpose:** frontend and backend exceptions, Python logs (via LoggingIntegration), and sampled request performance traces (`traces_sample_rate=0.10`). Session Replay is **error-only** on the web (`replaysSessionSampleRate=0`, `replaysOnErrorSampleRate=1`, text masked / media blocked).
+
+**Collected:** stack traces, release/environment tags, low-cardinality tags (`app`, `service` / `api_mode`, optional `prompt_id` id only), HTTP route/status metadata after scrubbing.
+
+**Not collected:** uploaded audio, multipart bodies, `promptText`, comarca, recording IDs, consent responses, filenames, user identity (`send_default_pii=False` + `before_send` scrubbers).
+
+**Local enable:** set DSN + `SENTRY_ENABLE_DEV=1` / `VITE_SENTRY_ENABLE_DEV=1`. Dev-only `GET /sentry-debug` raises intentionally (404 in production).
+
+**Verify:**
+
+1. Backend: `SENTRY_DSN=… SENTRY_ENABLE_DEV=1 uvicorn …` then `curl -i http://127.0.0.1:8000/sentry-debug` → event in Sentry.
+2. Frontend: `VITE_SENTRY_DSN=… VITE_SENTRY_ENABLE_DEV=1 npm run dev` → trigger an error (or temporary `throw`) → event + optional error replay.
+3. Grafana: set `GRAFANA_OTLP_*`, hit `/health` and `/telemetry/event`, then Explore `accent_oracle_*` on `grafanacloud-prom`.
+4. Better Stack: deferred until a public URL exists; use the
+   [production checklist](docs/PRODUCTION_CHECKLIST.md) before enabling it.
+
+Deferred follow-ups for agents: [`ops/followups/`](ops/followups/) (Grafana email routing, Better Stack monitors, Sentry releases/source maps, container metrics).
+
+### Grafana Cloud (operational metrics)
+
+**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `share_clicked`, `research_consent_accepted` via `POST /telemetry/event`), plus process CPU/memory when OTLP is configured. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only.
+
+**Dashboard:** [Accent Oracle — Operations](https://bigdahlia593.grafana.net/d/accent-oracle-operations) (also [`ops/grafana/accent-oracle-operations.json`](ops/grafana/accent-oracle-operations.json)).
+
+**Alerts (no paging integrations wired in-repo):** backend error-rate spike; inference latency spike; application unavailable (missing process metrics).
+
+### Better Stack (uptime) — before public release
+
+Not configured yet (no public URL). Before production:
+
+1. Create monitors for the public **homepage** and **`{API}/health`**.
+2. Interval **60 seconds**, **SSL verification on**, keep response-time history.
+3. **Email notifications only** — no SMS, voice, push, or incident paging for v1.
+
+## Production Deployment
+
+The recommended topology is a same-origin reverse proxy: Caddy or nginx
+terminates HTTPS, serves `web/dist`, and proxies API paths to uvicorn. Keep
+`VITE_ACCENT_ORACLE_API_URL` empty in this deployment so the browser calls the
+same origin. HTTPS is required for microphone access and native Web Share;
+the SPA proxy must allow `microphone=(self)` while the API's security policy
+can remain restrictive.
+
+Set the production build and runtime values in
+[`web/.env.example`](web/.env.example) and [`.env.example`](.env.example):
+`VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME`, `VITE_POSTHOG_KEY` /
+`VITE_POSTHOG_HOST=https://eu.i.posthog.com`, frontend/backend Sentry
+settings, Grafana OTLP credentials, release metadata, exact
+`ORACLE_CORS_ORIGINS` when cross-origin access is needed, and
+`ORACLE_TRUST_PROXY=1` only behind a trusted proxy. Never commit their
+secrets. Use [`ops/caddy/Caddyfile.example`](ops/caddy/Caddyfile.example) as
+the reverse-proxy starting point.
+
+Before public traffic, follow
+[`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHECKLIST.md) and read
+[`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md). Back up
+SQLite and audio using [`docs/BACKUP.md`](docs/BACKUP.md), and review the
+privacy evidence and launch checks in
+[`docs/PRIVACY_AUDIT.md`](docs/PRIVACY_AUDIT.md). Observability details and
+deferred provider setup remain in the [Observability](#observability) section
+and [`ops/followups/`](ops/followups/).
+
+### Inference load benchmark
+
+Run the local API with a chosen `ORACLE_WORKERS` value and compare the default
+concurrency sweep (`1,2,4,8,16`):
+
+```bash
+python scripts/benchmark_inference_load.py \
+  --base-url http://127.0.0.1:8000 \
+  --audio /path/to/sample.wav \
+  --requests 16
+```
+
+The script reports p50/p95 latency, throughput, HTTP status counts, and
+system CPU utilization. Repeat with different worker counts for each VPS size;
+the benchmark intentionally exercises the real `/analyze` endpoint.
 
 ## Development checks
-
 Before substantive web/backend PRs, run the same lightweight checks CI will enforce (no model download, no HuBERT, no ffmpeg):
 
 ```bash
@@ -239,8 +343,14 @@ Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AG
 
 ### Public release checklist (Spain research)
 
+Use the repeatable
+[`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHECKLIST.md) for deployment
+evidence; this is the short project-specific summary:
+
 1. Configure privacy identity: `VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME` → rebuild web.
 2. Confirm server + storage in Spain / EEE; `ORACLE_TRUST_PROXY=1` behind a reverse proxy.
 3. Verify pending → decline/TTL deletes audio; opt-in sets `research_consent=1`.
 4. Soft-delete a test UUID and confirm scrub + audio removal.
-5. Optional lawyer check before viral traffic.
+5. Add production CORS origins for the public site; set `SENTRY_*` / `VITE_SENTRY_*` / `GRAFANA_OTLP_*` for the deploy environment.
+6. Better Stack: create homepage + `/health` monitors (60s, SSL on, email only — see the [production checklist](docs/PRODUCTION_CHECKLIST.md)).
+7. Optional lawyer check before viral traffic.

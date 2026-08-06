@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { trackUiEvent } from "../lib/telemetry";
 import { MicrophoneWaveform } from "./MicrophoneWaveform";
 
 /** Matches backend `MIN_AUDIO_SECONDS`. */
@@ -37,6 +38,13 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
   async function startRecording() {
     setError(null);
 
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      setError(
+        "Cal una connexió segura (HTTPS o localhost) per accedir al micròfon. Obre el lloc amb HTTPS.",
+      );
+      return;
+    }
+
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
       setError("Aquest navegador no admet la gravació amb micròfon.");
       return;
@@ -66,6 +74,7 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
         }
 
         const audio = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        trackUiEvent("recording_completed");
         onRecordingReady(audio);
       };
 
@@ -74,6 +83,7 @@ export function RecorderPanel({ onRecordingReady, disabled = false, theme }: Rec
       setActiveStream(stream);
       startedAtRef.current = performance.now();
       recorder.start();
+      trackUiEvent("recording_started");
       setIsRecording(true);
     } catch {
       setError("No s'ha pogut accedir al micròfon. Comprova els permisos del navegador.");

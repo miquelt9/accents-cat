@@ -202,7 +202,9 @@ def ensure_storage() -> None:
         )
         _ensure_column(conn, "submissions", "prompt_id", "TEXT")
         _ensure_column(conn, "submissions", "prompt_text", "TEXT")
-        _ensure_column(conn, "submissions", "research_consent", "INTEGER NOT NULL DEFAULT 0")
+        _ensure_column(
+            conn, "submissions", "research_consent", "INTEGER NOT NULL DEFAULT 0"
+        )
         _ensure_column(conn, "submissions", "consent_at", "TEXT")
         _ensure_column(conn, "submissions", "policy_version", "TEXT")
         _ensure_column(conn, "submissions", "pending_expires_at", "TEXT")
@@ -217,7 +219,9 @@ def ensure_storage() -> None:
         conn.commit()
 
 
-def _ensure_column(conn: sqlite3.Connection, table: str, column: str, decl: str) -> None:
+def _ensure_column(
+    conn: sqlite3.Connection, table: str, column: str, decl: str
+) -> None:
     rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
     existing = {row[1] for row in rows}
     if column not in existing:
@@ -256,7 +260,9 @@ def save_audio(payload: bytes, suffix: str) -> tuple[str, Path]:
     """Write audio bytes to disk; return (submission_id, absolute path)."""
     ensure_storage()
     submission_id = str(uuid.uuid4())
-    safe_suffix = suffix if suffix.startswith(".") else f".{suffix}" if suffix else ".webm"
+    safe_suffix = (
+        suffix if suffix.startswith(".") else f".{suffix}" if suffix else ".webm"
+    )
     path = AUDIO_DIR / f"{submission_id}{safe_suffix}"
     path.write_bytes(payload)
     return submission_id, path
@@ -279,7 +285,9 @@ def insert_submission(
     except ValueError:
         relative_audio = str(audio_path)
 
-    expires_at = (_utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)).isoformat()
+    expires_at = (
+        _utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)
+    ).isoformat()
 
     with _connect() as conn:
         conn.execute(

@@ -11,6 +11,11 @@ export default defineConfig({
       "/feedback": "http://127.0.0.1:8000",
       "/research-consent": "http://127.0.0.1:8000",
       "/health": "http://127.0.0.1:8000",
+      "/live": "http://127.0.0.1:8000",
+      "/ready": "http://127.0.0.1:8000",
+      "/version": "http://127.0.0.1:8000",
+      "/telemetry": "http://127.0.0.1:8000",
+      "/sentry-debug": "http://127.0.0.1:8000",
     },
   },
   test: {

@@ -24,7 +24,10 @@ def confidence_summary(band: str, ambiguous: bool) -> str:
 
 
 def build_result(probabilities: np.ndarray, labels: Sequence[str]) -> dict[str, Any]:
-    scores = {label: round(float(probabilities[index]), 4) for index, label in enumerate(labels)}
+    scores = {
+        label: round(float(probabilities[index]), 4)
+        for index, label in enumerate(labels)
+    }
     ranked = sorted(labels, key=lambda label: scores[label], reverse=True)
     top_label = ranked[0]
     runner_up = ranked[1]

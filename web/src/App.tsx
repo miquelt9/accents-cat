@@ -34,6 +34,7 @@ import {
   rememberLastPromptId,
   type ReadAloudPrompt,
 } from "./lib/prompts";
+import { trackUiEvent } from "./lib/telemetry";
 
 type AppPhase =
   | "landing"
@@ -99,6 +100,10 @@ function App() {
   const [shareOpen, setShareOpen] = useState(false);
   const [devResultsScores, setDevResultsScores] = useState<AccentScores | null>(null);
   const leavePurgeRef = useRef({ phase, result, researchRetained, accentOracleMode });
+
+  useEffect(() => {
+    trackUiEvent("homepage_viewed");
+  }, []);
 
   function syncDevResultsScores(next: AccentOracleResult) {
     if (devToolsEnabled) {
@@ -294,12 +299,14 @@ function App() {
 
     setAnalysisError(null);
     setIsAnalyzing(true);
+    trackUiEvent("analyze_pressed");
 
     try {
       const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
         promptId: activePrompt.id,
         promptText: activePrompt.text,
       });
+      trackUiEvent("analysis_completed");
 
       if (phase === "recording") {
         if (needsValidation(nextResult)) {
@@ -538,7 +545,10 @@ function App() {
           <div className="results-share-row">
             <button
               className="secondary results-share-button"
-              onClick={() => setShareOpen(true)}
+              onClick={() => {
+                trackUiEvent("share_clicked");
+                setShareOpen(true);
+              }}
               type="button"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

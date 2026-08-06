@@ -92,6 +92,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
           "No venem les teves dades personals. El tractament i l'allotjament del servei es fan a Espanya / dins de l'Espai Econòmic Europeu. Podem fer servir proveïdors tècnics (allotjament, infraestructura) estrictament per operar el servei. Podem divulgar dades si la llei ho exigeix.",
           "Els models o components de tercers s'executen al servidor a Espanya per generar les puntuacions; no impliquen cedir el teu àudio amb finalitats de màrqueting.",
           "El codificador de veu utilitzat en mode API és HuBERT català (BSC-LT/hubert-base-ca-2k), de la Language Technologies Unit del Barcelona Supercomputing Center, sota llicència Apache-2.0. Es descarrega i s'executa al servidor; no cedim el teu àudio a BSC amb finalitats de màrqueting.",
+          "Per a mètriques d'ús del producte (esdeveniments tècnics com ara visualització de la pàgina o inici d'una gravació, sense àudio ni identificadors de gravació) podem fer servir PostHog Cloud EU (regió europea, Frankfurt), amb configuració sense galetes de seguiment persistents i sense captura de l'adreça IP. No hi enviem gravacions, puntuacions ni dades de consentiment.",
         ],
       },
       {

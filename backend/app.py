@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import re
+import time
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -14,16 +17,52 @@ import numpy as np
 import torch
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from transformers import AutoFeatureExtractor, AutoModel
 
 from backend import storage
+from backend.health import live_payload, ready_payload, version_payload
+from backend.inference_pool import (
+    InferencePool,
+    InferencePoolClosed,
+    InferencePoolFull,
+    configure_torch_threads,
+    resolve_queue_size,
+    resolve_worker_count,
+)
 from backend.limits import SlidingWindowRateLimiter
+from backend.middleware import (
+    OracleHttpMiddleware,
+    configure_structured_logging,
+    parse_cors_origins,
+)
+from backend.observability import (
+    MetricsHttpMiddleware,
+    init_observability,
+    is_ui_event_allowed,
+    record_analyze,
+    record_consent,
+    record_feedback,
+    record_inference_queue_wait,
+    record_inference_rejected,
+    record_ui_event,
+    sentry_debug_enabled,
+    set_inference_pool_metrics_provider,
+    set_prompt_id_tag,
+)
 from backend.scoring import (
     build_result as _build_result,
     confidence_summary as _confidence_summary,
     evidence_band as _evidence_band,
 )
+from backend.uploads import UploadValidationError, validate_audio_upload
+
+# Sentry (and optional OTel) must initialize before the FastAPI app is created.
+init_observability()
+configure_structured_logging()
+
+logger = logging.getLogger(__name__)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -44,12 +83,24 @@ MAX_COMARQUES_STORED_CHARS = 640
 COMARCA_SLUG_PATTERN = re.compile(r"^[a-z0-9-]{1,48}$")
 
 # Viral-load guards (stdlib; in-process only — not multi-worker safe)
-ENCODE_CONCURRENCY = max(1, int(os.environ.get("ORACLE_ENCODE_CONCURRENCY", "1")))
+CPU_COUNT = os.cpu_count() or 1
+WORKER_COUNT = resolve_worker_count(
+    explicit=os.environ.get("ORACLE_WORKERS"),
+    legacy=os.environ.get("ORACLE_ENCODE_CONCURRENCY"),
+    cpu_count=CPU_COUNT,
+)
+MAX_QUEUE_SIZE = resolve_queue_size(os.environ.get("ORACLE_MAX_QUEUE_SIZE"))
 ANALYZE_RATE_LIMIT = max(1, int(os.environ.get("ORACLE_ANALYZE_RATE_LIMIT", "10")))
 ANALYZE_RATE_WINDOW_SECONDS = float(os.environ.get("ORACLE_ANALYZE_RATE_WINDOW", "60"))
 FEEDBACK_RATE_LIMIT = max(1, int(os.environ.get("ORACLE_FEEDBACK_RATE_LIMIT", "30")))
-FEEDBACK_RATE_WINDOW_SECONDS = float(os.environ.get("ORACLE_FEEDBACK_RATE_WINDOW", "60"))
+FEEDBACK_RATE_WINDOW_SECONDS = float(
+    os.environ.get("ORACLE_FEEDBACK_RATE_WINDOW", "60")
+)
 ENCODE_RETRY_AFTER_SECONDS = int(os.environ.get("ORACLE_ENCODE_RETRY_AFTER", "5"))
+TELEMETRY_RATE_LIMIT = max(1, int(os.environ.get("ORACLE_TELEMETRY_RATE_LIMIT", "60")))
+TELEMETRY_RATE_WINDOW_SECONDS = float(
+    os.environ.get("ORACLE_TELEMETRY_RATE_WINDOW", "60")
+)
 TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
     "1",
     "true",
@@ -62,19 +113,60 @@ DEFAULT_POLICY_VERSION = os.environ.get(
 )
 MAX_POLICY_VERSION_CHARS = 64
 
-app = FastAPI(title="Catalan Accent Oracle API")
+_inference_pool: InferencePool | None = None
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    global _inference_pool
+
+    intra_threads, interop_threads = configure_torch_threads(
+        workers=WORKER_COUNT,
+        cpu_count=CPU_COUNT,
+        torch_module=torch,
+    )
+    pool = InferencePool(
+        workers=WORKER_COUNT,
+        max_queue_size=MAX_QUEUE_SIZE,
+    )
+    pool.start()
+    _inference_pool = pool
+    set_inference_pool_metrics_provider(pool.snapshot)
+    logger.info(
+        "inference pool started workers=%d max_queue=%d cpu_count=%d "
+        "torch_threads=%d torch_interop_threads=%d",
+        WORKER_COUNT,
+        MAX_QUEUE_SIZE,
+        CPU_COUNT,
+        intra_threads,
+        interop_threads,
+    )
+    try:
+        yield
+    finally:
+        logger.info("inference pool stopping")
+        await pool.shutdown(cancel_queued=True)
+        set_inference_pool_metrics_provider(None)
+        _inference_pool = None
+        logger.info("inference pool stopped")
+
+
+app = FastAPI(title="Catalan Accent Oracle API", lifespan=lifespan)
+# Last added = outermost. CORS → Oracle HTTP (request id / headers / access log) → metrics.
+app.add_middleware(MetricsHttpMiddleware)
+app.add_middleware(OracleHttpMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://localhost:5173",
-        "https://127.0.0.1:5173",
-    ],
+    allow_origins=parse_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID"],
 )
+
+
+class TelemetryEventRequest(BaseModel):
+    event: str = Field(max_length=64)
 
 
 class FeedbackRequest(BaseModel):
@@ -95,12 +187,15 @@ class ResearchConsentRequest(BaseModel):
     ageConfirmed: bool = False
 
 
-_analyze_limiter = SlidingWindowRateLimiter(ANALYZE_RATE_LIMIT, ANALYZE_RATE_WINDOW_SECONDS)
-_feedback_limiter = SlidingWindowRateLimiter(FEEDBACK_RATE_LIMIT, FEEDBACK_RATE_WINDOW_SECONDS)
-
-_encode_inflight = 0
-_encode_lock = asyncio.Lock()
-
+_analyze_limiter = SlidingWindowRateLimiter(
+    ANALYZE_RATE_LIMIT, ANALYZE_RATE_WINDOW_SECONDS
+)
+_feedback_limiter = SlidingWindowRateLimiter(
+    FEEDBACK_RATE_LIMIT, FEEDBACK_RATE_WINDOW_SECONDS
+)
+_telemetry_limiter = SlidingWindowRateLimiter(
+    TELEMETRY_RATE_LIMIT, TELEMETRY_RATE_WINDOW_SECONDS
+)
 
 def _rate_limit_key(request: Request) -> str:
     return client_ip(request) or "unknown"
@@ -136,7 +231,9 @@ def load_classifier() -> Any:
 def load_encoder() -> tuple[Any, torch.nn.Module, torch.device]:
     metadata = load_metadata()
     device = torch.device("cpu")
-    feature_extractor = AutoFeatureExtractor.from_pretrained(metadata["encoder_model_name"])
+    feature_extractor = AutoFeatureExtractor.from_pretrained(
+        metadata["encoder_model_name"]
+    )
     model = AutoModel.from_pretrained(metadata["encoder_model_name"])
     model.to(device)
     model.eval()
@@ -178,7 +275,9 @@ def extract_embedding(path: Path) -> np.ndarray:
             status_code=422,
             detail="La gravació és silenciosa o massa fluixa per analitzar-la.",
         )
-    inputs = feature_extractor(audio, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
+    inputs = feature_extractor(
+        audio, sampling_rate=sampling_rate, return_tensors="pt", padding=True
+    )
     inputs = {key: value.to(device) for key, value in inputs.items()}
     with torch.inference_mode():
         outputs = model(**inputs)
@@ -198,6 +297,17 @@ def build_result(probabilities: np.ndarray) -> dict[str, Any]:
     return _build_result(probabilities, labels)
 
 
+def run_inference(path: Path) -> tuple[dict[str, Any], float]:
+    """Run CPU-bound embedding and classification in an inference worker."""
+    inference_started = time.perf_counter()
+    embedding = extract_embedding(path).reshape(1, -1)
+    classifier = load_classifier()
+    probabilities = classifier.predict_proba(embedding)[0]
+    probabilities = probabilities / probabilities.sum()
+    result = build_result(probabilities)
+    return result, time.perf_counter() - inference_started
+
+
 def client_ip(request: Request) -> str | None:
     """Caller IP for the in-memory rate limiters only; never persisted."""
     if TRUST_PROXY:
@@ -211,8 +321,29 @@ def client_ip(request: Request) -> str | None:
     return request.client.host
 
 
+@app.get("/live")
+def live() -> dict[str, Any]:
+    """Process is up (no dependency checks)."""
+    return live_payload()
+
+
+@app.get("/ready")
+def ready() -> dict[str, Any] | JSONResponse:
+    """Classifier files + metadata loadable + storage writable."""
+    payload = ready_payload(model_path=MODEL_PATH, metadata_path=METADATA_PATH)
+    if not payload["ok"]:
+        return JSONResponse(status_code=503, content=payload)
+    return payload
+
+
+@app.get("/version")
+def version() -> dict[str, Any]:
+    return version_payload()
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
+    """Legacy health for Better Stack — prefer /live and /ready for new probes."""
     metadata = load_metadata()
     return {
         "ok": MODEL_PATH.exists() and METADATA_PATH.exists(),
@@ -220,6 +351,26 @@ def health() -> dict[str, Any]:
         "encoderModelName": metadata.get("encoder_model_name"),
         "labels": metadata.get("labels"),
     }
+
+
+@app.get("/sentry-debug")
+def sentry_debug() -> None:
+    """Intentionally raise — enabled only outside production / with SENTRY_ENABLE_DEV."""
+    if not sentry_debug_enabled():
+        raise HTTPException(status_code=404, detail="Not found.")
+    raise RuntimeError("Sentry debug: intentional backend exception")
+
+
+@app.post("/telemetry/event", status_code=204)
+def telemetry_event(request: Request, body: TelemetryEventRequest) -> None:
+    """Allowlisted UI product counters for Grafana (no PII)."""
+    if not _telemetry_limiter.allow(_rate_limit_key(request)):
+        _raise_rate_limited()
+    event = body.event.strip()
+    if not is_ui_event_allowed(event):
+        raise HTTPException(status_code=422, detail="event no és vàlid.")
+    record_ui_event(event)
+    return None
 
 
 def _normalize_prompt_fields(
@@ -259,7 +410,9 @@ def _normalize_comarca(value: str | None) -> str | None:
     if not slug:
         return None
     allowlist = storage.comarca_allowlist()
-    if not COMARCA_SLUG_PATTERN.match(slug) or (allowlist is not None and slug not in allowlist):
+    if not COMARCA_SLUG_PATTERN.match(slug) or (
+        allowlist is not None and slug not in allowlist
+    ):
         raise HTTPException(status_code=422, detail="comarca no és una comarca vàlida.")
     return slug
 
@@ -306,44 +459,90 @@ async def analyze(
     promptId: str | None = Form(default=None),
     promptText: str | None = Form(default=None),
 ) -> dict[str, Any]:
+    request_started = time.perf_counter()
     if not _analyze_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
 
     storage.purge_expired_pending()
     prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
+    set_prompt_id_tag(prompt_id)
 
-    payload = await audio.read()
+    try:
+        # Filename / MIME are validated but never logged or sent to vendors.
+        suffix = validate_audio_upload(
+            filename=audio.filename,
+            content_type=audio.content_type,
+            content_length_header=request.headers.get("content-length"),
+            max_bytes=MAX_UPLOAD_BYTES,
+        )
+    except UploadValidationError as exc:
+        record_analyze("failure")
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+
+    # Read one byte past the cap so chunked uploads cannot grow an unbounded
+    # in-memory payload before the size check below.
+    payload = await audio.read(MAX_UPLOAD_BYTES + 1)
     if not payload:
+        record_analyze("failure")
         raise HTTPException(status_code=400, detail="No s'ha enviat cap àudio.")
     if len(payload) > MAX_UPLOAD_BYTES:
+        record_analyze("failure")
         raise HTTPException(status_code=413, detail="L'àudio enviat és massa gran.")
-
-    suffix = Path(audio.filename or "recording.webm").suffix or ".webm"
-
-    global _encode_inflight
-    acquired = False
-    async with _encode_lock:
-        if _encode_inflight >= ENCODE_CONCURRENCY:
-            _raise_saturated()
-        _encode_inflight += 1
-        acquired = True
 
     recording_id: str | None = None
     audio_path: Path | None = None
+    job = None
     try:
         recording_id, audio_path = storage.save_audio(payload, suffix)
 
         try:
-            embedding = (await asyncio.to_thread(extract_embedding, audio_path)).reshape(1, -1)
-            classifier = load_classifier()
-            probabilities = classifier.predict_proba(embedding)[0]
-            probabilities = probabilities / probabilities.sum()
-            result = build_result(probabilities)
+            if _inference_pool is None:
+                raise InferencePoolClosed("Inference pool has not started.")
+            job = _inference_pool.submit(run_inference, audio_path)
+            execution = await job.result()
+            result, inference_seconds = execution.value
+            record_inference_queue_wait(execution.queue_wait_seconds)
+        except InferencePoolFull:
+            if audio_path is not None:
+                audio_path.unlink(missing_ok=True)
+            record_analyze("rejected")
+            record_inference_rejected()
+            logger.info(
+                "analyze rejected queue_full queue_depth=%d active_workers=%d "
+                "queue_wait_avg_s=%.3f total_s=%.3f",
+                _inference_pool.queue_depth if _inference_pool else 0,
+                _inference_pool.active_workers if _inference_pool else 0,
+                _inference_pool.average_queue_wait_seconds if _inference_pool else 0.0,
+                time.perf_counter() - request_started,
+            )
+            _raise_saturated()
+        except InferencePoolClosed:
+            if audio_path is not None:
+                audio_path.unlink(missing_ok=True)
+            record_analyze("rejected")
+            record_inference_rejected()
+            _raise_saturated()
+        except asyncio.CancelledError:
+            if audio_path is not None and job is not None:
+                job.add_done_callback(
+                    lambda _job: audio_path.unlink(missing_ok=True)
+                )
+                if not job.started:
+                    audio_path.unlink(missing_ok=True)
+            record_analyze("cancelled")
+            raise
         except HTTPException:
-            audio_path.unlink(missing_ok=True)
+            if audio_path is not None:
+                audio_path.unlink(missing_ok=True)
+            record_analyze("failure")
+            logger.info("analyze rejected (client/audio validation)")
             raise
         except Exception:
-            audio_path.unlink(missing_ok=True)
+            if audio_path is not None:
+                audio_path.unlink(missing_ok=True)
+            record_analyze("failure")
+            # Avoid traceback locals: audio paths contain the recording UUID.
+            logger.error("analyze failed during inference")
             raise
 
         # Pending only: durable research storage requires POST /research-consent.
@@ -357,11 +556,24 @@ async def analyze(
             prompt_text=prompt_text,
         )
         result["recordingId"] = recording_id
+        record_analyze("success", inference_seconds)
+        logger.info(
+            "analyze ok top=%s band=%s queue_depth=%d active_workers=%d "
+            "queue_wait_s=%.3f queue_wait_avg_s=%.3f inference_s=%.3f total_s=%.3f",
+            result.get("topLabel"),
+            result.get("evidenceBand"),
+            _inference_pool.queue_depth if _inference_pool else 0,
+            _inference_pool.active_workers if _inference_pool else 0,
+            execution.queue_wait_seconds,
+            _inference_pool.average_queue_wait_seconds if _inference_pool else 0.0,
+            inference_seconds,
+            time.perf_counter() - request_started,
+        )
         return result
-    finally:
-        if acquired:
-            async with _encode_lock:
-                _encode_inflight -= 1
+    except Exception:
+        if audio_path is not None:
+            audio_path.unlink(missing_ok=True)
+        raise
 
 
 @app.post("/research-consent")
@@ -385,7 +597,9 @@ def submit_research_consent(
         policy_version = (body.policyVersion or DEFAULT_POLICY_VERSION).strip()
         if not policy_version or len(policy_version) > MAX_POLICY_VERSION_CHARS:
             raise HTTPException(status_code=422, detail="policyVersion no és vàlid.")
-        if not storage.confirm_research_consent(recording_id, policy_version=policy_version):
+        if not storage.confirm_research_consent(
+            recording_id, policy_version=policy_version
+        ):
             raise HTTPException(
                 status_code=404,
                 detail=(
@@ -393,6 +607,8 @@ def submit_research_consent(
                     "ha caducat."
                 ),
             )
+        record_consent()
+        logger.info("research consent confirmed")
         return {"recordingId": recording_id, "researchConsent": True}
 
     if not storage.decline_research_consent(recording_id):
@@ -400,6 +616,8 @@ def submit_research_consent(
             status_code=404,
             detail="No s'ha trobat aquesta gravació.",
         )
+    record_consent()
+    logger.info("research consent declined")
     return {"recordingId": recording_id, "researchConsent": False}
 
 
@@ -437,4 +655,6 @@ def submit_feedback(request: Request, body: FeedbackRequest) -> dict[str, str]:
         comarca=comarca,
         notes=sent("notes", body.notes),
     )
+    record_feedback()
+    logger.info("feedback upserted")
     return {"feedbackId": feedback_id}

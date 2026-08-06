@@ -13,10 +13,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sentry/react": "^10.69.0",
     "@vitejs/plugin-react": "latest",
     "html-to-image": "^1.11.13",
     "lucide-react": "^1.28.0",
     "motion": "^12.42.2",
+    "posthog-js": "^1.413.3",
     "react": "latest",
     "react-dom": "latest",
     "vite": "latest"

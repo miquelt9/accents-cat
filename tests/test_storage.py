@@ -315,7 +315,11 @@ def test_purge_expired_pending(isolated_storage: Path) -> None:
         self_reported_dialect="central",
         notes="ttl note",
     )
-    past = (datetime.now(timezone.utc) - timedelta(hours=1)).replace(microsecond=0).isoformat()
+    past = (
+        (datetime.now(timezone.utc) - timedelta(hours=1))
+        .replace(microsecond=0)
+        .isoformat()
+    )
     with sqlite3.connect(storage.DB_PATH) as conn:
         conn.execute(
             "UPDATE submissions SET pending_expires_at = ? WHERE id = ?",
@@ -347,7 +351,11 @@ def test_purge_expired_research_consent(isolated_storage: Path) -> None:
         notes="keep-me-not",
     )
 
-    old = (datetime.now(timezone.utc) - timedelta(days=365 * 4)).replace(microsecond=0).isoformat()
+    old = (
+        (datetime.now(timezone.utc) - timedelta(days=365 * 4))
+        .replace(microsecond=0)
+        .isoformat()
+    )
     with sqlite3.connect(storage.DB_PATH) as conn:
         conn.execute(
             "UPDATE submissions SET consent_at = ? WHERE id = ?",
@@ -409,7 +417,9 @@ def test_ensure_storage_adds_prompt_and_consent_columns_to_legacy_db(
     storage.ensure_storage()
 
     with sqlite3.connect(storage.DB_PATH) as conn:
-        columns = {row[1] for row in conn.execute("PRAGMA table_info(submissions)").fetchall()}
+        columns = {
+            row[1] for row in conn.execute("PRAGMA table_info(submissions)").fetchall()
+        }
         feedback_columns = {
             row[1] for row in conn.execute("PRAGMA table_info(feedback)").fetchall()
         }

@@ -89,6 +89,92 @@ const ANALYZE_TIMEOUT_MS = 120_000;
 
 const SERVICE_SATURATED_MESSAGE = "El servei està saturat. Torna-ho a provar.";
 const ANALYZE_TIMEOUT_MESSAGE = "La petició ha trigat massa. Torna-ho a provar.";
+const NETWORK_ERROR_MESSAGE =
+  "No s'ha pogut connectar amb el servidor. Comprova la connexió i torna-ho a provar.";
+const RATE_LIMIT_MESSAGE = "Has fet massa peticions. Espera un moment i torna-ho a provar.";
+const SERVER_ERROR_MESSAGE =
+  "El servidor ha tingut un problema. Torna-ho a provar d'aquí a uns minuts.";
+const PAYLOAD_TOO_LARGE_MESSAGE = "La gravació és massa gran. Prova una mostra més curta.";
+
+/** True for browser network failures (offline, CORS, DNS, etc.). */
+export function isNetworkFetchError(error: unknown): boolean {
+  if (!(error instanceof TypeError)) {
+    return false;
+  }
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("failed to fetch") ||
+    message.includes("networkerror") ||
+    message.includes("network request failed") ||
+    message.includes("load failed")
+  );
+}
+
+/** Map AbortError / network TypeError to Catalan Error; otherwise null. */
+export function mapTransportError(
+  error: unknown,
+  timeoutMessage: string = ANALYZE_TIMEOUT_MESSAGE,
+): Error | null {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return new Error(timeoutMessage, { cause: error });
+  }
+  if (isNetworkFetchError(error)) {
+    return new Error(NETWORK_ERROR_MESSAGE, { cause: error });
+  }
+  return null;
+}
+
+/** Status-based Catalan fallback (avoids English / field-name validation dumps). */
+export function friendlyHttpFallback(status: number, fallback: string): string {
+  if (status === 413) {
+    return PAYLOAD_TOO_LARGE_MESSAGE;
+  }
+  if (status === 429) {
+    return RATE_LIMIT_MESSAGE;
+  }
+  if (status === 503) {
+    return SERVICE_SATURATED_MESSAGE;
+  }
+  if (status >= 500) {
+    return SERVER_ERROR_MESSAGE;
+  }
+  return fallback;
+}
+
+function looksLikeApiValidationDetail(detail: unknown): boolean {
+  if (Array.isArray(detail)) {
+    return true;
+  }
+  if (typeof detail !== "string") {
+    return true;
+  }
+  const lower = detail.toLowerCase();
+  return (
+    lower.includes("value_error") ||
+    lower.includes("type_error") ||
+    lower.includes("field required") ||
+    lower.includes("ensure this value") ||
+    /\btraceback\b/.test(lower) ||
+    detail.trim().startsWith("{") ||
+    detail.trim().startsWith("[")
+  );
+}
+
+/** Prefer short Catalan backend detail; otherwise status fallback. */
+export function resolveApiErrorMessage(
+  status: number,
+  detail: unknown,
+  fallback: string,
+): string {
+  const statusFallback = friendlyHttpFallback(status, fallback);
+  if (status === 413 || status === 429 || status === 503 || status >= 500) {
+    return statusFallback;
+  }
+  if (typeof detail === "string" && detail.trim() && !looksLikeApiValidationDetail(detail)) {
+    return detail.trim();
+  }
+  return statusFallback;
+}
 
 /** Uncertain first take (fails needsValidation). */
 const MOCK_FAIL_TAKE_1: AccentScores = {
@@ -245,14 +331,12 @@ function scoresForMockMode(mode: AccentOracleMode, takeIndex: number): AccentSco
 
 async function readErrorMessage(response: Response, fallback: string): Promise<string> {
   try {
-    const payload = (await response.json()) as { detail?: string };
-    if (payload.detail) {
-      return payload.detail;
-    }
+    const payload = (await response.json()) as { detail?: unknown };
+    return resolveApiErrorMessage(response.status, payload.detail, fallback);
   } catch {
-    // Keep the generic message if the backend did not return JSON.
+    // Keep the status-based message if the backend did not return JSON.
   }
-  return fallback;
+  return friendlyHttpFallback(response.status, fallback);
 }
 
 export const mockAccentOracleClient: AccentOracleClient = {
@@ -287,17 +371,15 @@ export const apiAccentOracleClient: AccentOracleClient = {
         signal: controller.signal,
       });
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        throw new Error(ANALYZE_TIMEOUT_MESSAGE, { cause: error });
+      const mapped = mapTransportError(error);
+      if (mapped) {
+        throw mapped;
       }
       throw error;
     } finally {
       window.clearTimeout(timeoutId);
     }
 
-    if (response.status === 503) {
-      throw new Error(SERVICE_SATURATED_MESSAGE);
-    }
     if (!response.ok) {
       throw new Error(
         await readErrorMessage(response, "L'API del model no ha pogut analitzar aquesta gravació."),
@@ -313,11 +395,20 @@ export async function submitFeedback(payload: FeedbackPayload): Promise<Feedback
     return { feedbackId: payload.feedbackId ?? createClientId() };
   }
 
-  const response = await fetch(`${API_BASE_URL}/feedback`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    const mapped = mapTransportError(error);
+    if (mapped) {
+      throw mapped;
+    }
+    throw error;
+  }
   if (!response.ok) {
     throw new Error(await readErrorMessage(response, "No s'ha pogut enviar el comentari."));
   }
@@ -347,16 +438,25 @@ export async function submitResearchConsent(
     };
   }
 
-  const response = await fetch(`${API_BASE_URL}/research-consent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      recordingId: payload.recordingId,
-      consent: payload.consent,
-      ageConfirmed: payload.ageConfirmed ?? false,
-      policyVersion: payload.policyVersion,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/research-consent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recordingId: payload.recordingId,
+        consent: payload.consent,
+        ageConfirmed: payload.ageConfirmed ?? false,
+        policyVersion: payload.policyVersion,
+      }),
+    });
+  } catch (error) {
+    const mapped = mapTransportError(error);
+    if (mapped) {
+      throw mapped;
+    }
+    throw error;
+  }
   if (!response.ok) {
     throw new Error(
       await readErrorMessage(response, "No s'ha pogut desar l'elecció de consentiment."),

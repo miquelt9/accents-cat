@@ -1,3 +1,4 @@
 # Lightweight deps for unit tests (no torch / transformers / librosa).
 numpy
 pytest
+ruff

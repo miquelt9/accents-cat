@@ -1,0 +1,55 @@
+# Example same-origin reverse proxy for Accent Oracle (Caddy 2).
+# Copy and adjust host, paths, and upstream. Do not commit real secrets.
+#
+# Layout: Caddy serves the Vite SPA from web/dist and proxies API routes to uvicorn.
+# This keeps mic/share on a secure context and lets CSP use connect-src 'self'
+# for the API (PostHog EU + Sentry still need explicit connect-src hosts).
+
+{
+	# Optional: email for ACME. Prefer env or Caddyfile snippets in production.
+	# email ops@example.com
+}
+
+example.com {
+	# --- SPA security headers (browser-facing) ---
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# Microphone allowed for this origin only (API sets microphone=()).
+		Permissions-Policy "microphone=(self), camera=(), geolocation=()"
+		# Adjust Sentry/PostHog hosts to your projects; keep connect-src tight.
+		Content-Security-Policy "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://eu.i.posthog.com https://eu-assets.i.posthog.com; worker-src 'self' blob:"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Frame-Options DENY
+	}
+
+	encode gzip
+
+	# --- API upstream (uvicorn) ---
+	@api path /analyze /feedback /research-consent /health /live /ready /version /telemetry/* /sentry-debug
+	handle @api {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# --- Static SPA ---
+	handle {
+		root * /var/www/accent-oracle/web/dist
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# Local / LAN smoke without TLS (optional):
+# :8080 {
+# 	reverse_proxy /analyze* 127.0.0.1:8000
+# 	reverse_proxy /feedback* 127.0.0.1:8000
+# 	reverse_proxy /research-consent* 127.0.0.1:8000
+# 	reverse_proxy /health* 127.0.0.1:8000
+# 	reverse_proxy /live* 127.0.0.1:8000
+# 	reverse_proxy /ready* 127.0.0.1:8000
+# 	reverse_proxy /version* 127.0.0.1:8000
+# 	reverse_proxy /telemetry* 127.0.0.1:8000
+# 	root * ./web/dist
+# 	try_files {path} /index.html
+# 	file_server
+# }

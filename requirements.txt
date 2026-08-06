@@ -5,10 +5,15 @@ fsspec==2025.3.0
 huggingface_hub
 joblib
 librosa
+opentelemetry-api
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-instrumentation-system-metrics
+opentelemetry-sdk
 pandas
 pyarrow
 python-multipart
 scikit-learn
+sentry-sdk[fastapi]
 shapely
 soundfile
 torch

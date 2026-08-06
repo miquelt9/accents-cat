@@ -24,7 +24,8 @@ Build a **Catalan dialect similarity** web experience: user reads aloud → mode
 | Comarca allowlist | `backend/comarques.py` | **Generated** by `scripts/build_comarca_map.py`: `COMARCA_SLUGS` + `COMARCA_MACRO_DIALECTS` for server-side validation. |
 | Map asset (results) | `web/public/map-oracle-linework.svg` | Canonical interactive linework map. Built by `scripts/build_comarca_map.py`. |
 | Map asset (source) | `web/public/mapa-comarcal-accents.svg` | Comarcal source geometry; edit this, then rebuild. |
-| Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/research-consent`, `/feedback`. |
+| Backend | `backend/app.py` | FastAPI: HuBERT embed → calibrated SVM → JSON matching `AccentOracleResult` (+ `recordingId`). Also `/research-consent`, `/feedback`, `/telemetry/event`, `/sentry-debug` (dev). |
+| Observability | `backend/observability.py`, `web/src/lib/sentry.ts`, `web/src/lib/telemetry.ts` | Sentry (errors/logs/traces) + Grafana OTLP metrics. Never send audio/bodies/comarca/recording IDs. See README Observability. |
 | User submissions | `data/user_submissions/` | **Gitignored.** SQLite + audio: `/analyze` creates **pending** rows; durable research storage only after `POST /research-consent` with `consent: true`. Soft-delete: `python scripts/soft_delete_submission.py <uuid>` (no admin UI in v1). |
 | ML scripts | `scripts/` | Audits, manifests, audio prep, embeddings, training, evaluation. |
 | Artifacts | `models/`, `embeddings/`, `data/` | **Gitignored.** Never commit large binaries or secrets. Inference classifier mirror: [`miquelt-9/cv26-hubert-svm-calibrated`](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated) (`model.joblib` + `metadata.json`). |
@@ -42,7 +43,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 
 - FormData: required `audio`; optional `promptId` / `promptText` (web always sends both; max 64 / 500 chars). Successful analyzes write a **pending** audio + DB row (including prompt fields) and return `recordingId`. Pending rows expire (`ORACLE_PENDING_CONSENT_TTL_SECONDS`, default 1800). **Research retention** is opt-in via landing pre-consent (auto-promote on results) or the results progressive funnel (`ResultsConsentFeedback`); footer links cover Privadesa / Termes on landing, recording, validation, and results.
 - `POST /research-consent` body: `{ recordingId, consent, ageConfirmed?, policyVersion? }` → promotes pending → `research_consent=1` (+ `consent_at`, `policy_version`) or soft-deletes on decline. Train later **only** on `research_consent=1 AND deleted_at IS NULL`.
-- Encode concurrency: in-process slot limit (`ORACLE_ENCODE_CONCURRENCY`, default `1`) → HTTP 503 + `Retry-After` when full. HuBERT `extract_embedding` runs in `asyncio.to_thread`.
+- Inference: fixed in-process FIFO worker pool (`ORACLE_WORKERS`, CPU-aware default) with bounded waiting queue (`ORACLE_MAX_QUEUE_SIZE`, default `20`) → HTTP 503 + `Retry-After` when full. `ORACLE_ENCODE_CONCURRENCY` is a deprecated compatibility fallback. HuBERT + classifier inference runs in dedicated worker threads with Torch thread caps.
 - IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` and `/research-consent` (30/60s). Set `ORACLE_TRUST_PROXY=1` behind a reverse proxy so `X-Forwarded-For` is used for IP. `client_ip()` feeds the in-memory limiters only — **no IP or User-Agent is ever persisted** (`ensure_storage()` NULLs the legacy columns on boot).
 - Audio caps: min 1.5 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 25) + 20 MB upload.
 
@@ -126,7 +127,7 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 From `backend/app.py`:
 
 - Min audio: 1.5 s; max duration: 25 s (env `ORACLE_MAX_AUDIO_SECONDS`); max upload: 20 MB.
-- Encode concurrency default 1; analyze rate 10/min; feedback/research-consent rate 30/min (see env knobs above).
+- Worker pool defaults from logical CPUs; analyze rate 10/min; feedback/research-consent rate 30/min (see env knobs above). Queue depth, active workers, queue wait, inference duration, total request duration, and rejections are logged / exported through OTLP when enabled.
 - Pending research-consent TTL default 30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`).
 - `evidenceBand`: `limited` if top-two gap &lt; 0.08 or confidence &lt; 0.32; `strong` if gap &gt; 0.18 and confidence &gt; 0.48.
 - Frontend `needsValidation`: mandatory second take unless top score ≥ 0.50 **and** top-two gap ≥ 0.15 **and** the top-two macros are geographically coherent (or the runner-up is weak &lt; 0.20); merge with `mergeValidationResults` (same top → clearer; else average). If still uncertain, optional third take ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
@@ -155,11 +156,18 @@ Read-aloud prompts: short pool in [`web/src/lib/prompts.ts`](web/src/lib/prompts
 
 ### Public release checklist (Spain)
 
+Use the repeatable deployment evidence in
+[`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHECKLIST.md) and the
+assessment in [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md);
+the items below are the project-specific summary.
+
 1. Set `VITE_PRIVACY_EMAIL` + `VITE_CONTROLLER_NAME` and rebuild the web app; confirm Privadesa no longer says «provisional».
 2. Host API + data in Spain / EEE; set `ORACLE_TRUST_PROXY=1` if TLS terminates in front of uvicorn (rate limiting only); optionally name the VPS provider in the privacy «Encàrrecs» section.
 3. Smoke-test: analyze without opt-in → after decline or TTL, no audio file; opt-in → `research_consent=1` + `consent_at` + `policy_version`, with `ip` / `user_agent` NULL.
 4. Soft-delete a test UUID → audio gone, prompt / scores / comarca scrubbed.
-5. Optional: run `python scripts/purge_expired_research.py --dry-run` after setting old `consent_at` in a test DB.
-6. Optional: short review with a Spanish privacy lawyer before going viral.
+5. Configure `SENTRY_*` / `VITE_SENTRY_*` / `GRAFANA_OTLP_*` for production; add production CORS origins.
+6. Better Stack: homepage + `/health` monitors (60s, SSL on, email only) — see the production checklist.
+7. Optional: run `python scripts/purge_expired_research.py --dry-run` after setting old `consent_at` in a test DB.
+8. Optional: short review with a Spanish privacy lawyer before going viral.
 
 When unsure about linguistic labeling policy, read `reports/cv26_label_strategy_audit.json` before changing manifest builders.
