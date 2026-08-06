@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { MoonStar, Sun } from "lucide-react";
 import "./App.css";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
+import { DevScoreTuner } from "./components/DevScoreTuner";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
 import { ResultsConsentFeedback } from "./components/ResultsConsentFeedback";
@@ -13,6 +15,7 @@ import {
   resetMockAnalyzeOrdinal,
   submitResearchConsent,
   type AccentOracleResult,
+  type AccentScores,
 } from "./lib/accentOracleClient";
 import {
   accentOracleModeLabel,
@@ -45,7 +48,14 @@ type AppPhase =
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "accent-oracle-theme";
+/** Slightly longer than `--theme-crossfade-duration` so the class outlives the CSS transition. */
+const THEME_CROSSFADE_CLASS_MS = 500;
 const OVERLAY_PHASES = new Set<AppPhase>(["manage-data", "privacy", "terms"]);
+
+function applyThemeToDocument(theme: Theme): void {
+  document.documentElement.dataset.theme = theme;
+  window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+}
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
@@ -68,7 +78,13 @@ function getInitialDevToolsEnabled(): boolean {
 function App() {
   const [phase, setPhase] = useState<AppPhase>("landing");
   const [returnPhase, setReturnPhase] = useState<AppPhase>("landing");
-  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const [theme, setTheme] = useState<Theme>(() => {
+    const initial = getInitialTheme();
+    if (typeof document !== "undefined") {
+      applyThemeToDocument(initial);
+    }
+    return initial;
+  });
   const [result, setResult] = useState<AccentOracleResult | null>(null);
   const [pendingResult, setPendingResult] = useState<AccentOracleResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -81,12 +97,32 @@ function App() {
   const [preConsented, setPreConsented] = useState(false);
   const [researchRetained, setResearchRetained] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [devResultsScores, setDevResultsScores] = useState<AccentScores | null>(null);
   const leavePurgeRef = useRef({ phase, result, researchRetained, accentOracleMode });
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  function syncDevResultsScores(next: AccentOracleResult) {
+    if (devToolsEnabled) {
+      setDevResultsScores({ ...next.scores });
+    }
+  }
+
+  useLayoutEffect(() => {
+    applyThemeToDocument(theme);
   }, [theme]);
+
+  function toggleTheme() {
+    const nextTheme: Theme = theme === "light" ? "dark" : "light";
+    const root = document.documentElement;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduceMotion) {
+      root.classList.add("theme-transition");
+      window.setTimeout(() => {
+        root.classList.remove("theme-transition");
+      }, THEME_CROSSFADE_CLASS_MS);
+    }
+    applyThemeToDocument(nextTheme);
+    setTheme(nextTheme);
+  }
 
   useEffect(() => {
     leavePurgeRef.current = { phase, result, researchRetained, accentOracleMode };
@@ -178,12 +214,17 @@ function App() {
     setPreConsented(false);
     setResearchRetained(false);
     setShareOpen(false);
+    setDevResultsScores(null);
   }
 
   function goToResultsOrOfferThird(next: AccentOracleResult) {
     setResult(next);
     setPendingResult(null);
-    setPhase(needsValidation(next) ? "offer-third" : "results");
+    const nextPhase = needsValidation(next) ? "offer-third" : "results";
+    if (nextPhase === "results") {
+      syncDevResultsScores(next);
+    }
+    setPhase(nextPhase);
   }
 
   function startRecording() {
@@ -232,6 +273,9 @@ function App() {
   }
 
   function skipThird() {
+    if (result) {
+      syncDevResultsScores(result);
+    }
     setPhase("results");
   }
 
@@ -282,6 +326,7 @@ function App() {
           discardPendingRecording(nextResult.recordingId);
         }
         setResult(merged);
+        syncDevResultsScores(merged);
         setPhase("results");
       }
     } catch (error) {
@@ -315,6 +360,13 @@ function App() {
   const showRecorder =
     (phase === "recording" || phase === "validation" || phase === "refine") && activePrompt;
 
+  const resultsScores =
+    phase === "results" && result
+      ? devToolsEnabled && devResultsScores
+        ? devResultsScores
+        : result.scores
+      : null;
+
   return (
     <main
       className={`app-shell ${phase === "landing" ? "landing-main" : ""} ${showRecorder ? "recording-main" : ""}`.trim()}
@@ -336,12 +388,23 @@ function App() {
         <button
           aria-label={`Canvia al mode ${theme === "light" ? "fosc" : "clar"}`}
           aria-pressed={theme === "dark"}
-          className="theme-toggle"
-          onClick={() => setTheme((currentTheme) => (currentTheme === "light" ? "dark" : "light"))}
+          className={`theme-switch theme-switch-${theme}`}
+          onClick={toggleTheme}
           type="button"
         >
-          <span className={`theme-toggle-indicator theme-toggle-indicator-${theme}`} aria-hidden="true" />
-          <span>{theme === "light" ? "Mode fosc" : "Mode clar"}</span>
+          <span className="theme-switch-label theme-switch-label-day" aria-hidden="true">
+            Mode clar
+          </span>
+          <span className="theme-switch-label theme-switch-label-night" aria-hidden="true">
+            Mode fosc
+          </span>
+          <span className="theme-switch-knob" aria-hidden="true">
+            {theme === "light" ? (
+              <Sun className="theme-switch-icon" />
+            ) : (
+              <MoonStar className="theme-switch-icon" />
+            )}
+          </span>
         </button>
       </div>
       {phase === "landing" && (
@@ -363,7 +426,8 @@ function App() {
                 type="checkbox"
               />
               <span>
-                Vull col·laborar a la millora de models en català amb la meva gravació (tinc 18 anys o més).{" "}
+                Vull col·laborar a la millora de models en català amb la meva gravació{" "}
+                <span className="consent-age-clause">(tinc 18 anys o més).</span>{" "}
                 <button
                   className="privacy-link legal-inline-link"
                   onClick={(event) => {
@@ -456,9 +520,16 @@ function App() {
         </>
       )}
 
-      {phase === "results" && result && (
+      {phase === "results" && result && resultsScores && (
         <>
-          <ResultsMapStage scores={result.scores} />
+          {devToolsEnabled && devResultsScores && (
+            <DevScoreTuner
+              scores={devResultsScores}
+              onChange={setDevResultsScores}
+              onReset={() => setDevResultsScores({ ...result.scores })}
+            />
+          )}
+          <ResultsMapStage scores={resultsScores} />
           <ResultsConsentFeedback
             preConsented={preConsented}
             recordingId={result.recordingId}
@@ -490,7 +561,7 @@ function App() {
           </div>
           {shareOpen && (
             <ShareResultsModal
-              scores={result.scores}
+              scores={resultsScores}
               theme={theme}
               onClose={() => setShareOpen(false)}
             />

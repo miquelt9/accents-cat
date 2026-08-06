@@ -11,20 +11,20 @@ import {
 } from "motion/react";
 import {
   createClientId,
-  DIALECT_ZONES,
-  SELF_REPORTED_DIALECT_LABELS,
   submitFeedback,
   submitResearchConsent,
   type SelfReportedDialect,
 } from "../lib/accentOracleClient";
+import { selfReportedDialectFromComarques } from "../lib/comarcaDisplay";
 import { LEGAL_POLICY_VERSION, type LegalDocId } from "../lib/legalDocs";
 import { appendLedgerEntry } from "../lib/submissionLedger";
+import { ComarcaPicker } from "./ComarcaPicker";
 import { LegalDocument } from "./LegalDocument";
 
 const SHEET_DISMISS_OFFSET_PX = 110;
 const SHEET_DISMISS_VELOCITY = 720;
 
-type FunnelStep = "promoting" | "ask" | "dialect" | "consent" | "done";
+type FunnelStep = "promoting" | "ask" | "consent" | "comarca" | "done";
 
 interface ResultsConsentFeedbackProps {
   recordingId?: string;
@@ -110,10 +110,16 @@ export function ResultsConsentFeedback({
   const [legalDoc, setLegalDoc] = useState<LegalDocId | null>(null);
   const [promoted, setPromoted] = useState(false);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
-  const [selectedDialect, setSelectedDialect] = useState<SelfReportedDialect | undefined>();
+  const [feedbackId, setFeedbackId] = useState<string | undefined>();
   const [researchSaved, setResearchSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedComarques, setSelectedComarques] = useState<string[]>([]);
+  const selectedComarquesRef = useRef(selectedComarques);
+
+  useEffect(() => {
+    selectedComarquesRef.current = selectedComarques;
+  }, [selectedComarques]);
 
   const canDragSheet = isCompact && !reduceMotion && !isSubmitting;
 
@@ -172,16 +178,14 @@ export function ResultsConsentFeedback({
         setPromoted(true);
         setResearchSaved(true);
         setStep("ask");
-      } catch (submitError) {
+      } catch {
         if (cancelled) {
           return;
         }
-        setError(
-          submitError instanceof Error
-            ? submitError.message
-            : "No s'ha pogut desar la gravació per a recerca. Torna-ho a provar.",
-        );
-        setStep("ask");
+        // Landing pre-consent failed (network / expired pending). Re-open the
+        // consent sheet instead of a sticky red banner under the thumbs.
+        setStep("consent");
+        setSheetOpen(true);
       } finally {
         if (!cancelled) {
           setIsSubmitting(false);
@@ -196,14 +200,64 @@ export function ResultsConsentFeedback({
     };
   }, [preConsented, recordingId, promoted, step, onResearchRetained]);
 
+  async function submitComarcaFeedback(
+    payload: {
+      comarques: string[];
+      selfReportedDialect: SelfReportedDialect;
+    },
+  ) {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      if (recordingId) {
+        const response = await submitFeedback({
+          ...(feedbackId ? { feedbackId } : {}),
+          recordingId,
+          comarques: payload.comarques,
+          selfReportedDialect: payload.selfReportedDialect,
+        });
+        if (!feedbackId) {
+          setFeedbackId(response.feedbackId);
+          appendLedgerEntry(response.feedbackId, "feedback");
+        }
+      }
+
+      setSheetOpen(false);
+      setStep("done");
+      setSelectedComarques([]);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "No s'ha pogut enviar el comentari. Torna-ho a provar.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitSelectedComarques(slugs: string[]) {
+    if (slugs.length === 0) {
+      return;
+    }
+    const dialect = selfReportedDialectFromComarques(slugs) ?? "mixed";
+    await submitComarcaFeedback({ comarques: slugs, selfReportedDialect: dialect });
+  }
+
   function dismissSheet() {
     if (isSubmitting || legalDoc) {
       return;
     }
+    if (step === "comarca") {
+      const slugs = selectedComarquesRef.current;
+      if (slugs.length > 0) {
+        void submitSelectedComarques(slugs);
+        return;
+      }
+    }
     setSheetOpen(false);
     setStep("ask");
-    setWasCorrect(null);
-    setSelectedDialect(undefined);
     setError(null);
   }
 
@@ -248,17 +302,15 @@ export function ResultsConsentFeedback({
         return;
       }
       if (!isSubmitting) {
-        setSheetOpen(false);
-        setStep("ask");
-        setWasCorrect(null);
-        setSelectedDialect(undefined);
-        setError(null);
+        dismissSheet();
       }
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [sheetOpen, legalDoc, isSubmitting]);
+    // dismissSheet reads selectedComarques via ref so Escape can save a partial pick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sheet open / step / busy only
+  }, [sheetOpen, legalDoc, isSubmitting, step]);
 
   useEffect(() => {
     if (sheetOpen && !legalDoc) {
@@ -278,24 +330,27 @@ export function ResultsConsentFeedback({
     };
   }, [sheetOpen]);
 
-  async function submitFeedbackOnly(nextWasCorrect: boolean, dialect?: SelfReportedDialect) {
-    setIsSubmitting(true);
+  async function handleAnswer(answer: boolean) {
+    setWasCorrect(answer);
     setError(null);
+    setIsSubmitting(true);
 
     try {
-      let feedbackId = createClientId();
+      let nextFeedbackId = feedbackId ?? createClientId();
       if (recordingId) {
         const response = await submitFeedback({
+          ...(feedbackId ? { feedbackId } : {}),
           recordingId,
-          wasCorrect: nextWasCorrect,
-          selfReportedDialect: dialect,
+          wasCorrect: answer,
         });
-        feedbackId = response.feedbackId;
+        nextFeedbackId = response.feedbackId;
       }
 
-      appendLedgerEntry(feedbackId, "feedback");
-      setSheetOpen(false);
-      setStep("done");
+      setFeedbackId(nextFeedbackId);
+      appendLedgerEntry(nextFeedbackId, "feedback");
+      setSelectedComarques([]);
+      setSheetOpen(true);
+      setStep(preConsented || researchSaved ? "comarca" : "consent");
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -307,8 +362,15 @@ export function ResultsConsentFeedback({
     }
   }
 
-  async function finalizeWithConsent(consent: boolean) {
-    if (wasCorrect === null) {
+  async function handleConsent(consent: boolean) {
+    if (!consent) {
+      // Defer purge until leave (App.declinePendingRecording) so a later
+      // thumbs click can still offer research consent while audio is pending.
+      setResearchSaved(false);
+      setWasCorrect(null);
+      setSheetOpen(false);
+      setStep("ask");
+      setError(null);
       return;
     }
 
@@ -316,31 +378,21 @@ export function ResultsConsentFeedback({
     setError(null);
 
     try {
-      let feedbackId = createClientId();
       if (recordingId) {
-        const feedbackResponse = await submitFeedback({
-          recordingId,
-          wasCorrect,
-          selfReportedDialect: wasCorrect ? undefined : selectedDialect,
-        });
-        feedbackId = feedbackResponse.feedbackId;
         await submitResearchConsent({
           recordingId,
-          consent,
+          consent: true,
           // Affirmative Sí on this step confirms 18+ (same as landing pre-consent).
-          ageConfirmed: consent,
+          ageConfirmed: true,
           policyVersion: LEGAL_POLICY_VERSION,
         });
-      }
-
-      appendLedgerEntry(feedbackId, "feedback");
-      if (consent && recordingId) {
         appendLedgerEntry(recordingId, "recording");
         onResearchRetained?.();
       }
-      setResearchSaved(consent);
-      setSheetOpen(false);
-      setStep("done");
+
+      setResearchSaved(true);
+      setSelectedComarques([]);
+      setStep("comarca");
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -352,43 +404,19 @@ export function ResultsConsentFeedback({
     }
   }
 
-  function handleAnswer(answer: boolean) {
-    setWasCorrect(answer);
-    setError(null);
-    if (answer) {
-      if (preConsented) {
-        void submitFeedbackOnly(true);
-        return;
-      }
-      setSelectedDialect(undefined);
-      setSheetOpen(true);
-      setStep("consent");
-      return;
-    }
-    setSheetOpen(true);
-    setStep("dialect");
-  }
-
-  function handleDialect(dialect: SelfReportedDialect) {
-    setSelectedDialect(dialect);
-    if (preConsented) {
-      void submitFeedbackOnly(false, dialect);
-      return;
-    }
-    setStep("consent");
-  }
+  const hasComarcaSelection = selectedComarques.length > 0;
 
   const sheetTitleId =
-    step === "dialect" ? "feedback-sheet-dialect-title" : "feedback-sheet-consent-title";
+    step === "comarca" ? "feedback-sheet-comarca-title" : "feedback-sheet-consent-title";
 
   if (step === "done") {
     return (
       <section className="card feedback-card" aria-live="polite">
-        <h2>Gràcies per la teva ajuda</h2>
+        <h2>
+          {researchSaved ? "Gràcies per la teva col·laboració!" : "Gràcies per la teva ajuda"}
+        </h2>
         {researchSaved ? (
-          <p>
-            Hem desat aquesta gravació per a recerca i entrenament de models en català.
-          </p>
+          <p>Ens ajudes a millorar la intel·ligència artificial en català.</p>
         ) : preConsented ? (
           <p>El teu comentari ens ajuda a millorar el model de similitud dialectal.</p>
         ) : (
@@ -421,7 +449,7 @@ export function ResultsConsentFeedback({
               aria-pressed={wasCorrect === true}
               className={`feedback-thumb${wasCorrect === true ? " selected" : ""}`}
               disabled={isSubmitting}
-              onClick={() => handleAnswer(true)}
+              onClick={() => void handleAnswer(true)}
               type="button"
             >
               <ThumbUpIcon />
@@ -431,7 +459,7 @@ export function ResultsConsentFeedback({
               aria-pressed={wasCorrect === false}
               className={`feedback-thumb${wasCorrect === false ? " selected" : ""}`}
               disabled={isSubmitting}
-              onClick={() => handleAnswer(false)}
+              onClick={() => void handleAnswer(false)}
               type="button"
             >
               <ThumbDownIcon />
@@ -442,7 +470,7 @@ export function ResultsConsentFeedback({
       )}
 
       <AnimatePresence>
-        {sheetOpen && (step === "dialect" || step === "consent") && (
+        {sheetOpen && (step === "consent" || step === "comarca") && (
           <motion.div
             key="feedback-sheet"
             className="feedback-sheet"
@@ -494,60 +522,12 @@ export function ResultsConsentFeedback({
                 </button>
               </div>
 
-              {step === "dialect" && (
-                <div className="feedback-sheet-body">
-                  <h2 id="feedback-sheet-dialect-title">
-                    Amb quina zona et sents més identificat/da?
-                  </h2>
-                  <p>Tria l&apos;opció que millor descriu com et sents dialectalment.</p>
-                  <div
-                    className="feedback-dialect-grid"
-                    role="group"
-                    aria-label="Zona d'autoidentificació"
-                  >
-                    {DIALECT_ZONES.map((option) => (
-                      <button
-                        key={option}
-                        className="secondary feedback-dialect-option"
-                        disabled={isSubmitting}
-                        onClick={() => handleDialect(option)}
-                        type="button"
-                      >
-                        {SELF_REPORTED_DIALECT_LABELS[option]}
-                      </button>
-                    ))}
-                  </div>
-                  <div
-                    className="feedback-dialect-fallbacks"
-                    role="group"
-                    aria-label="Altres opcions"
-                  >
-                    <button
-                      className="secondary feedback-dialect-option feedback-dialect-option--fallback"
-                      disabled={isSubmitting}
-                      onClick={() => handleDialect("mixed")}
-                      type="button"
-                    >
-                      {SELF_REPORTED_DIALECT_LABELS.mixed}
-                    </button>
-                    <button
-                      className="secondary feedback-dialect-option feedback-dialect-option--fallback"
-                      disabled={isSubmitting}
-                      onClick={() => handleDialect("unknown")}
-                      type="button"
-                    >
-                      {SELF_REPORTED_DIALECT_LABELS.unknown}
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {step === "consent" && (
                 <div className="feedback-sheet-body">
                   <h2 id="feedback-sheet-consent-title">Ens ajudes a millorar?</h2>
                   <p>
-                    Vull col·laborar a la millora de models en català amb la meva gravació (tinc 18
-                    anys o més).{" "}
+                    Vull col·laborar a la millora de models en català amb la meva gravació{" "}
+                    <span className="consent-age-clause">(tinc 18 anys o més).</span>{" "}
                     <button
                       className="privacy-link legal-inline-link"
                       onClick={() => setLegalDoc("privacy")}
@@ -561,7 +541,7 @@ export function ResultsConsentFeedback({
                     <button
                       className="primary"
                       disabled={isSubmitting}
-                      onClick={() => void finalizeWithConsent(true)}
+                      onClick={() => void handleConsent(true)}
                       type="button"
                     >
                       Sí
@@ -569,12 +549,31 @@ export function ResultsConsentFeedback({
                     <button
                       className="secondary"
                       disabled={isSubmitting}
-                      onClick={() => void finalizeWithConsent(false)}
+                      onClick={() => void handleConsent(false)}
                       type="button"
                     >
                       No
                     </button>
                   </div>
+                </div>
+              )}
+
+              {step === "comarca" && (
+                <div className="feedback-sheet-body feedback-sheet-body--comarca">
+                  <h2 id="feedback-sheet-comarca-title">De quina comarca ets?</h2>
+                  <ComarcaPicker
+                    disabled={isSubmitting}
+                    selectedSlugs={selectedComarques}
+                    onChange={setSelectedComarques}
+                  />
+                  <button
+                    className="primary feedback-comarca-skip"
+                    disabled={isSubmitting || !hasComarcaSelection}
+                    onClick={() => void submitSelectedComarques(selectedComarques)}
+                    type="button"
+                  >
+                    Envia
+                  </button>
                 </div>
               )}
 

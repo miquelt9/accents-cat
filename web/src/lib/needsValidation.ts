@@ -1,5 +1,6 @@
 import type { AccentOracleResult, AccentScores, EvidenceBand } from "./accentOracleClient";
 import { DIALECT_ZONES, buildResultFromScores } from "./accentOracleClient";
+import { isGeographicallyIncoherent } from "./dialectGeography";
 
 const EVIDENCE_BAND_RANK: Record<EvidenceBand, number> = {
   limited: 0,
@@ -11,10 +12,25 @@ const EVIDENCE_BAND_RANK: Record<EvidenceBand, number> = {
 export const SKIP_VALIDATION_MIN_TOP_SCORE = 0.5;
 export const SKIP_VALIDATION_MIN_GAP = 0.15;
 
+/**
+ * Force a second take when top-two macros are geographically distant and the
+ * runner-up is still material (same ballpark as legacy runner-up heat halo).
+ */
+export const GEO_INCOHERENT_MIN_RUNNER_UP = 0.2;
+
 export function needsValidation(result: AccentOracleResult): boolean {
   const topScore = result.scores[result.topLabel];
-  return !(
+  const runnerUpScore = result.scores[result.runnerUpLabel];
+  const numericUnclear = !(
     topScore >= SKIP_VALIDATION_MIN_TOP_SCORE && result.topTwoGap >= SKIP_VALIDATION_MIN_GAP
+  );
+  if (numericUnclear) {
+    return true;
+  }
+
+  return (
+    isGeographicallyIncoherent(result.topLabel, result.runnerUpLabel) &&
+    runnerUpScore >= GEO_INCOHERENT_MIN_RUNNER_UP
   );
 }
 

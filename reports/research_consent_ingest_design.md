@@ -14,6 +14,7 @@ Add **new speakers** in the product domain (phone / laptop mic, read-aloud promp
 | Pending rows | Created by `/analyze`; expire via `ORACLE_PENDING_CONSENT_TTL_SECONDS` |
 | Soft-delete | `scripts/soft_delete_submission.py` scrubs audio + PII |
 | Retention | ~3 years from `consent_at` (`scripts/purge_expired_research.py`) |
+| Geography | Self-declared `feedback.comarca` only; no IP / User-Agent is stored |
 
 Never train on pending, declined, or tombstoned rows.
 
@@ -33,9 +34,10 @@ data/user_submissions/oracle.db
 
 Reuse the CV26-ish columns where possible:
 
-- `client_id` — stable pseudonymous session/device hash (not raw IP); one ID per consented recording session is enough for v1, but prefer a browser-side anonymous speaker token if added later
+- `client_id` — `oracle:<recording_id>`, i.e. one pseudonymous ID per consented recording; there is no IP or device fingerprint to group by, so a browser-side anonymous speaker token is the only way to cluster clips per speaker if that becomes necessary
 - `path` / `audio_path` — copied WebM→WAV/MP3
-- `label` — **do not** use model `top_label` as gold; use `feedback.self_reported_dialect` when in `{balearic,central,northern,northwestern,valencian}`; skip `mixed` / `unknown` / null for supervised five-way training
+- `comarca` — self-declared comarca slug (validated against `backend/comarques.py`); the coarse geographic context the corpus used to lack
+- `label` — **do not** use model `top_label` as gold; prefer the macro dialect derived from `feedback.comarca`, then `feedback.self_reported_dialect` when in `{balearic,central,northern,northwestern,valencian}`; skip `mixed` / `unknown` / null for supervised five-way training
 - `source_dataset` = `oracle_research_consent`
 - `prompt_id` / `prompt_text` — keep for phonetic analysis, not as lexical features
 - `consent_at`, `policy_version`, `recording_id`
@@ -63,7 +65,7 @@ CV26 still caps balanced train at **96 northern speakers** after AINA reservatio
 - Landing research pre-consent + results funnel already promote retention
 - Share / outreach copy should frame contribution as **acoustic dialect research**, not origin detection
 - Track consented northern count via a small SQL report (weekly):  
-  `SELECT self_reported_dialect, COUNT(*) FROM feedback JOIN submissions … WHERE research_consent=1`
+  `SELECT comarca, self_reported_dialect, COUNT(*) FROM feedback JOIN submissions … WHERE research_consent=1`
 
 ### Success metrics
 
@@ -76,7 +78,8 @@ CV26 still caps balanced train at **96 northern speakers** after AINA reservatio
 ## Out of scope for v1 ingest
 
 - Automatic continuous retrain in production
-- Using IP geolocation as a dialect label
+- Any geolocation beyond the self-declared comarca — IP and User-Agent are no longer persisted, so IP-derived location cannot be used as a label or as corpus context
+- Treating the declared comarca as ground-truth origin: it is a self-report about linguistic identity, usable as a supervision signal but not as a residence claim
 - Training on `mixed` / `unknown` self-reports without review
 - Encoder fine-tuning until northern speaker count grows past the CV26 cap (see Phase 5 in the improvement report)
 

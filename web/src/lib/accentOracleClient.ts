@@ -1,6 +1,5 @@
 import {
   isApiMode,
-  isDevToolsEnabled,
   isMockMode,
   resolveAccentOracleMode,
   type AccentOracleMode,
@@ -44,19 +43,20 @@ export interface AccentOracleResult {
 }
 
 export interface FeedbackPayload {
+  /** Returned by an earlier `/feedback` call; updates that row instead of adding one. */
+  feedbackId?: string;
   recordingId: string;
-  wasCorrect: boolean | null;
+  wasCorrect?: boolean | null;
   selfReportedDialect?: SelfReportedDialect;
+  /** @deprecated Prefer ``comarques``; still accepted by the API as a single slug. */
+  comarca?: string;
+  /** Self-declared comarca slug(s) from the results funnel. */
+  comarques?: string[];
   notes?: string;
 }
 
 export interface FeedbackResponse {
   feedbackId: string;
-}
-
-export interface ClientInfo {
-  ip: string;
-  userAgent: string;
 }
 
 export const DIALECT_ZONE_LABELS: Record<DialectZone, string> = {
@@ -117,18 +117,53 @@ const MOCK_FAIL_TAKE_3: AccentScores = {
   valencian: 0.15,
 };
 
-/** Clear first take (skips validation). */
-const MOCK_SUCCESS_TAKE_1: AccentScores = {
-  balearic: 0.08,
-  central: 0.55,
-  northern: 0.12,
-  northwestern: 0.13,
-  valencian: 0.12,
-};
+/**
+ * Clear first-take profiles (each skips validation: top ≥ 0.50, gap ≥ 0.15).
+ * Rotated across analyzes so mock-success is not stuck on one dialect.
+ */
+const MOCK_SUCCESS_PROFILES: AccentScores[] = [
+  {
+    balearic: 0.08,
+    central: 0.55,
+    northern: 0.12,
+    northwestern: 0.13,
+    valencian: 0.12,
+  },
+  {
+    balearic: 0.07,
+    central: 0.11,
+    northern: 0.1,
+    northwestern: 0.12,
+    valencian: 0.6,
+  },
+  {
+    balearic: 0.58,
+    central: 0.12,
+    northern: 0.1,
+    northwestern: 0.1,
+    valencian: 0.1,
+  },
+  {
+    balearic: 0.08,
+    central: 0.12,
+    northern: 0.14,
+    northwestern: 0.54,
+    valencian: 0.12,
+  },
+  {
+    balearic: 0.09,
+    central: 0.13,
+    northern: 0.52,
+    northwestern: 0.14,
+    valencian: 0.12,
+  },
+];
 
 let mockAnalyzeOrdinal = 0;
+/** Survives flow resets so successive mock-success runs cycle winners. */
+let mockSuccessCursor = 0;
 
-/** Reset deterministic mock take counter (call when starting a new recording flow). */
+/** Reset deterministic mock-fail take counter (call when starting a new recording flow). */
 export function resetMockAnalyzeOrdinal(): void {
   mockAnalyzeOrdinal = 0;
 }
@@ -141,7 +176,7 @@ export function createClientId(): string {
   return `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function normalizeScores(scores: AccentScores): AccentScores {
+export function normalizeScores(scores: AccentScores): AccentScores {
   const total = DIALECT_ZONES.reduce((sum, label) => sum + scores[label], 0);
 
   return DIALECT_ZONES.reduce((normalized, label) => {
@@ -194,7 +229,9 @@ export function buildResultFromScores(
 
 function scoresForMockMode(mode: AccentOracleMode, takeIndex: number): AccentScores {
   if (mode === "mock-success") {
-    return { ...MOCK_SUCCESS_TAKE_1 };
+    const profile = MOCK_SUCCESS_PROFILES[mockSuccessCursor % MOCK_SUCCESS_PROFILES.length];
+    mockSuccessCursor += 1;
+    return { ...profile };
   }
 
   if (takeIndex <= 1) {
@@ -273,7 +310,7 @@ export const apiAccentOracleClient: AccentOracleClient = {
 export async function submitFeedback(payload: FeedbackPayload): Promise<FeedbackResponse> {
   if (isMockMode(getAccentOracleMode())) {
     await new Promise((resolve) => window.setTimeout(resolve, 200));
-    return { feedbackId: createClientId() };
+    return { feedbackId: payload.feedbackId ?? createClientId() };
   }
 
   const response = await fetch(`${API_BASE_URL}/feedback`, {
@@ -326,21 +363,6 @@ export async function submitResearchConsent(
     );
   }
   return (await response.json()) as ResearchConsentResponse;
-}
-
-export async function fetchClientInfo(): Promise<ClientInfo> {
-  if (isMockMode(getAccentOracleMode())) {
-    return {
-      ip: isDevToolsEnabled() ? "no disponible (mode mock)" : "no disponible",
-      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
-    };
-  }
-
-  const response = await fetch(`${API_BASE_URL}/client-info`);
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response, "No s'ha pogut obtenir la informació del client."));
-  }
-  return (await response.json()) as ClientInfo;
 }
 
 export function getAccentOracleClient(): AccentOracleClient {

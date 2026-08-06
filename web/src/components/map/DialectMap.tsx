@@ -3,13 +3,16 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
 } from "react";
 import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
-import { comarcaCentroid, comarcaDisplayName, getComarca } from "../../lib/comarcaDisplay";
+import { type DialectZone } from "../../lib/accentOracleClient";
+import { comarcaCentroid, comarcaDisplayName } from "../../lib/comarcaDisplay";
+import { cameraForZone, comarquesForZone } from "../../lib/dialectRegions";
 import {
   easeInOutCubic,
   easeOutCubic,
@@ -26,8 +29,11 @@ export interface DialectMapHandle {
 }
 
 export interface DialectMapProps {
-  selectedComarca?: string | null;
-  confidence?: number;
+  selectedZone: DialectZone;
+  /** Comarca guess (or user inspect) pin target. */
+  pinComarca?: string | null;
+  /** Soft core around the guess pin (same-zone neighbors). */
+  nearFocusSlugs?: readonly string[];
   onSelect?: (slug: string) => void;
   playEntrance?: boolean;
 }
@@ -38,38 +44,93 @@ interface CameraTarget {
   scale: number;
 }
 
-const VIEWBOX = { x: 170, y: 100, w: 1000, h: 1000 };
-const VIEW_CENTER = { x: VIEWBOX.x + VIEWBOX.w / 2, y: VIEWBOX.y + VIEWBOX.h / 2 };
-const DEFAULT_SCALE = 1.05;
-const FOCUS_SCALE = 2.15;
-const MIN_SCALE = 0.85;
-const MAX_SCALE = 3.4;
-
-function cameraForSlug(slug: string | null | undefined): CameraTarget {
-  const centroid = slug ? comarcaCentroid(slug) : null;
-  if (!centroid) {
-    return { focusX: VIEW_CENTER.x, focusY: VIEW_CENTER.y, scale: DEFAULT_SCALE };
-  }
-  return { focusX: centroid.x, focusY: centroid.y, scale: FOCUS_SCALE };
+interface ViewBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
-function distanceNorm(a: CameraTarget, b: CameraTarget): number {
+/** Stand-in until the real viewBox arrives with map-oracle-linework.svg. */
+const FALLBACK_VIEWBOX: ViewBox = { x: 0, y: 0, w: 1000, h: 1000 };
+const DEFAULT_SCALE = 1.05;
+const MIN_SCALE = 0.85;
+const MAX_SCALE = 3.4;
+/** Entrance offsets as a fraction of the viewBox, so they follow the map size. */
+const ENTRANCE_OFFSET_X = -0.22;
+const ENTRANCE_OFFSET_Y = 0.08;
+
+function parseViewBox(value: string): ViewBox {
+  const [x, y, w, h] = value.trim().split(/[\s,]+/).map(Number);
+  if (![x, y, w, h].every((part) => Number.isFinite(part)) || w <= 0 || h <= 0) {
+    return FALLBACK_VIEWBOX;
+  }
+  return { x, y, w, h };
+}
+
+function viewCenter(view: ViewBox): { x: number; y: number } {
+  return { x: view.x + view.w / 2, y: view.y + view.h / 2 };
+}
+
+const FALLBACK_CENTER = viewCenter(FALLBACK_VIEWBOX);
+
+function regionCamera(zone: DialectZone, view: ViewBox): CameraTarget {
+  return cameraForZone(zone, view, { defaultScale: DEFAULT_SCALE });
+}
+
+function distanceNorm(a: CameraTarget, b: CameraTarget, view: ViewBox): number {
   const dx = a.focusX - b.focusX;
   const dy = a.focusY - b.focusY;
-  const dist = Math.hypot(dx, dy) / Math.hypot(VIEWBOX.w, VIEWBOX.h);
+  const dist = Math.hypot(dx, dy) / Math.hypot(view.w, view.h);
   return Math.min(1, dist * 1.4);
 }
 
-function buildTransform(fx: number, fy: number, s: number, px: number, py: number): string {
-  return `translate(${VIEW_CENTER.x + px * s} ${VIEW_CENTER.y + py * s}) scale(${s}) translate(${-fx} ${-fy})`;
+function buildTransform(
+  fx: number,
+  fy: number,
+  s: number,
+  px: number,
+  py: number,
+  view: ViewBox,
+): string {
+  const center = viewCenter(view);
+  return `translate(${center.x + px * s} ${center.y + py * s}) scale(${s}) translate(${-fx} ${-fy})`;
+}
+
+function projectPointToViewport(
+  point: { x: number; y: number } | null,
+  svg: SVGSVGElement | null,
+  viewport: HTMLDivElement | null,
+  cameraGroup: SVGGElement | null,
+): { x: number; y: number } | null {
+  if (!point || !svg || !viewport) {
+    return null;
+  }
+  const pt = svg.createSVGPoint();
+  pt.x = point.x;
+  pt.y = point.y;
+  const ctm = cameraGroup?.getScreenCTM() ?? svg.getScreenCTM();
+  if (!ctm) {
+    return null;
+  }
+  const screen = pt.matrixTransform(ctm);
+  const bounds = viewport.getBoundingClientRect();
+  return { x: screen.x - bounds.left, y: screen.y - bounds.top };
 }
 
 export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function DialectMap(
-  { selectedComarca = null, confidence, onSelect, playEntrance = true },
+  {
+    selectedZone,
+    pinComarca = null,
+    nearFocusSlugs = [],
+    onSelect,
+    playEntrance = true,
+  },
   ref,
 ) {
   const reducedMotion = useReducedMotion() ?? false;
   const [comarques, setComarques] = useState<ParsedComarcaPath[]>([]);
+  const [viewBox, setViewBox] = useState<ViewBox>(FALLBACK_VIEWBOX);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
@@ -79,8 +140,15 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
   const [calloutPos, setCalloutPos] = useState({ x: 0, y: 0 });
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const [showHint, setShowHint] = useState(true);
-  const [transform, setTransform] = useState(
-    buildTransform(VIEW_CENTER.x, VIEW_CENTER.y, DEFAULT_SCALE, 0, 0),
+  const [transform, setTransform] = useState(() =>
+    buildTransform(
+      FALLBACK_CENTER.x,
+      FALLBACK_CENTER.y,
+      DEFAULT_SCALE,
+      0,
+      0,
+      FALLBACK_VIEWBOX,
+    ),
   );
   const [fillOpState, setFillOpState] = useState(reducedMotion || !playEntrance ? 1 : 0);
 
@@ -99,51 +167,50 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     originPanX: number;
     originPanY: number;
   } | null>(null);
-  const homeCameraRef = useRef<CameraTarget>(cameraForSlug(selectedComarca));
+  const homeCameraRef = useRef<CameraTarget>(regionCamera(selectedZone, FALLBACK_VIEWBOX));
   const panXRef = useRef(0);
   const panYRef = useRef(0);
 
-  const focusX = useMotionValue(VIEW_CENTER.x);
-  const focusY = useMotionValue(VIEW_CENTER.y);
+  const focusX = useMotionValue(FALLBACK_CENTER.x);
+  const focusY = useMotionValue(FALLBACK_CENTER.y);
   const scale = useMotionValue(DEFAULT_SCALE);
   const panX = useMotionValue(0);
   const panY = useMotionValue(0);
   const lineOpacity = useMotionValue(reducedMotion || !playEntrance ? 1 : 0);
   const fillOpacity = useMotionValue(reducedMotion || !playEntrance ? 1 : 0);
 
-  const selectedSlug = selectedComarca;
-  const activeHighlight = highlightId && highlightId !== selectedSlug ? highlightId : null;
+  const regionSlugs = useMemo(
+    () => new Set(comarquesForZone(selectedZone).map((entry) => entry.slug)),
+    [selectedZone],
+  );
+  const nearFocusSet = useMemo(() => new Set(nearFocusSlugs), [nearFocusSlugs]);
+  const pinSlug = pinComarca && comarcaCentroid(pinComarca) ? pinComarca : null;
+  const activeHighlight = highlightId && highlightId !== pinSlug ? highlightId : null;
 
-  const projectSlugToViewport = useCallback((slug: string | null | undefined) => {
-    const centroid = slug ? comarcaCentroid(slug) : null;
-    const svg = svgRef.current;
-    const viewport = viewportRef.current;
-    if (!centroid || !svg || !viewport) {
-      return null;
-    }
-    const pt = svg.createSVGPoint();
-    pt.x = centroid.x;
-    pt.y = centroid.y;
-    const ctm = cameraGroupRef.current?.getScreenCTM() ?? svg.getScreenCTM();
-    if (!ctm) {
-      return null;
-    }
-    const screen = pt.matrixTransform(ctm);
-    const bounds = viewport.getBoundingClientRect();
-    return { x: screen.x - bounds.left, y: screen.y - bounds.top };
-  }, []);
+  const calloutAnchor = useMemo(() => (pinSlug ? comarcaCentroid(pinSlug) : null), [pinSlug]);
 
   const updateOverlayPositions = useCallback(() => {
-    const selectedPos = projectSlugToViewport(selectedSlug);
+    const selectedPos = projectPointToViewport(
+      calloutAnchor,
+      svgRef.current,
+      viewportRef.current,
+      cameraGroupRef.current,
+    );
     if (selectedPos) {
       setCalloutPos(selectedPos);
     }
-    const hoverSlug = hoveredId && hoveredId !== selectedSlug ? hoveredId : null;
-    const nextHoverPos = projectSlugToViewport(hoverSlug);
+    const hoverSlug = hoveredId && hoveredId !== pinSlug ? hoveredId : null;
+    const hoverCentroid = hoverSlug ? comarcaCentroid(hoverSlug) : null;
+    const nextHoverPos = projectPointToViewport(
+      hoverCentroid,
+      svgRef.current,
+      viewportRef.current,
+      cameraGroupRef.current,
+    );
     if (nextHoverPos) {
       setHoverPos(nextHoverPos);
     }
-  }, [hoveredId, projectSlugToViewport, selectedSlug]);
+  }, [calloutAnchor, hoveredId, pinSlug]);
 
   const animateCameraTo = useCallback(
     (target: CameraTarget, duration: number, resetPan = true) => {
@@ -211,6 +278,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     loadOracleMap()
       .then((map) => {
         if (!cancelled) {
+          setViewBox(parseViewBox(map.viewBox));
           setComarques(map.comarques);
         }
       })
@@ -231,7 +299,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
 
     if (!playEntrance || entranceDoneRef.current) {
       if (!entranceDoneRef.current) {
-        const target = cameraForSlug(selectedSlug);
+        const target = regionCamera(selectedZone, viewBox);
         focusX.set(target.focusX);
         focusY.set(target.focusY);
         scale.set(target.scale);
@@ -239,7 +307,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
         lineOpacity.set(1);
         setFillOpState(1);
         setRevealReady(true);
-        scheduleCallout(Boolean(selectedSlug), 0);
+        scheduleCallout(Boolean(pinSlug), 0);
         entranceDoneRef.current = true;
         skipNextSwitchRef.current = true;
       }
@@ -247,7 +315,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     }
 
     if (reducedMotion) {
-      const target = cameraForSlug(selectedSlug);
+      const target = regionCamera(selectedZone, viewBox);
       focusX.set(target.focusX);
       focusY.set(target.focusY);
       scale.set(target.scale);
@@ -255,15 +323,15 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       fillOpacity.set(1);
       setFillOpState(1);
       setRevealReady(true);
-      scheduleCallout(Boolean(selectedSlug), 0);
+      scheduleCallout(Boolean(pinSlug), 0);
       entranceDoneRef.current = true;
       skipNextSwitchRef.current = true;
       return;
     }
 
-    const target = cameraForSlug(selectedSlug);
-    focusX.set(target.focusX - 220);
-    focusY.set(target.focusY + 80);
+    const target = regionCamera(selectedZone, viewBox);
+    focusX.set(target.focusX + ENTRANCE_OFFSET_X * viewBox.w);
+    focusY.set(target.focusY + ENTRANCE_OFFSET_Y * viewBox.h);
     scale.set(0.92);
     lineOpacity.set(0);
     fillOpacity.set(0);
@@ -296,7 +364,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       }
     }, (MAP_MOTION.fadeIn.delay + MAP_MOTION.fadeIn.duration + 0.35) * 1000);
 
-    scheduleCallout(Boolean(selectedSlug), MAP_MOTION.showPinAt);
+    scheduleCallout(Boolean(pinSlug), MAP_MOTION.showPinAt);
 
     return () => {
       lineAnim.stop();
@@ -316,9 +384,9 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       return;
     }
 
-    const next = cameraForSlug(selectedSlug);
+    const next = regionCamera(selectedZone, viewBox);
     const prev = homeCameraRef.current;
-    const moveDur = reducedMotion ? 0.3 : switchMoveDuration(distanceNorm(prev, next));
+    const moveDur = reducedMotion ? 0.3 : switchMoveDuration(distanceNorm(prev, next, viewBox));
     let refillTimer = 0;
 
     scheduleCallout(false);
@@ -335,7 +403,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
           ease: easeOutCubic,
         });
         setFillOpState(1);
-        scheduleCallout(Boolean(selectedSlug), reducedMotion ? 0 : moveDur * 0.25);
+        scheduleCallout(Boolean(pinSlug), reducedMotion ? 0 : moveDur * 0.25);
       }, refillAt * 1000);
     });
 
@@ -345,7 +413,20 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSlug]);
+  }, [selectedZone]);
+
+  useEffect(() => {
+    if (!revealReady) {
+      return;
+    }
+    // Zone switches own camera; pin changes only move/show the name callout.
+    if (pinSlug) {
+      scheduleCallout(true, reducedMotion ? 0 : 0.12);
+    } else {
+      scheduleCallout(false);
+    }
+    updateOverlayPositions();
+  }, [pinSlug, revealReady, reducedMotion, scheduleCallout, updateOverlayPositions]);
 
   useEffect(() => {
     updateOverlayPositions();
@@ -370,7 +451,9 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
 
   useEffect(() => {
     const sync = () => {
-      setTransform(buildTransform(focusX.get(), focusY.get(), scale.get(), panX.get(), panY.get()));
+      setTransform(
+        buildTransform(focusX.get(), focusY.get(), scale.get(), panX.get(), panY.get(), viewBox),
+      );
     };
     sync();
     const unsubs = [
@@ -381,7 +464,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       panY.on("change", sync),
     ];
     return () => unsubs.forEach((u) => u());
-  }, [focusX, focusY, panX, panY, scale]);
+  }, [focusX, focusY, panX, panY, scale, viewBox]);
 
   useEffect(() => {
     const unsub = fillOpacity.on("change", (value) => setFillOpState(value));
@@ -449,8 +532,8 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     }
     const rect = viewport.getBoundingClientRect();
     const currentScale = scale.get();
-    const dx = ((event.clientX - drag.startX) / rect.width) * VIEWBOX.w / currentScale;
-    const dy = ((event.clientY - drag.startY) / rect.height) * VIEWBOX.h / currentScale;
+    const dx = ((event.clientX - drag.startX) / rect.width) * viewBox.w / currentScale;
+    const dy = ((event.clientY - drag.startY) / rect.height) * viewBox.h / currentScale;
     const nextX = drag.originPanX + dx;
     const nextY = drag.originPanY + dy;
     panX.set(nextX);
@@ -478,9 +561,9 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     scheduleIdleReturn();
   }
 
-  const selected = selectedSlug ? getComarca(selectedSlug, confidence) : null;
+  const calloutLabel = pinSlug ? comarcaDisplayName(pinSlug) : null;
   const hoverName =
-    hoveredId && hoveredId !== selectedSlug ? comarcaDisplayName(hoveredId) : null;
+    hoveredId && hoveredId !== pinSlug ? comarcaDisplayName(hoveredId) : null;
 
   if (loadError) {
     return (
@@ -505,7 +588,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       <svg
         ref={svgRef}
         className="dialect-map-svg"
-        viewBox={`${VIEWBOX.x} ${VIEWBOX.y} ${VIEWBOX.w} ${VIEWBOX.h}`}
+        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
         role="img"
         aria-label="Mapa de similitud dialectal"
       >
@@ -519,53 +602,75 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
           </filter>
         </defs>
         <motion.g ref={cameraGroupRef} style={{ opacity: lineOpacity }} transform={transform}>
-          {comarques.map((comarca) => {
-            const isSelected = comarca.slug === selectedSlug;
-            const isHovered = comarca.slug === hoveredId && !isSelected;
-            const isHighlighted = comarca.slug === activeHighlight;
-            return (
-              <g
-                key={comarca.id}
-                id={comarca.id}
-                className={[
-                  "oracle-comarca-node",
-                  isSelected ? "is-selected" : "",
-                  isHovered ? "is-hovered" : "",
-                  isHighlighted ? "is-highlighted" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                transform={comarca.transform}
-                onPointerEnter={() => setHoveredId(comarca.slug)}
-                onPointerLeave={() =>
-                  setHoveredId((prev) => (prev === comarca.slug ? null : prev))
+          {/* Paint selected/hovered last so opaque neighbor strokes cannot cover the outline. */}
+          {[...comarques]
+            .sort((a, b) => {
+              const paintRank = (slug: string) => {
+                if (slug === pinSlug) {
+                  return 5;
                 }
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onSelect?.(comarca.slug);
-                }}
-                style={{
-                  cursor: "pointer",
-                  ["--fill-op" as string]: isSelected ? fillOpState : 0,
-                }}
-              >
-                {comarca.parts.map((part, index) => (
-                  <path key={`${comarca.id}-${index}`} className="oracle-comarca-shape" d={part.d} />
-                ))}
-              </g>
-            );
-          })}
+                if (slug === hoveredId) {
+                  return 4;
+                }
+                if (nearFocusSet.has(slug)) {
+                  return 3;
+                }
+                if (regionSlugs.has(slug)) {
+                  return 2;
+                }
+                if (slug === activeHighlight) {
+                  return 1;
+                }
+                return 0;
+              };
+              return paintRank(a.slug) - paintRank(b.slug);
+            })
+            .map((comarca) => {
+              const inRegion = regionSlugs.has(comarca.slug);
+              const isPinned = comarca.slug === pinSlug;
+              const isNearFocus = nearFocusSet.has(comarca.slug) && !isPinned;
+              const isHovered = comarca.slug === hoveredId && !isPinned;
+              const isHighlighted = comarca.slug === activeHighlight;
+              return (
+                <g
+                  key={comarca.id}
+                  id={comarca.id}
+                  className={[
+                    "oracle-comarca-node",
+                    inRegion ? "is-in-region" : "",
+                    isNearFocus ? "is-near-focus" : "",
+                    isPinned ? "is-inspected" : "",
+                    isHovered ? "is-hovered" : "",
+                    isHighlighted ? "is-highlighted" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  transform={comarca.transform}
+                  onPointerEnter={() => setHoveredId(comarca.slug)}
+                  onPointerLeave={() =>
+                    setHoveredId((prev) => (prev === comarca.slug ? null : prev))
+                  }
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSelect?.(comarca.slug);
+                  }}
+                  style={{
+                    cursor: "pointer",
+                    ["--fill-op" as string]: inRegion || isPinned ? fillOpState : 0,
+                  }}
+                >
+                  {comarca.parts.map((part, index) => (
+                    <path key={`${comarca.id}-${index}`} className="oracle-comarca-shape" d={part.d} />
+                  ))}
+                </g>
+              );
+            })}
         </motion.g>
       </svg>
 
-      {selected ? (
+      {calloutLabel ? (
         <ComarcaCallout
-          label={selected.displayName}
-          sublabel={
-            selected.confidence != null
-              ? `${selected.dialect} · ${Math.round(selected.confidence * 100)}%`
-              : selected.dialect
-          }
+          label={calloutLabel}
           x={calloutPos.x}
           y={calloutPos.y}
           visible={pinVisible}

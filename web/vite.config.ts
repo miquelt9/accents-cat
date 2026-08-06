@@ -10,7 +10,6 @@ export default defineConfig({
       "/analyze": "http://127.0.0.1:8000",
       "/feedback": "http://127.0.0.1:8000",
       "/research-consent": "http://127.0.0.1:8000",
-      "/client-info": "http://127.0.0.1:8000",
       "/health": "http://127.0.0.1:8000",
     },
   },

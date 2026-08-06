@@ -23,7 +23,8 @@ Research prototype: read-aloud Catalan → five macro-dialect similarity scores 
 - Minimal, focused diffs; match existing style
 - Never commit secrets or large binaries
 - Speaker-grouped train/eval splits
-- Map: `web/public/map-oracle-linework.svg` + `DialectMap` / `ResultsMapStage` (linework stage; source geometry is `web/public/map-paisos-catalans.svg`)
-- `comarcaMapMeta.ts` is generated — edit via `scripts/refactor_catalan_map.py`; refresh linework with `scripts/build_oracle_linework_map.py` (chains community snap)
+- Map: `web/public/map-oracle-linework.svg` + `DialectMap` / `ResultsMapStage` (linework stage; source geometry is `web/public/mapa-comarcal-accents.svg`)
+- `comarcaMapMeta.ts` and `backend/comarques.py` are generated — rebuild both with `scripts/build_comarca_map.py`
+- No IP or User-Agent is persisted; the self-declared comarca is the only geographic signal
 
 See `AGENTS.md` and `docs/ML_PIPELINE.md` for details.

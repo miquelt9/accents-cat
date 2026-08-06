@@ -11,6 +11,8 @@ export interface ParsedOracleMap {
 }
 
 const MAP_URL = `${import.meta.env.BASE_URL}map-oracle-linework.svg`;
+/** Only used if the served SVG somehow lacks a viewBox; the generator always sets one. */
+const FALLBACK_VIEWBOX = "0 0 1000 1000";
 
 function localName(el: Element): string {
   return el.localName || el.tagName.replace(/^.*:/, "");
@@ -50,7 +52,7 @@ function collectParts(el: Element): Array<{ d: string }> {
 export function parseOracleMapSvg(svgText: string): ParsedOracleMap {
   const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
   const svg = doc.documentElement;
-  const viewBox = svg.getAttribute("viewBox") ?? "170 100 1000 1000";
+  const viewBox = svg.getAttribute("viewBox") ?? FALLBACK_VIEWBOX;
   const regions = doc.getElementById("dialect-regions");
   const comarques: ParsedComarcaPath[] = [];
 

@@ -1,5 +1,9 @@
-import { DIALECT_ZONE_LABELS, type DialectZone } from "./accentOracleClient";
-import { COMARCA_MAP_META } from "./comarcaMapMeta";
+import {
+  DIALECT_ZONE_LABELS,
+  type DialectZone,
+  type SelfReportedDialect,
+} from "./accentOracleClient";
+import { COMARCA_MAP_META, type ComarcaMapEntry } from "./comarcaMapMeta";
 
 export interface Comarca {
   id: string;
@@ -8,59 +12,80 @@ export interface Comarca {
   confidence?: number;
 }
 
-const DISPLAY_NAMES: Record<string, string> = {
-  vielha: "Vielha",
-  "pallars-sobira": "Pallars Sobirà",
-  "alta-ribagorca": "Alta Ribagorça",
-  cerdanya: "Cerdanya",
-  "alt-urgell": "Alt Urgell",
-  "pallars-jussa": "Pallars Jussà",
-  noguera: "Noguera",
-  solsones: "Solsonès",
-  bergueda: "Berguedà",
-  andorra: "Andorra",
-  ardemuz: "Ardemuz",
-  segria: "Segrià",
-  urgell: "Urgell",
-  "pla-urgell": "Pla d'Urgell",
-  garrigues: "Garrigues",
-  "terra-alta": "Terra Alta",
-  "baix-ebre": "Baix Ebre",
-  montsia: "Montsià",
-  "rebera-ebre": "Ribera d'Ebre",
-  "alt-emporda": "Alt Empordà",
-  "baix-emporda": "Baix Empordà",
-  garrotxa: "Garrotxa",
-  ripolles: "Ripollès",
-  girones: "Gironès",
-  "la-selva": "La Selva",
-  "pla-de-estany": "Pla de l'Estany",
-  osona: "Osona",
-  segarra: "Segarra",
-  bages: "Bages",
-  "valles-oriental": "Vallès Oriental",
-  "valles-occidental": "Vallès Occidental",
-  maresme: "Maresme",
-  barcelones: "Barcelonès",
-  "baix-llobregat": "Baix Llobregat",
-  garraf: "Garraf",
-  anoia: "Anoia",
-  "alt-penedes": "Alt Penedès",
-  "baix-penedes": "Baix Penedès",
-  "alt-camp": "Alt Camp",
-  "baix-camp": "Baix Camp",
-  "conca-de-barbera": "Conca de Barberà",
-  priorat: "Priorat",
-  tarragones: "Tarragonès",
-  "catalunya-nord": "Catalunya Nord",
-  "catalunya-nord-2": "Catalunya Nord",
-  mallorca: "Mallorca",
-  menorca: "Menorca",
-  eivissa: "Eivissa",
-  formentera: "Formentera",
-  cabrera: "Cabrera",
-  valencia: "País Valencià",
+/** Definite article used in running Catalan text for selected comarques. */
+export type ComarcaDefiniteArticle = "el" | "la" | "l'" | "les";
+
+/**
+ * Comarques that take a definite article in running text.
+ * Only these accept that article as a searchable prefix (e.g. "La Selva", not "La Bages").
+ */
+export const COMARCA_DEFINITE_ARTICLE: Readonly<Record<string, ComarcaDefiniteArticle>> = {
+  // Amb el
+  bages: "el",
+  bergueda: "el",
+  maresme: "el",
+  priorat: "el",
+  "valles-occidental": "el",
+  "valles-oriental": "el",
+  comtat: "el",
+  // Amb la
+  garrotxa: "la",
+  selva: "la",
+  noguera: "la",
+  cerdanya: "la",
+  llitera: "la",
+  // Amb l'
+  "alt-emporda": "l'",
+  anoia: "l'",
+  "horta-nord": "l'",
+  "horta-oest": "l'",
+  "horta-sud": "l'",
+  alacanti: "l'",
+  // Amb les
+  garrigues: "les",
+  // "les Valls d'Àneu" is not a separate picker slug (Pallars Sobirà).
 };
+
+const BY_SLUG = new Map<string, ComarcaMapEntry>(
+  COMARCA_MAP_META.map((entry) => [entry.slug, entry]),
+);
+
+function foldDiacritics(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/['’]/g, "'")
+    .toLowerCase();
+}
+
+/** Searchable strings for a comarca: bare name, plus article+name when applicable. */
+export function comarcaSearchAliases(name: string, slug: string): string[] {
+  const foldedName = foldDiacritics(name.trim());
+  if (!foldedName) {
+    return [];
+  }
+  const aliases = [foldedName];
+  const article = COMARCA_DEFINITE_ARTICLE[slug];
+  if (article === "l'") {
+    aliases.push(`l'${foldedName}`);
+  } else if (article) {
+    aliases.push(`${article} ${foldedName}`);
+  }
+  return aliases;
+}
+
+/**
+ * Case- and accent-insensitive substring match.
+ * Leading articles only match for comarques that take that article
+ * (see {@link COMARCA_DEFINITE_ARTICLE}).
+ */
+export function comarcaNameMatchesQuery(name: string, query: string, slug = ""): boolean {
+  const needle = foldDiacritics(query.trim());
+  if (!needle) {
+    return true;
+  }
+  return comarcaSearchAliases(name, slug).some((alias) => alias.includes(needle));
+}
 
 function titleFromSlug(slug: string): string {
   return slug
@@ -70,26 +95,49 @@ function titleFromSlug(slug: string): string {
 }
 
 export function comarcaDisplayName(slug: string): string {
-  return DISPLAY_NAMES[slug] ?? titleFromSlug(slug);
+  return BY_SLUG.get(slug)?.name ?? titleFromSlug(slug);
 }
 
 export function getComarca(slug: string, confidence?: number): Comarca | null {
-  const meta = COMARCA_MAP_META.find((entry) => entry.slug === slug);
+  const meta = BY_SLUG.get(slug);
   if (!meta) {
     return null;
   }
   return {
     id: meta.slug,
-    displayName: comarcaDisplayName(meta.slug),
+    displayName: meta.name,
     dialect: DIALECT_ZONE_LABELS[meta.macroDialect as DialectZone] ?? meta.macroDialect,
     confidence,
   };
 }
 
 export function comarcaCentroid(slug: string): { x: number; y: number } | null {
-  const meta = COMARCA_MAP_META.find((entry) => entry.slug === slug);
+  const meta = BY_SLUG.get(slug);
   if (!meta) {
     return null;
   }
   return { x: meta.centroidX, y: meta.centroidY };
+}
+
+/** Macro dialect for feedback: one shared zone, or ``mixed`` when they disagree. */
+export function selfReportedDialectFromComarques(
+  slugs: string[],
+): Extract<SelfReportedDialect, DialectZone | "mixed"> | null {
+  const macros: DialectZone[] = [];
+  const seen = new Set<string>();
+  for (const slug of slugs) {
+    const macro = BY_SLUG.get(slug)?.macroDialect;
+    if (!macro || seen.has(macro)) {
+      continue;
+    }
+    seen.add(macro);
+    macros.push(macro);
+  }
+  if (macros.length === 0) {
+    return null;
+  }
+  if (macros.length === 1) {
+    return macros[0];
+  }
+  return "mixed";
 }

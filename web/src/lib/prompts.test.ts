@@ -32,4 +32,10 @@ describe("READ_ALOUD_PROMPTS", () => {
       expect(prompt.text.split(/(?<=[.!?])\s+/).length).toBeLessThanOrEqual(3);
     }
   });
+
+  it("documents a phonetic target for every prompt", () => {
+    for (const prompt of READ_ALOUD_PROMPTS) {
+      expect(prompt.notes?.trim()).toBeTruthy();
+    }
+  });
 });

@@ -1,6 +1,9 @@
 :root {
+  --theme-crossfade-duration: 450ms;
+  --theme-crossfade-ease: cubic-bezier(0.4, 0, 0.2, 1);
   --page-text: #18212b;
-  --page-background:
+  --page-background-color: #f2ece4;
+  --page-background-image:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 28%),
     linear-gradient(180deg, #f7f2eb 0%, #f2ece4 100%);
   --surface: rgba(255, 255, 255, 0.78);
@@ -38,8 +41,12 @@
   --map-coast-stroke: rgba(23, 34, 45, 0.16);
   --map-stage: #e6f0f5;
   --map-stage-wash: rgba(37, 124, 172, 0.14);
+  /* Fills keep alpha via currentColor; strokes must be opaque so shared
+     edges (double-drawn by adjacent paths) don't alpha-stack darker. */
   --map-line: rgba(35, 68, 88, 0.48);
+  --map-line-stroke: color-mix(in srgb, rgb(35 68 88) 35%, var(--map-stage));
   --map-line-hover: rgba(23, 52, 72, 0.82);
+  --map-line-stroke-hover: color-mix(in srgb, rgb(23 52 72) 78%, var(--map-stage));
   --map-selection-fill: rgba(37, 124, 172, 0.28);
   --map-selection-stroke: #1f6f9c;
   --map-selection-glow: rgba(37, 124, 172, 0.42);
@@ -74,7 +81,9 @@
   --share-social-facebook: #2563eb;
   --share-social-instagram: #db2777;
   color: var(--page-text);
-  background: #f4efe8;
+  /* Solid canvas behind body gradient — covers overscroll / rubber-band */
+  background-color: var(--page-background-color);
+  color-scheme: light;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
@@ -83,9 +92,12 @@
 
 :root[data-theme="dark"] {
   --page-text: #edf3f7;
-  --page-background:
+  --page-background-color: #141f2a;
+  --page-background-image:
     radial-gradient(circle at top left, rgba(78, 122, 150, 0.16), transparent 24%),
     linear-gradient(180deg, #0f1821 0%, #141f2a 55%, #17222d 100%);
+  background-color: var(--page-background-color);
+  color-scheme: dark;
   --surface: rgba(24, 35, 47, 0.84);
   --surface-strong: #1b2835;
   --surface-soft: #15222d;
@@ -122,7 +134,9 @@
   --map-stage: #0c141c;
   --map-stage-wash: rgba(76, 167, 217, 0.2);
   --map-line: rgba(120, 180, 210, 0.65);
+  --map-line-stroke: color-mix(in srgb, rgb(120 180 210) 47%, var(--map-stage));
   --map-line-hover: rgba(220, 240, 250, 0.95);
+  --map-line-stroke-hover: color-mix(in srgb, rgb(220 240 250) 95%, var(--map-stage));
   --map-selection-fill: rgba(245, 250, 255, 0.94);
   --map-selection-stroke: #ffffff;
   --map-selection-glow: rgba(76, 167, 217, 0.6);
@@ -163,14 +177,40 @@
 }
 
 body {
-  background: var(--page-background);
+  background-color: var(--page-background-color);
+  background-image: var(--page-background-image);
   color: var(--text-primary);
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* Smooth site-wide theme crossfade while the toggle animates.
+   Keep the switch itself out of this override so the knob can slide. */
+html.theme-transition,
+html.theme-transition *:not(.theme-switch, .theme-switch *),
+html.theme-transition *:not(.theme-switch, .theme-switch *)::before,
+html.theme-transition *:not(.theme-switch, .theme-switch *)::after {
   transition:
-    background 180ms ease,
-    color 180ms ease;
+    background-color var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    background-image var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    background var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    color var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    border-color var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    box-shadow var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    fill var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    stroke var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    opacity var(--theme-crossfade-duration) var(--theme-crossfade-ease),
+    filter var(--theme-crossfade-duration) var(--theme-crossfade-ease) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *:not(.theme-switch, .theme-switch *),
+  html.theme-transition *:not(.theme-switch, .theme-switch *)::before,
+  html.theme-transition *:not(.theme-switch, .theme-switch *)::after {
+    transition: none !important;
+  }
 }
 
 button,

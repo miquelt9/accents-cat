@@ -95,8 +95,9 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | `GET` | `/health` | Liveness |
 | `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText`) → dialect scores + `recordingId` (pending audio until research consent) |
 | `POST` | `/research-consent` | JSON `{ recordingId, consent, ageConfirmed?, policyVersion? }` → keep for research or delete pending audio |
-| `POST` | `/feedback` | JSON `{ recordingId, wasCorrect, selfReportedDialect?, notes? }` → `{ feedbackId }` |
-| `GET` | `/client-info` | Server-seen `{ ip, userAgent }` for Manage My Data |
+| `POST` | `/feedback` | JSON `{ feedbackId?, recordingId, wasCorrect?, comarca?, selfReportedDialect?, notes? }` → `{ feedbackId }` (upserts when `feedbackId` is sent) |
+
+No IP address or User-Agent is stored: the caller IP only feeds the in-memory rate limiters, and the self-declared `comarca` is the geographic signal.
 
 Successful `/analyze` calls create a **pending** row under gitignored `data/user_submissions/` (SQLite + audio) and return `recordingId`. Durable research storage happens only if the user opts in on the results screen (`POST /research-consent`). Pending audio expires after ~30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`). Deletion of consented rows is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1. Future training must use only `research_consent=1` rows.
 
@@ -126,7 +127,7 @@ flowchart LR
 1. User reads a short Catalan prompt drawn from a dialect-sensitive pool ([`web/src/lib/prompts.ts`](web/src/lib/prompts.ts)).
 2. Audio is sent to the mock client or the FastAPI backend ([`backend/app.py`](backend/app.py)), with the prompt id/text for storage.
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
-4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
+4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map that highlights the whole selected macro-dialect region ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 
 When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15), a **mandatory second take** is required before results; takes are merged with agreement-aware logic (same top → clearer take; different tops → average scores). If the merged result is still uncertain, an **optional third** take is offered ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
@@ -182,7 +183,7 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | --- | --- |
 | `VITE_ACCENT_ORACLE_MODE` | `api` or omit for mock |
 | `VITE_ACCENT_ORACLE_API_URL` | Backend base URL (default `http://localhost:8000`) |
-| `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals, mock IP label) + Mode cycle (**API → mock fail → mock success**). Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
+| `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals) + Mode cycle (**API → mock fail → mock success**). Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
 | `VITE_PUBLIC_SITE_URL` | Optional promo URL on the results share card (defaults to `window.location.host`). Native image share needs HTTPS (`isSecureContext`); on plain HTTP LAN, the UI downloads the PNG instead. |
 
 ## Development checks

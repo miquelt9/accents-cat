@@ -1,22 +1,20 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DIALECT_ZONE_LABELS,
   DIALECT_ZONES,
   type AccentScores,
   type DialectZone,
 } from "../lib/accentOracleClient";
-import { COMARCA_MAP_META } from "../lib/comarcaMapMeta";
-import { hotspotSlugForZone } from "../lib/dialectHotspots";
+import {
+  focusNeighborhoodSlugs,
+  resolveFocusComarca,
+} from "../lib/dialectFocusComarca";
+import { zoneForComarcaSlug } from "../lib/dialectRegions";
 import { accordionEase } from "../lib/mapMotion";
 import { DialectMap } from "./map/DialectMap";
 
 interface ResultsMapStageProps {
   scores: AccentScores;
-}
-
-function zoneForComarcaSlug(slug: string): DialectZone | null {
-  const meta = COMARCA_MAP_META.find((entry) => entry.slug === slug);
-  return meta?.macroDialect ?? null;
 }
 
 export function ResultsMapStage({ scores }: ResultsMapStageProps) {
@@ -26,27 +24,54 @@ export function ResultsMapStage({ scores }: ResultsMapStageProps) {
   );
   const topZone = rankedZones[0];
   const [selectedZone, setSelectedZone] = useState<DialectZone>(topZone);
-  const [selectedComarca, setSelectedComarca] = useState(() => hotspotSlugForZone(topZone));
-  const [expandedZone, setExpandedZone] = useState<DialectZone | null>(topZone);
+  const [inspectedComarca, setInspectedComarca] = useState<string | null>(null);
+  const prevTopZoneRef = useRef(topZone);
 
-  const confidence = scores[selectedZone];
+  useEffect(() => {
+    if (prevTopZoneRef.current !== topZone && selectedZone === prevTopZoneRef.current) {
+      setSelectedZone(topZone);
+      setInspectedComarca(null);
+    }
+    prevTopZoneRef.current = topZone;
+  }, [topZone, selectedZone]);
+
+  /** One illustrative comarca guess for the overall result — not recomputed per sidebar accent. */
+  const comarcaGuess = useMemo(
+    () => resolveFocusComarca(scores, topZone),
+    [scores, topZone],
+  );
+
+  const showingGuess = selectedZone === topZone && !inspectedComarca;
+  const pinComarca =
+    inspectedComarca ?? (selectedZone === topZone ? (comarcaGuess?.slug ?? null) : null);
+
+  const nearFocusSlugs = useMemo(() => {
+    if (!showingGuess || !comarcaGuess) {
+      return [];
+    }
+    return focusNeighborhoodSlugs(comarcaGuess.slug, topZone);
+  }, [showingGuess, comarcaGuess, topZone]);
 
   function selectZone(zone: DialectZone) {
     setSelectedZone(zone);
-    setSelectedComarca(hotspotSlugForZone(zone));
-    setExpandedZone(zone);
+    setInspectedComarca(null);
   }
 
   function onMapSelect(slug: string) {
     if (!slug) {
       return;
     }
-    setSelectedComarca(slug);
     const zone = zoneForComarcaSlug(slug);
-    if (zone) {
-      setSelectedZone(zone);
-      setExpandedZone(zone);
+    if (!zone) {
+      return;
     }
+    if (zone !== selectedZone) {
+      setSelectedZone(zone);
+      setInspectedComarca(slug);
+      return;
+    }
+    // Toggle inspect; on the top accent, clearing returns to the comarca guess.
+    setInspectedComarca((prev) => (prev === slug ? null : slug));
   }
 
   return (
@@ -63,7 +88,6 @@ export function ResultsMapStage({ scores }: ResultsMapStageProps) {
             {rankedZones.map((zone) => {
               const pct = Math.round(scores[zone] * 100);
               const isActive = zone === selectedZone;
-              const isExpanded = zone === expandedZone;
               return (
                 <div
                   key={zone}
@@ -73,20 +97,11 @@ export function ResultsMapStage({ scores }: ResultsMapStageProps) {
                   <button
                     type="button"
                     className="dialect-rank-button"
-                    aria-expanded={isExpanded}
-                    onClick={() => {
-                      if (isExpanded && isActive) {
-                        setExpandedZone(null);
-                      } else {
-                        selectZone(zone);
-                      }
-                    }}
+                    aria-pressed={isActive}
+                    onClick={() => selectZone(zone)}
                   >
                     <span className="dialect-rank-name">{DIALECT_ZONE_LABELS[zone]}</span>
                     <span className="dialect-rank-pct">{pct}%</span>
-                    <span className={`dialect-rank-chevron${isExpanded ? " is-open" : ""}`} aria-hidden>
-                      ▾
-                    </span>
                   </button>
                   <div className="dialect-rank-bar-track" aria-hidden>
                     <div
@@ -97,19 +112,6 @@ export function ResultsMapStage({ scores }: ResultsMapStageProps) {
                       }}
                     />
                   </div>
-                  <div
-                    className={`dialect-rank-detail${isExpanded ? " is-open" : ""}`}
-                    style={{
-                      transition: `grid-template-rows 190ms cubic-bezier(${accordionEase.join(",")})`,
-                    }}
-                  >
-                    <div className="dialect-rank-detail-inner">
-                      <p>
-                        El mapa mostra la comarca representativa d&apos;aquest accent.
-                        {isActive ? " Seleccionat al mapa." : " Fes clic per enfocar-la."}
-                      </p>
-                    </div>
-                  </div>
                 </div>
               );
             })}
@@ -117,8 +119,9 @@ export function ResultsMapStage({ scores }: ResultsMapStageProps) {
         </div>
 
         <DialectMap
-          selectedComarca={selectedComarca}
-          confidence={confidence}
+          selectedZone={selectedZone}
+          pinComarca={pinComarca}
+          nearFocusSlugs={nearFocusSlugs}
           onSelect={onMapSelect}
           playEntrance
         />

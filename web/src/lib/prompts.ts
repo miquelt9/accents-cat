@@ -1,12 +1,13 @@
 /**
  * Short read-aloud prompts for acoustic dialect similarity.
  *
- * Pool targets dialect-sensitive phonology with everyday Catalan lexicon:
- * unstressed vowel reduction vs full vowels, /ʎ/ vs /j/, coda consonants,
- * and common lexical items — not geographic origin cues.
- *
- * Former long primary (kept as design reference only, not shown in UI):
- * "Dissabte al matí, la Júlia va sortir de casa amb una motxilla petita…"
+ * Each prompt carries one dialect-sensitive contrast — [jʃ] before /ʃ/,
+ * betacism, apitxat sibilant devoicing, iodització, final consonant clusters,
+ * [ɔw] > [aw], unstressed vowel reduction, Balearic stressed schwa, and the
+ * mid-vowel open/closed splits — over high-coverage CV26 vocabulary. Lexical
+ * variants a speaker would swap out (espill/mirall, moixó) are avoided on
+ * purpose: the signal is *how* the same text is read, not which words are
+ * chosen, and never a geographic origin cue.
  */
 
 export type ReadAloudPrompt = {
@@ -18,74 +19,54 @@ export type ReadAloudPrompt = {
 
 export const READ_ALOUD_PROMPTS: readonly ReadAloudPrompt[] = [
   {
-    id: "pluja-vinya",
-    text: "La pluja fina cau sobre la vinya vella. El vent xiula pels camps buits mentre el sol escalfa la pedra del carrer.",
-    notes: "unstressed vowels; /ʎ/ in vella; coda /s/",
+    id: "caixa-peix",
+    text: "Vaig deixar la caixa del peix damunt la taula de la cuina. La meva cosina en va agafar dos trossos per fer el dinar.",
+    notes: "western [jʃ] in deixar·caixa·peix vs eastern [ʃ]; CV26 coverage: dos, fer",
   },
   {
-    id: "fill-escola",
-    text: "El fill petit va a l'escola amb la motxilla plena de llibres. Li agrada llegir sota l'arbre del pati.",
-    notes: "/ʎ/ fill·llibre; vowel reduction in articles",
+    id: "vaca-vi",
+    text: "El meu avi guarda vint ampolles de vi al celler i una vaca vella al prat. Diu que la seva família fa el mateix des de fa cent anys.",
+    notes: "betacism [v] vs [b] in avi·vi·vaca·vella; coda -nt in vint·cent; CV26 coverage: vint-i, seva",
   },
   {
-    id: "ull-porta",
-    text: "Obre l'ull i mira per la porta del celler. L'avi hi guarda oli, vi i unes ampolles velles.",
-    notes: "/ʎ/ ull; open/close mid vowels; finals",
+    id: "casa-rosa",
+    text: "A casa tenim una rosa i dotze gerros a la finestra. La Josefina els rega cada dia abans d'anar a la feina.",
+    notes: "apitxat devoicing: [z] casa·rosa, [dz] dotze, [dʒ] gerros·Josefina; CV26 coverage: dia, anar, feina",
   },
   {
-    id: "lluna-platja",
-    text: "La lluna brilla sobre la platja quieta. Les onades banyen la sorra i tornen enrere amb calma.",
-    notes: "/ʎ/ lluna; /tʃ/ platja; vowel quality",
+    id: "palla-ull",
+    text: "Obre l'ull i mira la palla que hi ha sota l'olla. L'abella vola cap a l'orella del cavall.",
+    notes: "iodització: [ʎ] > [j] in ull·palla·abella·orella vs stable [ʎ] in olla·cavall",
   },
   {
-    id: "fulla-terra",
-    text: "Una fulla groga cau a terra prop del pou. El gos la ensuma i corre cap a la casa blanca.",
-    notes: "/ʎ/ fulla; schwa vs full vowels in unstressed",
+    id: "camp-vent",
+    text: "Al camp bufa molt de vent i el cel és quasi blanc. Vam pujar al cim el vint-i-tres de maig amb quatre amics.",
+    notes: "final clusters -mp·-nt·-lt·-nc in camp·vent·molt·blanc; CV26 coverage: molt, vint-i, tres, quatre, maig",
   },
   {
-    id: "all-olla",
-    text: "Posa l'all a l'olla amb una mica d'oli. Després afegeix-hi ceba, tomàquet i un gra de sal.",
-    notes: "/ʎ/ all; mid vowels; geminate cues",
+    id: "pou-ou",
+    text: "Vora el pou hi ha un ou trencat i dos gats que dormen. El nou hort del meu germà queda just darrere la font.",
+    notes: "alacantí [ɔw] > [aw] in pou·ou·nou; open/close mid vowels in hort·font; CV26 coverage: dos",
   },
   {
-    id: "cavall-muntanya",
-    text: "El cavall puja la muntanya per un camí estret. Al cim hi ha un coll amb vistes al riu.",
-    notes: "/ʎ/ cavall·coll; unstressed reduction",
+    id: "cotxe-poble",
+    text: "El cotxe puja pel camí del poble quan surt el sol. A la porta de l'església hi ha molta gent esperant el metge.",
+    notes: "unstressed reduction: eastern [ə] in camí·esperant and final -e of cotxe·metge vs western [a]/[e]; CV26 coverage: gent, molt",
   },
   {
-    id: "velles-finestres",
-    text: "Les finestres velles del castell s'obren amb un crit. Dins fa fred i olor de fusta humida.",
-    notes: "/ʎ/ velles·castell; finals; vowel reduction",
+    id: "cera-pera",
+    text: "La meva mare va comprar una pera, un tros de formatge i una espelma de cera. Tot plegat li va costar quinze euros.",
+    notes: "balearic stressed schwa in cera (CERA) and pera (PIRA); unstressed a/e neutralisation in mare·espelma·plegat",
   },
   {
-    id: "gent-mercat",
-    text: "Al mercat hi ha molta gent i fruita fresca. Compra peres, prunes i un tros de formatge.",
-    notes: "unstressed vowels; coda clusters; everyday lexicon",
+    id: "primer-fred",
+    text: "El primer dia de gener fa fred i el camí queda gelat. Hem fet foc a la llar i hem menjat pa amb formatge.",
+    notes: "stressed mid front vowels [e]/[ɛ]/balearic [ə] in primer·gener·fred; CV26 coverage: primer, dia",
   },
   {
-    id: "neu-poble",
-    text: "Ahir va nevar al poble i els camps van quedar blancs. Els nens jugaven amb boles de neu al carrer.",
-    notes: "diphthongs; unstressed vowels; finals",
-  },
-  {
-    id: "llibre-biblioteca",
-    text: "Vaig deixar el llibre a la biblioteca del barri. Demà el tornaré a agafar per acabar-lo.",
-    notes: "/ʎ/ llibre; schwa vs full vowels; /ʎ/ biblioteca",
-  },
-  {
-    id: "paella-foc",
-    text: "La paella bull a foc lent amb arròs i peix. L'olor arriba fins a la plaça del poble.",
-    notes: "open/close mid vowels; /ʎ/ absent contrast with j; coda /s/",
-  },
-  {
-    id: "llum-cambra",
-    text: "Apaga el llum de la cambra i tanca la persiana. Fora es sent el cant dels grills.",
-    notes: "/ʎ/ llum; vowel reduction; finals",
-  },
-  {
-    id: "vellesa-temps",
-    text: "Amb el temps la vellesa arriba a tothom. Cal parlar clar, escoltar bé i tenir paciència.",
-    notes: "/ʎ/ vellesa; unstressed vowels; everyday lexicon",
+    id: "nom-tren",
+    text: "Digues el teu nom i l'hora que arribarà el tren. Hi ha quatre persones esperant a l'andana des de les cinc.",
+    notes: "stressed [ɔ] vs [o] in nom·hora·persones; CV26 coverage: nom, persones, hora, quatre, cinc, tren",
   },
 ] as const;
 

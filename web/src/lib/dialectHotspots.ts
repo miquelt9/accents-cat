@@ -5,9 +5,9 @@ import { COMARCA_MAP_META, type ComarcaMapEntry } from "./comarcaMapMeta";
 export const HOTSPOT_SLUG_BY_DIALECT: Record<DialectZone, string> = {
   central: "barcelones",
   northwestern: "segria",
-  northern: "catalunya-nord",
-  valencian: "valencia",
-  balearic: "mallorca",
+  northern: "rossello",
+  valencian: "horta-oest",
+  balearic: "palma",
 };
 
 export function hotspotComarcaForZone(zone: DialectZone): ComarcaMapEntry | undefined {

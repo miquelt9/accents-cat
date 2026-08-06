@@ -93,6 +93,69 @@ describe("needsValidation", () => {
     expect(SKIP_VALIDATION_MIN_TOP_SCORE).toBe(0.5);
     expect(SKIP_VALIDATION_MIN_GAP).toBe(0.15);
   });
+
+  it("returns true when top-two are geographically incoherent with a material runner-up", () => {
+    expect(
+      needsValidation(
+        result({
+          evidenceBand: "strong",
+          isAmbiguousTopTwo: false,
+          topLabel: "northern",
+          runnerUpLabel: "valencian",
+          scores: {
+            balearic: 0.05,
+            central: 0.08,
+            northern: 0.52,
+            northwestern: 0.05,
+            valencian: 0.3,
+          },
+          topTwoGap: 0.22,
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false for incoherent pairs when the runner-up is weak", () => {
+    expect(
+      needsValidation(
+        result({
+          evidenceBand: "strong",
+          isAmbiguousTopTwo: false,
+          topLabel: "northern",
+          runnerUpLabel: "valencian",
+          scores: {
+            balearic: 0.08,
+            central: 0.12,
+            northern: 0.58,
+            northwestern: 0.1,
+            valencian: 0.12,
+          },
+          topTwoGap: 0.46,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("returns false for adjacent top-two that clear the numeric bar", () => {
+    expect(
+      needsValidation(
+        result({
+          evidenceBand: "strong",
+          isAmbiguousTopTwo: false,
+          topLabel: "northwestern",
+          runnerUpLabel: "valencian",
+          scores: {
+            balearic: 0.05,
+            central: 0.1,
+            northern: 0.05,
+            northwestern: 0.55,
+            valencian: 0.25,
+          },
+          topTwoGap: 0.3,
+        }),
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("isStrongerEvidence", () => {

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -35,6 +36,12 @@ MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 MAX_NOTES_CHARS = 2000
 MAX_PROMPT_TEXT_CHARS = 500
 MAX_PROMPT_ID_CHARS = 64
+MAX_FEEDBACK_ID_CHARS = 64
+MAX_COMARCA_CHARS = 48
+MAX_COMARQUES = 12
+# Encoded multi-comarca JSON fits within this (slugs × max length + JSON overhead).
+MAX_COMARQUES_STORED_CHARS = 640
+COMARCA_SLUG_PATTERN = re.compile(r"^[a-z0-9-]{1,48}$")
 
 # Viral-load guards (stdlib; in-process only — not multi-worker safe)
 ENCODE_CONCURRENCY = max(1, int(os.environ.get("ORACLE_ENCODE_CONCURRENCY", "1")))
@@ -51,7 +58,7 @@ TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
 # Must stay aligned with web/src/lib/legalDocs.ts LEGAL_POLICY_VERSION.
 DEFAULT_POLICY_VERSION = os.environ.get(
     "ORACLE_POLICY_VERSION",
-    "19 de juliol de 2026",
+    "5 d'agost de 2026",
 )
 MAX_POLICY_VERSION_CHARS = 64
 
@@ -71,9 +78,13 @@ app.add_middleware(
 
 
 class FeedbackRequest(BaseModel):
+    feedbackId: str | None = Field(default=None, max_length=MAX_FEEDBACK_ID_CHARS)
     recordingId: str | None = None
     wasCorrect: bool | None = None
     selfReportedDialect: str | None = None
+    # Prefer ``comarques``; ``comarca`` remains for single-slug / older clients.
+    comarca: str | None = Field(default=None, max_length=MAX_COMARCA_CHARS)
+    comarques: list[str] | None = Field(default=None, max_length=MAX_COMARQUES)
     notes: str | None = Field(default=None, max_length=MAX_NOTES_CHARS)
 
 
@@ -188,6 +199,7 @@ def build_result(probabilities: np.ndarray) -> dict[str, Any]:
 
 
 def client_ip(request: Request) -> str | None:
+    """Caller IP for the in-memory rate limiters only; never persisted."""
     if TRUST_PROXY:
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
@@ -199,10 +211,6 @@ def client_ip(request: Request) -> str | None:
     return request.client.host
 
 
-def client_user_agent(request: Request) -> str | None:
-    return request.headers.get("user-agent")
-
-
 @app.get("/health")
 def health() -> dict[str, Any]:
     metadata = load_metadata()
@@ -211,14 +219,6 @@ def health() -> dict[str, Any]:
         "modelType": metadata.get("model_type"),
         "encoderModelName": metadata.get("encoder_model_name"),
         "labels": metadata.get("labels"),
-    }
-
-
-@app.get("/client-info")
-def get_client_info(request: Request) -> dict[str, str | None]:
-    return {
-        "ip": client_ip(request),
-        "userAgent": client_user_agent(request),
     }
 
 
@@ -245,6 +245,58 @@ def _normalize_prompt_fields(
         normalized_text = stripped_text
 
     return normalized_id, normalized_text
+
+
+def _normalize_comarca(value: str | None) -> str | None:
+    """Validate a self-declared comarca slug against the generated allowlist.
+
+    Falls back to a shape check while ``backend/comarques.py`` has not been
+    generated yet (see ``storage.comarca_allowlist``).
+    """
+    if value is None:
+        return None
+    slug = value.strip().lower()
+    if not slug:
+        return None
+    allowlist = storage.comarca_allowlist()
+    if not COMARCA_SLUG_PATTERN.match(slug) or (allowlist is not None and slug not in allowlist):
+        raise HTTPException(status_code=422, detail="comarca no és una comarca vàlida.")
+    return slug
+
+
+def _normalize_comarques(
+    *,
+    comarca: str | None,
+    comarques: list[str] | None,
+    supplied: set[str],
+) -> Any:
+    """Normalize singular/plural comarca fields into a stored string or UNSET."""
+    if "comarques" in supplied:
+        raw = comarques or []
+    elif "comarca" in supplied:
+        raw = [comarca] if comarca else []
+    else:
+        return storage.UNSET
+
+    if len(raw) > MAX_COMARQUES:
+        raise HTTPException(
+            status_code=422,
+            detail=f"comarques: com a màxim {MAX_COMARQUES} comarques.",
+        )
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in raw:
+        slug = _normalize_comarca(item if isinstance(item, str) else None)
+        if slug is None or slug in seen:
+            continue
+        seen.add(slug)
+        normalized.append(slug)
+
+    encoded = storage.encode_comarques(normalized)
+    if encoded is not None and len(encoded) > MAX_COMARQUES_STORED_CHARS:
+        raise HTTPException(status_code=422, detail="comarques massa llarg.")
+    return encoded
 
 
 @app.post("/analyze")
@@ -297,8 +349,6 @@ async def analyze(
         # Pending only: durable research storage requires POST /research-consent.
         storage.insert_submission(
             submission_id=recording_id,
-            ip=client_ip(request),
-            user_agent=client_user_agent(request),
             audio_path=audio_path,
             scores=result["scores"],
             top_label=result["topLabel"],
@@ -368,10 +418,23 @@ def submit_feedback(request: Request, body: FeedbackRequest) -> dict[str, str]:
             ),
         )
 
-    feedback_id = storage.insert_feedback(
+    # The funnel posts one answer at a time, so only overwrite what was sent.
+    supplied = body.model_fields_set
+    comarca = _normalize_comarques(
+        comarca=body.comarca,
+        comarques=body.comarques,
+        supplied=supplied,
+    )
+
+    def sent(field: str, value: Any) -> Any:
+        return value if field in supplied else storage.UNSET
+
+    feedback_id = storage.upsert_feedback(
+        feedback_id=(body.feedbackId or "").strip() or None,
         recording_id=body.recordingId,
-        was_correct=body.wasCorrect,
-        self_reported_dialect=dialect,
-        notes=body.notes,
+        was_correct=sent("wasCorrect", body.wasCorrect),
+        self_reported_dialect=sent("selfReportedDialect", dialect),
+        comarca=comarca,
+        notes=sent("notes", body.notes),
     )
     return {"feedbackId": feedback_id}

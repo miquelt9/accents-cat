@@ -2,10 +2,17 @@
 """Export research-consented oracle submissions to a training manifest.
 
 Only rows with ``research_consent=1`` and ``deleted_at IS NULL`` are exported.
-Supervised five-way labels use ``feedback.self_reported_dialect`` when it is one
-of the macro dialects; ``mixed`` / ``unknown`` / missing are kept in the
-manifest with an empty label for semi-supervised review but excluded from the
-default supervised export unless ``--include-unlabeled`` is set.
+Supervised five-way labels prefer the macro dialect derived from the
+self-declared ``feedback.comarca`` (one slug or a JSON list of slugs; a single
+shared macro wins, otherwise fall back) and fall back to
+``feedback.self_reported_dialect`` when it is one of the macro dialects;
+``mixed`` / ``unknown`` / missing are kept in the manifest with an empty label
+for semi-supervised review but excluded from the default supervised export
+unless ``--include-unlabeled`` is set.
+
+Run from the repo root::
+
+    python scripts/export_research_consent_manifest.py --out-dir … --out-manifest …
 """
 
 from __future__ import annotations
@@ -14,10 +21,16 @@ import argparse
 import json
 import shutil
 import sqlite3
+import sys
 from pathlib import Path
 
 import pandas as pd
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from backend import storage  # noqa: E402
 
 LABELS = ["balearic", "central", "northern", "northwestern", "valencian"]
 
@@ -61,6 +74,7 @@ def main() -> None:
           s.prompt_text,
           s.top_label,
           f.self_reported_dialect,
+          f.comarca,
           f.was_correct
         FROM submissions s
         LEFT JOIN feedback f ON f.submission_id = s.id
@@ -79,7 +93,13 @@ def main() -> None:
 
     for row in rows:
         dialect = (row["self_reported_dialect"] or "").strip().lower()
-        label = dialect if dialect in LABELS else ""
+        comarca_slugs = storage.parse_comarques(row["comarca"])
+        comarca_stored = storage.encode_comarques(comarca_slugs)
+        # Declared comarca(s) are finer-grained than the macro self-report; prefer
+        # a shared derived macro, else fall back to the self-report field.
+        label = storage.macro_dialect_from_comarques(comarca_slugs)
+        if not label:
+            label = dialect if dialect in LABELS else ""
         if not label and not args.include_unlabeled:
             continue
 
@@ -102,6 +122,8 @@ def main() -> None:
                 "client_id": f"oracle:{row['recording_id']}",
                 "path": filename,
                 "label": label,
+                "comarca": comarca_stored,
+                "comarques": "|".join(comarca_slugs) if comarca_slugs else None,
                 "self_reported_dialect": dialect or None,
                 "was_correct": row["was_correct"],
                 "top_label": row["top_label"],
@@ -132,6 +154,7 @@ def main() -> None:
         "copied_audio": copied,
         "missing_audio": missing_audio,
         "rows_by_label": by_label,
+        "rows_with_comarca": int(df["comarca"].notna().sum()) if len(df) else 0,
         "unlabeled_skipped": int(len(rows) - len(df)) if not args.include_unlabeled else 0,
     }
     summary_path = args.out_manifest.with_suffix(".summary.json")
