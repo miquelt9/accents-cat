@@ -299,4 +299,30 @@ describe("mergeValidationResults", () => {
     expect(merged.scores.valencian).toBeCloseTo(0.25, 2);
     expect(merged.topLabel === "central" || merged.topLabel === "valencian").toBe(true);
   });
+
+  it("keeps the analysis session and highest take index across merges", () => {
+    const first = result({
+      topLabel: "central",
+      evidenceBand: "limited",
+      isAmbiguousTopTwo: true,
+      topTwoGap: 0.04,
+      analysisSessionId: "session-id",
+      takeIndex: 1,
+    });
+    const second = result({
+      topLabel: "central",
+      evidenceBand: "strong",
+      isAmbiguousTopTwo: false,
+      topTwoGap: 0.3,
+      recordingId: "second-id",
+      analysisSessionId: "session-id",
+      takeIndex: 2,
+    });
+
+    const merged = mergeValidationResults(first, second);
+
+    expect(merged.analysisSessionId).toBe("session-id");
+    expect(merged.takeIndex).toBe(2);
+    expect(merged.recordingId).toBe("first-id");
+  });
 });

@@ -97,13 +97,14 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Legacy model health / Better Stack compatibility |
-| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText`) → dialect scores + `recordingId` (pending audio until research consent) |
-| `POST` | `/research-consent` | JSON `{ recordingId, consent, ageConfirmed?, policyVersion? }` → keep for research or delete pending audio |
-| `POST` | `/feedback` | JSON `{ feedbackId?, recordingId, wasCorrect?, comarca?, selfReportedDialect?, notes? }` → `{ feedbackId }` (upserts when `feedbackId` is sent) |
+| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText` and optional `analysisSessionId`) → dialect scores + session/take IDs (pending audio until research consent) |
+| `POST` | `/analysis-finalize` | JSON `{ analysisSessionId, finalResult, takeCount, terminalState }` → persists the displayed merged result while pending |
+| `POST` | `/research-consent` | JSON `{ analysisSessionId, consent, ageConfirmed?, policyVersion? }` → keep or delete every take in the session |
+| `POST` | `/feedback` | JSON `{ feedbackId?, analysisSessionId, recordingId?, wasCorrect?, comarca?, selfReportedDialect?, notes? }` → one session-level feedback row |
 
 No IP address or User-Agent is stored: the caller IP only feeds the in-memory rate limiters, and the self-declared `comarca` is the geographic signal.
 
-Successful `/analyze` calls create a **pending** row under gitignored `data/user_submissions/` (SQLite + audio) and return `recordingId`. Durable research storage happens only if the user opts in on the results screen (`POST /research-consent`). Pending audio expires after ~30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`). Deletion of consented rows is **manual** (email the placeholder contact in the UI → `python scripts/soft_delete_submission.py <uuid>`); there is no automated deletion API in v1. Future training must use only `research_consent=1` rows.
+Successful `/analyze` calls create a **pending** analysis session and one pending take under gitignored `data/user_submissions/` (SQLite + audio). Every validation/refinement take shares the same session ID and is retained for research only when the user opts in on the results screen (`POST /research-consent`). Pending sessions expire after ~30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`). Deletion of consented sessions is **manual** (email the configured contact in the UI → `python scripts/soft_delete_submission.py <session-or-recording-uuid>`); there is no automated deletion API in v1. Future training must use only `research_consent=1` rows from non-deleted sessions/takes.
 
 Backend load guards (env overrides): `ORACLE_WORKERS` (fixed at startup; default is `1` for 1–2 logical CPUs, `2` for 3–4, `4` for 5–8, and `min(cpu_count // 2, 8)` above that), `ORACLE_MAX_QUEUE_SIZE` (default `20` waiting jobs), `ORACLE_ENCODE_RETRY_AFTER` (default `5`), `ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW` (default `10` / `60`s), `ORACLE_FEEDBACK_RATE_LIMIT` / `ORACLE_FEEDBACK_RATE_WINDOW` (default `30` / `60`s), `ORACLE_MAX_AUDIO_SECONDS` (default `25`), `ORACLE_PENDING_CONSENT_TTL_SECONDS` (default `1800`), and `ORACLE_TRUST_PROXY` (default off). `ORACLE_ENCODE_CONCURRENCY` remains a deprecated compatibility fallback when `ORACLE_WORKERS` is unset. The queue is process-local and bounded; requests beyond worker capacity plus the waiting queue receive HTTP `503` rather than waiting without limit.
 
@@ -133,7 +134,7 @@ flowchart LR
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
 4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map that highlights the whole selected macro-dialect region ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 
-When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15), a **mandatory second take** is required before results; takes are merged with agreement-aware logic (same top → clearer take; different tops → average scores). If the merged result is still uncertain, an **optional third** take is offered ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
+When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15), or the top pair is geographically incoherent with a material runner-up, a **mandatory second take** is required before results; takes are merged with agreement-aware logic (same top → clearer take; different tops → average scores). If the merged result is still uncertain, an **optional third** take is offered. If uncertainty remains after three takes, the results view shows the full distribution and de-emphasizes the illustrative comarca pin ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
 ## Current model (research snapshot)
 
@@ -233,7 +234,7 @@ Deferred follow-ups for agents: [`ops/followups/`](ops/followups/) (Grafana emai
 
 ### Grafana Cloud (operational metrics)
 
-**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `share_clicked`, `research_consent_accepted` via `POST /telemetry/event`), plus process CPU/memory when OTLP is configured. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only.
+**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `validation_started`, `third_take_offered`, `third_take_completed`, `third_take_skipped`, `analysis_finalized`, `analysis_unresolved`, `share_clicked`, `research_consent_accepted` via `POST /telemetry/event`), plus process CPU/memory when OTLP is configured. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only.
 
 **Dashboard:** [Accent Oracle — Operations](https://bigdahlia593.grafana.net/d/accent-oracle-operations) (also [`ops/grafana/accent-oracle-operations.json`](ops/grafana/accent-oracle-operations.json)).
 
@@ -291,6 +292,21 @@ The script reports p50/p95 latency, throughput, HTTP status counts, and
 system CPU utilization. Repeat with different worker counts for each VPS size;
 the benchmark intentionally exercises the real `/analyze` endpoint.
 
+### Repeated-take evaluation
+
+Use speaker-grouped repeated-take JSONL to compare first-take, fixed
+two/three-take, and adaptive validation policies:
+
+```bash
+python scripts/evaluate_validation_policy.py \
+  --input data/validation_policy/speaker_grouped.jsonl \
+  --output reports/validation_policy_evaluation.json
+```
+
+See [`reports/validation_policy_evaluation.md`](reports/validation_policy_evaluation.md)
+for the input contract and metrics. Do not split takes from one speaker across
+train and evaluation partitions.
+
 ## Development checks
 Before substantive web/backend PRs, run the same lightweight checks CI will enforce (no model download, no HuBERT, no ffmpeg):
 
@@ -329,7 +345,7 @@ Architecture and safe edit boundaries for humans and AI agents: **[AGENTS.md](AG
 - [x] Dataset metadata audits and balanced manifests
 - [x] HuBERT + calibrated SVM baseline (~50% top-1, ~72% top-2)
 - [x] Local FastAPI + web prototype with interactive linework map
-- [x] Post-result research opt-in + feedback + Manage My Data (ledger lists consented recording IDs; pending audio under `data/user_submissions/`)
+- [x] Post-result research opt-in + feedback + Manage My Data (ledger lists consented analysis-session IDs; all session takes remain under `data/user_submissions/`)
 
 **Known limitations / not production-ready:**
 

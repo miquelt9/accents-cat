@@ -14,13 +14,14 @@ data/user_submissions/
 ├── oracle.db-wal       # may exist while SQLite is using WAL
 ├── oracle.db-shm       # may exist while SQLite is using WAL
 └── audio/
-    └── <submission-uuid>.<suffix>
+    └── <take-uuid>.<suffix>
 ```
 
 Back up the SQLite database and the complete `audio/` directory as one
-application dataset. The database contains submission metadata, scores,
-consent state, policy version, and feedback; the audio files are referenced by
-relative paths in the database.
+application dataset. The database contains analysis-session metadata, one
+submission/take row per audio file, scores, final merged results, consent
+state, policy version, and session-level feedback; the audio files are
+referenced by relative paths in the database.
 
 SQLite sidecar files are not guaranteed to exist with the current connection
 configuration, but a deployment must treat `oracle.db-wal` and `oracle.db-shm`
@@ -32,7 +33,8 @@ as part of the live database whenever they are present. Do not copy only
 The safest simple procedure is to quiesce writes briefly:
 
 1. Stop or maintenance-drain the uvicorn service so `/analyze`,
-   `/research-consent`, and `/feedback` cannot write during the snapshot.
+   `/analysis-finalize`, `/research-consent`, and `/feedback` cannot write
+   during the snapshot.
 2. Create a backup staging directory with mode `0700`.
 3. Copy `oracle.db`, any `oracle.db-wal` and `oracle.db-shm` sidecars, and the
    entire `audio/` directory into the same staging directory.

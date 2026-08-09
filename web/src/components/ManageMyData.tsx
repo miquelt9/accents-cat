@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { PRIVACY_EMAIL, PRIVACY_EMAIL_IS_PLACEHOLDER } from "../lib/privacyContact";
-import { getFeedbackIds, getRecordingIds } from "../lib/submissionLedger";
+import {
+  getAnalysisSessionIds,
+  getFeedbackIds,
+  getRecordingIds,
+} from "../lib/submissionLedger";
 
 interface ManageMyDataProps {
   onBack: () => void;
@@ -10,10 +14,16 @@ interface ManageMyDataProps {
 
 export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDataProps) {
   const [recordingIds] = useState(() => getRecordingIds());
+  const [analysisSessionIds] = useState(() => getAnalysisSessionIds());
   const [feedbackIds] = useState(() => getFeedbackIds());
 
   const mailtoBody = [
     "Sol·licito la supressió de les meves dades de l'Oracle d'accents catalans.",
+    "",
+    "IDs de sessió d'anàlisi:",
+    ...(analysisSessionIds.length > 0
+      ? analysisSessionIds.map((id) => `- ${id}`)
+      : ["- (cap)"]),
     "",
     "IDs de gravació:",
     ...(recordingIds.length > 0 ? recordingIds.map((id) => `- ${id}`) : ["- (cap)"]),
@@ -31,7 +41,7 @@ export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDat
       <p className="eyebrow">Privadesa</p>
       <h2>Gestiona les meves dades</h2>
       <p>
-        En mode API, només desem al servidor les gravacions que has acceptat desar per a recerca després
+        En mode API, només desem al servidor les gravacions de les sessions que has acceptat desar per a recerca després
         del resultat. Si vols demanar la supressió de les teves gravacions o comentaris, copia la
         informació següent i envia-la a{" "}
         <a className="inline-link" href={mailtoHref}>
@@ -63,6 +73,22 @@ export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDat
       </p>
 
       <dl className="manage-data-list">
+        <div>
+          <dt>IDs de sessió d&apos;anàlisi</dt>
+          <dd>
+            {analysisSessionIds.length > 0 ? (
+              <ul className="id-list">
+                {analysisSessionIds.map((id) => (
+                  <li key={id}>
+                    <code>{id}</code>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <span className="manage-data-empty">Cap ID en aquest navegador.</span>
+            )}
+          </dd>
+        </div>
         <div>
           <dt>IDs de gravació</dt>
           <dd>

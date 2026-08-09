@@ -32,7 +32,7 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Set production `VITE_SENTRY_ENVIRONMENT` and `SENTRY_ENVIRONMENT`; keep
       development-only Sentry debug behavior disabled.
 - [ ] Set `ORACLE_POLICY_VERSION` to the same value as
-      `web/src/lib/legalDocs.ts` (`5 d'agost de 2026` in this revision), or
+      `web/src/lib/legalDocs.ts` (`6 d'agost de 2026` in this revision), or
       update both intentionally and review the consent copy.
 - [ ] Confirm the model directory contains the expected `model.joblib` and
       `metadata.json`, and that the five labels remain in the fixed order.
@@ -46,7 +46,7 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Terminate TLS at Caddy/nginx or an equivalent trusted proxy and redirect
       HTTP to HTTPS.
 - [ ] Serve `web/dist` and proxy the API paths
-      `/analyze`, `/feedback`, `/research-consent`, `/live`, `/ready`,
+      `/analyze`, `/analysis-finalize`, `/feedback`, `/research-consent`, `/live`, `/ready`,
       `/version`, `/health`, `/telemetry/event`, and `/sentry-debug` as
       appropriate. Do not expose `/sentry-debug` in production.
 - [ ] Use the checked-in [`ops/caddy/Caddyfile.example`](../ops/caddy/Caddyfile.example)
@@ -135,14 +135,16 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Assign an owner and schedule for pending purge and
       `python scripts/purge_expired_research.py`; remember pending cleanup is
       not an independent background worker.
-- [ ] Test decline/abandonment and opt-in paths. Verify audio, prompt, scores,
-      consent fields, feedback linkage, and policy version match the documented
-      behavior.
+- [ ] Test a two- or three-take decline/abandonment path and an opt-in path.
+      Verify every session take's audio, prompt, scores, consent fields,
+      final-result snapshot, feedback linkage, and policy version match the
+      documented behavior.
 - [ ] Run `python scripts/purge_expired_research.py --dry-run` against the
       intended database and record the result.
 - [ ] Run a soft-delete test with
-      `python scripts/soft_delete_submission.py <recording-uuid>`; verify
-      audio removal and the expected database scrubbing.
+      `python scripts/soft_delete_submission.py <session-or-recording-uuid>`;
+      verify every linked audio file is removed and the expected database
+      scrubbing occurs.
 - [ ] Install the backup procedure in [`docs/BACKUP.md`](BACKUP.md), including
       SQLite sidecars, complete audio, encryption, off-box retention, and a
       failure alert. The application does not create backups.
@@ -170,8 +172,9 @@ proves it. Items marked **deployment** are not supplied by the repository.
       material unless the Sentry release upload process is configured. See
       [`ops/followups/03-sentry-releases-sourcemaps.md`](../ops/followups/03-sentry-releases-sourcemaps.md).
 - [ ] Perform a browser smoke test on the real HTTPS host: landing, permission,
-      recording, upload, validation, results, share fallback, feedback,
-      consent, privacy/terms, and Manage My Data.
+      recording, upload, mandatory validation, optional third take, unresolved
+      result treatment, share fallback, feedback, consent, privacy/terms, and
+      Manage My Data.
 - [ ] Save the deployed `/version` response, health probe results, release
       SHA, model metadata, and rollback instructions.
 

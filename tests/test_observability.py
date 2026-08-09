@@ -17,6 +17,8 @@ def test_ui_event_allowlist() -> None:
     assert is_ui_event_allowed("homepage_viewed")
     assert is_ui_event_allowed("analyze_pressed")
     assert is_ui_event_allowed("analysis_completed")
+    assert is_ui_event_allowed("validation_started")
+    assert is_ui_event_allowed("analysis_unresolved")
     assert is_ui_event_allowed("share_clicked")
     assert is_ui_event_allowed("research_consent_accepted")
     assert not is_ui_event_allowed("recording_id")
@@ -28,6 +30,12 @@ def test_ui_event_allowlist() -> None:
         "recording_completed",
         "analyze_pressed",
         "analysis_completed",
+        "validation_started",
+        "third_take_offered",
+        "third_take_completed",
+        "third_take_skipped",
+        "analysis_finalized",
+        "analysis_unresolved",
         "share_clicked",
         "research_consent_accepted",
     }
@@ -47,6 +55,7 @@ def test_scrub_sentry_event_strips_body_and_sensitive_keys() -> None:
         },
         "extra": {
             "recordingId": "uuid",
+            "analysisSessionId": "session-uuid",
             "comarca": "barcelones",
             "safe": "ok",
             "nested": {"promptText": "nope"},
@@ -68,6 +77,7 @@ def test_scrub_sentry_event_strips_body_and_sensitive_keys() -> None:
     assert cleaned["request"]["query_string"] == ""
     assert "?" not in cleaned["request"]["url"]
     assert cleaned["extra"]["recordingId"] == "[Filtered]"
+    assert cleaned["extra"]["analysisSessionId"] == "[Filtered]"
     assert cleaned["extra"]["comarca"] == "[Filtered]"
     assert cleaned["extra"]["safe"] == "ok"
     assert cleaned["extra"]["nested"]["promptText"] == "[Filtered]"

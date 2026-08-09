@@ -26,7 +26,7 @@ Research prototype: read-aloud Catalan → five macro-dialect similarity scores 
 - Map: `web/public/map-oracle-linework.svg` + `DialectMap` / `ResultsMapStage` (linework stage; source geometry is `web/public/mapa-comarcal-accents.svg`)
 - `comarcaMapMeta.ts` and `backend/comarques.py` are generated — rebuild both with `scripts/build_comarca_map.py`
 - No IP or User-Agent is persisted; the self-declared comarca is the only geographic signal
-- Observability: Sentry + Grafana OTLP via `backend/observability.py` / `web/src/lib/sentry.ts`; never send audio, bodies, comarca, or recording IDs (see README Observability)
+- Observability: Sentry + Grafana OTLP via `backend/observability.py` / `web/src/lib/sentry.ts`; never send audio, bodies, comarca, or session/recording IDs (see README Observability)
 - Inference: `backend/inference_pool.py` owns a fixed CPU-aware FIFO worker pool and bounded queue; configure with `ORACLE_WORKERS` and `ORACLE_MAX_QUEUE_SIZE`.
 
 See `AGENTS.md` and `docs/ML_PIPELINE.md` for details.

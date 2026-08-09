@@ -40,12 +40,15 @@ export interface AccentOracleResult {
   confidenceSummary: string;
   interpretation: string;
   recordingId?: string;
+  analysisSessionId?: string;
+  takeIndex?: number;
 }
 
 export interface FeedbackPayload {
   /** Returned by an earlier `/feedback` call; updates that row instead of adding one. */
   feedbackId?: string;
-  recordingId: string;
+  recordingId?: string;
+  analysisSessionId?: string;
   wasCorrect?: boolean | null;
   selfReportedDialect?: SelfReportedDialect;
   /** @deprecated Prefer ``comarques``; still accepted by the API as a single slug. */
@@ -79,7 +82,11 @@ export type AnalyzePromptMeta = {
 };
 
 export interface AccentOracleClient {
-  analyzeRecording(audio: Blob, prompt: AnalyzePromptMeta): Promise<AccentOracleResult>;
+  analyzeRecording(
+    audio: Blob,
+    prompt: AnalyzePromptMeta,
+    analysisSessionId?: string,
+  ): Promise<AccentOracleResult>;
 }
 
 const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
@@ -291,6 +298,8 @@ function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: bool
 export function buildResultFromScores(
   rawScores: AccentScores,
   recordingId?: string,
+  analysisSessionId?: string,
+  takeIndex?: number,
 ): AccentOracleResult {
   const scores = normalizeScores(rawScores);
   const ranked = [...DIALECT_ZONES].sort((a, b) => scores[b] - scores[a]);
@@ -310,6 +319,8 @@ export function buildResultFromScores(
     confidenceSummary: summarizeConfidence(evidenceBand, isAmbiguousTopTwo),
     interpretation: `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`,
     recordingId,
+    analysisSessionId,
+    takeIndex,
   };
 }
 
@@ -340,7 +351,11 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
 }
 
 export const mockAccentOracleClient: AccentOracleClient = {
-  async analyzeRecording(audio: Blob, prompt: AnalyzePromptMeta): Promise<AccentOracleResult> {
+  async analyzeRecording(
+    audio: Blob,
+    prompt: AnalyzePromptMeta,
+    analysisSessionId?: string,
+  ): Promise<AccentOracleResult> {
     void audio;
     void prompt;
     await new Promise((resolve) => window.setTimeout(resolve, 650));
@@ -348,17 +363,29 @@ export const mockAccentOracleClient: AccentOracleClient = {
     mockAnalyzeOrdinal += 1;
     const mode = resolveAccentOracleMode();
     const scores = scoresForMockMode(mode, mockAnalyzeOrdinal);
-    return buildResultFromScores(scores, createClientId());
+    return buildResultFromScores(
+      scores,
+      createClientId(),
+      analysisSessionId,
+      mockAnalyzeOrdinal,
+    );
   },
 };
 
 export const apiAccentOracleClient: AccentOracleClient = {
-  async analyzeRecording(audio: Blob, prompt: AnalyzePromptMeta): Promise<AccentOracleResult> {
+  async analyzeRecording(
+    audio: Blob,
+    prompt: AnalyzePromptMeta,
+    analysisSessionId?: string,
+  ): Promise<AccentOracleResult> {
     const formData = new FormData();
     const filename = audio instanceof File ? audio.name : "recording.webm";
     formData.append("audio", audio, filename);
     formData.append("promptId", prompt.promptId);
     formData.append("promptText", prompt.promptText);
+    if (analysisSessionId) {
+      formData.append("analysisSessionId", analysisSessionId);
+    }
 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), ANALYZE_TIMEOUT_MS);
@@ -389,6 +416,49 @@ export const apiAccentOracleClient: AccentOracleClient = {
   },
 };
 
+export interface AnalysisFinalizePayload {
+  analysisSessionId: string;
+  finalResult: AccentOracleResult;
+  takeCount: number;
+  terminalState: "results" | "skipped-third" | "unresolved";
+}
+
+export interface AnalysisFinalizeResponse {
+  analysisSessionId: string;
+  finalized: boolean;
+}
+
+export async function finalizeAnalysis(
+  payload: AnalysisFinalizePayload,
+): Promise<AnalysisFinalizeResponse> {
+  if (isMockMode(getAccentOracleMode())) {
+    await new Promise((resolve) => window.setTimeout(resolve, 80));
+    return {
+      analysisSessionId: payload.analysisSessionId,
+      finalized: true,
+    };
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/analysis-finalize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    const mapped = mapTransportError(error);
+    if (mapped) {
+      throw mapped;
+    }
+    throw error;
+  }
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, "No s'ha pogut desar el resultat."));
+  }
+  return (await response.json()) as AnalysisFinalizeResponse;
+}
+
 export async function submitFeedback(payload: FeedbackPayload): Promise<FeedbackResponse> {
   if (isMockMode(getAccentOracleMode())) {
     await new Promise((resolve) => window.setTimeout(resolve, 200));
@@ -416,14 +486,16 @@ export async function submitFeedback(payload: FeedbackPayload): Promise<Feedback
 }
 
 export interface ResearchConsentPayload {
-  recordingId: string;
+  recordingId?: string;
+  analysisSessionId?: string;
   consent: boolean;
   ageConfirmed?: boolean;
   policyVersion?: string;
 }
 
 export interface ResearchConsentResponse {
-  recordingId: string;
+  recordingId?: string;
+  analysisSessionId?: string;
   researchConsent: boolean;
 }
 
@@ -434,6 +506,7 @@ export async function submitResearchConsent(
     await new Promise((resolve) => window.setTimeout(resolve, 200));
     return {
       recordingId: payload.recordingId,
+      analysisSessionId: payload.analysisSessionId,
       researchConsent: payload.consent,
     };
   }
@@ -445,6 +518,7 @@ export async function submitResearchConsent(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         recordingId: payload.recordingId,
+        analysisSessionId: payload.analysisSessionId,
         consent: payload.consent,
         ageConfirmed: payload.ageConfirmed ?? false,
         policyVersion: payload.policyVersion,

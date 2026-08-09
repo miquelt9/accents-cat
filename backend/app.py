@@ -109,7 +109,7 @@ TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
 # Must stay aligned with web/src/lib/legalDocs.ts LEGAL_POLICY_VERSION.
 DEFAULT_POLICY_VERSION = os.environ.get(
     "ORACLE_POLICY_VERSION",
-    "5 d'agost de 2026",
+    "6 d'agost de 2026",
 )
 MAX_POLICY_VERSION_CHARS = 64
 
@@ -172,6 +172,7 @@ class TelemetryEventRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     feedbackId: str | None = Field(default=None, max_length=MAX_FEEDBACK_ID_CHARS)
     recordingId: str | None = None
+    analysisSessionId: str | None = Field(default=None, max_length=64)
     wasCorrect: bool | None = None
     selfReportedDialect: str | None = None
     # Prefer ``comarques``; ``comarca`` remains for single-slug / older clients.
@@ -181,10 +182,18 @@ class FeedbackRequest(BaseModel):
 
 
 class ResearchConsentRequest(BaseModel):
-    recordingId: str
+    recordingId: str | None = None
+    analysisSessionId: str | None = Field(default=None, max_length=64)
     consent: bool
     policyVersion: str | None = Field(default=None, max_length=MAX_POLICY_VERSION_CHARS)
     ageConfirmed: bool = False
+
+
+class AnalysisFinalizeRequest(BaseModel):
+    analysisSessionId: str = Field(min_length=1, max_length=64)
+    finalResult: dict[str, Any]
+    takeCount: int = Field(ge=1, le=3)
+    terminalState: str = Field(min_length=1, max_length=32)
 
 
 _analyze_limiter = SlidingWindowRateLimiter(
@@ -327,7 +336,7 @@ def live() -> dict[str, Any]:
     return live_payload()
 
 
-@app.get("/ready")
+@app.get("/ready", response_model=None)
 def ready() -> dict[str, Any] | JSONResponse:
     """Classifier files + metadata loadable + storage writable."""
     payload = ready_payload(model_path=MODEL_PATH, metadata_path=METADATA_PATH)
@@ -398,6 +407,23 @@ def _normalize_prompt_fields(
     return normalized_id, normalized_text
 
 
+def _normalize_analysis_session_id(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = value.strip()
+    if not stripped:
+        raise HTTPException(
+            status_code=422,
+            detail="analysisSessionId no pot ser buit.",
+        )
+    if len(stripped) > 64:
+        raise HTTPException(
+            status_code=422,
+            detail="analysisSessionId és massa llarg.",
+        )
+    return stripped
+
+
 def _normalize_comarca(value: str | None) -> str | None:
     """Validate a self-declared comarca slug against the generated allowlist.
 
@@ -458,6 +484,7 @@ async def analyze(
     audio: UploadFile = File(...),
     promptId: str | None = Form(default=None),
     promptText: str | None = Form(default=None),
+    analysisSessionId: str | None = Form(default=None),
 ) -> dict[str, Any]:
     request_started = time.perf_counter()
     if not _analyze_limiter.allow(_rate_limit_key(request)):
@@ -465,6 +492,26 @@ async def analyze(
 
     storage.purge_expired_pending()
     prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
+    requested_session_id = _normalize_analysis_session_id(analysisSessionId)
+    analysis_session_id = requested_session_id or storage.create_analysis_session()
+    if requested_session_id and not storage.analysis_session_accepts_take(analysis_session_id):
+        raise HTTPException(
+            status_code=409,
+            detail="La sessió d'anàlisi ja no accepta més gravacions.",
+        )
+    try:
+        take_index = storage.next_take_index(analysis_session_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail="La sessió d'anàlisi ja no accepta més gravacions.",
+        ) from exc
+    if take_index > 3:
+        raise HTTPException(
+            status_code=409,
+            detail="Aquesta anàlisi ja ha assolit el màxim de tres gravacions.",
+        )
+    take_role = ("initial", "validation", "refine")[take_index - 1]
     set_prompt_id_tag(prompt_id)
 
     try:
@@ -554,8 +601,13 @@ async def analyze(
             evidence_band=result["evidenceBand"],
             prompt_id=prompt_id,
             prompt_text=prompt_text,
+            analysis_session_id=analysis_session_id,
+            take_index=take_index,
+            take_role=take_role,
         )
         result["recordingId"] = recording_id
+        result["analysisSessionId"] = analysis_session_id
+        result["takeIndex"] = take_index
         record_analyze("success", inference_seconds)
         logger.info(
             "analyze ok top=%s band=%s queue_depth=%d active_workers=%d "
@@ -584,9 +636,13 @@ def submit_research_consent(
     if not _feedback_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
 
-    recording_id = body.recordingId.strip()
-    if not recording_id:
-        raise HTTPException(status_code=422, detail="recordingId és obligatori.")
+    analysis_session_id = _normalize_analysis_session_id(body.analysisSessionId)
+    recording_id = body.recordingId.strip() if body.recordingId else None
+    if not analysis_session_id and not recording_id:
+        raise HTTPException(
+            status_code=422,
+            detail="analysisSessionId o recordingId és obligatori.",
+        )
 
     if body.consent:
         if not body.ageConfirmed:
@@ -597,9 +653,18 @@ def submit_research_consent(
         policy_version = (body.policyVersion or DEFAULT_POLICY_VERSION).strip()
         if not policy_version or len(policy_version) > MAX_POLICY_VERSION_CHARS:
             raise HTTPException(status_code=422, detail="policyVersion no és vàlid.")
-        if not storage.confirm_research_consent(
-            recording_id, policy_version=policy_version
-        ):
+        confirmed = (
+            storage.confirm_research_consent_for_session(
+                analysis_session_id,
+                policy_version=policy_version,
+            )
+            if analysis_session_id
+            else storage.confirm_research_consent(
+                recording_id or "",
+                policy_version=policy_version,
+            )
+        )
+        if not confirmed:
             raise HTTPException(
                 status_code=404,
                 detail=(
@@ -609,16 +674,54 @@ def submit_research_consent(
             )
         record_consent()
         logger.info("research consent confirmed")
-        return {"recordingId": recording_id, "researchConsent": True}
+        return {
+            "analysisSessionId": analysis_session_id,
+            "recordingId": recording_id,
+            "researchConsent": True,
+        }
 
-    if not storage.decline_research_consent(recording_id):
+    declined = (
+        storage.decline_research_consent_for_session(analysis_session_id)
+        if analysis_session_id
+        else storage.decline_research_consent(recording_id or "")
+    )
+    if not declined:
         raise HTTPException(
             status_code=404,
-            detail="No s'ha trobat aquesta gravació.",
+            detail="No s'ha trobat aquesta sessió o gravació.",
         )
     record_consent()
     logger.info("research consent declined")
-    return {"recordingId": recording_id, "researchConsent": False}
+    return {
+        "analysisSessionId": analysis_session_id,
+        "recordingId": recording_id,
+        "researchConsent": False,
+    }
+
+
+@app.post("/analysis-finalize")
+def finalize_analysis(
+    request: Request,
+    body: AnalysisFinalizeRequest,
+) -> dict[str, Any]:
+    if not _feedback_limiter.allow(_rate_limit_key(request)):
+        _raise_rate_limited()
+
+    analysis_session_id = _normalize_analysis_session_id(body.analysisSessionId)
+    if not analysis_session_id or not storage.finalize_analysis_session(
+        analysis_session_id,
+        final_result=body.finalResult,
+        take_count=body.takeCount,
+        terminal_state=body.terminalState,
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail="No s'ha trobat una sessió d'anàlisi activa.",
+        )
+    return {
+        "analysisSessionId": analysis_session_id,
+        "finalized": True,
+    }
 
 
 @app.post("/feedback")
@@ -650,6 +753,7 @@ def submit_feedback(request: Request, body: FeedbackRequest) -> dict[str, str]:
     feedback_id = storage.upsert_feedback(
         feedback_id=(body.feedbackId or "").strip() or None,
         recording_id=body.recordingId,
+        analysis_session_id=_normalize_analysis_session_id(body.analysisSessionId),
         was_correct=sent("wasCorrect", body.wasCorrect),
         self_reported_dialect=sent("selfReportedDialect", dialect),
         comarca=comarca,

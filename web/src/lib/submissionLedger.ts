@@ -1,4 +1,4 @@
-export type LedgerEntryKind = "recording" | "feedback";
+export type LedgerEntryKind = "recording" | "analysis-session" | "feedback";
 
 export interface LedgerEntry {
   id: string;
@@ -30,7 +30,9 @@ function readEntries(): LedgerEntry[] {
         typeof entry === "object" &&
         entry !== null &&
         typeof (entry as LedgerEntry).id === "string" &&
-        ((entry as LedgerEntry).kind === "recording" || (entry as LedgerEntry).kind === "feedback") &&
+        ((entry as LedgerEntry).kind === "recording" ||
+          (entry as LedgerEntry).kind === "analysis-session" ||
+          (entry as LedgerEntry).kind === "feedback") &&
         typeof (entry as LedgerEntry).at === "string",
     );
   } catch {
@@ -53,6 +55,12 @@ export function getLedgerEntries(): LedgerEntry[] {
 export function getRecordingIds(): string[] {
   return readEntries()
     .filter((entry) => entry.kind === "recording")
+    .map((entry) => entry.id);
+}
+
+export function getAnalysisSessionIds(): string[] {
+  return readEntries()
+    .filter((entry) => entry.kind === "analysis-session")
     .map((entry) => entry.id);
 }
 

@@ -29,6 +29,7 @@ type FunnelStep = "promoting" | "ask" | "consent" | "comarca" | "done";
 
 interface ResultsConsentFeedbackProps {
   recordingId?: string;
+  analysisSessionId?: string;
   preConsented: boolean;
   onResearchRetained?: () => void;
 }
@@ -95,6 +96,7 @@ function CloseIcon() {
 
 export function ResultsConsentFeedback({
   recordingId,
+  analysisSessionId,
   preConsented,
   onResearchRetained,
 }: ResultsConsentFeedbackProps) {
@@ -106,7 +108,9 @@ export function ResultsConsentFeedback({
   const [isCompact, setIsCompact] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia("(max-width: 639px)").matches : false,
   );
-  const [step, setStep] = useState<FunnelStep>(preConsented && recordingId ? "promoting" : "ask");
+  const [step, setStep] = useState<FunnelStep>(
+    preConsented && (analysisSessionId || recordingId) ? "promoting" : "ask",
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [legalDoc, setLegalDoc] = useState<LegalDocId | null>(null);
   const [promoted, setPromoted] = useState(false);
@@ -153,10 +157,11 @@ export function ResultsConsentFeedback({
   }, [sheetOpen, reduceMotion, sheetY]);
 
   useEffect(() => {
-    if (!preConsented || !recordingId || promoted || step !== "promoting") {
+    if (!preConsented || (!analysisSessionId && !recordingId) || promoted || step !== "promoting") {
       return;
     }
 
+    const retainedSessionId = analysisSessionId;
     const retainedRecordingId = recordingId;
     let cancelled = false;
 
@@ -166,7 +171,9 @@ export function ResultsConsentFeedback({
 
       try {
         await submitResearchConsent({
-          recordingId: retainedRecordingId,
+          ...(retainedSessionId
+            ? { analysisSessionId: retainedSessionId }
+            : { recordingId: retainedRecordingId }),
           consent: true,
           ageConfirmed: true,
           policyVersion: LEGAL_POLICY_VERSION,
@@ -175,7 +182,11 @@ export function ResultsConsentFeedback({
           return;
         }
         trackUiEvent("research_consent_accepted");
-        appendLedgerEntry(retainedRecordingId, "recording");
+        if (retainedSessionId) {
+          appendLedgerEntry(retainedSessionId, "analysis-session");
+        } else if (retainedRecordingId) {
+          appendLedgerEntry(retainedRecordingId, "recording");
+        }
         onResearchRetained?.();
         setPromoted(true);
         setResearchSaved(true);
@@ -200,7 +211,7 @@ export function ResultsConsentFeedback({
     return () => {
       cancelled = true;
     };
-  }, [preConsented, recordingId, promoted, step, onResearchRetained]);
+  }, [analysisSessionId, preConsented, recordingId, promoted, step, onResearchRetained]);
 
   async function submitComarcaFeedback(
     payload: {
@@ -212,9 +223,10 @@ export function ResultsConsentFeedback({
     setError(null);
 
     try {
-      if (recordingId) {
+      if (analysisSessionId || recordingId) {
         const response = await submitFeedback({
           ...(feedbackId ? { feedbackId } : {}),
+          ...(analysisSessionId ? { analysisSessionId } : {}),
           recordingId,
           comarques: payload.comarques,
           selfReportedDialect: payload.selfReportedDialect,
@@ -339,9 +351,10 @@ export function ResultsConsentFeedback({
 
     try {
       let nextFeedbackId = feedbackId ?? createClientId();
-      if (recordingId) {
+      if (analysisSessionId || recordingId) {
         const response = await submitFeedback({
           ...(feedbackId ? { feedbackId } : {}),
+          ...(analysisSessionId ? { analysisSessionId } : {}),
           recordingId,
           wasCorrect: answer,
         });
@@ -380,16 +393,20 @@ export function ResultsConsentFeedback({
     setError(null);
 
     try {
-      if (recordingId) {
+      if (analysisSessionId || recordingId) {
         await submitResearchConsent({
-          recordingId,
+          ...(analysisSessionId ? { analysisSessionId } : { recordingId }),
           consent: true,
           // Affirmative Sí on this step confirms 18+ (same as landing pre-consent).
           ageConfirmed: true,
           policyVersion: LEGAL_POLICY_VERSION,
         });
         trackUiEvent("research_consent_accepted");
-        appendLedgerEntry(recordingId, "recording");
+        if (analysisSessionId) {
+          appendLedgerEntry(analysisSessionId, "analysis-session");
+        } else if (recordingId) {
+          appendLedgerEntry(recordingId, "recording");
+        }
         onResearchRetained?.();
       }
 
@@ -423,7 +440,7 @@ export function ResultsConsentFeedback({
         ) : preConsented ? (
           <p>El teu comentari ens ajuda a millorar el model de similitud dialectal.</p>
         ) : (
-          <p>Hem registrat el teu comentari. No desarem aquesta gravació per a entrenament.</p>
+          <p>Hem registrat el teu comentari. No desarem aquestes gravacions per a entrenament.</p>
         )}
       </section>
     );
@@ -439,7 +456,7 @@ export function ResultsConsentFeedback({
 
       {step === "promoting" ? (
         <section className="feedback-prompt" aria-live="polite">
-          <p className="feedback-prompt-label">Desant la gravació per a recerca…</p>
+          <p className="feedback-prompt-label">Desant les gravacions de la sessió per a recerca…</p>
         </section>
       ) : (
         <section className="feedback-prompt" aria-label="Comentari sobre el resultat">
@@ -529,7 +546,7 @@ export function ResultsConsentFeedback({
                 <div className="feedback-sheet-body">
                   <h2 id="feedback-sheet-consent-title">Ens ajudes a millorar?</h2>
                   <p>
-                    Vull col·laborar a la millora de models en català amb la meva gravació{" "}
+                    Vull col·laborar a la millora de models en català amb totes les gravacions de la sessió{" "}
                     <span className="consent-age-clause">(tinc 18 anys o més).</span>{" "}
                     <button
                       className="privacy-link legal-inline-link"

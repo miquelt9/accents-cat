@@ -44,13 +44,23 @@ export function pickClearerResult(
   second: AccentOracleResult,
 ): AccentOracleResult {
   if (isStrongerEvidence(second.evidenceBand, first.evidenceBand)) {
-    return { ...second, recordingId: first.recordingId };
+    return {
+      ...second,
+      recordingId: first.recordingId,
+      analysisSessionId: first.analysisSessionId ?? second.analysisSessionId,
+      takeIndex: Math.max(first.takeIndex ?? 0, second.takeIndex ?? 0) || undefined,
+    };
   }
   if (isStrongerEvidence(first.evidenceBand, second.evidenceBand)) {
     return first;
   }
   if (second.topTwoGap > first.topTwoGap) {
-    return { ...second, recordingId: first.recordingId };
+    return {
+      ...second,
+      recordingId: first.recordingId,
+      analysisSessionId: first.analysisSessionId ?? second.analysisSessionId,
+      takeIndex: Math.max(first.takeIndex ?? 0, second.takeIndex ?? 0) || undefined,
+    };
   }
   return first;
 }
@@ -85,5 +95,10 @@ function buildResultFromAveragedScores(
     return scores;
   }, {} as AccentScores);
 
-  return buildResultFromScores(averaged, first.recordingId);
+  return buildResultFromScores(
+    averaged,
+    first.recordingId,
+    first.analysisSessionId ?? second.analysisSessionId,
+    Math.max(first.takeIndex ?? 0, second.takeIndex ?? 0) || undefined,
+  );
 }

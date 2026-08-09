@@ -9,6 +9,12 @@ export type UiTelemetryEvent =
   | "recording_completed"
   | "analyze_pressed"
   | "analysis_completed"
+  | "validation_started"
+  | "third_take_offered"
+  | "third_take_completed"
+  | "third_take_skipped"
+  | "analysis_finalized"
+  | "analysis_unresolved"
   | "share_clicked"
   | "research_consent_accepted";
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Purge research-consented submissions past the retention window.
+"""Purge research-consented analysis sessions and legacy submissions.
 
 Default window: 3 years from ``consent_at`` (or ``created_at``), via
 ``ORACLE_RESEARCH_RETENTION_YEARS``. Full soft-delete: removes audio, scrubs
@@ -26,7 +26,7 @@ from backend import storage  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Soft-delete research_consent=1 rows older than "
+            "Soft-delete research-consented sessions and legacy rows older than "
             f"{storage.RESEARCH_RETENTION_YEARS} year(s)."
         ),
     )
@@ -45,20 +45,33 @@ def main() -> int:
         ).isoformat()
         storage.ensure_storage()
         with storage._connect() as conn:
-            count = conn.execute(
+            session_count = conn.execute(
                 """
-                SELECT COUNT(*) FROM submissions
+                SELECT COUNT(*) FROM analysis_sessions
                 WHERE deleted_at IS NULL
                   AND research_consent = 1
                   AND COALESCE(consent_at, created_at) <= ?
                 """,
                 (cutoff,),
             ).fetchone()[0]
-        print(f"Would purge {count} research submission(s) (cutoff {cutoff}).")
+            legacy_count = conn.execute(
+                """
+                SELECT COUNT(*) FROM submissions
+                WHERE deleted_at IS NULL
+                  AND research_consent = 1
+                  AND analysis_session_id IS NULL
+                  AND COALESCE(consent_at, created_at) <= ?
+                """,
+                (cutoff,),
+            ).fetchone()[0]
+        print(
+            f"Would purge {session_count} analysis session(s) and "
+            f"{legacy_count} legacy submission(s) (cutoff {cutoff})."
+        )
         return 0
 
     purged = storage.purge_expired_research_consent()
-    print(f"Purged {purged} research submission(s).")
+    print(f"Purged {purged} analysis session/submission group(s).")
     return 0
 
 

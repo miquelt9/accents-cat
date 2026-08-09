@@ -77,7 +77,7 @@ export function ResultsResearchConsent({
       <section className="card research-consent-card" aria-live="polite">
         <p className="eyebrow">Recerca</p>
         <h2>D&apos;acord — només el resultat</h2>
-        <p>No desarem aquesta gravació per a entrenament. Pots continuar amb el mapa i el comentari.</p>
+        <p>No desarem aquestes gravacions per a entrenament. Pots continuar amb el mapa i el comentari.</p>
       </section>
     );
   }
@@ -87,7 +87,7 @@ export function ResultsResearchConsent({
       <p className="eyebrow">Recerca</p>
       <h2>Ajuda els models de català</h2>
       <p>
-        Si vols, podem desar aquesta gravació per a recerca i entrenament. És opcional: el resultat ja és
+        Si vols, podem desar totes les gravacions d&apos;aquesta sessió per a recerca i entrenament. És opcional: el resultat ja és
         teu. Més detalls a la{" "}
         {onOpenLegalDoc ? (
           <button
@@ -125,7 +125,7 @@ export function ResultsResearchConsent({
           }}
           type="checkbox"
         />
-        <span>Tinc 18 anys o més i accepto desar aquesta gravació per a recerca (opcional).</span>
+        <span>Tinc 18 anys o més i accepto desar aquestes gravacions per a recerca (opcional).</span>
       </label>
 
       <div className="feedback-actions">

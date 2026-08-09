@@ -9,7 +9,7 @@ verified before launch.
 ## Scope and overall assessment
 
 The code has a deliberate observability boundary: audio, request bodies,
-prompt text, comarca values, consent payloads, recording IDs, and filenames
+prompt text, comarca values, consent payloads, session/recording IDs, and filenames
 are not intentionally sent to Sentry, Grafana, or PostHog. The backend also
 does not persist the caller IP or User-Agent. The boundary is implemented in
 the application, but it depends on deployment configuration and on all
@@ -17,9 +17,9 @@ upstream/downstream log collectors preserving the same policy.
 
 The highest remaining risks are:
 
-- pending audio is written before research consent and is only purged when a
-  storage operation invokes the pending purge; there is no independent purge
-  worker;
+- pending session audio is written before research consent and is only purged
+  when a storage operation invokes the pending purge; there is no independent
+  purge worker;
 - backups replicate audio and deleted records outside the live database and
   therefore need their own encryption, retention, and deletion process;
 - Sentry, Grafana, PostHog, reverse-proxy, and host-log retention/access
@@ -99,12 +99,18 @@ recording_started
 recording_completed
 analyze_pressed
 analysis_completed
+validation_started
+third_take_offered
+third_take_completed
+third_take_skipped
+analysis_finalized
+analysis_unresolved
 share_clicked
 research_consent_accepted
 ```
 
 The implementation does not export request bodies, audio, comarca, prompt
-text, consent content, recording IDs, or filenames to OTLP. Verify the actual
+text, consent content, session/recording IDs, or filenames to OTLP. Verify the actual
 Grafana datasource, metric labels, dashboards, alert annotations, API-key
 scope, tenant access, and retention. This repository does not ship application
 log forwarding to Grafana; a later log pipeline must preserve the same
@@ -132,21 +138,26 @@ accidentally point the browser at a non-EU host; production configuration
 must explicitly verify the EU host, project, retention, access, and data
 processing terms. Inspect a live event to confirm there are no properties,
 autocapture events, recordings, URLs with query strings, audio, scores,
-consent payloads, comarca values, or recording IDs.
+consent payloads, comarca values, or session/recording IDs.
 
 ### Request and telemetry fields
 
 The application receives the following data paths:
 
 - `POST /analyze`: multipart audio plus optional `promptId` (maximum 64
-  characters) and `promptText` (maximum 500 characters). Audio is capped at
-  20 MB before inference and validated for supported suffixes and content
-  types; decoded duration and silence are validated later.
-- `POST /research-consent`: `recordingId`, consent boolean, optional policy
-  version, and age confirmation. This changes pending storage state.
-- `POST /feedback`: optional feedback ID, recording ID, correctness,
-  self-reported dialect, self-declared comarca(s), and notes. Comarca values
-  are allowlisted when generated metadata is available.
+  characters), `promptText` (maximum 500 characters), and shared
+  `analysisSessionId`. Audio is capped at 20 MB before inference and
+  validated for supported suffixes and content types; decoded duration and
+  silence are validated later.
+- `POST /analysis-finalize`: analysis session ID, final result snapshot, take
+  count, and terminal state while the session remains pending.
+- `POST /research-consent`: analysis session ID (or legacy recording ID),
+  consent boolean, optional policy version, and age confirmation. This changes
+  pending storage state for every take in the session.
+- `POST /feedback`: optional feedback ID, analysis session ID (or legacy
+  recording ID), correctness, self-reported dialect, self-declared comarca(s),
+  and notes. Comarca values are allowlisted when generated metadata is
+  available.
 - `POST /telemetry/event`: one event string, validated against the allowlist;
   no other telemetry properties are accepted.
 
@@ -159,12 +170,13 @@ should be inferred for an arbitrary proxy, access log, or hosting provider.
 
 ### Storage and consent
 
-`POST /analyze` saves a pending SQLite row and audio file before the user has
-accepted research retention. The default pending TTL is 1,800 seconds, but
-`purge_expired_pending()` is invoked as part of storage operations rather than
-by a dedicated scheduler. An idle service can therefore retain expired
-pending audio until another storage operation runs. Confirm the operational
-purge schedule or add one before public launch.
+`POST /analyze` creates a pending analysis session and saves one SQLite row and
+audio file per take before the user has accepted research retention. The
+default pending TTL is 1,800 seconds, but `purge_expired_pending()` is invoked
+as part of storage operations rather than by a dedicated scheduler. An idle
+service can therefore retain expired pending audio until another storage
+operation runs. Confirm the operational purge schedule or add one before public
+launch.
 
 Research retention is opt-in. Consent promotion records `consent_at` and
 `policy_version` and requires age confirmation in the API request. The default
@@ -173,13 +185,14 @@ consent time is unavailable), controlled by
 `ORACLE_RESEARCH_RETENTION_YEARS`. The retention script performs a full
 soft-delete of expired research rows.
 
-Soft-delete clears the stored prompt, scores, consent fields, and audio path,
-removes the audio file, and clears linked feedback fields for an operator
-deletion. Decline and pending-TTL cleanup preserve calibration fields while
-unlinking them from the deleted submission, according to the storage code.
-The tombstone row can remain in SQLite. The browser's Manage My Data ledger
-contains local IDs; v1 deletion requests are handled manually with the
-operator script rather than by an authenticated deletion API.
+Soft-delete clears the session final result, every child take's stored prompt,
+scores, consent fields, and audio path, removes every audio file, and clears
+linked feedback fields for an operator deletion. Decline and pending-TTL
+cleanup preserve calibration fields while unlinking them from the deleted
+session and takes, according to the storage code. Tombstone rows can remain in
+SQLite. The browser's Manage My Data ledger contains local session IDs; v1
+deletion requests are handled manually with the operator script rather than by
+an authenticated deletion API.
 
 The voice is personal data even when the database has no name or email.
 Backups, filesystem snapshots, disk recovery, model-training exports, and
@@ -202,7 +215,7 @@ Record evidence for each item in the release ticket or deployment runbook:
       behind the intended proxy.
 - [ ] Inspect proxy, uvicorn, systemd/container, and backup logs for a
       controlled upload and failure. Confirm there are no bodies, audio,
-      filenames, prompt text, comarca, consent payloads, recording IDs, or
+      filenames, prompt text, comarca, consent payloads, session/recording IDs, or
       query identifiers.
 - [ ] Run a test analysis and decline path. Confirm pending audio is removed
       and prompt/scores are scrubbed; confirm any retained feedback has the

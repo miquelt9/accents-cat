@@ -170,6 +170,20 @@ def ensure_storage() -> None:
     with sqlite3.connect(DB_PATH) as conn:
         conn.executescript(
             """
+            CREATE TABLE IF NOT EXISTS analysis_sessions (
+                id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                deleted_at TEXT,
+                research_consent INTEGER NOT NULL DEFAULT 0,
+                consent_at TEXT,
+                policy_version TEXT,
+                pending_expires_at TEXT,
+                final_result_json TEXT,
+                take_count INTEGER,
+                terminal_state TEXT,
+                finalized_at TEXT
+            );
+
             CREATE TABLE IF NOT EXISTS submissions (
                 id TEXT PRIMARY KEY,
                 created_at TEXT NOT NULL,
@@ -185,12 +199,16 @@ def ensure_storage() -> None:
                 research_consent INTEGER NOT NULL DEFAULT 0,
                 consent_at TEXT,
                 policy_version TEXT,
-                pending_expires_at TEXT
+                pending_expires_at TEXT,
+                analysis_session_id TEXT,
+                take_index INTEGER,
+                take_role TEXT
             );
 
             CREATE TABLE IF NOT EXISTS feedback (
                 id TEXT PRIMARY KEY,
                 submission_id TEXT,
+                analysis_session_id TEXT,
                 created_at TEXT NOT NULL,
                 was_correct INTEGER,
                 self_reported_dialect TEXT,
@@ -208,7 +226,24 @@ def ensure_storage() -> None:
         _ensure_column(conn, "submissions", "consent_at", "TEXT")
         _ensure_column(conn, "submissions", "policy_version", "TEXT")
         _ensure_column(conn, "submissions", "pending_expires_at", "TEXT")
+        _ensure_column(conn, "submissions", "analysis_session_id", "TEXT")
+        _ensure_column(conn, "submissions", "take_index", "INTEGER")
+        _ensure_column(conn, "submissions", "take_role", "TEXT")
         _ensure_column(conn, "feedback", "comarca", "TEXT")
+        _ensure_column(conn, "feedback", "analysis_session_id", "TEXT")
+        conn.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS feedback_one_per_analysis_session
+            ON feedback (analysis_session_id)
+            WHERE analysis_session_id IS NOT NULL
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS submissions_by_analysis_session
+            ON submissions (analysis_session_id, take_index)
+            """
+        )
         # The columns stay for legacy databases, but nothing writes them any more.
         conn.execute(
             """
@@ -268,6 +303,129 @@ def save_audio(payload: bytes, suffix: str) -> tuple[str, Path]:
     return submission_id, path
 
 
+def create_analysis_session() -> str:
+    """Create a pending session that can contain several related takes."""
+    ensure_storage()
+    session_id = str(uuid.uuid4())
+    expires_at = (
+        _utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)
+    ).isoformat()
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO analysis_sessions (
+                id, created_at, pending_expires_at
+            ) VALUES (?, ?, ?)
+            """,
+            (session_id, _utc_now_iso(), expires_at),
+        )
+        conn.commit()
+    return session_id
+
+
+def analysis_session_exists(session_id: str) -> bool:
+    """True for a non-deleted session, pending or research-consented."""
+    if not session_id:
+        return False
+    purge_expired_pending()
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT 1 FROM analysis_sessions
+            WHERE id = ? AND deleted_at IS NULL
+            """,
+            (session_id,),
+        ).fetchone()
+    return row is not None
+
+
+def analysis_session_accepts_take(session_id: str) -> bool:
+    """True when a pending session can receive another analyze request."""
+    if not session_id:
+        return False
+    purge_expired_pending()
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT research_consent, pending_expires_at, deleted_at, finalized_at
+            FROM analysis_sessions WHERE id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+    if (
+        row is None
+        or row[2] is not None
+        or row[3] is not None
+        or int(row[0] or 0) == 1
+    ):
+        return False
+    expires_at = _parse_iso(row[1])
+    return expires_at is None or expires_at > _utc_now()
+
+
+def next_take_index(session_id: str) -> int:
+    """Return the next one-based take index for a live pending session."""
+    if not analysis_session_accepts_take(session_id):
+        raise ValueError("Analysis session is not accepting takes.")
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT COALESCE(MAX(take_index), 0)
+            FROM submissions
+            WHERE analysis_session_id = ? AND deleted_at IS NULL
+            """,
+            (session_id,),
+        ).fetchone()
+    return int(row[0] or 0) + 1
+
+
+def finalize_analysis_session(
+    session_id: str,
+    *,
+    final_result: dict[str, Any],
+    take_count: int,
+    terminal_state: str,
+) -> bool:
+    """Persist the final displayed result while the session is still pending."""
+    if not session_id or take_count < 1:
+        return False
+    result_json = json.dumps(final_result, ensure_ascii=False, separators=(",", ":"))
+    now = _utc_now_iso()
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT deleted_at,
+                   (
+                       SELECT COUNT(*)
+                       FROM submissions
+                       WHERE analysis_session_id = ?
+                         AND deleted_at IS NULL
+                   ) AS live_take_count
+            FROM analysis_sessions WHERE id = ?
+            """,
+            (session_id, session_id),
+        ).fetchone()
+        if (
+            row is None
+            or row[0] is not None
+            or int(row[1] or 0) != take_count
+        ):
+            return False
+        conn.execute(
+            """
+            UPDATE analysis_sessions
+            SET final_result_json = ?,
+                take_count = ?,
+                terminal_state = ?,
+                finalized_at = ?
+            WHERE id = ? AND deleted_at IS NULL
+            """,
+            (result_json, take_count, terminal_state[:32], now, session_id),
+        )
+        conn.commit()
+    return True
+
+
 def insert_submission(
     *,
     submission_id: str,
@@ -277,17 +435,31 @@ def insert_submission(
     evidence_band: str,
     prompt_id: str | None = None,
     prompt_text: str | None = None,
+    analysis_session_id: str | None = None,
+    take_index: int | None = None,
+    take_role: str | None = None,
 ) -> str:
-    """Insert a pending (not yet research-consented) submission."""
+    """Insert a pending (not yet research-consented) take submission."""
     ensure_storage()
     try:
         relative_audio = str(audio_path.relative_to(PROJECT_ROOT))
     except ValueError:
         relative_audio = str(audio_path)
 
-    expires_at = (
-        _utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)
-    ).isoformat()
+    expires_at = (_utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)).isoformat()
+    if analysis_session_id:
+        with _connect() as conn:
+            session_row = conn.execute(
+                """
+                SELECT pending_expires_at
+                FROM analysis_sessions
+                WHERE id = ? AND deleted_at IS NULL
+                """,
+                (analysis_session_id,),
+            ).fetchone()
+        if session_row is None:
+            raise ValueError("Analysis session does not exist.")
+        expires_at = session_row[0] or expires_at
 
     with _connect() as conn:
         conn.execute(
@@ -296,8 +468,9 @@ def insert_submission(
                 id, created_at, audio_path,
                 scores_json, top_label, evidence_band,
                 prompt_id, prompt_text, deleted_at,
-                research_consent, consent_at, policy_version, pending_expires_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, NULL, NULL, ?)
+                research_consent, consent_at, policy_version, pending_expires_at,
+                analysis_session_id, take_index, take_role
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, NULL, NULL, ?, ?, ?, ?)
             """,
             (
                 submission_id,
@@ -309,6 +482,9 @@ def insert_submission(
                 prompt_id,
                 prompt_text,
                 expires_at,
+                analysis_session_id,
+                take_index,
+                take_role,
             ),
         )
         conn.commit()
@@ -337,6 +513,62 @@ def is_research_consented(submission_id: str) -> bool:
             (submission_id,),
         ).fetchone()
     return row is not None
+
+
+def confirm_research_consent_for_session(
+    session_id: str,
+    *,
+    policy_version: str,
+) -> bool:
+    """Promote every pending take in a session to research-consented storage."""
+    purge_expired_pending()
+    version = policy_version.strip()
+    if not session_id or not version:
+        return False
+
+    now = _utc_now_iso()
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT research_consent, pending_expires_at, deleted_at
+            FROM analysis_sessions WHERE id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+        if row is None or row[2] is not None:
+            return False
+        if int(row[0] or 0) == 1:
+            return True
+        expires = _parse_iso(row[1])
+        if expires is not None and expires <= _utc_now():
+            return False
+
+        conn.execute(
+            """
+            UPDATE analysis_sessions
+            SET research_consent = 1,
+                consent_at = ?,
+                policy_version = ?,
+                pending_expires_at = NULL
+            WHERE id = ? AND deleted_at IS NULL AND research_consent = 0
+            """,
+            (now, version, session_id),
+        )
+        conn.execute(
+            """
+            UPDATE submissions
+            SET research_consent = 1,
+                consent_at = ?,
+                policy_version = ?,
+                pending_expires_at = NULL
+            WHERE analysis_session_id = ?
+              AND deleted_at IS NULL
+              AND research_consent = 0
+            """,
+            (now, version, session_id),
+        )
+        conn.commit()
+    return True
 
 
 def confirm_research_consent(submission_id: str, *, policy_version: str) -> bool:
@@ -395,15 +627,23 @@ def decline_research_consent(submission_id: str) -> bool:
     return _soft_delete_submission(submission_id, scrub_feedback_calibration=False)
 
 
+def decline_research_consent_for_session(session_id: str) -> bool:
+    """Decline research storage for every pending take in a session."""
+    return _soft_delete_analysis_session(
+        session_id,
+        scrub_feedback_calibration=False,
+    )
+
+
 def purge_expired_pending() -> int:
-    """Soft-delete pending submissions past ``pending_expires_at``. Returns count."""
+    """Soft-delete expired sessions and legacy pending submissions."""
     ensure_storage()
     now = _utc_now_iso()
     purged = 0
     with _connect() as conn:
-        rows = conn.execute(
+        session_rows = conn.execute(
             """
-            SELECT id FROM submissions
+            SELECT id FROM analysis_sessions
             WHERE deleted_at IS NULL
               AND research_consent = 0
               AND pending_expires_at IS NOT NULL
@@ -411,8 +651,26 @@ def purge_expired_pending() -> int:
             """,
             (now,),
         ).fetchall()
+        rows = conn.execute(
+            """
+            SELECT id FROM submissions
+            WHERE deleted_at IS NULL
+              AND research_consent = 0
+              AND analysis_session_id IS NULL
+              AND pending_expires_at IS NOT NULL
+              AND pending_expires_at <= ?
+            """,
+            (now,),
+        ).fetchall()
+        session_ids = [row[0] for row in session_rows]
         ids = [row[0] for row in rows]
 
+    for session_id in session_ids:
+        if _soft_delete_analysis_session(
+            session_id,
+            scrub_feedback_calibration=False,
+        ):
+            purged += 1
     for submission_id in ids:
         if _soft_delete_submission(submission_id, scrub_feedback_calibration=False):
             purged += 1
@@ -435,17 +693,31 @@ def purge_expired_research_consent() -> int:
     cutoff = (_utc_now() - timedelta(days=365 * RESEARCH_RETENTION_YEARS)).isoformat()
     purged = 0
     with _connect() as conn:
-        rows = conn.execute(
+        session_rows = conn.execute(
             """
-            SELECT id FROM submissions
+            SELECT id FROM analysis_sessions
             WHERE deleted_at IS NULL
               AND research_consent = 1
               AND COALESCE(consent_at, created_at) <= ?
             """,
             (cutoff,),
         ).fetchall()
+        rows = conn.execute(
+            """
+            SELECT id FROM submissions
+            WHERE deleted_at IS NULL
+              AND research_consent = 1
+              AND analysis_session_id IS NULL
+              AND COALESCE(consent_at, created_at) <= ?
+            """,
+            (cutoff,),
+        ).fetchall()
+        session_ids = [row[0] for row in session_rows]
         ids = [row[0] for row in rows]
 
+    for session_id in session_ids:
+        if soft_delete_analysis_session(session_id):
+            purged += 1
     for submission_id in ids:
         if soft_delete_submission(submission_id):
             purged += 1
@@ -459,6 +731,113 @@ def soft_delete_submission(submission_id: str) -> bool:
     soft-deleted (still attempts audio cleanup).
     """
     return _soft_delete_submission(submission_id, scrub_feedback_calibration=True)
+
+
+def soft_delete_analysis_session(session_id: str) -> bool:
+    """Operator/Manage My Data deletion for a session and every linked take."""
+    return _soft_delete_analysis_session(
+        session_id,
+        scrub_feedback_calibration=True,
+    )
+
+
+def _soft_delete_analysis_session(
+    session_id: str,
+    *,
+    scrub_feedback_calibration: bool,
+) -> bool:
+    """Scrub a session and all child submissions in one database transaction."""
+    if not session_id:
+        return False
+
+    with _connect() as conn:
+        session = conn.execute(
+            "SELECT id FROM analysis_sessions WHERE id = ?",
+            (session_id,),
+        ).fetchone()
+        if session is None:
+            return False
+        audio_rows = conn.execute(
+            """
+            SELECT id, audio_path FROM submissions
+            WHERE analysis_session_id = ?
+            """,
+            (session_id,),
+        ).fetchall()
+        audio_paths = [row[1] for row in audio_rows]
+        deleted_at = _utc_now_iso()
+        conn.execute(
+            """
+            UPDATE submissions
+            SET deleted_at = ?,
+                ip = NULL,
+                user_agent = NULL,
+                prompt_text = NULL,
+                prompt_id = NULL,
+                scores_json = '{}',
+                top_label = 'deleted',
+                evidence_band = 'deleted',
+                consent_at = NULL,
+                policy_version = NULL,
+                research_consent = 0,
+                pending_expires_at = NULL,
+                audio_path = ''
+            WHERE analysis_session_id = ?
+            """,
+            (deleted_at, session_id),
+        )
+        if scrub_feedback_calibration:
+            conn.execute(
+                """
+                UPDATE feedback
+                SET notes = NULL,
+                    self_reported_dialect = NULL,
+                    comarca = NULL,
+                    was_correct = NULL,
+                    submission_id = NULL,
+                    analysis_session_id = NULL
+                WHERE analysis_session_id = ?
+                   OR submission_id IN (
+                       SELECT id FROM submissions WHERE analysis_session_id = ?
+                   )
+                """,
+                (session_id, session_id),
+            )
+        else:
+            conn.execute(
+                """
+                UPDATE feedback
+                SET notes = NULL,
+                    submission_id = NULL,
+                    analysis_session_id = NULL
+                WHERE analysis_session_id = ?
+                   OR submission_id IN (
+                       SELECT id FROM submissions WHERE analysis_session_id = ?
+                   )
+                """,
+                (session_id, session_id),
+            )
+        conn.execute(
+            """
+            UPDATE analysis_sessions
+            SET deleted_at = ?,
+                consent_at = NULL,
+                policy_version = NULL,
+                research_consent = 0,
+                pending_expires_at = NULL,
+                final_result_json = NULL,
+                take_count = NULL,
+                terminal_state = NULL,
+                finalized_at = NULL
+            WHERE id = ?
+            """,
+            (deleted_at, session_id),
+        )
+        conn.commit()
+
+    for audio_path in audio_paths:
+        _unlink_audio(audio_path)
+    return True
 
 
 def _soft_delete_submission(
@@ -511,7 +890,8 @@ def _soft_delete_submission(
                         self_reported_dialect = NULL,
                         comarca = NULL,
                         was_correct = NULL,
-                        submission_id = NULL
+                    submission_id = NULL,
+                    analysis_session_id = NULL
                     WHERE submission_id = ?
                     """,
                     (submission_id,),
@@ -521,7 +901,8 @@ def _soft_delete_submission(
                     """
                     UPDATE feedback
                     SET notes = NULL,
-                        submission_id = NULL
+                        submission_id = NULL,
+                        analysis_session_id = NULL
                     WHERE submission_id = ?
                     """,
                     (submission_id,),
@@ -543,6 +924,7 @@ def upsert_feedback(
     *,
     feedback_id: str | None = None,
     recording_id: str | None = None,
+    analysis_session_id: str | None = None,
     was_correct: bool | None | _Unset = UNSET,
     self_reported_dialect: str | None | _Unset = UNSET,
     comarca: str | None | _Unset = UNSET,
@@ -560,8 +942,15 @@ def upsert_feedback(
     submission_id: str | None = None
     if recording_id and submission_exists(recording_id):
         submission_id = recording_id
+    session_id: str | None = None
+    if analysis_session_id and analysis_session_exists(analysis_session_id):
+        session_id = analysis_session_id
 
     values: dict[str, Any] = {}
+    if session_id is not None:
+        values["analysis_session_id"] = session_id
+    if submission_id is not None:
+        values["submission_id"] = submission_id
     if not isinstance(was_correct, _Unset):
         values["was_correct"] = None if was_correct is None else int(bool(was_correct))
     if not isinstance(self_reported_dialect, _Unset):
@@ -578,25 +967,42 @@ def upsert_feedback(
                 "SELECT 1 FROM feedback WHERE id = ?",
                 (feedback_id,),
             ).fetchone()
+        existing_id = feedback_id if existing is not None else None
+        if existing_id is None and session_id is not None:
+            session_row = conn.execute(
+                """
+                SELECT id FROM feedback
+                WHERE analysis_session_id = ?
+                ORDER BY created_at ASC
+                LIMIT 1
+                """,
+                (session_id,),
+            ).fetchone()
+            if session_row is not None:
+                existing_id = session_row[0]
 
-        if existing is None:
+        if existing_id is None:
             new_id = str(uuid.uuid4())
+            submission_value = values.pop("submission_id", None)
             columns = ["id", "submission_id", "created_at", *values]
             placeholders = ", ".join("?" for _ in columns)
             conn.execute(
                 f"INSERT INTO feedback ({', '.join(columns)}) VALUES ({placeholders})",
-                (new_id, submission_id, _utc_now_iso(), *values.values()),
+                (
+                    new_id,
+                    submission_value,
+                    _utc_now_iso(),
+                    *values.values(),
+                ),
             )
             conn.commit()
             return new_id
 
-        if submission_id is not None:
-            values["submission_id"] = submission_id
         if values:
             assignments = ", ".join(f"{column} = ?" for column in values)
             conn.execute(
                 f"UPDATE feedback SET {assignments} WHERE id = ?",
-                (*values.values(), feedback_id),
+                (*values.values(), existing_id),
             )
             conn.commit()
-    return feedback_id
+    return existing_id or str(uuid.uuid4())

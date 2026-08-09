@@ -1620,6 +1620,32 @@ h2 {
   gap: 0.9rem;
 }
 
+.results-uncertainty-banner {
+  background: color-mix(in srgb, var(--results-emphasis-bg) 72%, var(--surface) 28%);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.results-uncertainty-banner strong {
+  color: var(--results-emphasis-text);
+}
+
+.results-uncertainty-banner p,
+.results-uncertainty-banner span {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.results-map-stage.is-unresolved .top-result-card {
+  opacity: 0.82;
+}
+
 .top-result-card {
   background: var(--results-emphasis-bg);
   border-radius: 24px;

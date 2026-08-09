@@ -423,13 +423,24 @@ def test_ensure_storage_adds_prompt_and_consent_columns_to_legacy_db(
         feedback_columns = {
             row[1] for row in conn.execute("PRAGMA table_info(feedback)").fetchall()
         }
+        session_tables = {
+            row[0]
+            for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
     assert "prompt_id" in columns
     assert "prompt_text" in columns
     assert "research_consent" in columns
     assert "consent_at" in columns
     assert "policy_version" in columns
     assert "pending_expires_at" in columns
+    assert "analysis_session_id" in columns
+    assert "take_index" in columns
+    assert "take_role" in columns
     assert "comarca" in feedback_columns
+    assert "analysis_session_id" in feedback_columns
+    assert "analysis_sessions" in session_tables
 
 
 def test_ensure_storage_scrubs_legacy_ip_and_user_agent(isolated_storage: Path) -> None:
@@ -463,3 +474,206 @@ def test_self_reported_dialect_membership() -> None:
         "northwestern",
         "valencian",
     )
+
+
+def _insert_session_take(
+    session_id: str,
+    take_index: int,
+    take_role: str,
+) -> tuple[str, Path]:
+    submission_id, audio_path = storage.save_audio(f"take-{take_index}".encode(), ".webm")
+    storage.insert_submission(
+        submission_id=submission_id,
+        audio_path=audio_path,
+        scores={
+            "balearic": 0.1,
+            "central": 0.5,
+            "northern": 0.1,
+            "northwestern": 0.1,
+            "valencian": 0.2,
+        },
+        top_label="central",
+        evidence_band="moderate",
+        prompt_id=f"prompt-{take_index}",
+        prompt_text=f"Prompt {take_index}",
+        analysis_session_id=session_id,
+        take_index=take_index,
+        take_role=take_role,
+    )
+    return submission_id, audio_path
+
+
+def test_analysis_session_consent_retains_all_takes_and_feedback(
+    isolated_storage: Path,
+) -> None:
+    session_id = storage.create_analysis_session()
+    first_id, first_audio = _insert_session_take(session_id, 1, "initial")
+    second_id, second_audio = _insert_session_take(session_id, 2, "validation")
+    assert storage.finalize_analysis_session(
+        session_id,
+        final_result={"topLabel": "central", "scores": {"central": 0.6}},
+        take_count=2,
+        terminal_state="results",
+    )
+
+    feedback_id = storage.upsert_feedback(
+        analysis_session_id=session_id,
+        was_correct=True,
+    )
+    same_feedback_id = storage.upsert_feedback(
+        analysis_session_id=session_id,
+        feedback_id=feedback_id,
+        comarca="osona",
+        self_reported_dialect="central",
+    )
+    assert same_feedback_id == feedback_id
+    assert storage.confirm_research_consent_for_session(
+        session_id,
+        policy_version="6 d'agost de 2026",
+    )
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        takes = conn.execute(
+            """
+            SELECT id, take_index, take_role, research_consent
+            FROM submissions
+            WHERE analysis_session_id = ?
+            ORDER BY take_index
+            """,
+            (session_id,),
+        ).fetchall()
+        session = conn.execute(
+            """
+            SELECT research_consent, final_result_json, take_count, terminal_state
+            FROM analysis_sessions WHERE id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+        feedback = conn.execute(
+            """
+            SELECT analysis_session_id, was_correct, comarca
+            FROM feedback WHERE id = ?
+            """,
+            (feedback_id,),
+        ).fetchone()
+
+    assert takes == [
+        (first_id, 1, "initial", 1),
+        (second_id, 2, "validation", 1),
+    ]
+    assert session == (1, '{"topLabel":"central","scores":{"central":0.6}}', 2, "results")
+    assert feedback == (session_id, 1, "osona")
+    assert first_audio.exists()
+    assert second_audio.exists()
+
+
+def test_declining_analysis_session_removes_all_audio_and_unlinks_feedback(
+    isolated_storage: Path,
+) -> None:
+    session_id = storage.create_analysis_session()
+    _, first_audio = _insert_session_take(session_id, 1, "initial")
+    _, second_audio = _insert_session_take(session_id, 2, "validation")
+    feedback_id = storage.upsert_feedback(
+        analysis_session_id=session_id,
+        was_correct=False,
+        self_reported_dialect="valencian",
+        comarca="safor",
+        notes="temporary note",
+    )
+
+    assert storage.decline_research_consent_for_session(session_id)
+    assert not first_audio.exists()
+    assert not second_audio.exists()
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        session = conn.execute(
+            "SELECT deleted_at, final_result_json, research_consent "
+            "FROM analysis_sessions WHERE id = ?",
+            (session_id,),
+        ).fetchone()
+        takes = conn.execute(
+            """
+            SELECT deleted_at, audio_path, scores_json, top_label
+            FROM submissions WHERE analysis_session_id = ?
+            ORDER BY take_index
+            """,
+            (session_id,),
+        ).fetchall()
+        feedback = conn.execute(
+            """
+            SELECT analysis_session_id, submission_id, notes, was_correct,
+                   self_reported_dialect, comarca
+            FROM feedback WHERE id = ?
+            """,
+            (feedback_id,),
+        ).fetchone()
+
+    assert session[0] is not None
+    assert session[1:] == (None, 0)
+    assert all(row[0] is not None and row[1:] == ("", "{}", "deleted") for row in takes)
+    assert feedback == (None, None, None, 0, "valencian", "safor")
+
+
+def test_expired_analysis_session_purges_all_pending_takes(
+    isolated_storage: Path,
+) -> None:
+    session_id = storage.create_analysis_session()
+    _, first_audio = _insert_session_take(session_id, 1, "initial")
+    _, second_audio = _insert_session_take(session_id, 2, "validation")
+    past = (
+        (datetime.now(timezone.utc) - timedelta(hours=1))
+        .replace(microsecond=0)
+        .isoformat()
+    )
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        conn.execute(
+            "UPDATE analysis_sessions SET pending_expires_at = ? WHERE id = ?",
+            (past, session_id),
+        )
+        conn.commit()
+
+    assert storage.purge_expired_pending() == 1
+    assert not first_audio.exists()
+    assert not second_audio.exists()
+    assert storage.analysis_session_exists(session_id) is False
+
+
+def test_soft_delete_analysis_session_scrubs_all_linked_data(
+    isolated_storage: Path,
+) -> None:
+    session_id = storage.create_analysis_session()
+    _, first_audio = _insert_session_take(session_id, 1, "initial")
+    _, second_audio = _insert_session_take(session_id, 2, "validation")
+    feedback_id = storage.upsert_feedback(
+        analysis_session_id=session_id,
+        was_correct=True,
+        self_reported_dialect="central",
+        comarca="osona",
+        notes="private note",
+    )
+    assert storage.confirm_research_consent_for_session(session_id, policy_version="v1")
+
+    assert storage.soft_delete_analysis_session(session_id)
+    assert not first_audio.exists()
+    assert not second_audio.exists()
+
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        session = conn.execute(
+            """
+            SELECT deleted_at, research_consent, final_result_json, policy_version
+            FROM analysis_sessions WHERE id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+        feedback = conn.execute(
+            """
+            SELECT analysis_session_id, submission_id, was_correct,
+                   self_reported_dialect, comarca, notes
+            FROM feedback WHERE id = ?
+            """,
+            (feedback_id,),
+        ).fetchone()
+
+    assert session[0] is not None
+    assert session[1:] == (0, None, None)
+    assert feedback == (None, None, None, None, None, None)

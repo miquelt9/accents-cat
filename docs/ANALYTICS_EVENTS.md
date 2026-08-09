@@ -22,6 +22,12 @@ Allowlisted product events for Accent Oracle. The browser dual-fires each event 
 | `recording_completed` | Recording meets min duration and is handed to analyze | |
 | `analyze_pressed` | User submits a take for `/analyze` | Before the request completes |
 | `analysis_completed` | `/analyze` (or mock) returns successfully | No scores / labels attached |
+| `validation_started` | A mandatory second take is shown | Event name only |
+| `third_take_offered` | The merged result remains uncertain after two takes | Event name only |
+| `third_take_completed` | The optional third take returns successfully | Event name only |
+| `third_take_skipped` | User continues without the optional third take | Event name only |
+| `analysis_finalized` | The final result snapshot is persisted | Event name only |
+| `analysis_unresolved` | The terminal result remains uncertain after the available takes | Event name only |
 | `share_clicked` | User opens the results share UI | Not per social network |
 | `research_consent_accepted` | Research consent `consent: true` succeeds | No recording ID |
 

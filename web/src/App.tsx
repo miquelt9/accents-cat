@@ -9,7 +9,9 @@ import { RecorderPanel } from "./components/RecorderPanel";
 import { ResultsConsentFeedback } from "./components/ResultsConsentFeedback";
 import { ShareResultsModal } from "./components/ShareResultsModal";
 import {
+  createClientId,
   DIALECT_ZONE_LABELS,
+  finalizeAnalysis,
   getAccentOracleClient,
   getAccentOracleMode,
   resetMockAnalyzeOrdinal,
@@ -88,6 +90,9 @@ function App() {
   });
   const [result, setResult] = useState<AccentOracleResult | null>(null);
   const [pendingResult, setPendingResult] = useState<AccentOracleResult | null>(null);
+  const [analysisSessionId, setAnalysisSessionId] = useState<string | null>(null);
+  const [terminalUnresolved, setTerminalUnresolved] = useState(false);
+  const [terminalTakeCount, setTerminalTakeCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
@@ -99,7 +104,13 @@ function App() {
   const [researchRetained, setResearchRetained] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [devResultsScores, setDevResultsScores] = useState<AccentScores | null>(null);
-  const leavePurgeRef = useRef({ phase, result, researchRetained, accentOracleMode });
+  const leavePurgeRef = useRef({
+    phase,
+    result,
+    analysisSessionId,
+    researchRetained,
+    accentOracleMode,
+  });
 
   useEffect(() => {
     trackUiEvent("homepage_viewed");
@@ -130,24 +141,38 @@ function App() {
   }
 
   useEffect(() => {
-    leavePurgeRef.current = { phase, result, researchRetained, accentOracleMode };
-  }, [phase, result, researchRetained, accentOracleMode]);
+    leavePurgeRef.current = {
+      phase,
+      result,
+      analysisSessionId,
+      researchRetained,
+      accentOracleMode,
+    };
+  }, [phase, result, analysisSessionId, researchRetained, accentOracleMode]);
 
   useEffect(() => {
     function purgePendingOnLeave() {
-      const { phase: currentPhase, result: currentResult, researchRetained: retained, accentOracleMode: mode } =
-        leavePurgeRef.current;
+      const {
+        phase: currentPhase,
+        analysisSessionId: currentSessionId,
+        researchRetained: retained,
+        accentOracleMode: mode,
+      } = leavePurgeRef.current;
       if (
         (currentPhase !== "results" &&
+          currentPhase !== "validation" &&
           currentPhase !== "offer-third" &&
           currentPhase !== "refine") ||
         retained ||
         !isApiMode(mode) ||
-        !currentResult?.recordingId
+        !currentSessionId
       ) {
         return;
       }
-      void submitResearchConsent({ recordingId: currentResult.recordingId, consent: false }).catch(() => {
+      void submitResearchConsent({
+        analysisSessionId: currentSessionId,
+        consent: false,
+      }).catch(() => {
         // Best-effort purge when the user abandons results without opting in.
       });
     }
@@ -168,29 +193,23 @@ function App() {
     };
   }, []);
 
-  function declinePendingRecording(recordingId: string | undefined) {
-    if (!recordingId || !isApiMode(accentOracleMode) || researchRetained) {
+  function declinePendingAnalysis(sessionId: string | null) {
+    if (!sessionId || !isApiMode(accentOracleMode) || researchRetained) {
       return;
     }
-    void submitResearchConsent({ recordingId, consent: false }).catch(() => {
+    void submitResearchConsent({ analysisSessionId: sessionId, consent: false }).catch(() => {
       // Best-effort purge of pending audio when research was not retained.
-    });
-  }
-
-  function discardPendingRecording(recordingId: string | undefined) {
-    if (!recordingId || !isApiMode(accentOracleMode)) {
-      return;
-    }
-    void submitResearchConsent({ recordingId, consent: false }).catch(() => {
-      // Best-effort cleanup of unused validation / refine samples.
     });
   }
 
   function openOverlay(next: AppPhase) {
     const holdingPending =
-      phase === "results" || phase === "offer-third" || phase === "refine";
+      phase === "validation" ||
+      phase === "results" ||
+      phase === "offer-third" ||
+      phase === "refine";
     if (holdingPending && next !== "privacy" && next !== "terms") {
-      declinePendingRecording(result?.recordingId);
+      declinePendingAnalysis(analysisSessionId);
     }
     setReturnPhase(OVERLAY_PHASES.has(phase) ? returnPhase : phase);
     setPhase(next);
@@ -205,12 +224,15 @@ function App() {
   }
 
   function resetFlow() {
-    declinePendingRecording(result?.recordingId);
+    declinePendingAnalysis(analysisSessionId);
     resetMockAnalyzeOrdinal();
     setPhase("landing");
     setReturnPhase("landing");
     setResult(null);
     setPendingResult(null);
+    setAnalysisSessionId(null);
+    setTerminalUnresolved(false);
+    setTerminalTakeCount(0);
     setIsAnalyzing(false);
     setAnalysisError(null);
     setActivePrompt(null);
@@ -222,24 +244,61 @@ function App() {
     setDevResultsScores(null);
   }
 
-  function goToResultsOrOfferThird(next: AccentOracleResult) {
+  async function finalizeDisplayedResult(
+    next: AccentOracleResult,
+    takeCount: number,
+    terminalState: "results" | "skipped-third" | "unresolved",
+  ) {
     setResult(next);
     setPendingResult(null);
-    const nextPhase = needsValidation(next) ? "offer-third" : "results";
-    if (nextPhase === "results") {
-      syncDevResultsScores(next);
+    const unresolved = terminalState === "unresolved" || needsValidation(next);
+    setTerminalUnresolved(unresolved);
+    setTerminalTakeCount(takeCount);
+    syncDevResultsScores(next);
+    setPhase("results");
+
+    if (analysisSessionId) {
+      try {
+        await finalizeAnalysis({
+          analysisSessionId,
+          finalResult: next,
+          takeCount,
+          terminalState: unresolved ? "unresolved" : terminalState,
+        });
+        trackUiEvent("analysis_finalized");
+        if (unresolved) {
+          trackUiEvent("analysis_unresolved");
+        }
+      } catch {
+        setAnalysisError("No s'ha pogut desar el resultat de la sessió.");
+      }
     }
-    setPhase(nextPhase);
+  }
+
+  async function goToResultsOrOfferThird(next: AccentOracleResult, takeCount: number) {
+    if (needsValidation(next)) {
+      setResult(next);
+      setPendingResult(null);
+      setTerminalUnresolved(true);
+      setTerminalTakeCount(takeCount);
+      trackUiEvent("third_take_offered");
+      setPhase("offer-third");
+      return;
+    }
+    await finalizeDisplayedResult(next, takeCount, "results");
   }
 
   function startRecording() {
     resetMockAnalyzeOrdinal();
     const prompt = pickPrimaryReadAloudPrompt();
+    setAnalysisSessionId(createClientId());
     setActivePrompt(prompt);
     setPrimaryPromptId(prompt.id);
     setUsedPromptIds([prompt.id]);
     setPendingResult(null);
     setResult(null);
+    setTerminalUnresolved(false);
+    setTerminalTakeCount(0);
     setAnalysisError(null);
     setPhase("recording");
   }
@@ -258,6 +317,7 @@ function App() {
     setUsedPromptIds((ids) => [...ids, prompt.id]);
     setPendingResult(firstResult);
     setResult(null);
+    trackUiEvent("validation_started");
     setPhase("validation");
   }
 
@@ -277,11 +337,13 @@ function App() {
     setPhase("refine");
   }
 
-  function skipThird() {
+  async function skipThird() {
     if (result) {
-      syncDevResultsScores(result);
+      setIsAnalyzing(true);
+      trackUiEvent("third_take_skipped");
+      await finalizeDisplayedResult(result, terminalTakeCount || 2, "skipped-third");
+      setIsAnalyzing(false);
     }
-    setPhase("results");
   }
 
   function switchOracleMode() {
@@ -305,8 +367,11 @@ function App() {
       const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
         promptId: activePrompt.id,
         promptText: activePrompt.text,
-      });
+      }, analysisSessionId ?? undefined);
       trackUiEvent("analysis_completed");
+      if (nextResult.analysisSessionId && !analysisSessionId) {
+        setAnalysisSessionId(nextResult.analysisSessionId);
+      }
 
       if (phase === "recording") {
         if (needsValidation(nextResult)) {
@@ -314,27 +379,24 @@ function App() {
           return;
         }
 
-        goToResultsOrOfferThird(nextResult);
+        await goToResultsOrOfferThird(nextResult, nextResult.takeIndex ?? 1);
         return;
       }
 
       if (phase === "validation" && pendingResult) {
         const merged = mergeValidationResults(pendingResult, nextResult);
-        if (nextResult.recordingId && nextResult.recordingId !== merged.recordingId) {
-          discardPendingRecording(nextResult.recordingId);
-        }
-        goToResultsOrOfferThird(merged);
+        await goToResultsOrOfferThird(merged, nextResult.takeIndex ?? 2);
         return;
       }
 
       if (phase === "refine" && result) {
         const merged = mergeValidationResults(result, nextResult);
-        if (nextResult.recordingId && nextResult.recordingId !== merged.recordingId) {
-          discardPendingRecording(nextResult.recordingId);
-        }
-        setResult(merged);
-        syncDevResultsScores(merged);
-        setPhase("results");
+        trackUiEvent("third_take_completed");
+        await finalizeDisplayedResult(
+          merged,
+          nextResult.takeIndex ?? 3,
+          needsValidation(merged) ? "unresolved" : "results",
+        );
       }
     } catch (error) {
       setAnalysisError(
@@ -350,7 +412,11 @@ function App() {
       return;
     }
 
-    goToResultsOrOfferThird(pendingResult);
+    void finalizeDisplayedResult(
+      pendingResult,
+      pendingResult.takeIndex ?? 1,
+      "unresolved",
+    );
   }
 
   const showPrivacyFooter =
@@ -433,7 +499,7 @@ function App() {
                 type="checkbox"
               />
               <span>
-                Vull col·laborar a la millora de models en català amb la meva gravació{" "}
+                Vull col·laborar a la millora de models en català amb totes les gravacions d&apos;aquesta sessió{" "}
                 <span className="consent-age-clause">(tinc 18 anys o més).</span>{" "}
                 <button
                   className="privacy-link legal-inline-link"
@@ -471,7 +537,12 @@ function App() {
             <button className="primary" onClick={startRefine} type="button">
               Sí, llegeix de nou
             </button>
-            <button className="secondary" onClick={skipThird} type="button">
+            <button
+              className="secondary"
+              disabled={isAnalyzing}
+              onClick={() => void skipThird()}
+              type="button"
+            >
               No, veure resultats
             </button>
           </div>
@@ -536,10 +607,17 @@ function App() {
               onReset={() => setDevResultsScores({ ...result.scores })}
             />
           )}
-          <ResultsMapStage scores={resultsScores} />
+          <ResultsMapStage
+            result={result}
+            scores={resultsScores}
+            unresolved={terminalUnresolved}
+            takeCount={terminalTakeCount}
+          />
+          {analysisError && <p className="error-message">{analysisError}</p>}
           <ResultsConsentFeedback
             preConsented={preConsented}
             recordingId={result.recordingId}
+            analysisSessionId={analysisSessionId ?? result.analysisSessionId}
             onResearchRetained={() => setResearchRetained(true)}
           />
           <div className="results-share-row">

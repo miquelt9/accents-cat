@@ -27,7 +27,7 @@ export function shouldInitSentry(): boolean {
 }
 
 const SENSITIVE_KEY =
-  /(recording|consent|comarca|audio|prompt|transcript|filename|notes|score|ip_address|user_agent|email|phone)/i;
+  /(recording|session|consent|comarca|audio|prompt|transcript|filename|notes|score|ip_address|user_agent|email|phone)/i;
 
 function scrubEvent(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
   if (event.request) {

@@ -1,7 +1,7 @@
 """Sentry + Grafana Cloud OTLP metrics for the Accent Oracle API.
 
-Privacy: never send audio, request bodies, transcripts, comarca, recording IDs,
-consent payloads, or filenames to observability vendors.
+Privacy: never send audio, request bodies, transcripts, comarca, session or
+recording IDs, consent payloads, or filenames to observability vendors.
 """
 
 from __future__ import annotations
@@ -28,13 +28,19 @@ UI_TELEMETRY_EVENTS: frozenset[str] = frozenset(
         "recording_completed",
         "analyze_pressed",
         "analysis_completed",
+        "validation_started",
+        "third_take_offered",
+        "third_take_completed",
+        "third_take_skipped",
+        "analysis_finalized",
+        "analysis_unresolved",
         "share_clicked",
         "research_consent_accepted",
     }
 )
 
 _SENSITIVE_KEY_RE = re.compile(
-    r"(recording|consent|comarca|audio|prompt|transcript|filename|notes|score|password|secret|token|authorization|cookie|user_agent|ip_address|email|phone)",
+    r"(recording|session|consent|comarca|audio|prompt|transcript|filename|notes|score|password|secret|token|authorization|cookie|user_agent|ip_address|email|phone)",
     re.IGNORECASE,
 )
 
