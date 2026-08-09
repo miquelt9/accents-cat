@@ -42,6 +42,9 @@ image.png
 mv14ydz1x1hcrsle1n3uw7-svg.svg
 boldvoice_example/
 
+# Offline research scrapes (saved HTML may embed third-party API keys)
+.info-accents/
+
 # Web app build artifacts
 web/node_modules/
 web/dist/
