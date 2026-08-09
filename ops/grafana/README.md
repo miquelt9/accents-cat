@@ -16,7 +16,12 @@ Imported dashboard + alerts live in folder **Accent Oracle** (`ffudveos2n94wb`).
 | Inference latency spike | Inference p95 > 30s for 10m |
 | Application unavailable | No process memory metrics for 10m (`noDataState=Alerting`) |
 
-No notification integrations are wired in-repo (email/SMS/paging are out of scope for this pass). Configure contact points in Grafana Cloud UI if desired.
+No notification integrations are wired in-repo (email/SMS/paging are out of
+scope for this pass). This is a deployment gate, not an optional control:
+before public traffic, assign an alert owner, configure the approved email
+contact point in Grafana Cloud, test delivery, and record the contact point,
+last successful test, escalation target, and retention/access review. Do not
+add SMS, voice, push, OnCall, or Slack without an explicit decision.
 
 ## Metrics (OTLP from API)
 

@@ -78,7 +78,9 @@ def test_jobs_are_consumed_in_fifo_order() -> None:
         await asyncio.to_thread(started.wait, 2)
         queued = [pool.submit(job, value) for value in (1, 2, 3)]
         release.set()
-        executions = await asyncio.gather(first.result(), *(item.result() for item in queued))
+        executions = await asyncio.gather(
+            first.result(), *(item.result() for item in queued)
+        )
         await pool.shutdown()
         return [execution.value for execution in executions]
 

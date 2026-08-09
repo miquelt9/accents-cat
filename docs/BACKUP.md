@@ -116,17 +116,27 @@ when the live database later marks a row deleted. At minimum:
   outside the backup host and test key recovery separately.
 - Restrict the backup directory and restore host to the service operators;
   use `umask 077`, least-privilege credentials, and encrypted transport.
-- Keep a documented retention schedule for backup archives. A suggested
-  starting point is seven daily, eight weekly, and twelve monthly encrypted
-  copies, but the controller must choose a period compatible with the privacy
-  policy and deletion obligations.
-- Treat deletion requests and retention purges as backup obligations too.
-  A soft-delete in the live database does not erase older archives. Record
-  which archive generations contain the deleted data and expire them according
-  to the approved policy.
+- Keep a documented retention schedule for backup archives, including the
+  maximum age, off-box replicas, object-versioning/trash behavior, and the
+  owner who reviews expiry. A suggested starting point is seven daily, eight
+  weekly, and twelve monthly encrypted copies, but the controller must choose
+  a period compatible with the privacy policy and deletion obligations.
+- Treat deletion requests and retention purges as backup obligations too. A
+  soft-delete in the live database does not erase older archives. Maintain an
+  archive inventory keyed by snapshot identifier and creation time; after a
+  deletion or retention purge, identify affected generations from the
+  encrypted manifest or restore review, apply any documented legal hold, and
+  expire the affected archive objects, replicas, object versions, and provider
+  trash. Record the snapshot IDs, expiry timestamp, operator, and result, but
+  do not copy participant identifiers or audio into the operational log.
 - Keep at least one recent backup off the application host, and preferably
   keep a second copy in a separate failure domain. No particular cloud
   provider or transfer tool is required by this repository.
+
+The deployment must also alert on a failed backup, stale last-success time,
+encryption/key-recovery failure, checksum mismatch, destination capacity, and
+unexpected retention-expiry failure. Assign an incident owner and test the
+notification route before accepting production recordings.
 
 ## Restore and verification
 
@@ -170,7 +180,8 @@ Restore to a separate host or an isolated maintenance directory first:
    a restore test unless that use is documented and authorized.
 8. Compare row counts, consent states, and a sample of audio hashes with the
    backup manifest. Record the restore time, snapshot identifier, checks, and
-   any missing files.
+   any missing files. Record the drill owner, key-recovery result, measured
+   RPO/RTO, and follow-up ticket.
 
 Never restore an old archive over a live system without reviewing deletion
 requests made after that archive. An old restore can reintroduce data that was
@@ -194,12 +205,26 @@ These are planning targets, not guarantees supplied by the code:
 
 The application keeps pending rows only until the configured pending-consent
 TTL is observed by a storage operation. It does not run an independent purge
-worker. Operators should schedule or otherwise monitor the retention command:
+worker. Operators must install and monitor both purge schedules; relying on a
+later request is not evidence that the pending TTL is met:
 
 ```bash
 python scripts/purge_expired_research.py --dry-run
 python scripts/purge_expired_research.py
 ```
+
+The pending cleanup has no standalone CLI, so schedule the storage operation
+explicitly from the same virtualenv and repository root used by the API:
+
+```bash
+python -c \
+  'from backend import storage; print(f"Purged {storage.purge_expired_pending()} pending submission(s).")'
+```
+
+Run the research command's `--dry-run` as a preflight, and record the database
+path, cutoff, count, exit status, scheduler identity, owner, and last-success
+time without logging sensitive row values. Coordinate purge and backup locks so
+the snapshot and deletion procedure cannot silently race.
 
 For an individual user request, use:
 

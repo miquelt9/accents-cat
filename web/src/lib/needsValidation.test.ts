@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { AccentOracleResult, EvidenceBand } from "./accentOracleClient";
+import type { AccentOracleResult } from "./accentOracleClient";
 import {
-  isStrongerEvidence,
-  mergeValidationResults,
+  aggregateValidationResults,
+  calculateTakeDisagreement,
+  MAX_TAKE_DISAGREEMENT_FOR_STRONG,
   needsValidation,
-  pickClearerResult,
   SKIP_VALIDATION_MIN_GAP,
   SKIP_VALIDATION_MIN_TOP_SCORE,
 } from "./needsValidation";
@@ -158,83 +158,8 @@ describe("needsValidation", () => {
   });
 });
 
-describe("isStrongerEvidence", () => {
-  const cases: Array<[EvidenceBand, EvidenceBand, boolean]> = [
-    ["strong", "moderate", true],
-    ["strong", "limited", true],
-    ["moderate", "limited", true],
-    ["moderate", "strong", false],
-    ["limited", "moderate", false],
-    ["strong", "strong", false],
-    ["limited", "limited", false],
-  ];
-
-  it.each(cases)("%s vs %s → %s", (a, b, expected) => {
-    expect(isStrongerEvidence(a, b)).toBe(expected);
-  });
-});
-
-describe("pickClearerResult", () => {
-  it("prefers the stronger evidence band and keeps first recordingId", () => {
-    const first = result({
-      evidenceBand: "limited",
-      isAmbiguousTopTwo: true,
-      recordingId: "a",
-    });
-    const second = result({
-      evidenceBand: "moderate",
-      isAmbiguousTopTwo: false,
-      recordingId: "b",
-      topTwoGap: 0.25,
-    });
-    const chosen = pickClearerResult(first, second);
-    expect(chosen.evidenceBand).toBe("moderate");
-    expect(chosen.recordingId).toBe("a");
-  });
-
-  it("keeps the first when the second is not stronger", () => {
-    const first = result({ evidenceBand: "strong", isAmbiguousTopTwo: false, recordingId: "a" });
-    const second = result({ evidenceBand: "moderate", isAmbiguousTopTwo: false, recordingId: "b" });
-    expect(pickClearerResult(first, second)).toBe(first);
-  });
-
-  it("on equal bands prefers the larger topTwoGap", () => {
-    const first = result({
-      evidenceBand: "moderate",
-      isAmbiguousTopTwo: false,
-      topTwoGap: 0.12,
-      recordingId: "a",
-    });
-    const second = result({
-      evidenceBand: "moderate",
-      isAmbiguousTopTwo: false,
-      topTwoGap: 0.22,
-      recordingId: "b",
-    });
-    const chosen = pickClearerResult(first, second);
-    expect(chosen.topTwoGap).toBe(0.22);
-    expect(chosen.recordingId).toBe("a");
-  });
-
-  it("keeps the first on equal bands and equal gap", () => {
-    const first = result({
-      evidenceBand: "moderate",
-      isAmbiguousTopTwo: false,
-      topTwoGap: 0.2,
-      recordingId: "a",
-    });
-    const second = result({
-      evidenceBand: "moderate",
-      isAmbiguousTopTwo: true,
-      topTwoGap: 0.2,
-      recordingId: "b",
-    });
-    expect(pickClearerResult(first, second)).toBe(first);
-  });
-});
-
-describe("mergeValidationResults", () => {
-  it("same top keeps the clearer take with first recordingId", () => {
+describe("aggregateValidationResults", () => {
+  it("averages same-winner takes instead of keeping only the clearer one", () => {
     const first = result({
       topLabel: "central",
       evidenceBand: "limited",
@@ -256,13 +181,53 @@ describe("mergeValidationResults", () => {
       },
       recordingId: "second-id",
     });
-    const merged = mergeValidationResults(first, second);
-    expect(merged.evidenceBand).toBe("strong");
-    expect(merged.scores.central).toBe(0.58);
+    const merged = aggregateValidationResults([first, second]);
+    expect(merged.scores.central).toBeCloseTo(0.54, 2);
     expect(merged.recordingId).toBe("first-id");
   });
 
-  it("different tops averages scores and keeps first recordingId", () => {
+  it("keeps the runner-up that two takes agree on over a single distant third take", () => {
+    const centralNorthern = result({
+      topLabel: "central",
+      runnerUpLabel: "northern",
+      evidenceBand: "limited",
+      isAmbiguousTopTwo: true,
+      topTwoGap: 0.07,
+      scores: {
+        balearic: 0.05,
+        central: 0.42,
+        northern: 0.35,
+        northwestern: 0.1,
+        valencian: 0.08,
+      },
+    });
+    const centralBalearic = result({
+      topLabel: "central",
+      runnerUpLabel: "balearic",
+      evidenceBand: "strong",
+      isAmbiguousTopTwo: false,
+      topTwoGap: 0.4,
+      scores: {
+        balearic: 0.15,
+        central: 0.55,
+        northern: 0.1,
+        northwestern: 0.1,
+        valencian: 0.1,
+      },
+    });
+
+    const merged = aggregateValidationResults([
+      centralNorthern,
+      centralNorthern,
+      centralBalearic,
+    ]);
+
+    expect(merged.topLabel).toBe("central");
+    expect(merged.runnerUpLabel).toBe("northern");
+    expect(merged.scores.northern).toBeGreaterThan(merged.scores.balearic);
+  });
+
+  it("averages all three takes with equal weight", () => {
     const first = result({
       topLabel: "central",
       runnerUpLabel: "northern",
@@ -279,25 +244,71 @@ describe("mergeValidationResults", () => {
       recordingId: "first-id",
     });
     const second = result({
-      topLabel: "valencian",
-      runnerUpLabel: "central",
+      topLabel: "central",
+      runnerUpLabel: "northern",
       evidenceBand: "moderate",
       isAmbiguousTopTwo: false,
       topTwoGap: 0.12,
       scores: {
-        balearic: 0.1,
+        balearic: 0.05,
         central: 0.28,
-        northern: 0.1,
-        northwestern: 0.12,
-        valencian: 0.4,
+        northern: 0.32,
+        northwestern: 0.15,
+        valencian: 0.2,
       },
       recordingId: "second-id",
     });
-    const merged = mergeValidationResults(first, second);
+    const third = result({
+      topLabel: "central",
+      runnerUpLabel: "northern",
+      evidenceBand: "strong",
+      isAmbiguousTopTwo: false,
+      topTwoGap: 0.3,
+      scores: {
+        balearic: 0.05,
+        central: 0.58,
+        northern: 0.15,
+        northwestern: 0.12,
+        valencian: 0.1,
+      },
+      recordingId: "third-id",
+    });
+    const merged = aggregateValidationResults([first, second, third]);
     expect(merged.recordingId).toBe("first-id");
-    expect(merged.scores.central).toBeCloseTo(0.33, 2);
-    expect(merged.scores.valencian).toBeCloseTo(0.25, 2);
-    expect(merged.topLabel === "central" || merged.topLabel === "valencian").toBe(true);
+    expect(merged.scores.central).toBeCloseTo((0.38 + 0.28 + 0.58) / 3, 2);
+    expect(merged.scores.valencian).toBeCloseTo((0.1 + 0.2 + 0.1) / 3, 2);
+  });
+
+  it("tracks disagreement and prevents a conflicting average from staying strong", () => {
+    const centralTake = result({
+      evidenceBand: "strong",
+      isAmbiguousTopTwo: false,
+      scores: {
+        balearic: 0.05,
+        central: 0.7,
+        northern: 0.1,
+        northwestern: 0.1,
+        valencian: 0.05,
+      },
+    });
+    const balearicTake = result({
+      topLabel: "balearic",
+      runnerUpLabel: "central",
+      evidenceBand: "strong",
+      isAmbiguousTopTwo: false,
+      scores: {
+        balearic: 0.7,
+        central: 0.1,
+        northern: 0.05,
+        northwestern: 0.05,
+        valencian: 0.1,
+      },
+    });
+    const merged = aggregateValidationResults([centralTake, centralTake, balearicTake]);
+
+    expect(merged.takeDisagreement).toBeGreaterThan(MAX_TAKE_DISAGREEMENT_FOR_STRONG);
+    expect(merged.evidenceBand).toBe("moderate");
+    expect(needsValidation(merged)).toBe(true);
   });
 
   it("keeps the analysis session and highest take index across merges", () => {
@@ -319,10 +330,35 @@ describe("mergeValidationResults", () => {
       takeIndex: 2,
     });
 
-    const merged = mergeValidationResults(first, second);
+    const merged = aggregateValidationResults([first, second]);
 
     expect(merged.analysisSessionId).toBe("session-id");
     expect(merged.takeIndex).toBe(2);
     expect(merged.recordingId).toBe("first-id");
+  });
+});
+
+describe("calculateTakeDisagreement", () => {
+  it("returns zero for one take and a normalized pair distance for two", () => {
+    const first = result({
+      evidenceBand: "moderate",
+      isAmbiguousTopTwo: false,
+      recordingId: "first-id",
+    });
+    const second = result({
+      evidenceBand: "moderate",
+      isAmbiguousTopTwo: false,
+      recordingId: "second-id",
+      scores: {
+        balearic: 0.2,
+        central: 0.4,
+        northern: 0.2,
+        northwestern: 0.1,
+        valencian: 0.1,
+      },
+    });
+
+    expect(calculateTakeDisagreement([first])).toBe(0);
+    expect(calculateTakeDisagreement([first, second])).toBeCloseTo(0.15, 2);
   });
 });

@@ -1,6 +1,6 @@
 # Production readiness assessment
 
-**Assessment date:** 6 August 2026
+**Assessment date:** 9 August 2026
 **Scope:** the production-readiness work in the current repository state,
 including the documentation deliverables in this directory.
 
@@ -62,7 +62,7 @@ provider retention, access controls, or schedules.
 ### CI and release process
 
 - The current CI workflow runs web lint/build/test and lightweight pytest,
-  injects web and API build metadata, and runs the planned Ruff checks. A
+  injects web and API build metadata, and runs Ruff checks. A
   release still needs to retain those checks and verify that the injected
   values match the deployed release.
 - Sentry web source-map upload/release finalization remains a follow-up. Without
@@ -92,6 +92,45 @@ provider retention, access controls, or schedules.
   residency, and incident response are not enforceable from this repository
   alone.
 
+## Deployment-owned release gates
+
+The repository documents the controls below, but source review cannot mark them
+complete. A public release is blocked until the deployment record contains a
+named owner and verifiable evidence for each gate:
+
+- **Purge schedules:** a scheduler runs both pending-consent cleanup and
+  research-retention purge while the API is idle, with non-overlap protection,
+  failure/missed-run alerts, and recorded TTL/retention values.
+- **Backups and restore:** SQLite (including any WAL/SHM sidecars) and all
+  audio are captured together, encrypted before leaving the host, retained
+  off-host, and restored in isolation with integrity, foreign-key, path/hash,
+  and health checks.
+- **Deletion-aware backup expiry:** the operator can identify archive
+  generations, replicas, object versions, and provider trash containing a
+  deleted or expired session, and has evidence that those copies were expired
+  under the approved policy. A live soft-delete is not sufficient.
+- **Monitoring and incident ownership:** uptime, application, inference,
+  backup, purge, and provider alerts have named owners, a tested notification
+  route, escalation coverage, and a recorded last-success time.
+- **Rate-limit topology:** deployment runs a single API process/host with no
+  replicas, or supplies and tests a shared/distributed limiter. The
+  repository's in-process limiter and inference pool do not provide
+  multi-instance protection.
+- **Legal identity and contact:** the approved controller name, privacy
+  contact, policy version, deletion workflow, hosting/processor inventory, and
+  legal sign-off match the rendered build and published copy.
+- **HTTPS and proxy:** the real hostname redirects to HTTPS, routes
+  `/analysis-finalize` and every other API path without SPA fallback, applies
+  upload/timeouts and security headers, and does not expose `/sentry-debug`.
+- **Provider retention and access:** Sentry, Grafana, PostHog, Better Stack,
+  backup storage, and host/proxy logs have recorded regions, data classes,
+  retention/deletion behavior, access roles, and incident contacts consistent
+  with the privacy policy.
+- **Model and release evidence:** the release record preserves the deployed
+  `/version` response, commit/build identifiers, frontend/backend release
+  parity, model repository/revision, metadata, artifact checksums, rollback
+  target, and the owner who verified the pair.
+
 ### Research and product risk
 
 - The classifier is a research snapshot with speaker imbalance and limited
@@ -113,17 +152,22 @@ Treat these as blockers for public traffic, not optional polish:
 2. Deploy behind HTTPS and the same-origin proxy, then verify microphone,
    CSP, headers, CORS, trusted proxy behavior, upload limits, and timeout
    behavior.
-3. Configure Sentry, Grafana, PostHog EU, and Better Stack with approved
-   retention/access settings; inspect real payloads for the privacy boundary.
-4. Install encrypted backups, complete an isolated restore drill, and assign
-   owners for backup, pending purge, research retention purge, and deletion
-   requests.
-5. Record a release SHA/model version and complete the CI, browser smoke, and
+3. Choose and evidence a single-process or distributed rate-limit topology;
+   do not treat `ORACLE_WORKERS` as a cross-host limiter.
+4. Configure Sentry, Grafana, PostHog EU, Better Stack, proxy logs, and backup
+   storage with approved retention/access settings; assign monitoring and
+   incident owners and inspect controlled payloads for the privacy boundary.
+5. Install encrypted backups, complete an isolated restore drill, and prove
+   deletion-aware expiry for archive generations, replicas, and object
+   versions. Assign owners for backup, pending purge, research-retention purge,
+   and deletion requests.
+6. Record a release SHA, model revision/checksums, deployed `/version`, and
+   frontend/backend release parity; complete the CI, browser smoke, and
    health/readiness/version checks in
    [`PRODUCTION_CHECKLIST.md`](PRODUCTION_CHECKLIST.md).
-6. Decide whether the remaining Sentry source-map follow-up is a launch blocker
+7. Decide whether the remaining Sentry source-map follow-up is a launch blocker
    for the chosen beta. It is not silently assumed complete by this assessment.
-7. Obtain the intended privacy/legal review and publish an honest research-beta
+8. Obtain the intended privacy/legal review and publish an honest research-beta
    description with a contact and deletion process.
 
 ## Public-beta suitability

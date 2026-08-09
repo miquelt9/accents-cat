@@ -36,3 +36,8 @@ follow-ups: they cover deployment verification, durable data operations, and
 privacy/vendor configuration that the repository documents but cannot perform.
 Do not redo Better Stack monitor creation, Grafana contact-point routing, or
 Sentry release/source-map work outside tasks 02, 01, and 03 respectively.
+
+The release gate is not complete merely because these runbooks exist. Attach
+deployment evidence for the selected owner, schedule, last successful run,
+notification route, retention/access decision, and restore/deletion drill to
+the release record; keep each task `pending` until that evidence exists.

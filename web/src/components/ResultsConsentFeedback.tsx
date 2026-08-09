@@ -379,13 +379,30 @@ export function ResultsConsentFeedback({
 
   async function handleConsent(consent: boolean) {
     if (!consent) {
-      // Defer purge until leave (App.declinePendingRecording) so a later
-      // thumbs click can still offer research consent while audio is pending.
-      setResearchSaved(false);
-      setWasCorrect(null);
-      setSheetOpen(false);
-      setStep("ask");
+      setIsSubmitting(true);
       setError(null);
+
+      try {
+        if (analysisSessionId || recordingId) {
+          await submitResearchConsent({
+            ...(analysisSessionId ? { analysisSessionId } : { recordingId }),
+            consent: false,
+          });
+        }
+        setResearchSaved(false);
+        setWasCorrect(null);
+        setSelectedComarques([]);
+        setSheetOpen(false);
+        setStep("ask");
+      } catch (submitError) {
+        setError(
+          submitError instanceof Error
+            ? submitError.message
+            : "No s'han pogut esborrar les gravacions pendents. Torna-ho a provar.",
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
       return;
     }
 

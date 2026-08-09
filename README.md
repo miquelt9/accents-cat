@@ -134,7 +134,7 @@ flowchart LR
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
 4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map that highlights the whole selected macro-dialect region ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 
-When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15), or the top pair is geographically incoherent with a material runner-up, a **mandatory second take** is required before results; takes are merged with agreement-aware logic (same top → clearer take; different tops → average scores). If the merged result is still uncertain, an **optional third** take is offered. If uncertainty remains after three takes, the results view shows the full distribution and de-emphasizes the illustrative comarca pin ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
+When the first result is uncertain (top score &lt; 0.50 or top-two gap &lt; 0.15), or the top pair is geographically incoherent with a material runner-up, a **mandatory second take** is required before results; validation and refinement average every raw take score vector equally. Mean pairwise score disagreement above `0.18` keeps the aggregate uncertain and prevents a strong evidence band. If the aggregate result is still uncertain, an **optional third** take is offered. If uncertainty remains after three takes, the results view shows the full distribution and de-emphasizes the top-match card while keeping the clearly labelled illustrative comarca pin ([`needsValidation.ts`](web/src/lib/needsValidation.ts)).
 
 ## Current model (research snapshot)
 
@@ -255,7 +255,9 @@ terminates HTTPS, serves `web/dist`, and proxies API paths to uvicorn. Keep
 `VITE_ACCENT_ORACLE_API_URL` empty in this deployment so the browser calls the
 same origin. HTTPS is required for microphone access and native Web Share;
 the SPA proxy must allow `microphone=(self)` while the API's security policy
-can remain restrictive.
+can remain restrictive. The in-process rate limiter is not shared across
+uvicorn workers or hosts, so production must use one API process/host without
+replicas or deploy and verify a separate shared limiter.
 
 Set the production build and runtime values in
 [`web/.env.example`](web/.env.example) and [`.env.example`](.env.example):
@@ -367,6 +369,14 @@ evidence; this is the short project-specific summary:
 2. Confirm server + storage in Spain / EEE; `ORACLE_TRUST_PROXY=1` behind a reverse proxy.
 3. Verify pending → decline/TTL deletes audio; opt-in sets `research_consent=1`.
 4. Soft-delete a test UUID and confirm scrub + audio removal.
-5. Add production CORS origins for the public site; set `SENTRY_*` / `VITE_SENTRY_*` / `GRAFANA_OTLP_*` for the deploy environment.
-6. Better Stack: create homepage + `/health` monitors (60s, SSL on, email only — see the [production checklist](docs/PRODUCTION_CHECKLIST.md)).
-7. Optional lawyer check before viral traffic.
+5. Install and evidence pending/research-retention purge schedules, encrypted
+   backups, an isolated restore drill, and deletion-aware backup expiry.
+6. Add production CORS origins for the public site; set `SENTRY_*` /
+   `VITE_SENTRY_*` / `GRAFANA_OTLP_*` for the deploy environment. Assign
+   monitoring/incident ownership and test notification delivery.
+7. Record provider retention/access reviews, the deployed `/version`, commit
+   and model artifact evidence, and the rollback target.
+8. Better Stack: create homepage + `/health` monitors (60s, SSL on, email only
+   — see the [production checklist](docs/PRODUCTION_CHECKLIST.md)).
+9. Optional lawyer check before viral traffic; legal/privacy sign-off remains
+   a launch gate.

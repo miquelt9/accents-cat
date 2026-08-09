@@ -35,6 +35,52 @@ from backend import storage  # noqa: E402
 LABELS = ["balearic", "central", "northern", "northwestern", "valencian"]
 
 
+def resolve_audio_path(
+    audio_path: str | None,
+    *,
+    audio_root: Path,
+    project_root: Path | None = None,
+) -> Path:
+    """Resolve current project-relative and legacy audio paths.
+
+    Current storage records paths relative to the repository root, such as
+    ``data/user_submissions/audio/<id>.webm``. Older rows stored paths relative
+    to ``audio_root`` (for example ``audio/<id>.webm``), so keep that fallback.
+    """
+    if not audio_path:
+        return Path()
+
+    raw_path = Path(audio_path)
+    if raw_path.is_absolute():
+        return raw_path
+
+    root = (project_root or ROOT).resolve()
+    root_audio = audio_root if audio_root.is_absolute() else root / audio_root
+    root_audio = root_audio.resolve()
+    project_path = root / raw_path
+
+    # A path under the configured audio root is already project-relative when
+    # that root itself lives inside the project (the current storage format).
+    try:
+        project_audio_prefix = root_audio.relative_to(root)
+        raw_path.relative_to(project_audio_prefix)
+    except ValueError:
+        project_audio_prefix = None
+    else:
+        return project_path
+
+    # Prefer an existing project-relative path, then the legacy audio-root
+    # interpretation. The final fallback preserves the same semantics when
+    # the recorded file is missing and the caller only needs a missing-file
+    # report.
+    if project_path.is_file():
+        return project_path
+    legacy_path = root_audio / raw_path
+    if legacy_path.is_file():
+        return legacy_path
+    return project_path if project_audio_prefix is not None else legacy_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -70,14 +116,32 @@ def main() -> None:
           s.consent_at,
           s.policy_version,
           s.audio_path,
+          s.analysis_session_id,
           s.prompt_id,
           s.prompt_text,
           s.top_label,
-          f.self_reported_dialect,
-          f.comarca,
-          f.was_correct
+          COALESCE(session_feedback.self_reported_dialect,
+                   submission_feedback.self_reported_dialect) AS self_reported_dialect,
+          COALESCE(session_feedback.comarca, submission_feedback.comarca) AS comarca,
+          COALESCE(session_feedback.was_correct,
+                   submission_feedback.was_correct) AS was_correct
         FROM submissions s
-        LEFT JOIN feedback f ON f.submission_id = s.id
+        LEFT JOIN feedback session_feedback
+          ON session_feedback.id = (
+            SELECT id
+            FROM feedback
+            WHERE analysis_session_id = s.analysis_session_id
+            ORDER BY created_at ASC, id ASC
+            LIMIT 1
+          )
+        LEFT JOIN feedback submission_feedback
+          ON submission_feedback.id = (
+            SELECT id
+            FROM feedback
+            WHERE submission_id = s.id
+            ORDER BY created_at ASC, id ASC
+            LIMIT 1
+          )
         WHERE s.research_consent = 1
           AND s.deleted_at IS NULL
         ORDER BY s.consent_at ASC
@@ -103,13 +167,11 @@ def main() -> None:
         if not label and not args.include_unlabeled:
             continue
 
-        src = Path(row["audio_path"] or "")
-        if not src.is_absolute():
-            src = args.audio_root / src
+        src = resolve_audio_path(row["audio_path"], audio_root=args.audio_root)
         filename = f"{row['recording_id']}{src.suffix or '.webm'}"
         dst = args.out_dir / filename
         audio_prepared = False
-        if src.exists():
+        if src.is_file():
             if not args.dry_run:
                 shutil.copy2(src, dst)
             audio_prepared = True
@@ -119,7 +181,7 @@ def main() -> None:
 
         records.append(
             {
-                "client_id": f"oracle:{row['recording_id']}",
+                "client_id": f"oracle:{row['analysis_session_id'] or row['recording_id']}",
                 "path": filename,
                 "label": label,
                 "comarca": comarca_stored,

@@ -23,6 +23,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +34,9 @@ LABELS = ("balearic", "central", "northern", "northwestern", "valencian")
 SKIP_MIN_TOP_SCORE = 0.5
 SKIP_MIN_GAP = 0.15
 INCOHERENT_MIN_RUNNER_UP = 0.2
+MAX_TAKE_DISAGREEMENT_FOR_STRONG = 0.18
+POOLING_EPSILON = 1e-9
+LOG_POOL_EXPONENTS = (0.5, 0.75, 1.0)
 ADJACENT_PAIRS = {
     frozenset(pair)
     for pair in (
@@ -63,7 +68,10 @@ def evidence_band(scores: dict[str, float]) -> str:
     return "moderate"
 
 
-def needs_validation(scores: dict[str, float]) -> bool:
+def needs_validation(scores: dict[str, float], take_disagreement: float = 0.0) -> bool:
+    if take_disagreement > MAX_TAKE_DISAGREEMENT_FOR_STRONG:
+        return True
+
     top, runner_up, gap = ranked(scores)
     if not (scores[top] >= SKIP_MIN_TOP_SCORE and gap >= SKIP_MIN_GAP):
         return True
@@ -108,11 +116,78 @@ def adaptive_result(takes: list[dict[str, float]]) -> tuple[dict[str, float], in
     return result, used
 
 
+def take_disagreement(takes: list[dict[str, float]]) -> float:
+    if len(takes) < 2:
+        return 0.0
+
+    distances = []
+    for first_index in range(len(takes) - 1):
+        for second_index in range(first_index + 1, len(takes)):
+            distance = sum(
+                abs(takes[first_index][label] - takes[second_index][label])
+                for label in LABELS
+            )
+            distances.append(distance / 2)
+    return float(np.mean(distances))
+
+
+def mean_pool(selected: list[dict[str, float]]) -> dict[str, float]:
+    """Linear opinion pool over already-normalized takes."""
+    return normalize({label: sum(take[label] for take in selected) for label in LABELS})
+
+
+def log_pool(selected: list[dict[str, float]], exponent: float) -> dict[str, float]:
+    """Tempered logarithmic opinion pool over already-normalized takes.
+
+    ``exponent`` is applied to every take, so ``1 / len(selected)`` reproduces
+    the geometric mean, where repeating a take changes nothing, and ``1.0`` is
+    the naive-Bayes product under a uniform prior, where agreement sharpens the
+    result. Values between the two temper the conditional-independence
+    assumption that repeated takes from one speaker, microphone and room only
+    partly satisfy.
+    """
+    scaled = {
+        label: exponent
+        * sum(math.log(max(take[label], POOLING_EPSILON)) for take in selected)
+        for label in LABELS
+    }
+    largest = max(scaled.values())
+    return normalize({label: math.exp(scaled[label] - largest) for label in LABELS})
+
+
+def geometric_pool(selected: list[dict[str, float]]) -> dict[str, float]:
+    return log_pool(selected, 1 / len(selected))
+
+
 def average_result(takes: list[dict[str, float]], count: int) -> dict[str, float]:
+    return mean_pool([normalize(take) for take in takes[:count]])
+
+
+def log_pool_result(
+    takes: list[dict[str, float]],
+    count: int,
+    exponent: float | None = None,
+) -> dict[str, float]:
+    """Pool the first ``count`` takes; ``exponent=None`` means the geometric mean."""
     selected = [normalize(take) for take in takes[:count]]
-    return normalize(
-        {label: sum(take[label] for take in selected) for label in LABELS}
-    )
+    if exponent is None:
+        return geometric_pool(selected)
+    return log_pool(selected, exponent)
+
+
+def adaptive_aggregated_result(
+    takes: list[dict[str, float]],
+    pool: Callable[[list[dict[str, float]]], dict[str, float]] = mean_pool,
+) -> tuple[dict[str, float], int]:
+    selected = [normalize(takes[0])]
+    result = pool(selected)
+
+    for take in takes[1:3]:
+        if not needs_validation(result, take_disagreement(selected)):
+            break
+        selected.append(normalize(take))
+        result = pool(selected)
+    return result, len(selected)
 
 
 def load_records(path: Path) -> list[dict[str, Any]]:
@@ -239,26 +314,60 @@ def main() -> None:
 
     records = load_records(args.input)
     labels = [record["label"] for record in records]
+    two_counts = [min(2, len(record["takes"])) for record in records]
+    three_counts = [min(3, len(record["takes"])) for record in records]
     first = [normalize(record["takes"][0]) for record in records]
     two_take = [average_result(record["takes"], 2) for record in records]
     three_take = [average_result(record["takes"], 3) for record in records]
+    geometric_two = [log_pool_result(record["takes"], 2) for record in records]
+    geometric_three = [log_pool_result(record["takes"], 3) for record in records]
+    tempered_three = {
+        exponent: [log_pool_result(record["takes"], 3, exponent) for record in records]
+        for exponent in LOG_POOL_EXPONENTS
+    }
     adaptive_pairs = [adaptive_result(record["takes"]) for record in records]
     adaptive = [pair[0] for pair in adaptive_pairs]
     adaptive_counts = [pair[1] for pair in adaptive_pairs]
+    adaptive_aggregated_pairs = [
+        adaptive_aggregated_result(record["takes"]) for record in records
+    ]
+    adaptive_aggregated = [pair[0] for pair in adaptive_aggregated_pairs]
+    adaptive_aggregated_counts = [pair[1] for pair in adaptive_aggregated_pairs]
+    adaptive_geometric_pairs = [
+        adaptive_aggregated_result(record["takes"], pool=geometric_pool)
+        for record in records
+    ]
+    adaptive_geometric = [pair[0] for pair in adaptive_geometric_pairs]
+    adaptive_geometric_counts = [pair[1] for pair in adaptive_geometric_pairs]
 
     policies = {
         "first_take": evaluate(labels, first, [1] * len(records)),
-        "average_two_takes": evaluate(labels, two_take, [min(2, len(record["takes"])) for record in records]),
-        "average_three_takes": evaluate(
-            labels,
-            three_take,
-            [min(3, len(record["takes"])) for record in records],
-        ),
+        "average_two_takes": evaluate(labels, two_take, two_counts),
+        "average_three_takes": evaluate(labels, three_take, three_counts),
+        "geometric_two_takes": evaluate(labels, geometric_two, two_counts),
+        "geometric_three_takes": evaluate(labels, geometric_three, three_counts),
+        **{
+            f"log_pool_three_takes_exponent_{exponent:.2f}": evaluate(
+                labels, tempered_three[exponent], three_counts
+            )
+            for exponent in LOG_POOL_EXPONENTS
+        },
         "adaptive_current_policy": evaluate(labels, adaptive, adaptive_counts),
+        "adaptive_equal_aggregation": evaluate(
+            labels,
+            adaptive_aggregated,
+            adaptive_aggregated_counts,
+        ),
+        "adaptive_geometric_aggregation": evaluate(
+            labels,
+            adaptive_geometric,
+            adaptive_geometric_counts,
+        ),
     }
     payload = {
         "records": len(records),
         "labels": LABELS,
+        "log_pool_exponents": LOG_POOL_EXPONENTS,
         "policies": policies,
         "note": "Each JSONL record must contain all repeated takes for one speaker.",
     }

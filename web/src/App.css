@@ -1620,28 +1620,6 @@ h2 {
   gap: 0.9rem;
 }
 
-.results-uncertainty-banner {
-  background: color-mix(in srgb, var(--results-emphasis-bg) 72%, var(--surface) 28%);
-  border: 1px solid var(--surface-border);
-  border-radius: 20px;
-  display: grid;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-  padding: 1rem 1.1rem;
-}
-
-.results-uncertainty-banner strong {
-  color: var(--results-emphasis-text);
-}
-
-.results-uncertainty-banner p,
-.results-uncertainty-banner span {
-  color: var(--text-muted);
-  font-size: 0.92rem;
-  line-height: 1.5;
-  margin: 0;
-}
-
 .results-map-stage.is-unresolved .top-result-card {
   opacity: 0.82;
 }
@@ -2009,6 +1987,14 @@ h2 {
   font-weight: 600;
   letter-spacing: 0.03em;
   opacity: 0.92;
+}
+
+.comarca-callout-pill small {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  opacity: 0.8;
 }
 
 .dialect-rank-list {

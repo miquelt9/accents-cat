@@ -26,7 +26,10 @@ example.com {
 	encode gzip
 
 	# --- API upstream (uvicorn) ---
-	@api path /analyze /feedback /research-consent /health /live /ready /version /telemetry/* /sentry-debug
+	@debug path /sentry-debug
+	respond @debug 404
+
+	@api path /analyze /analysis-finalize /feedback /research-consent /health /live /ready /version /telemetry/*
 	handle @api {
 		reverse_proxy 127.0.0.1:8000
 	}
@@ -42,6 +45,7 @@ example.com {
 # Local / LAN smoke without TLS (optional):
 # :8080 {
 # 	reverse_proxy /analyze* 127.0.0.1:8000
+# 	reverse_proxy /analysis-finalize* 127.0.0.1:8000
 # 	reverse_proxy /feedback* 127.0.0.1:8000
 # 	reverse_proxy /research-consent* 127.0.0.1:8000
 # 	reverse_proxy /health* 127.0.0.1:8000

@@ -11,16 +11,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import joblib
-import librosa
 import numpy as np
-import torch
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from transformers import AutoFeatureExtractor, AutoModel
 
+# Keep model-only dependencies lazy so route and health tests stay model-free.
 from backend import storage
 from backend.health import live_payload, ready_payload, version_payload
 from backend.inference_pool import (
@@ -120,6 +117,8 @@ _inference_pool: InferencePool | None = None
 async def lifespan(_: FastAPI):
     global _inference_pool
 
+    import torch
+
     intra_threads, interop_threads = configure_torch_threads(
         workers=WORKER_COUNT,
         cpu_count=CPU_COUNT,
@@ -206,6 +205,7 @@ _telemetry_limiter = SlidingWindowRateLimiter(
     TELEMETRY_RATE_LIMIT, TELEMETRY_RATE_WINDOW_SECONDS
 )
 
+
 def _rate_limit_key(request: Request) -> str:
     return client_ip(request) or "unknown"
 
@@ -233,11 +233,16 @@ def load_metadata() -> dict[str, Any]:
 
 @lru_cache(maxsize=1)
 def load_classifier() -> Any:
+    import joblib
+
     return joblib.load(MODEL_PATH)
 
 
 @lru_cache(maxsize=1)
-def load_encoder() -> tuple[Any, torch.nn.Module, torch.device]:
+def load_encoder() -> tuple[Any, Any, Any]:
+    import torch
+    from transformers import AutoFeatureExtractor, AutoModel
+
     metadata = load_metadata()
     device = torch.device("cpu")
     feature_extractor = AutoFeatureExtractor.from_pretrained(
@@ -250,11 +255,15 @@ def load_encoder() -> tuple[Any, torch.nn.Module, torch.device]:
 
 
 def load_audio(path: Path, sampling_rate: int) -> np.ndarray:
+    import librosa
+
     audio, _ = librosa.load(path, sr=sampling_rate, mono=True)
     return audio.astype(np.float32)
 
 
-def pool_hidden_state(hidden: torch.Tensor) -> np.ndarray:
+def pool_hidden_state(hidden: Any) -> np.ndarray:
+    import torch
+
     hidden = hidden.squeeze(0)
     mean = hidden.mean(dim=0)
     std = hidden.std(dim=0, unbiased=False)
@@ -263,6 +272,8 @@ def pool_hidden_state(hidden: torch.Tensor) -> np.ndarray:
 
 
 def extract_embedding(path: Path) -> np.ndarray:
+    import torch
+
     feature_extractor, model, device = load_encoder()
     sampling_rate = int(getattr(feature_extractor, "sampling_rate", 16_000) or 16_000)
     audio = load_audio(path, sampling_rate)
@@ -494,7 +505,9 @@ async def analyze(
     prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
     requested_session_id = _normalize_analysis_session_id(analysisSessionId)
     analysis_session_id = requested_session_id or storage.create_analysis_session()
-    if requested_session_id and not storage.analysis_session_accepts_take(analysis_session_id):
+    if requested_session_id and not storage.analysis_session_accepts_take(
+        analysis_session_id
+    ):
         raise HTTPException(
             status_code=409,
             detail="La sessió d'anàlisi ja no accepta més gravacions.",
@@ -571,9 +584,7 @@ async def analyze(
             _raise_saturated()
         except asyncio.CancelledError:
             if audio_path is not None and job is not None:
-                job.add_done_callback(
-                    lambda _job: audio_path.unlink(missing_ok=True)
-                )
+                job.add_done_callback(lambda _job: audio_path.unlink(missing_ok=True))
                 if not job.started:
                     audio_path.unlink(missing_ok=True)
             record_analyze("cancelled")

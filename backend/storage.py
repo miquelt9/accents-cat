@@ -352,12 +352,7 @@ def analysis_session_accepts_take(session_id: str) -> bool:
             """,
             (session_id,),
         ).fetchone()
-    if (
-        row is None
-        or row[2] is not None
-        or row[3] is not None
-        or int(row[0] or 0) == 1
-    ):
+    if row is None or row[2] is not None or row[3] is not None or int(row[0] or 0) == 1:
         return False
     expires_at = _parse_iso(row[1])
     return expires_at is None or expires_at > _utc_now()
@@ -405,11 +400,7 @@ def finalize_analysis_session(
             """,
             (session_id, session_id),
         ).fetchone()
-        if (
-            row is None
-            or row[0] is not None
-            or int(row[1] or 0) != take_count
-        ):
+        if row is None or row[0] is not None or int(row[1] or 0) != take_count:
             return False
         conn.execute(
             """
@@ -446,7 +437,9 @@ def insert_submission(
     except ValueError:
         relative_audio = str(audio_path)
 
-    expires_at = (_utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)).isoformat()
+    expires_at = (
+        _utc_now() + timedelta(seconds=PENDING_CONSENT_TTL_SECONDS)
+    ).isoformat()
     if analysis_session_id:
         with _connect() as conn:
             session_row = conn.execute(

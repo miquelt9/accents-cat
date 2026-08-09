@@ -60,10 +60,18 @@ in this repository.
    encrypted transport. Restrict backup and restore access to the smallest
    operator group. Alert on non-zero exit, missing archive, failed encryption,
    checksum mismatch, or stale last-success time.
-5. Define archive expiry and deletion handling. A live soft-delete does not
-   erase older encrypted copies; record how the operator identifies affected
-   generations and expires them under the approved privacy policy.
-6. Perform a restore drill in isolation:
+5. Define archive expiry and deletion handling before enabling the job. Keep an
+   inventory keyed by snapshot ID and creation time; after a live soft-delete
+   or retention purge, identify affected generations from the encrypted
+   manifest or restore review, apply any documented legal hold, and expire the
+   affected archive objects, replicas, object versions, and provider trash.
+   Record the snapshot IDs, expiry timestamp, operator, and result without
+   putting participant identifiers, filenames, or audio in the operational
+   log.
+6. Alert on non-zero exit, stale last-success time, encryption/key-recovery
+   failure, checksum mismatch, destination capacity, and failed archive
+   expiry. Assign the incident owner and test the notification route.
+7. Perform a restore drill in isolation:
    - preserve the current restore target rather than overwriting it;
    - decrypt and verify the archive and manifest;
    - restore the database and matching audio snapshot together;
@@ -73,7 +81,7 @@ in this repository.
    - start the API with the restored model and storage, then check `/live`,
      `/ready`, `/version`, and `/health`;
    - use only synthetic data for any analyze/consent/decline smoke test.
-7. Record the snapshot identifier, backup duration, restore duration, checks,
+8. Record the snapshot identifier, backup duration, restore duration, checks,
    failures, measured RPO/RTO, key-recovery result, and follow-up owner in the
    deployment record. Review the drill at the cadence set by the owner.
 

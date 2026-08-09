@@ -1,7 +1,7 @@
 # Privacy and telemetry audit
 
 **Review basis:** source and configuration review of the current repository,
-6 August 2026. This is an evidence-based implementation audit, not a
+9 August 2026. This is an evidence-based implementation audit, not a
 certificate that a deployed instance has the same configuration. Runtime
 provider settings, access controls, retention periods, and proxy logs must be
 verified before launch.
@@ -28,6 +28,32 @@ The highest remaining risks are:
   provisional until `VITE_PRIVACY_EMAIL` and `VITE_CONTROLLER_NAME` are set;
 - the public API has in-process rate limits, not an authenticated user or
   distributed abuse-control layer.
+
+## Deployment evidence required
+
+This audit is complete only when the deployment record identifies a named
+owner, verification date, and evidence location for every data store and
+operational control. At minimum, record:
+
+- the approved controller name, privacy contact, policy version, legal basis,
+  deletion workflow, hosting region, processors, and legal/privacy sign-off;
+- for live SQLite/audio, backups, restore hosts, model/training exports,
+  proxy/host logs, Sentry, Grafana, PostHog, Better Stack, and support
+  records: data classes, region, access roles, retention, deletion/expiry
+  behavior, and the incident owner;
+- the installed pending-consent and research-retention schedules, including
+  missed-run/failure alerts and the deployed TTL/retention values;
+- the backup archive inventory, encryption/key-recovery evidence, restore
+  drill, and deletion-aware expiry evidence covering replicas, object
+  versions, and provider trash;
+- the selected rate-limit topology: one API process/host with no replicas, or
+  a separately verified shared/distributed limiter. `ORACLE_WORKERS` does not
+  make the in-process limiter multi-instance safe;
+- the HTTPS hostname, proxy route/header/upload/timeout evidence, including
+  `/analysis-finalize` and the production absence of `/sentry-debug`; and
+- the deployed `/version`, commit/build identifiers, frontend/backend release
+  parity, model repository/revision, metadata, artifact checksums, and
+  rollback target.
 
 ## Evidence by surface
 
@@ -206,7 +232,8 @@ Record evidence for each item in the release ticket or deployment runbook:
 - [ ] Set a real controller name and privacy contact in the web build; confirm
       the Catalan privacy and terms documents no longer show provisional text.
 - [ ] Confirm the hosting location, processors, access roles, provider
-      retention, and transfer safeguards match the published privacy policy.
+      retention, deletion/export behavior, and transfer safeguards match the
+      published privacy policy; record the reviewer and evidence location.
 - [ ] Serve the SPA and API through HTTPS at one origin. Verify the proxy CSP,
       `Permissions-Policy` (`microphone=(self)` for the SPA), HSTS, clickjacking,
       referrer, and content-type headers.
@@ -238,8 +265,9 @@ Record evidence for each item in the release ticket or deployment runbook:
 - [ ] Run a real backup, decrypt it in an isolated environment, execute
       SQLite integrity/foreign-key checks, verify audio hashes, and document
       the restore result. Include a deletion/backup expiry procedure.
-- [ ] Confirm pending purge, research retention purge, and backup jobs have
-      owners, schedules, failure alerts, and a documented RPO/RTO.
+- [ ] Confirm pending purge, research-retention purge, backup, archive expiry,
+      uptime, and application alerts have owners, schedules, failure routes,
+      and a documented/measured RPO/RTO where applicable.
 - [ ] Keep the public release label honest: results are dialect similarity,
       never geographic origin or identity detection; complete a legal/privacy
       review before broad public traffic.

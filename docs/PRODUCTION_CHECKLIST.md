@@ -11,10 +11,13 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Confirm the release is still described as a research prototype that
       estimates acoustic similarity to five macro-dialect areas, not origin,
       residence, or identity.
-- [ ] Confirm the intended traffic level and abuse response. The in-process
-      rate limiters are not shared across multiple workers or hosts.
+- [ ] Confirm the intended traffic level and abuse response. Choose and record
+      one rate-limit topology: one API process/host behind the proxy, with no
+      load-balanced replicas, or a separately deployed shared/distributed
+      limiter. The repository does not provide the latter.
 - [ ] Record the commit SHA, release/version string, build timestamp, deploy
-      time, rollback target, and model artifact version.
+      time, rollback target, model repository/revision, model artifact
+      checksums, and the owner of the release evidence.
 
 ## 2. Build and environment
 
@@ -47,8 +50,9 @@ proves it. Items marked **deployment** are not supplied by the repository.
       HTTP to HTTPS.
 - [ ] Serve `web/dist` and proxy the API paths
       `/analyze`, `/analysis-finalize`, `/feedback`, `/research-consent`, `/live`, `/ready`,
-      `/version`, `/health`, `/telemetry/event`, and `/sentry-debug` as
-      appropriate. Do not expose `/sentry-debug` in production.
+      `/version`, `/health`, and `/telemetry/event`. Do not proxy
+      `/sentry-debug` in production; return an explicit 404 instead of an SPA
+      fallback.
 - [ ] Use the checked-in [`ops/caddy/Caddyfile.example`](../ops/caddy/Caddyfile.example)
       as a starting point, replacing the host, paths, and upstream.
 - [ ] Verify browser-facing headers: HSTS, `X-Content-Type-Options`,
@@ -81,8 +85,10 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Set and review `ORACLE_WORKERS`, `ORACLE_MAX_QUEUE_SIZE`,
       `ORACLE_ENCODE_RETRY_AFTER`, and all analyze/feedback/telemetry rate
       limits for expected traffic. `ORACLE_ENCODE_CONCURRENCY` is only a
-      deprecated compatibility fallback. Document the single-process
-      limitation and benchmark the worker count for the VPS.
+      deprecated compatibility fallback. `ORACLE_WORKERS` is the in-process
+      inference pool, not a substitute for a distributed rate limiter.
+      Verify the selected single-process or distributed topology with a
+      cross-instance rate-limit test, and benchmark the pool size for the VPS.
 - [ ] Confirm no access log, error page, proxy trace, or Sentry event includes
       the upload body or filename.
 
@@ -114,6 +120,10 @@ proves it. Items marked **deployment** are not supplied by the repository.
       ingestion, route/status labels, alert rules, retention, and dashboard
       access. Configure email routing separately if required; see
       [`ops/followups/01-grafana-contact-points.md`](../ops/followups/01-grafana-contact-points.md).
+- [ ] Assign an owner for uptime probes, Grafana alerts, Sentry triage, and
+      purge/backup failures. Test at least one notification path for each
+      production-critical alert and record the last successful test, escalation
+      target, and on-call coverage.
 - [ ] Verify the UI event catalog in
       [`docs/ANALYTICS_EVENTS.md`](ANALYTICS_EVENTS.md) matches the backend
       allowlist and contains event names only.
@@ -148,6 +158,11 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Install the backup procedure in [`docs/BACKUP.md`](BACKUP.md), including
       SQLite sidecars, complete audio, encryption, off-box retention, and a
       failure alert. The application does not create backups.
+- [ ] Record the backup archive owner, schedule, off-box locations, key
+      custody, object-versioning/trash policy, and deletion-expiry procedure.
+      After a live deletion or retention purge, verify affected encrypted
+      generations, replicas, and provider trash/version history are expired;
+      a live-row deletion alone is not sufficient evidence.
 - [ ] Complete a restore drill into an isolated environment. Run SQLite
       integrity and foreign-key checks, verify audio hashes, start the service,
       and check `/live`, `/ready`, `/version`, and `/health`.
@@ -164,8 +179,9 @@ proves it. Items marked **deployment** are not supplied by the repository.
   cd .. && pytest -q
   ```
 
-- [ ] If CI adds `ruff`, run `ruff check` and `ruff format --check` for the
-      backend and scripts.
+- [ ] Run the CI-equivalent Ruff checks:
+      `ruff check --select E4,E7,E9,F backend tests` and
+      `ruff format --check backend tests`.
 - [ ] Confirm build metadata is injected in CI rather than copied from a
       developer shell.
 - [ ] Confirm the production artifact has no source maps or private source
@@ -176,13 +192,18 @@ proves it. Items marked **deployment** are not supplied by the repository.
       result treatment, share fallback, feedback, consent, privacy/terms, and
       Manage My Data.
 - [ ] Save the deployed `/version` response, health probe results, release
-      SHA, model metadata, and rollback instructions.
+      SHA, model repository/revision plus artifact checksums, and rollback
+      instructions. Confirm the frontend/backend release identifiers and
+      model metadata are the intended pair.
 
 ## 9. Go/no-go
 
 - [ ] No unresolved privacy, secret, backup-restore, HTTPS, or data-loss
       blocker remains.
-- [ ] Monitoring alerts have an owner and a tested notification route.
+- [ ] Pending purge, research-retention purge, backup/restore, deletion-aware
+      backup expiry, rate-limit topology, legal identity/contact, HTTPS/proxy,
+      provider retention/access, monitoring ownership, and model/release
+      evidence each have a named owner and attached verification.
 - [ ] The public privacy/terms copy matches the actual host, processors,
       retention, deletion process, and contact details.
 - [ ] A release owner records the go/no-go decision and next review date.

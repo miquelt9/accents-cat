@@ -39,6 +39,8 @@ export interface AccentOracleResult {
   evidenceBand: EvidenceBand;
   confidenceSummary: string;
   interpretation: string;
+  /** Mean pairwise score-vector distance across aggregated takes. */
+  takeDisagreement?: number;
   recordingId?: string;
   analysisSessionId?: string;
   takeIndex?: number;
@@ -516,6 +518,8 @@ export async function submitResearchConsent(
     response = await fetch(`${API_BASE_URL}/research-consent`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      // The consent body is small; keepalive also lets pagehide cleanup finish.
+      keepalive: true,
       body: JSON.stringify({
         recordingId: payload.recordingId,
         analysisSessionId: payload.analysisSessionId,

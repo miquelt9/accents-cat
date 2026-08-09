@@ -10,7 +10,14 @@ interface ComarcaCalloutProps {
   showLabel: boolean;
 }
 
-export function ComarcaCallout({ label, sublabel, x, y, visible, showLabel }: ComarcaCalloutProps) {
+export function ComarcaCallout({
+  label,
+  sublabel,
+  x,
+  y,
+  visible,
+  showLabel,
+}: ComarcaCalloutProps) {
   const reduced = prefersReducedMotion();
   const shown = visible && showLabel;
 

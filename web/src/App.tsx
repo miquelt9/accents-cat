@@ -29,7 +29,7 @@ import {
   type AccentOracleMode,
 } from "./lib/devFlags";
 import type { LegalDocId } from "./lib/legalDocs";
-import { mergeValidationResults, needsValidation } from "./lib/needsValidation";
+import { aggregateValidationResults, needsValidation } from "./lib/needsValidation";
 import {
   pickPrimaryReadAloudPrompt,
   pickReadAloudPrompt,
@@ -90,6 +90,7 @@ function App() {
   });
   const [result, setResult] = useState<AccentOracleResult | null>(null);
   const [pendingResult, setPendingResult] = useState<AccentOracleResult | null>(null);
+  const [takeResults, setTakeResults] = useState<AccentOracleResult[]>([]);
   const [analysisSessionId, setAnalysisSessionId] = useState<string | null>(null);
   const [terminalUnresolved, setTerminalUnresolved] = useState(false);
   const [terminalTakeCount, setTerminalTakeCount] = useState(0);
@@ -182,11 +183,6 @@ function App() {
     }
 
     window.addEventListener("pagehide", handlePageHide);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        purgePendingOnLeave();
-      }
-    });
 
     return () => {
       window.removeEventListener("pagehide", handlePageHide);
@@ -230,6 +226,7 @@ function App() {
     setReturnPhase("landing");
     setResult(null);
     setPendingResult(null);
+    setTakeResults([]);
     setAnalysisSessionId(null);
     setTerminalUnresolved(false);
     setTerminalTakeCount(0);
@@ -248,6 +245,7 @@ function App() {
     next: AccentOracleResult,
     takeCount: number,
     terminalState: "results" | "skipped-third" | "unresolved",
+    sessionId: string | null = analysisSessionId,
   ) {
     setResult(next);
     setPendingResult(null);
@@ -257,10 +255,10 @@ function App() {
     syncDevResultsScores(next);
     setPhase("results");
 
-    if (analysisSessionId) {
+    if (sessionId) {
       try {
         await finalizeAnalysis({
-          analysisSessionId,
+          analysisSessionId: sessionId,
           finalResult: next,
           takeCount,
           terminalState: unresolved ? "unresolved" : terminalState,
@@ -275,7 +273,11 @@ function App() {
     }
   }
 
-  async function goToResultsOrOfferThird(next: AccentOracleResult, takeCount: number) {
+  async function goToResultsOrOfferThird(
+    next: AccentOracleResult,
+    takeCount: number,
+    sessionId: string | null = analysisSessionId,
+  ) {
     if (needsValidation(next)) {
       setResult(next);
       setPendingResult(null);
@@ -285,18 +287,19 @@ function App() {
       setPhase("offer-third");
       return;
     }
-    await finalizeDisplayedResult(next, takeCount, "results");
+    await finalizeDisplayedResult(next, takeCount, "results", sessionId);
   }
 
   function startRecording() {
     resetMockAnalyzeOrdinal();
     const prompt = pickPrimaryReadAloudPrompt();
-    setAnalysisSessionId(createClientId());
+    setAnalysisSessionId(isApiMode(accentOracleMode) ? null : createClientId());
     setActivePrompt(prompt);
     setPrimaryPromptId(prompt.id);
     setUsedPromptIds([prompt.id]);
     setPendingResult(null);
     setResult(null);
+    setTakeResults([]);
     setTerminalUnresolved(false);
     setTerminalTakeCount(0);
     setAnalysisError(null);
@@ -372,6 +375,9 @@ function App() {
       if (nextResult.analysisSessionId && !analysisSessionId) {
         setAnalysisSessionId(nextResult.analysisSessionId);
       }
+      const sessionIdForResult = nextResult.analysisSessionId ?? analysisSessionId;
+      const allTakeResults = [...takeResults, nextResult];
+      setTakeResults(allTakeResults);
 
       if (phase === "recording") {
         if (needsValidation(nextResult)) {
@@ -379,23 +385,32 @@ function App() {
           return;
         }
 
-        await goToResultsOrOfferThird(nextResult, nextResult.takeIndex ?? 1);
+        await goToResultsOrOfferThird(
+          nextResult,
+          nextResult.takeIndex ?? 1,
+          sessionIdForResult,
+        );
         return;
       }
 
       if (phase === "validation" && pendingResult) {
-        const merged = mergeValidationResults(pendingResult, nextResult);
-        await goToResultsOrOfferThird(merged, nextResult.takeIndex ?? 2);
+        const merged = aggregateValidationResults(allTakeResults);
+        await goToResultsOrOfferThird(
+          merged,
+          allTakeResults.length,
+          sessionIdForResult,
+        );
         return;
       }
 
       if (phase === "refine" && result) {
-        const merged = mergeValidationResults(result, nextResult);
+        const merged = aggregateValidationResults(allTakeResults);
         trackUiEvent("third_take_completed");
         await finalizeDisplayedResult(
           merged,
-          nextResult.takeIndex ?? 3,
+          allTakeResults.length,
           needsValidation(merged) ? "unresolved" : "results",
+          sessionIdForResult,
         );
       }
     } catch (error) {
@@ -416,6 +431,7 @@ function App() {
       pendingResult,
       pendingResult.takeIndex ?? 1,
       "unresolved",
+      analysisSessionId ?? pendingResult.analysisSessionId ?? null,
     );
   }
 
@@ -608,10 +624,8 @@ function App() {
             />
           )}
           <ResultsMapStage
-            result={result}
             scores={resultsScores}
             unresolved={terminalUnresolved}
-            takeCount={terminalTakeCount}
           />
           {analysisError && <p className="error-message">{analysisError}</p>}
           <ResultsConsentFeedback

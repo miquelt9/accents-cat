@@ -481,7 +481,9 @@ def _insert_session_take(
     take_index: int,
     take_role: str,
 ) -> tuple[str, Path]:
-    submission_id, audio_path = storage.save_audio(f"take-{take_index}".encode(), ".webm")
+    submission_id, audio_path = storage.save_audio(
+        f"take-{take_index}".encode(), ".webm"
+    )
     storage.insert_submission(
         submission_id=submission_id,
         audio_path=audio_path,
@@ -561,7 +563,12 @@ def test_analysis_session_consent_retains_all_takes_and_feedback(
         (first_id, 1, "initial", 1),
         (second_id, 2, "validation", 1),
     ]
-    assert session == (1, '{"topLabel":"central","scores":{"central":0.6}}', 2, "results")
+    assert session == (
+        1,
+        '{"topLabel":"central","scores":{"central":0.6}}',
+        2,
+        "results",
+    )
     assert feedback == (session_id, 1, "osona")
     assert first_audio.exists()
     assert second_audio.exists()

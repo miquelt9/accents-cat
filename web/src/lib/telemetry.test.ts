@@ -7,6 +7,7 @@ import {
   isNetworkFetchError,
   mapTransportError,
   resolveApiErrorMessage,
+  submitResearchConsent,
 } from "./accentOracleClient";
 
 vi.mock("./posthog", () => ({
@@ -14,6 +15,14 @@ vi.mock("./posthog", () => ({
   initPostHog: vi.fn(() => false),
   shouldInitPostHog: vi.fn(() => false),
 }));
+
+vi.mock("./devFlags", async () => {
+  const actual = await vi.importActual<typeof import("./devFlags")>("./devFlags");
+  return {
+    ...actual,
+    resolveAccentOracleMode: () => "api",
+  };
+});
 
 import { capturePostHogEvent } from "./posthog";
 
@@ -93,6 +102,47 @@ describe("client error mapping", () => {
     expect(resolveApiErrorMessage(500, "Internal Server Error", "fallback")).toMatch(/servidor/i);
     expect(resolveApiErrorMessage(400, "La gravació és massa curta.", "fallback")).toBe(
       "La gravació és massa curta.",
+    );
+  });
+});
+
+describe("pending cleanup transport", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              analysisSessionId: "session-id",
+              researchConsent: false,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        ),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("uses keepalive for page-exit consent cleanup", async () => {
+    await submitResearchConsent({ analysisSessionId: "session-id", consent: false });
+
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringMatching(/\/research-consent$/),
+      expect.objectContaining({
+        keepalive: true,
+        body: JSON.stringify({
+          recordingId: undefined,
+          analysisSessionId: "session-id",
+          consent: false,
+          ageConfirmed: false,
+          policyVersion: undefined,
+        }),
+      }),
     );
   });
 });

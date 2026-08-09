@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DIALECT_ZONE_LABELS,
   DIALECT_ZONES,
-  type AccentOracleResult,
   type AccentScores,
   type DialectZone,
 } from "../lib/accentOracleClient";
@@ -12,20 +11,17 @@ import {
 } from "../lib/dialectFocusComarca";
 import { zoneForComarcaSlug } from "../lib/dialectRegions";
 import { accordionEase } from "../lib/mapMotion";
+import { displayedFocusComarcaSlug } from "../lib/resultsMapFocus";
 import { DialectMap } from "./map/DialectMap";
 
 interface ResultsMapStageProps {
-  result: AccentOracleResult;
   scores: AccentScores;
   unresolved?: boolean;
-  takeCount?: number;
 }
 
 export function ResultsMapStage({
-  result,
   scores,
   unresolved = false,
-  takeCount = 1,
 }: ResultsMapStageProps) {
   const rankedZones = useMemo(
     () => [...DIALECT_ZONES].sort((a, b) => scores[b] - scores[a]),
@@ -50,10 +46,13 @@ export function ResultsMapStage({
     [scores, topZone],
   );
 
-  const showingGuess = selectedZone === topZone && !inspectedComarca && !unresolved;
-  const pinComarca =
-    inspectedComarca ??
-    (!unresolved && selectedZone === topZone ? (comarcaGuess?.slug ?? null) : null);
+  const showingGuess = selectedZone === topZone && !inspectedComarca;
+  const pinComarca = displayedFocusComarcaSlug(
+    selectedZone,
+    topZone,
+    inspectedComarca,
+    comarcaGuess?.slug,
+  );
 
   const nearFocusSlugs = useMemo(() => {
     if (!showingGuess || !comarcaGuess) {
@@ -89,20 +88,6 @@ export function ResultsMapStage({
       className={`card heatmap-card results-map-stage${unresolved ? " is-unresolved" : ""}`}
       aria-label="Resultat del mapa de similitud"
     >
-      {unresolved && (
-        <div className="results-uncertainty-banner" role="status">
-          <strong>Patró de similitud encara ampli</strong>
-          <p>
-            Després de {takeCount} lectures, el model continua veient més d&apos;una zona propera.
-            Mostrem la distribució completa i no una ubicació d&apos;origen.
-          </p>
-          <span>
-            {result.evidenceBand === "limited"
-              ? "L'evidència disponible és limitada."
-              : "El senyal continua tenint una incertesa significativa."}
-          </span>
-        </div>
-      )}
       <div className="heatmap-layout geographic-heatmap-layout results-map-layout">
         <div className="results-ranking" aria-label="Percentatges per accent">
           <article className="top-result-card">

@@ -45,10 +45,10 @@ task. Same-origin deployment is the default.
    placeholders with the approved hostname, document root, and uvicorn
    upstream; do not commit deployment secrets.
 2. Configure TLS with HTTP-to-HTTPS redirection. Serve the SPA from `web/dist`
-   and proxy `/analyze`, `/feedback`, `/research-consent`, `/live`, `/ready`,
-   `/version`, `/health`, and `/telemetry/event` to the API. Do not publish
-   `/sentry-debug` in production; an explicit 404 is preferable to an SPA
-   fallback.
+   and proxy `/analyze`, `/analysis-finalize`, `/feedback`,
+   `/research-consent`, `/live`, `/ready`, `/version`, `/health`, and
+   `/telemetry/event` to the API. Do not publish `/sentry-debug` in production;
+   return an explicit 404 rather than an SPA fallback.
 3. Set `VITE_ACCENT_ORACLE_MODE=api` and an empty
    `VITE_ACCENT_ORACLE_API_URL` for same-origin builds. If a separate API
    origin is genuinely required, set `ORACLE_CORS_ORIGINS` to exact origins

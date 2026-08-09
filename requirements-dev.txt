@@ -1,4 +1,8 @@
 # Lightweight deps for unit tests (no torch / transformers / librosa).
+fastapi
+httpx
 numpy
+pandas
 pytest
+python-multipart
 ruff

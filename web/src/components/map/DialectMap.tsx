@@ -671,6 +671,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       {calloutLabel ? (
         <ComarcaCallout
           label={calloutLabel}
+          sublabel="Punt d’afinitat dialectal"
           x={calloutPos.x}
           y={calloutPos.y}
           visible={pinVisible}
