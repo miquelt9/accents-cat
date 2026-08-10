@@ -32,6 +32,8 @@ export interface DialectMapProps {
   selectedZone: DialectZone;
   /** Comarca guess (or user inspect) pin target. */
   pinComarca?: string | null;
+  /** When true, the pin shows the illustrative affinity callout (not mere inspect). */
+  showAffinityCallout?: boolean;
   /** Soft core around the guess pin (same-zone neighbors). */
   nearFocusSlugs?: readonly string[];
   onSelect?: (slug: string) => void;
@@ -122,6 +124,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
   {
     selectedZone,
     pinComarca = null,
+    showAffinityCallout = false,
     nearFocusSlugs = [],
     onSelect,
     playEntrance = true,
@@ -668,7 +671,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
         </motion.g>
       </svg>
 
-      {calloutLabel ? (
+      {calloutLabel && showAffinityCallout ? (
         <ComarcaCallout
           label={calloutLabel}
           sublabel="Punt d’afinitat dialectal"
@@ -677,6 +680,20 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
           visible={pinVisible}
           showLabel={labelVisible}
         />
+      ) : null}
+
+      {calloutLabel && !showAffinityCallout ? (
+        <div
+          className="comarca-hover-label"
+          style={{
+            left: calloutPos.x,
+            top: calloutPos.y,
+            opacity: labelVisible ? 1 : 0,
+          }}
+          aria-hidden={!labelVisible}
+        >
+          {calloutLabel}
+        </div>
       ) : null}
 
       {hoverName ? (

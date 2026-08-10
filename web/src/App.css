@@ -460,6 +460,10 @@ h2 {
   max-width: 36rem;
 }
 
+.landing-preconsent-retained {
+  margin-top: 1rem;
+}
+
 /* Keep the age clause as one unit so it wraps together (no orphan “més).”). */
 .consent-age-clause {
   white-space: nowrap;
@@ -545,26 +549,27 @@ h2 {
 
 .share-modal-close {
   align-items: center;
-  background: transparent;
-  border: 1px solid var(--button-secondary-border);
+  /* Always light: sits on the dimmed backdrop, not on a themed surface */
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 10px;
-  color: var(--button-secondary-text);
+  color: #ffffff;
   cursor: pointer;
   display: inline-flex;
-  height: 36px;
+  height: 40px;
   justify-content: center;
   padding: 0;
-  width: 36px;
+  width: 40px;
 }
 
 .share-modal-close svg {
   display: block;
-  height: 1rem;
-  width: 1rem;
+  height: 1.05rem;
+  width: 1.05rem;
 }
 
 .share-modal-close:hover {
-  background: var(--button-secondary-hover);
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .share-card {
@@ -1487,10 +1492,12 @@ h2 {
   display: inline-flex;
   height: 84px;
   justify-content: center;
+  position: relative;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
-    background 160ms ease;
+    background 160ms ease,
+    opacity 160ms ease;
   width: 84px;
 }
 
@@ -1510,10 +1517,48 @@ h2 {
   box-shadow: 0 16px 36px rgba(185, 74, 72, 0.28);
 }
 
+.mic-button.analyzing:disabled {
+  cursor: wait;
+  opacity: 1;
+}
+
+.mic-button.analyzing .mic-icon {
+  opacity: 0.72;
+}
+
 .mic-icon {
   fill: currentColor;
   height: 34px;
+  position: relative;
   width: 34px;
+  z-index: 1;
+}
+
+.mic-progress-ring {
+  animation: mic-progress-spin 1.15s linear infinite;
+  inset: -7px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.mic-progress-ring-track,
+.mic-progress-ring-arc {
+  fill: none;
+  stroke-width: 2.25;
+}
+
+.mic-progress-ring-track {
+  opacity: 0.22;
+  stroke: currentColor;
+}
+
+.mic-progress-ring-arc {
+  animation: mic-progress-grow 1.45s ease-in-out infinite;
+  stroke: currentColor;
+  /* Circumference ≈ 125.7 (r=20); dash + gap stay ~that total. */
+  stroke-dasharray: 22 104;
+  stroke-linecap: round;
 }
 
 .microphone-waveform {
@@ -1530,6 +1575,39 @@ h2 {
 
   50% {
     transform: scale(1.04);
+  }
+}
+
+@keyframes mic-progress-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mic-progress-grow {
+  0%,
+  100% {
+    stroke-dasharray: 18 108;
+  }
+
+  50% {
+    stroke-dasharray: 72 54;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mic-button.recording {
+    animation: none;
+  }
+
+  .mic-progress-ring {
+    animation: none;
+  }
+
+  .mic-progress-ring-arc {
+    animation: none;
+    opacity: 0.85;
+    stroke-dasharray: 52 74;
   }
 }
 
@@ -1562,7 +1640,6 @@ h2 {
   position: absolute;
 }
 
-.recording-pill,
 .analysis-status {
   background: var(--warning-bg);
   border: 1px solid var(--warning-border);
@@ -1571,12 +1648,9 @@ h2 {
   display: inline-flex;
   font-size: 0.9rem;
   font-weight: 800;
+  margin-top: 0.15rem;
   padding: 0.45rem 0.85rem;
   width: fit-content;
-}
-
-.analysis-status {
-  margin-top: 0.15rem;
 }
 
 .audio-preview {
@@ -1602,6 +1676,30 @@ h2 {
 .error-message {
   color: var(--danger-text);
   font-weight: 700;
+}
+
+.retake-hint {
+  animation: recorder-hint-in 180ms ease-out;
+  background: var(--map-hint-bg);
+  border-radius: 999px;
+  color: var(--map-hint-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  text-align: center;
+}
+
+@keyframes recorder-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section-heading {

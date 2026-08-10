@@ -13,6 +13,7 @@ import { apiAccentOracleClient } from "./accentOracleClient";
 const prompt = {
   promptId: "pluja-vinya",
   promptText: "La pluja fina cau sobre la vinya vella.",
+  sentenceIds: ["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"],
 };
 
 const apiResult = {
@@ -60,6 +61,9 @@ describe("API session handshake", () => {
     const [, request] = vi.mocked(fetch).mock.calls[0];
     expect(request?.body).toBeInstanceOf(FormData);
     expect((request?.body as FormData).has("analysisSessionId")).toBe(false);
+    expect(JSON.parse(String((request?.body as FormData).get("sentenceIds")))).toEqual(
+      prompt.sentenceIds,
+    );
   });
 
   it("sends the adopted server ID on the next take", async () => {

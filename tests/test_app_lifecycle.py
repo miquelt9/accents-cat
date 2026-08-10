@@ -83,6 +83,7 @@ def post_take(client: TestClient, session_id: str | None = None):
     data = {
         "promptId": "pluja-vinya",
         "promptText": "La pluja fina cau sobre la vinya vella.",
+        "sentenceIds": '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]',
     }
     if session_id is not None:
         data["analysisSessionId"] = session_id
@@ -102,6 +103,14 @@ def test_session_handshake_reuses_two_followup_takes_and_finalizes(
     session_id = first_payload["analysisSessionId"]
     assert session_id
     assert first_payload["takeIndex"] == 1
+    with sqlite3.connect(storage.DB_PATH) as conn:
+        sentence_ids = conn.execute(
+            "SELECT sentence_ids FROM submissions WHERE id = ?",
+            (first_payload["recordingId"],),
+        ).fetchone()
+    assert sentence_ids == (
+        '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]',
+    )
 
     second = post_take(api_client, session_id)
     third = post_take(api_client, session_id)
@@ -205,6 +214,38 @@ def test_analyze_purges_expired_pending_sessions(api_client: TestClient) -> None
     assert fresh.json()["analysisSessionId"] != expired_session_id
     assert not expired_audio.exists()
     assert storage.analysis_session_exists(expired_session_id) is False
+
+
+@pytest.mark.parametrize(
+    "sentence_ids",
+    [
+        "not-json",
+        "{}",
+        "[]",
+        '["short"]',
+        '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdeg"]',
+        json.dumps(
+            [
+                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+            ]
+            * 5
+        ),
+    ],
+)
+def test_analyze_rejects_invalid_sentence_ids(
+    api_client: TestClient,
+    sentence_ids: str,
+) -> None:
+    response = api_client.post(
+        "/analyze",
+        data={
+            "promptId": "pluja-vinya",
+            "promptText": "La pluja fina cau sobre la vinya vella.",
+            "sentenceIds": sentence_ids,
+        },
+        files={"audio": ("take.webm", b"fake-audio", "audio/webm")},
+    )
+    assert response.status_code == 422
 
 
 @pytest.mark.parametrize(

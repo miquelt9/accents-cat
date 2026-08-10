@@ -17,7 +17,7 @@ export interface LegalDocumentContent {
 }
 
 /** Keep in sync with backend ``DEFAULT_POLICY_VERSION`` / ``ORACLE_POLICY_VERSION``. */
-export const LEGAL_POLICY_VERSION = "6 d'agost de 2026";
+export const LEGAL_POLICY_VERSION = "10 d'agost de 2026";
 
 const EFFECTIVE_DATE = LEGAL_POLICY_VERSION;
 
@@ -52,7 +52,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Quines dades recollim",
         paragraphs: [
-          "En mode API, quan envies una o més gravacions per analitzar-les, el servidor les processa temporalment per calcular les puntuacions. Pots donar el consentiment per desar totes les gravacions de la sessió per a recerca de dues maneres: (a) abans d'enregistrar, mitjançant una casella a la pantalla inicial; o (b) després de veure el resultat, en un flux progressiu que pot incloure una pregunta de feedback abans de l'opció de desament.",
+          "En mode API, quan envies una o més gravacions per analitzar-les, el servidor les processa temporalment per calcular les puntuacions. Pots donar el consentiment per desar totes les gravacions de la sessió per a recerca de dues maneres: (a) abans d'enregistrar, mitjançant una casella a la pantalla inicial; o (b) després de veure el resultat, en un flux progressiu que pot incloure una pregunta de feedback abans de l'opció de desament. Si acceptes i després tornes a començar dins de la mateixa visita al navegador, recordem aquesta acceptació a la memòria de la pàgina (sense galetes persistents): no et tornem a mostrar la casella i promovem automàticament la nova sessió d'anàlisi; també podem preomplir la comarca que hagis declarat abans, i pots canviar-la abans d'enviar-la.",
           "Si acceptes el desament per a recerca (per qualsevol d'aquestes vies), podem conservar els arxius d'àudio de totes les gravacions de la sessió (dades personals; la veu pot permetre identificar o reconèixer una persona), la data, el text que has llegit en veu alta, les puntuacions individuals, el resultat final combinat, la versió de la política acceptada i les metadades de feedback associades a la sessió mitjançant un identificador de sessió. No desem l'adreça IP ni el User-Agent del navegador: l'IP només s'utilitza de manera transitòria a la memòria del servidor per limitar el nombre de peticions, i no s'escriu a la base de dades ni s'associa a cap sessió.",
           "Al flux de resultats, pots indicar si consideres que l'estimació ha encertat o no i, si vols, de quina o quines comarques ets lingüísticament; d'aquestes comarques en derivem la zona macrodialectal corresponent (balear, central, septentrional, nord-occidental o valencià), o «mixt» si n'indiques de zones diferents. Respondre la comarca és voluntari: pots tancar el full sense enviar-la, i el servei funciona igualment. Aquesta informació la declares tu; no la deduïm de la connexió ni de cap altre senyal tècnic. Serveix per calibrar el model i es tracta com a similitud acústica amb una zona dialectal, no com a prova d'origen geogràfic ni de residència. També pots afegir un comentari opcional.",
           "Si rebutges explícitament el desament per a recerca, enviem una sol·licitud per esborrar immediatament totes les gravacions pendents de la sessió i també els textos llegits, les puntuacions i el resultat final. Si la sol·licitud falla, el full de consentiment es manté obert perquè la puguis tornar a provar; si abandones la sessió sense prendre una decisió, el termini de pendent actua com a protecció addicional. Les respostes de feedback que hagis enviat (encert, comarca declarada i zona derivada) es poden conservar sense enllaç a la sessió (sense identificador de sessió) per a calibratge agregat del model; no utilitzem l'àudio per a entrenament.",
@@ -73,7 +73,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
         heading: "Base jurídica",
         paragraphs: [
           "L'anàlisi puntual (sense desament per a entrenament) es fa per prestar el servei que sol·licites en enviar la gravació (art. 6.1.b RGPD) i, quan correspongui, amb el teu consentiment a utilitzar el prototip.",
-          "El desament de les gravacions de la sessió i de les metadades associades per a recerca i entrenament es basa en el teu consentiment explícit i específic (art. 6.1.a RGPD), mitjançant la casella de la pantalla inicial o l'opció de desament del flux progressiu de resultats (després del feedback, si escau). Pots retirar-lo demanant la supressió; això no afectarà la licitud del tractament anterior.",
+          "El desament de les gravacions de la sessió i de les metadades associades per a recerca i entrenament es basa en el teu consentiment explícit i específic (art. 6.1.a RGPD), mitjançant la casella de la pantalla inicial o l'opció de desament del flux progressiu de resultats (després del feedback, si escau). Si has acceptat i continues amb «Torna a començar» a la mateixa visita, reutilitzem aquesta elecció afirmativa per a les sessions noves d'aquella visita (cada sessió es desa amb el seu propi identificador i registre de consentiment). Pots retirar-lo demanant la supressió; això no afectarà la licitud del tractament anterior.",
           "Les respostes de feedback dialectal al flux de resultats (encert i, si la vols indicar, comarca autodeclarada) es basen en el teu consentiment explícit en participar-hi (art. 6.1.a RGPD). Si també acceptes el desament de l'àudio, el feedback queda associat a la sessió i a totes les gravacions mitjançant l'identificador de sessió.",
         ],
       },
@@ -112,7 +112,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Canvis",
         paragraphs: [
-          "Podem actualitzar aquesta política. La data d'entrada en vigor figura al capdamunt. L'ús continuat del servei després d'un canvi implica que has pogut revisar la versió actual; el consentiment de recerca es demana de nou per a cada sessió d'anàlisi que vulguis desar, tant si optes a la pantalla inicial com al flux de resultats.",
+          "Podem actualitzar aquesta política. La data d'entrada en vigor figura al capdamunt. L'ús continuat del servei després d'un canvi implica que has pogut revisar la versió actual. El consentiment de recerca es demana de nou quan canvia la versió de la política, quan tornes a carregar la pàgina, o quan inicies una sessió sense haver acceptat abans en aquella visita; si has acceptat i utilitzes «Torna a començar» sense recarregar, mantenim l'acceptació només en memòria per a les sessions següents d'aquella visita.",
         ],
       },
     ],
@@ -141,7 +141,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Gravacions i llicència de recerca",
         paragraphs: [
-          "En mode API, l'àudio s'envia al servidor a Espanya per analitzar-lo. El desament durable per a recerca i entrenament només es fa si ho acceptes explícitament: mitjançant la casella de la pantalla inicial abans d'enregistrar, o mitjançant l'opció de desament del flux progressiu de resultats (després del feedback, si escau), d'acord amb la Política de privadesa i el RGPD/LOPDGDD.",
+          "En mode API, l'àudio s'envia al servidor a Espanya per analitzar-lo. El desament durable per a recerca i entrenament només es fa si ho acceptes explícitament: mitjançant la casella de la pantalla inicial abans d'enregistrar, o mitjançant l'opció de desament del flux progressiu de resultats (després del feedback, si escau), d'acord amb la Política de privadesa i el RGPD/LOPDGDD. Si continues amb «Torna a començar» a la mateixa visita després d'haver acceptat, podem aplicar de nou aquella acceptació a les sessions noves d'aquella visita.",
           "Si acceptes, conserves els drets sobre la teva veu i ens atorgues una llicència no exclusiva, gratuïta i mundial per emmagatzemar, processar i utilitzar totes les gravacions de la sessió i el feedback dialectal associat (incloent-hi la comarca que declaris voluntàriament, la zona macrodialectal que se'n deriva i els comentaris opcionals) amb finalitats de recerca i millora del prototip, incloent-hi l'entrenament i la publicació de models o embeddings derivats de codi obert. No venem l'àudio en brut. No publiquem l'àudio original sense una decisió addicional i avís.",
           "Pots demanar la supressió seguint el procediment de «Gestiona les meves dades».",
         ],

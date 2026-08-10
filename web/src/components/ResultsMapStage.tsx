@@ -11,7 +11,10 @@ import {
 } from "../lib/dialectFocusComarca";
 import { zoneForComarcaSlug } from "../lib/dialectRegions";
 import { accordionEase } from "../lib/mapMotion";
-import { displayedFocusComarcaSlug } from "../lib/resultsMapFocus";
+import {
+  displayedFocusComarcaSlug,
+  shouldShowAffinityCallout,
+} from "../lib/resultsMapFocus";
 import { DialectMap } from "./map/DialectMap";
 
 interface ResultsMapStageProps {
@@ -51,6 +54,10 @@ export function ResultsMapStage({
     selectedZone,
     topZone,
     inspectedComarca,
+    comarcaGuess?.slug,
+  );
+  const showAffinityCallout = shouldShowAffinityCallout(
+    pinComarca,
     comarcaGuess?.slug,
   );
 
@@ -135,6 +142,7 @@ export function ResultsMapStage({
         <DialectMap
           selectedZone={selectedZone}
           pinComarca={pinComarca}
+          showAffinityCallout={showAffinityCallout}
           nearFocusSlugs={nearFocusSlugs}
           onSelect={onMapSelect}
           playEntrance

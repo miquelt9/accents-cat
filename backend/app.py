@@ -72,12 +72,14 @@ MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 MAX_NOTES_CHARS = 2000
 MAX_PROMPT_TEXT_CHARS = 500
 MAX_PROMPT_ID_CHARS = 64
+MAX_SENTENCE_IDS = 4
 MAX_FEEDBACK_ID_CHARS = 64
 MAX_COMARCA_CHARS = 48
 MAX_COMARQUES = 12
 # Encoded multi-comarca JSON fits within this (slugs × max length + JSON overhead).
 MAX_COMARQUES_STORED_CHARS = 640
 COMARCA_SLUG_PATTERN = re.compile(r"^[a-z0-9-]{1,48}$")
+CV26_SENTENCE_ID_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 # Viral-load guards (stdlib; in-process only — not multi-worker safe)
 CPU_COUNT = os.cpu_count() or 1
@@ -106,7 +108,7 @@ TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
 # Must stay aligned with web/src/lib/legalDocs.ts LEGAL_POLICY_VERSION.
 DEFAULT_POLICY_VERSION = os.environ.get(
     "ORACLE_POLICY_VERSION",
-    "6 d'agost de 2026",
+    "10 d'agost de 2026",
 )
 MAX_POLICY_VERSION_CHARS = 64
 
@@ -418,6 +420,51 @@ def _normalize_prompt_fields(
     return normalized_id, normalized_text
 
 
+def _normalize_sentence_ids(value: str | None) -> str | None:
+    if value is None:
+        return None
+    try:
+        raw_ids = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="sentenceIds no és un JSON vàlid.",
+        ) from exc
+    if not isinstance(raw_ids, list):
+        raise HTTPException(
+            status_code=422,
+            detail="sentenceIds ha de ser una llista.",
+        )
+    if not raw_ids:
+        raise HTTPException(status_code=422, detail="sentenceIds no pot ser buida.")
+    if len(raw_ids) > MAX_SENTENCE_IDS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"sentenceIds: com a màxim {MAX_SENTENCE_IDS} identificadors.",
+        )
+
+    normalized: list[str] = []
+    for sentence_id in raw_ids:
+        if not isinstance(sentence_id, str):
+            raise HTTPException(
+                status_code=422,
+                detail="sentenceIds conté un identificador no vàlid.",
+            )
+        normalized_id = sentence_id.strip().lower()
+        if not CV26_SENTENCE_ID_PATTERN.fullmatch(normalized_id):
+            raise HTTPException(
+                status_code=422,
+                detail="sentenceIds conté un identificador no vàlid.",
+            )
+        if normalized_id in normalized:
+            raise HTTPException(
+                status_code=422,
+                detail="sentenceIds no pot contenir duplicats.",
+            )
+        normalized.append(normalized_id)
+    return json.dumps(normalized, separators=(",", ":"))
+
+
 def _normalize_analysis_session_id(value: str | None) -> str | None:
     if value is None:
         return None
@@ -495,6 +542,7 @@ async def analyze(
     audio: UploadFile = File(...),
     promptId: str | None = Form(default=None),
     promptText: str | None = Form(default=None),
+    sentenceIds: str | None = Form(default=None),
     analysisSessionId: str | None = Form(default=None),
 ) -> dict[str, Any]:
     request_started = time.perf_counter()
@@ -503,6 +551,7 @@ async def analyze(
 
     storage.purge_expired_pending()
     prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
+    sentence_ids = _normalize_sentence_ids(sentenceIds)
     requested_session_id = _normalize_analysis_session_id(analysisSessionId)
     analysis_session_id = requested_session_id or storage.create_analysis_session()
     if requested_session_id and not storage.analysis_session_accepts_take(
@@ -612,6 +661,7 @@ async def analyze(
             evidence_band=result["evidenceBand"],
             prompt_id=prompt_id,
             prompt_text=prompt_text,
+            sentence_ids=sentence_ids,
             analysis_session_id=analysis_session_id,
             take_index=take_index,
             take_role=take_role,

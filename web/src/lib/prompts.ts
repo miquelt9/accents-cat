@@ -1,23 +1,18 @@
 /**
- * Short read-aloud prompts for acoustic dialect similarity.
- *
- * Each prompt carries one dialect-sensitive contrast — [jʃ] before /ʃ/,
- * betacism, apitxat sibilant devoicing, iodització, final consonant clusters,
- * [ɔw] > [aw], unstressed vowel reduction, Balearic stressed schwa, and the
- * mid-vowel open/closed splits — over high-coverage CV26 vocabulary. Lexical
- * variants a speaker would swap out (espill/mirall, moixó) are avoided on
- * purpose: the signal is *how* the same text is read, not which words are
- * chosen, and never a geographic origin cue.
+ * Runtime read-aloud prompts generated from the CV26 validated sentence
+ * catalogue. The previous handcrafted contrastive scripts remain useful
+ * research material, but are intentionally not selected for live takes.
  */
+
+import { GENERATED_READ_ALOUD_PROMPTS } from "./readAloudPrompts.generated";
 
 export type ReadAloudPrompt = {
   id: string;
   text: string;
-  /** Research note: phonology / lexical targets (not shown to users). */
-  notes?: string;
+  sentenceIds: readonly string[];
 };
 
-export const READ_ALOUD_PROMPTS: readonly ReadAloudPrompt[] = [
+export const CRAFTED_READ_ALOUD_PROMPTS = [
   {
     id: "caixa-peix",
     text: "Vaig deixar la caixa del peix damunt la taula de la cuina. La meva cosina en va agafar dos trossos per fer el dinar.",
@@ -69,6 +64,8 @@ export const READ_ALOUD_PROMPTS: readonly ReadAloudPrompt[] = [
     notes: "stressed [ɔ] vs [o] in nom·hora·persones; CV26 coverage: nom, persones, hora, quatre, cinc, tren",
   },
 ] as const;
+
+export const READ_ALOUD_PROMPTS: readonly ReadAloudPrompt[] = GENERATED_READ_ALOUD_PROMPTS;
 
 const LAST_PROMPT_STORAGE_KEY = "accent-oracle-last-prompt-id";
 

@@ -35,7 +35,7 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Set production `VITE_SENTRY_ENVIRONMENT` and `SENTRY_ENVIRONMENT`; keep
       development-only Sentry debug behavior disabled.
 - [ ] Set `ORACLE_POLICY_VERSION` to the same value as
-      `web/src/lib/legalDocs.ts` (`6 d'agost de 2026` in this revision), or
+      `web/src/lib/legalDocs.ts` (`10 d'agost de 2026` in this revision), or
       update both intentionally and review the consent copy.
 - [ ] Confirm the model directory contains the expected `model.joblib` and
       `metadata.json`, and that the five labels remain in the fixed order.

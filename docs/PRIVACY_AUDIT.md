@@ -171,7 +171,8 @@ consent payloads, comarca values, or session/recording IDs.
 The application receives the following data paths:
 
 - `POST /analyze`: multipart audio plus optional `promptId` (maximum 64
-  characters), `promptText` (maximum 500 characters), and shared
+  characters), `promptText` (maximum 500 characters), a JSON `sentenceIds`
+  list containing up to four 64-hex CV26 sentence IDs, and shared
   `analysisSessionId`. Audio is capped at 20 MB before inference and
   validated for supported suffixes and content types; decoded duration and
   silence are validated later.

@@ -103,6 +103,9 @@ function App() {
   const [usedPromptIds, setUsedPromptIds] = useState<string[]>([]);
   const [preConsented, setPreConsented] = useState(false);
   const [researchRetained, setResearchRetained] = useState(false);
+  /** Affirmative research consent earlier in this browser visit (survives «Torna a començar»). */
+  const [visitResearchConsented, setVisitResearchConsented] = useState(false);
+  const [rememberedComarques, setRememberedComarques] = useState<string[]>([]);
   const [shareOpen, setShareOpen] = useState(false);
   const [devResultsScores, setDevResultsScores] = useState<AccentScores | null>(null);
   const leavePurgeRef = useRef({
@@ -222,6 +225,9 @@ function App() {
   function resetFlow() {
     declinePendingAnalysis(analysisSessionId);
     resetMockAnalyzeOrdinal();
+    // Only carry consent after an affirmative retain earlier in this visit
+    // (landing auto-promote or results Sí) — not a bare unchecked→checked checkbox.
+    const keepConsent = visitResearchConsented || researchRetained;
     setPhase("landing");
     setReturnPhase("landing");
     setResult(null);
@@ -235,10 +241,27 @@ function App() {
     setActivePrompt(null);
     setPrimaryPromptId(null);
     setUsedPromptIds([]);
-    setPreConsented(false);
+    // Carry affirmative consent into the next run so landing can skip re-ask and
+    // the results funnel auto-promotes the new analysis session. Comarca memory
+    // is kept separately (only set after a successful comarca submit).
+    setVisitResearchConsented(keepConsent);
+    setPreConsented(keepConsent);
     setResearchRetained(false);
     setShareOpen(false);
     setDevResultsScores(null);
+  }
+
+  function markResearchRetained() {
+    setResearchRetained(true);
+    setVisitResearchConsented(true);
+    setPreConsented(true);
+  }
+
+  function clearVisitResearchConsent() {
+    setVisitResearchConsented(false);
+    setPreConsented(false);
+    setResearchRetained(false);
+    setRememberedComarques([]);
   }
 
   async function finalizeDisplayedResult(
@@ -370,6 +393,7 @@ function App() {
       const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
         promptId: activePrompt.id,
         promptText: activePrompt.text,
+        sentenceIds: activePrompt.sentenceIds,
       }, analysisSessionId ?? undefined);
       trackUiEvent("analysis_completed");
       if (nextResult.analysisSessionId && !analysisSessionId) {
@@ -443,7 +467,7 @@ function App() {
     phase === "refine" ||
     phase === "results";
   const analysisStatusText =
-    devToolsEnabled && isApiMode(accentOracleMode)
+    isApiMode(accentOracleMode)
       ? "Analitzant la mostra… La inferència pot trigar una mica en CPU."
       : "Analitzant la mostra…";
   const showRecorder =
@@ -508,28 +532,41 @@ function App() {
             <button className="primary hero-link" onClick={startRecording} type="button">
               Descobreix el resultat
             </button>
-            <label className="research-consent-check landing-preconsent">
-              <input
-                checked={preConsented}
-                onChange={(event) => setPreConsented(event.target.checked)}
-                type="checkbox"
-              />
-              <span>
-                Vull col·laborar a la millora de models en català amb totes les gravacions d&apos;aquesta sessió{" "}
-                <span className="consent-age-clause">(tinc 18 anys o més).</span>{" "}
+            {visitResearchConsented ? (
+              <p className="landing-preconsent-retained">
                 <button
                   className="privacy-link legal-inline-link"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openLegalDoc("privacy");
-                  }}
+                  onClick={() => openLegalDoc("privacy")}
                   type="button"
                 >
                   Política de privadesa
                 </button>
-              </span>
-            </label>
+              </p>
+            ) : (
+              <label className="research-consent-check landing-preconsent">
+                <input
+                  checked={preConsented}
+                  onChange={(event) => setPreConsented(event.target.checked)}
+                  type="checkbox"
+                />
+                <span>
+                  Vull col·laborar a la millora de models en català amb totes les gravacions
+                  d&apos;aquesta sessió{" "}
+                  <span className="consent-age-clause">(tinc 18 anys o més).</span>{" "}
+                  <button
+                    className="privacy-link legal-inline-link"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      openLegalDoc("privacy");
+                    }}
+                    type="button"
+                  >
+                    Política de privadesa
+                  </button>
+                </span>
+              </label>
+            )}
           </div>
         </section>
       )}
@@ -603,8 +640,13 @@ function App() {
               </>
             )}
 
-            <RecorderPanel disabled={isAnalyzing} onRecordingReady={analyzeRecording} theme={theme} />
-            {isAnalyzing && (
+            <RecorderPanel
+              analyzing={isAnalyzing}
+              disabled={isAnalyzing}
+              onRecordingReady={analyzeRecording}
+              theme={theme}
+            />
+            {devToolsEnabled && isAnalyzing && (
               <p className="analysis-status" aria-live="polite">
                 {analysisStatusText}
               </p>
@@ -630,9 +672,12 @@ function App() {
           {analysisError && <p className="error-message">{analysisError}</p>}
           <ResultsConsentFeedback
             preConsented={preConsented}
+            initialComarques={rememberedComarques}
             recordingId={result.recordingId}
             analysisSessionId={analysisSessionId ?? result.analysisSessionId}
-            onResearchRetained={() => setResearchRetained(true)}
+            onResearchRetained={markResearchRetained}
+            onResearchDeclined={clearVisitResearchConsent}
+            onComarquesSaved={setRememberedComarques}
           />
           <div className="results-share-row">
             <button

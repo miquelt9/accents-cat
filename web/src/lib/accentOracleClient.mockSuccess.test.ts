@@ -6,7 +6,11 @@ import {
 } from "./devFlags";
 import { needsValidation } from "./needsValidation";
 
-const prompt = { promptId: "test", promptText: "Text de prova." };
+const prompt = {
+  promptId: "test",
+  promptText: "Text de prova.",
+  sentenceIds: ["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"],
+};
 
 describe("mock-success profiles", () => {
   beforeEach(() => {

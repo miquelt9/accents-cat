@@ -24,18 +24,25 @@ describe("pickReadAloudPrompt", () => {
 });
 
 describe("READ_ALOUD_PROMPTS", () => {
-  it("has unique ids and short texts", () => {
+  it("has unique ids and 15–20 second-length texts", () => {
     const ids = READ_ALOUD_PROMPTS.map((prompt) => prompt.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const prompt of READ_ALOUD_PROMPTS) {
-      expect(prompt.text.length).toBeLessThan(280);
-      expect(prompt.text.split(/(?<=[.!?])\s+/).length).toBeLessThanOrEqual(3);
-    }
-  });
-
-  it("documents a phonetic target for every prompt", () => {
-    for (const prompt of READ_ALOUD_PROMPTS) {
-      expect(prompt.notes?.trim()).toBeTruthy();
+      expect(prompt.id).toMatch(/^cv26-[0-9a-f]{16}$/);
+      expect(prompt.text.length).toBeGreaterThanOrEqual(200);
+      expect(prompt.text.length).toBeLessThanOrEqual(220);
+      expect(prompt.text.split(/\s+/).length).toBeGreaterThanOrEqual(28);
+      expect(prompt.text.split(/\s+/).length).toBeLessThanOrEqual(36);
+      expect(prompt.sentenceIds.length).toBeGreaterThanOrEqual(1);
+      expect(prompt.sentenceIds.length).toBeLessThanOrEqual(4);
+      const sentences = prompt.text
+        .split(/(?<=[.!?])\s+/)
+        .map((sentence) => sentence.trim())
+        .filter(Boolean);
+      expect(new Set(sentences).size).toBe(sentences.length);
+      for (const sentenceId of prompt.sentenceIds) {
+        expect(sentenceId).toMatch(/^[0-9a-f]{64}$/);
+      }
     }
   });
 });

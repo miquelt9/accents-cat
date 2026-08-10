@@ -31,7 +31,11 @@ interface ResultsConsentFeedbackProps {
   recordingId?: string;
   analysisSessionId?: string;
   preConsented: boolean;
+  /** Comarques declared on a prior run in this visit; pre-fills the picker. */
+  initialComarques?: string[];
   onResearchRetained?: () => void;
+  onResearchDeclined?: () => void;
+  onComarquesSaved?: (comarques: string[]) => void;
 }
 
 function ThumbUpIcon() {
@@ -98,7 +102,10 @@ export function ResultsConsentFeedback({
   recordingId,
   analysisSessionId,
   preConsented,
+  initialComarques = [],
   onResearchRetained,
+  onResearchDeclined,
+  onComarquesSaved,
 }: ResultsConsentFeedbackProps) {
   const reduceMotion = useReducedMotion();
   const sheetPanelRef = useRef<HTMLDivElement>(null);
@@ -121,10 +128,20 @@ export function ResultsConsentFeedback({
   const [error, setError] = useState<string | null>(null);
   const [selectedComarques, setSelectedComarques] = useState<string[]>([]);
   const selectedComarquesRef = useRef(selectedComarques);
+  const initialComarquesRef = useRef(initialComarques);
+
+  useEffect(() => {
+    initialComarquesRef.current = initialComarques;
+  }, [initialComarques]);
 
   useEffect(() => {
     selectedComarquesRef.current = selectedComarques;
   }, [selectedComarques]);
+
+  function seedComarquesFromMemory() {
+    const remembered = initialComarquesRef.current;
+    setSelectedComarques(remembered.length > 0 ? [...remembered] : []);
+  }
 
   const canDragSheet = isCompact && !reduceMotion && !isSubmitting;
 
@@ -240,6 +257,7 @@ export function ResultsConsentFeedback({
       setSheetOpen(false);
       setStep("done");
       setSelectedComarques([]);
+      onComarquesSaved?.(payload.comarques);
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -270,6 +288,9 @@ export function ResultsConsentFeedback({
         return;
       }
     }
+    // Match research-consent "No": clear thumb selection so dismiss (backdrop /
+    // close / Escape / drag) invites another thumb click to reopen the funnel.
+    setWasCorrect(null);
     setSheetOpen(false);
     setStep("ask");
     setError(null);
@@ -363,7 +384,7 @@ export function ResultsConsentFeedback({
 
       setFeedbackId(nextFeedbackId);
       appendLedgerEntry(nextFeedbackId, "feedback");
-      setSelectedComarques([]);
+      seedComarquesFromMemory();
       setSheetOpen(true);
       setStep(preConsented || researchSaved ? "comarca" : "consent");
     } catch (submitError) {
@@ -394,6 +415,7 @@ export function ResultsConsentFeedback({
         setSelectedComarques([]);
         setSheetOpen(false);
         setStep("ask");
+        onResearchDeclined?.();
       } catch (submitError) {
         setError(
           submitError instanceof Error
@@ -428,7 +450,7 @@ export function ResultsConsentFeedback({
       }
 
       setResearchSaved(true);
-      setSelectedComarques([]);
+      seedComarquesFromMemory();
       setStep("comarca");
     } catch (submitError) {
       setError(
@@ -450,7 +472,9 @@ export function ResultsConsentFeedback({
     return (
       <section className="card feedback-card" aria-live="polite">
         <h2>
-          {researchSaved ? "Gràcies per la teva col·laboració!" : "Gràcies per la teva ajuda"}
+          {researchSaved
+            ? "Gràcies! Hem desat la teva veu per a la recerca."
+            : "Gràcies per la teva ajuda"}
         </h2>
         {researchSaved ? (
           <p>Ens ajudes a millorar la intel·ligència artificial en català.</p>
@@ -465,12 +489,6 @@ export function ResultsConsentFeedback({
 
   return (
     <>
-      {promoted && (
-        <section className="card research-consent-card consent-saved-banner" aria-live="polite">
-          <p>Gràcies! Hem desat la teva veu per a la recerca.</p>
-        </section>
-      )}
-
       {step === "promoting" ? (
         <section className="feedback-prompt" aria-live="polite">
           <p className="feedback-prompt-label">Desant les gravacions de la sessió per a recerca…</p>

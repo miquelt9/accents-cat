@@ -53,9 +53,16 @@ export function MicrophoneWaveform({ stream, isActive, theme }: MicrophoneWavefo
       ctx.clearRect(0, 0, width, height);
 
       const barWidth = width / BAR_COUNT - 2;
+      // Low frequencies (speech energy) in the center, tapering to both sides.
+      const half = BAR_COUNT / 2;
+      const usableBins = Math.floor(bufferLength * 0.55);
 
       for (let index = 0; index < BAR_COUNT; index += 1) {
-        const sampleIndex = Math.floor((index / BAR_COUNT) * bufferLength);
+        const distanceFromCenter = Math.abs(index - (BAR_COUNT - 1) / 2);
+        const sampleIndex = Math.min(
+          usableBins - 1,
+          Math.floor((distanceFromCenter / half) * usableBins),
+        );
         const value = dataArray[sampleIndex] / 255;
         const barHeight = Math.max(4, value * height * 0.9);
         const x = index * (barWidth + 2);

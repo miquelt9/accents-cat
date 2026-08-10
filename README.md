@@ -97,7 +97,7 @@ Open the URL Vite prints (usually `http://localhost:5173`). Record or upload aud
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Legacy model health / Better Stack compatibility |
-| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText` and optional `analysisSessionId`) → dialect scores + session/take IDs (pending audio until research consent) |
+| `POST` | `/analyze` | Multipart `audio` (+ `promptId` / `promptText` / CV26 `sentenceIds` and optional `analysisSessionId`) → dialect scores + session/take IDs (pending audio until research consent) |
 | `POST` | `/analysis-finalize` | JSON `{ analysisSessionId, finalResult, takeCount, terminalState }` → persists the displayed merged result while pending |
 | `POST` | `/research-consent` | JSON `{ analysisSessionId, consent, ageConfirmed?, policyVersion? }` → keep or delete every take in the session |
 | `POST` | `/feedback` | JSON `{ feedbackId?, analysisSessionId, recordingId?, wasCorrect?, comarca?, selfReportedDialect?, notes? }` → one session-level feedback row |
@@ -129,8 +129,8 @@ flowchart LR
   SVM -->|5 dialect scores| Client
 ```
 
-1. User reads a short Catalan prompt drawn from a dialect-sensitive pool ([`web/src/lib/prompts.ts`](web/src/lib/prompts.ts)).
-2. Audio is sent to the mock client or the FastAPI backend ([`backend/app.py`](backend/app.py)), with the prompt id/text for storage.
+1. User reads a 15–20 second Catalan passage from the curated CV26 pool ([`web/src/lib/readAloudPrompts.generated.ts`](web/src/lib/readAloudPrompts.generated.ts)), selected through [`web/src/lib/prompts.ts`](web/src/lib/prompts.ts).
+2. Audio is sent to the mock client or the FastAPI backend ([`backend/app.py`](backend/app.py)), with the prompt id/text and original CV26 sentence IDs for storage.
 3. The backend embeds audio with Catalan HuBERT (mean + std pooling), then runs a calibrated SVM.
 4. Five dialect scores drive [`ResultsMapStage`](web/src/components/ResultsMapStage.tsx) — ranking sidebar plus interactive linework map that highlights the whole selected macro-dialect region ([`map-oracle-linework.svg`](web/public/map-oracle-linework.svg)).
 

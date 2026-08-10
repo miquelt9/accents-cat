@@ -81,6 +81,7 @@ export const SELF_REPORTED_DIALECT_LABELS: Record<SelfReportedDialect, string> =
 export type AnalyzePromptMeta = {
   promptId: string;
   promptText: string;
+  sentenceIds: readonly string[];
 };
 
 export interface AccentOracleClient {
@@ -385,6 +386,7 @@ export const apiAccentOracleClient: AccentOracleClient = {
     formData.append("audio", audio, filename);
     formData.append("promptId", prompt.promptId);
     formData.append("promptText", prompt.promptText);
+    formData.append("sentenceIds", JSON.stringify(prompt.sentenceIds));
     if (analysisSessionId) {
       formData.append("analysisSessionId", analysisSessionId);
     }

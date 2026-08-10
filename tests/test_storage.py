@@ -39,6 +39,7 @@ def _insert_sample() -> tuple[str, Path]:
         evidence_band="moderate",
         prompt_id="pluja-vinya",
         prompt_text="La pluja fina cau sobre la vinya vella.",
+        sentence_ids='["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]',
     )
     return sid, audio_path
 
@@ -52,7 +53,7 @@ def test_save_audio_and_submission_round_trip(isolated_storage: Path) -> None:
 
     with sqlite3.connect(storage.DB_PATH) as conn:
         row = conn.execute(
-            "SELECT top_label, evidence_band, audio_path, prompt_id, prompt_text, "
+            "SELECT top_label, evidence_band, audio_path, prompt_id, prompt_text, sentence_ids, "
             "research_consent, pending_expires_at "
             "FROM submissions WHERE id = ?",
             (submission_id,),
@@ -63,8 +64,9 @@ def test_save_audio_and_submission_round_trip(isolated_storage: Path) -> None:
     assert Path(row[2]).name == audio_path.name
     assert row[3] == "pluja-vinya"
     assert row[4] == "La pluja fina cau sobre la vinya vella."
-    assert row[5] == 0
-    assert row[6] is not None
+    assert row[5] == '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]'
+    assert row[6] == 0
+    assert row[7] is not None
 
 
 def test_confirm_research_consent(isolated_storage: Path) -> None:
@@ -242,7 +244,8 @@ def test_soft_delete_submission_scrubs_pii_and_removes_audio(
 
     with sqlite3.connect(storage.DB_PATH) as conn:
         row = conn.execute(
-            "SELECT deleted_at, ip, user_agent, prompt_text, scores_json, top_label, "
+            "SELECT deleted_at, ip, user_agent, prompt_text, prompt_id, sentence_ids, "
+            "scores_json, top_label, "
             "research_consent, policy_version "
             "FROM submissions WHERE id = ?",
             (submission_id,),
@@ -257,10 +260,12 @@ def test_soft_delete_submission_scrubs_pii_and_removes_audio(
     assert row[1] is None
     assert row[2] is None
     assert row[3] is None
-    assert row[4] == "{}"
-    assert row[5] == "deleted"
-    assert row[6] == 0
-    assert row[7] is None
+    assert row[4] is None
+    assert row[5] is None
+    assert row[6] == "{}"
+    assert row[7] == "deleted"
+    assert row[8] == 0
+    assert row[9] is None
     assert feedback == (None, None, None, None, None)
 
     # Idempotent: already soft-deleted still succeeds
@@ -431,6 +436,7 @@ def test_ensure_storage_adds_prompt_and_consent_columns_to_legacy_db(
         }
     assert "prompt_id" in columns
     assert "prompt_text" in columns
+    assert "sentence_ids" in columns
     assert "research_consent" in columns
     assert "consent_at" in columns
     assert "policy_version" in columns
@@ -498,6 +504,7 @@ def _insert_session_take(
         evidence_band="moderate",
         prompt_id=f"prompt-{take_index}",
         prompt_text=f"Prompt {take_index}",
+        sentence_ids='["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]',
         analysis_session_id=session_id,
         take_index=take_index,
         take_role=take_role,
@@ -531,7 +538,7 @@ def test_analysis_session_consent_retains_all_takes_and_feedback(
     assert same_feedback_id == feedback_id
     assert storage.confirm_research_consent_for_session(
         session_id,
-        policy_version="6 d'agost de 2026",
+        policy_version="10 d'agost de 2026",
     )
 
     with sqlite3.connect(storage.DB_PATH) as conn:
@@ -600,7 +607,7 @@ def test_declining_analysis_session_removes_all_audio_and_unlinks_feedback(
         ).fetchone()
         takes = conn.execute(
             """
-            SELECT deleted_at, audio_path, scores_json, top_label
+            SELECT deleted_at, audio_path, scores_json, top_label, sentence_ids
             FROM submissions WHERE analysis_session_id = ?
             ORDER BY take_index
             """,
@@ -617,7 +624,10 @@ def test_declining_analysis_session_removes_all_audio_and_unlinks_feedback(
 
     assert session[0] is not None
     assert session[1:] == (None, 0)
-    assert all(row[0] is not None and row[1:] == ("", "{}", "deleted") for row in takes)
+    assert all(
+        row[0] is not None and row[1:] == ("", "{}", "deleted", None)
+        for row in takes
+    )
     assert feedback == (None, None, None, 0, "valencian", "safor")
 
 

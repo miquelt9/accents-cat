@@ -195,6 +195,7 @@ def ensure_storage() -> None:
                 evidence_band TEXT NOT NULL,
                 prompt_id TEXT,
                 prompt_text TEXT,
+                sentence_ids TEXT,
                 deleted_at TEXT,
                 research_consent INTEGER NOT NULL DEFAULT 0,
                 consent_at TEXT,
@@ -220,6 +221,7 @@ def ensure_storage() -> None:
         )
         _ensure_column(conn, "submissions", "prompt_id", "TEXT")
         _ensure_column(conn, "submissions", "prompt_text", "TEXT")
+        _ensure_column(conn, "submissions", "sentence_ids", "TEXT")
         _ensure_column(
             conn, "submissions", "research_consent", "INTEGER NOT NULL DEFAULT 0"
         )
@@ -426,6 +428,7 @@ def insert_submission(
     evidence_band: str,
     prompt_id: str | None = None,
     prompt_text: str | None = None,
+    sentence_ids: str | None = None,
     analysis_session_id: str | None = None,
     take_index: int | None = None,
     take_role: str | None = None,
@@ -460,10 +463,10 @@ def insert_submission(
             INSERT INTO submissions (
                 id, created_at, audio_path,
                 scores_json, top_label, evidence_band,
-                prompt_id, prompt_text, deleted_at,
+                prompt_id, prompt_text, sentence_ids, deleted_at,
                 research_consent, consent_at, policy_version, pending_expires_at,
                 analysis_session_id, take_index, take_role
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, NULL, NULL, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, NULL, NULL, ?, ?, ?, ?)
             """,
             (
                 submission_id,
@@ -474,6 +477,7 @@ def insert_submission(
                 evidence_band,
                 prompt_id,
                 prompt_text,
+                sentence_ids,
                 expires_at,
                 analysis_session_id,
                 take_index,
@@ -767,6 +771,7 @@ def _soft_delete_analysis_session(
                 user_agent = NULL,
                 prompt_text = NULL,
                 prompt_id = NULL,
+                sentence_ids = NULL,
                 scores_json = '{}',
                 top_label = 'deleted',
                 evidence_band = 'deleted',
@@ -863,6 +868,7 @@ def _soft_delete_submission(
                     user_agent = NULL,
                     prompt_text = NULL,
                     prompt_id = NULL,
+                    sentence_ids = NULL,
                     scores_json = '{}',
                     top_label = 'deleted',
                     evidence_band = 'deleted',
