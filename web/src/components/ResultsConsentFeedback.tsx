@@ -21,6 +21,7 @@ import { appendLedgerEntry } from "../lib/submissionLedger";
 import { trackUiEvent } from "../lib/telemetry";
 import { ComarcaPicker } from "./ComarcaPicker";
 import { LegalDocument } from "./LegalDocument";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 
 const SHEET_DISMISS_OFFSET_PX = 110;
 const SHEET_DISMISS_VELOCITY = 720;
@@ -109,6 +110,7 @@ export function ResultsConsentFeedback({
 }: ResultsConsentFeedbackProps) {
   const reduceMotion = useReducedMotion();
   const sheetPanelRef = useRef<HTMLDivElement>(null);
+  const legalLayerRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const sheetY = useMotionValue(0);
   const backdropOpacity = useTransform(sheetY, [0, 260], [1, 0.2]);
@@ -127,16 +129,11 @@ export function ResultsConsentFeedback({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedComarques, setSelectedComarques] = useState<string[]>([]);
-  const selectedComarquesRef = useRef(selectedComarques);
   const initialComarquesRef = useRef(initialComarques);
 
   useEffect(() => {
     initialComarquesRef.current = initialComarques;
   }, [initialComarques]);
-
-  useEffect(() => {
-    selectedComarquesRef.current = selectedComarques;
-  }, [selectedComarques]);
 
   function seedComarquesFromMemory() {
     const remembered = initialComarquesRef.current;
@@ -144,6 +141,8 @@ export function ResultsConsentFeedback({
   }
 
   const canDragSheet = isCompact && !reduceMotion && !isSubmitting;
+  useFocusTrap(sheetPanelRef, sheetOpen && !legalDoc);
+  useFocusTrap(legalLayerRef, legalDoc != null, legalDoc);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 639px)");
@@ -245,7 +244,7 @@ export function ResultsConsentFeedback({
           ...(feedbackId ? { feedbackId } : {}),
           ...(analysisSessionId ? { analysisSessionId } : {}),
           recordingId,
-          comarques: payload.comarques,
+          ...(payload.comarques.length > 0 ? { comarques: payload.comarques } : {}),
           selfReportedDialect: payload.selfReportedDialect,
         });
         if (!feedbackId) {
@@ -257,7 +256,9 @@ export function ResultsConsentFeedback({
       setSheetOpen(false);
       setStep("done");
       setSelectedComarques([]);
-      onComarquesSaved?.(payload.comarques);
+      if (payload.comarques.length > 0) {
+        onComarquesSaved?.(payload.comarques);
+      }
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -277,16 +278,16 @@ export function ResultsConsentFeedback({
     await submitComarcaFeedback({ comarques: slugs, selfReportedDialect: dialect });
   }
 
+  async function skipComarca() {
+    await submitComarcaFeedback({
+      comarques: [],
+      selfReportedDialect: "unknown",
+    });
+  }
+
   function dismissSheet() {
     if (isSubmitting || legalDoc) {
       return;
-    }
-    if (step === "comarca") {
-      const slugs = selectedComarquesRef.current;
-      if (slugs.length > 0) {
-        void submitSelectedComarques(slugs);
-        return;
-      }
     }
     // Match research-consent "No": clear thumb selection so dismiss (backdrop /
     // close / Escape / drag) invites another thumb click to reopen the funnel.
@@ -343,7 +344,7 @@ export function ResultsConsentFeedback({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-    // dismissSheet reads selectedComarques via ref so Escape can save a partial pick.
+    // Dismiss closes without submitting a partial comarca pick.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sheet open / step / busy only
   }, [sheetOpen, legalDoc, isSubmitting, step]);
 
@@ -496,7 +497,7 @@ export function ResultsConsentFeedback({
       ) : (
         <section className="feedback-prompt" aria-label="Comentari sobre el resultat">
           <p className="feedback-prompt-label" id="feedback-prompt-label">
-            Hem encertat el teu accent?
+            S&apos;assembla al que esperaves?
           </p>
           <div className="feedback-thumbs" role="group" aria-labelledby="feedback-prompt-label">
             <button
@@ -520,7 +521,11 @@ export function ResultsConsentFeedback({
               <ThumbDownIcon />
             </button>
           </div>
-          {error && !sheetOpen && <p className="error-message">{error}</p>}
+          {error && !sheetOpen && (
+            <p className="error-message" role="alert">
+              {error}
+            </p>
+          )}
         </section>
       )}
 
@@ -615,31 +620,52 @@ export function ResultsConsentFeedback({
 
               {step === "comarca" && (
                 <div className="feedback-sheet-body feedback-sheet-body--comarca">
-                  <h2 id="feedback-sheet-comarca-title">De quina comarca ets?</h2>
+                  <h2 id="feedback-sheet-comarca-title">Quina comarca consideres teva?</h2>
                   <ComarcaPicker
                     disabled={isSubmitting}
                     selectedSlugs={selectedComarques}
                     onChange={setSelectedComarques}
                   />
-                  <button
-                    className="primary feedback-comarca-skip"
-                    disabled={isSubmitting || !hasComarcaSelection}
-                    onClick={() => void submitSelectedComarques(selectedComarques)}
-                    type="button"
-                  >
-                    Envia
-                  </button>
+                  <div className="feedback-comarca-actions">
+                    <button
+                      className="primary feedback-comarca-send"
+                      disabled={isSubmitting || !hasComarcaSelection}
+                      onClick={() => void submitSelectedComarques(selectedComarques)}
+                      type="button"
+                    >
+                      Envia
+                    </button>
+                    <button
+                      className="secondary feedback-comarca-skip"
+                      disabled={isSubmitting}
+                      onClick={() => void skipComarca()}
+                      type="button"
+                    >
+                      Ara no
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {error && <p className="error-message">{error}</p>}
+              {error && (
+                <p className="error-message" role="alert">
+                  {error}
+                </p>
+              )}
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {legalDoc && (
-        <div className="feedback-legal-layer" role="presentation">
+        <div
+          ref={legalLayerRef}
+          className="feedback-legal-layer"
+          role="dialog"
+          aria-modal="true"
+          aria-label={legalDoc === "privacy" ? "Política de privadesa" : "Termes d'ús"}
+          tabIndex={-1}
+        >
           <LegalDocument
             docId={legalDoc}
             onBack={() => setLegalDoc(null)}

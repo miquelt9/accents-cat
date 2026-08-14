@@ -14,7 +14,7 @@ describe("DialectMap focus callout", () => {
     );
 
     expect(markup).toContain("Barcelonès");
-    expect(markup).toContain("Punt d’afinitat dialectal");
+    expect(markup).toContain("Il·lustratiu; no indica procedència");
     expect(markup).not.toContain("Focus visual aproximat; no indica el teu origen.");
   });
 
@@ -30,7 +30,9 @@ describe("DialectMap focus callout", () => {
 
     expect(markup).toContain("Osona");
     expect(markup).toContain("comarca-hover-label");
-    expect(markup).not.toContain("Punt d’afinitat dialectal");
-    expect(markup).not.toContain("comarca-callout");
+    expect(markup).not.toContain("Il·lustratiu; no indica procedència");
+    expect(markup).toContain("Arrossega i amplia");
+    expect(markup).toContain("Amplia");
+    expect(markup).toContain("Redueix");
   });
 });

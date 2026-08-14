@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
 } from "react";
@@ -58,6 +59,8 @@ const FALLBACK_VIEWBOX: ViewBox = { x: 0, y: 0, w: 1000, h: 1000 };
 const DEFAULT_SCALE = 1.05;
 const MIN_SCALE = 0.85;
 const MAX_SCALE = 3.4;
+const KEY_PAN_FRACTION = 0.08;
+const KEY_ZOOM_FACTOR = 1.12;
 /** Entrance offsets as a fraction of the viewBox, so they follow the map size. */
 const ENTRANCE_OFFSET_X = -0.22;
 const ENTRANCE_OFFSET_Y = 0.08;
@@ -158,7 +161,6 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
   const viewportRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const cameraGroupRef = useRef<SVGGElement>(null);
-  const idleTimerRef = useRef<number | null>(null);
   const pinTimerRef = useRef<number | null>(null);
   const labelTimerRef = useRef<number | null>(null);
   const entranceDoneRef = useRef(false);
@@ -170,6 +172,8 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     originPanX: number;
     originPanY: number;
   } | null>(null);
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const pinchRef = useRef<{ distance: number; startScale: number } | null>(null);
   const homeCameraRef = useRef<CameraTarget>(regionCamera(selectedZone, FALLBACK_VIEWBOX));
   const panXRef = useRef(0);
   const panYRef = useRef(0);
@@ -484,9 +488,6 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
 
   useEffect(() => {
     return () => {
-      if (idleTimerRef.current) {
-        window.clearTimeout(idleTimerRef.current);
-      }
       if (pinTimerRef.current) {
         window.clearTimeout(pinTimerRef.current);
       }
@@ -496,14 +497,19 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     };
   }, []);
 
-  function scheduleIdleReturn() {
-    if (idleTimerRef.current) {
-      window.clearTimeout(idleTimerRef.current);
+  function zoomTo(nextScale: number) {
+    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, nextScale));
+    scale.set(next);
+    homeCameraRef.current = { ...homeCameraRef.current, scale: next };
+    setShowHint(false);
+  }
+
+  function pinchDistance(): number {
+    const points = [...pointersRef.current.values()];
+    if (points.length < 2) {
+      return 0;
     }
-    idleTimerRef.current = window.setTimeout(() => {
-      const home = homeCameraRef.current;
-      animateCameraTo(home, reducedMotion ? 0.3 : MAP_MOTION.idleReturn, true);
-    }, MAP_MOTION.idleGraceMs);
+    return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
   }
 
   function onPointerDown(event: ReactPointerEvent) {
@@ -511,10 +517,16 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       return;
     }
     setShowHint(false);
-    if (idleTimerRef.current) {
-      window.clearTimeout(idleTimerRef.current);
-    }
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     viewportRef.current?.setPointerCapture(event.pointerId);
+
+    if (pointersRef.current.size >= 2) {
+      dragRef.current = null;
+      const distance = pinchDistance();
+      pinchRef.current = { distance: distance || 1, startScale: scale.get() };
+      return;
+    }
+
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -525,6 +537,16 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
   }
 
   function onPointerMove(event: ReactPointerEvent) {
+    if (pointersRef.current.has(event.pointerId)) {
+      pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    }
+
+    if (pinchRef.current && pointersRef.current.size >= 2) {
+      const distance = pinchDistance();
+      zoomTo(pinchRef.current.startScale * (distance / pinchRef.current.distance));
+      return;
+    }
+
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) {
       return;
@@ -546,22 +568,54 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
   }
 
   function onPointerUp(event: ReactPointerEvent) {
+    pointersRef.current.delete(event.pointerId);
+    if (pointersRef.current.size < 2) {
+      pinchRef.current = null;
+    }
     if (dragRef.current?.pointerId === event.pointerId) {
       dragRef.current = null;
-      scheduleIdleReturn();
     }
   }
 
   function onWheel(event: ReactWheelEvent) {
     event.preventDefault();
-    setShowHint(false);
-    const next = Math.min(
-      MAX_SCALE,
-      Math.max(MIN_SCALE, scale.get() * (event.deltaY > 0 ? 0.92 : 1.08)),
-    );
-    scale.set(next);
-    homeCameraRef.current = { ...homeCameraRef.current, scale: next };
-    scheduleIdleReturn();
+    zoomTo(scale.get() * (event.deltaY > 0 ? 0.92 : 1.08));
+  }
+
+  function onViewportKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const currentScale = scale.get();
+    const panStep = (viewBox.w * KEY_PAN_FRACTION) / currentScale;
+
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const dx = event.key === "ArrowLeft" ? panStep : event.key === "ArrowRight" ? -panStep : 0;
+      const dy = event.key === "ArrowUp" ? panStep : event.key === "ArrowDown" ? -panStep : 0;
+      const nextX = panXRef.current + dx;
+      const nextY = panYRef.current + dy;
+      panX.set(nextX);
+      panY.set(nextY);
+      panXRef.current = nextX;
+      panYRef.current = nextY;
+      setShowHint(false);
+      return;
+    }
+
+    if (event.key === "+" || event.key === "=") {
+      event.preventDefault();
+      zoomTo(currentScale * KEY_ZOOM_FACTOR);
+      return;
+    }
+
+    if (event.key === "-" || event.key === "_") {
+      event.preventDefault();
+      zoomTo(currentScale / KEY_ZOOM_FACTOR);
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onSelect?.("");
+    }
   }
 
   const calloutLabel = pinSlug ? comarcaDisplayName(pinSlug) : null;
@@ -580,13 +634,15 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
     <div
       className="dialect-map-viewport"
       ref={viewportRef}
+      tabIndex={0}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       onWheel={onWheel}
+      onKeyDown={onViewportKeyDown}
       role="application"
-      aria-label="Mapa interactiu de comarques"
+      aria-label="Mapa interactiu de comarques. Fletxes per moure, més i menys per ampliar, Escape per tancar la comarca."
     >
       <svg
         ref={svgRef}
@@ -674,7 +730,7 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       {calloutLabel && showAffinityCallout ? (
         <ComarcaCallout
           label={calloutLabel}
-          sublabel="Punt d’afinitat dialectal"
+          sublabel="Il·lustratiu; no indica procedència"
           x={calloutPos.x}
           y={calloutPos.y}
           visible={pinVisible}
@@ -703,10 +759,39 @@ export const DialectMap = forwardRef<DialectMapHandle, DialectMapProps>(function
       ) : null}
 
       {showHint && !reducedMotion ? (
-        <p className="dialect-map-hint">Arrossega per explorar</p>
+        <p className="dialect-map-hint">Arrossega i amplia</p>
       ) : null}
 
-      {!comarques.length ? <div className="dialect-map-loading" aria-busy="true" /> : null}
+      <div className="dialect-map-zoom" role="group" aria-label="Zoom del mapa">
+        <button
+          type="button"
+          className="dialect-map-zoom-button"
+          aria-label="Amplia"
+          onClick={(event) => {
+            event.stopPropagation();
+            zoomTo(scale.get() * KEY_ZOOM_FACTOR);
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          +
+        </button>
+        <button
+          type="button"
+          className="dialect-map-zoom-button"
+          aria-label="Redueix"
+          onClick={(event) => {
+            event.stopPropagation();
+            zoomTo(scale.get() / KEY_ZOOM_FACTOR);
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          −
+        </button>
+      </div>
+
+      {!comarques.length ? (
+        <div className="dialect-map-loading" aria-busy="true" aria-label="Carregant el mapa" />
+      ) : null}
     </div>
   );
 });

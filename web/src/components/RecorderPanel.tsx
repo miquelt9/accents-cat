@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useAnalyzingLabel } from "../hooks/useAnalyzingLabel";
 import {
   SILENCE_DURATION_MS,
   SPEECH_RMS_THRESHOLD,
@@ -17,6 +18,10 @@ export const MAX_RECORD_SECONDS = 25;
 const PRESS_HOLD_MS = 400;
 /** Click can lag pointerup (touch); only count a hold if the start click arrives soon after. */
 const PRESS_HOLD_CLICK_GRACE_MS = 500;
+
+const BLOCKED_MIC_MESSAGE =
+  "El micròfon està blocat per a aquest lloc. Toca la icona del cadenat a la barra d'adreces, obre els permisos del lloc, posa Micròfon a Permet i torna a tocar el botó.";
+const NO_MIC_DEVICE_MESSAGE = "No s'ha trobat cap micròfon. Connecta'n un i torna-ho a provar.";
 
 interface RecorderPanelProps {
   onRecordingReady: (audio: Blob) => void;
@@ -54,6 +59,7 @@ export function RecorderPanel({
   const pointerDownAtRef = useRef<number | null>(null);
   const holdUntilRef = useRef(0);
   const startWasHoldRef = useRef(false);
+  const analyzingLabel = useAnalyzingLabel(analyzing);
 
   useEffect(() => {
     return () => {
@@ -63,6 +69,50 @@ export function RecorderPanel({
         window.clearTimeout(maxDurationTimerRef.current);
       }
       streamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
+  useEffect(() => {
+    const permissions = navigator.permissions;
+    if (!permissions?.query) {
+      return;
+    }
+
+    let cancelled = false;
+    let status: PermissionStatus | null = null;
+    let onChange: (() => void) | null = null;
+
+    function applyState(state: PermissionState) {
+      if (cancelled) {
+        return;
+      }
+      if (state === "denied") {
+        setError(BLOCKED_MIC_MESSAGE);
+        return;
+      }
+      setError((current) => (current === BLOCKED_MIC_MESSAGE ? null : current));
+    }
+
+    void permissions
+      .query({ name: "microphone" as PermissionName })
+      .then((nextStatus) => {
+        if (cancelled) {
+          return;
+        }
+        status = nextStatus;
+        applyState(nextStatus.state);
+        onChange = () => applyState(nextStatus.state);
+        nextStatus.addEventListener("change", onChange);
+      })
+      .catch(() => {
+        // Safari and some browsers omit microphone from permissions.query.
+      });
+
+    return () => {
+      cancelled = true;
+      if (status && onChange) {
+        status.removeEventListener("change", onChange);
+      }
     };
   }, []);
 
@@ -101,6 +151,17 @@ export function RecorderPanel({
     const fromGrace = now < holdUntilRef.current;
     holdUntilRef.current = 0;
     return fromPointer || fromGrace;
+  }
+
+  function describeGetUserMediaError(caught: unknown): string {
+    const name = caught instanceof DOMException ? caught.name : "";
+    if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+      return BLOCKED_MIC_MESSAGE;
+    }
+    if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+      return NO_MIC_DEVICE_MESSAGE;
+    }
+    return "No s'ha pogut accedir al micròfon. Comprova els permisos del navegador.";
   }
 
   async function startRecording() {
@@ -194,8 +255,8 @@ export function RecorderPanel({
         }
       }
       maxDurationTimerRef.current = window.setTimeout(stopRecording, MAX_RECORD_SECONDS * 1000);
-    } catch {
-      setError("No s'ha pogut accedir al micròfon. Comprova els permisos del navegador.");
+    } catch (caught) {
+      setError(describeGetUserMediaError(caught));
     }
   }
 
@@ -221,10 +282,15 @@ export function RecorderPanel({
   }
 
   const liveStatus = analyzing
-    ? "Analitzant la mostra…"
+    ? analyzingLabel.live
     : isRecording
       ? "Gravant…"
       : "";
+  const caption = analyzing
+    ? analyzingLabel.visible
+    : isRecording
+      ? "La gravació s'atura quan deixis de parlar"
+      : "Prem per gravar";
 
   return (
     <div className="recorder-panel" aria-labelledby="recorder-title">
@@ -272,7 +338,7 @@ export function RecorderPanel({
           )}
         </button>
         <p aria-hidden="true" className="recorder-caption">
-          {isRecording ? "Toca per aturar" : "Toca per gravar"}
+          {caption}
         </p>
       </div>
 
@@ -282,7 +348,11 @@ export function RecorderPanel({
           llegeix el text en veu alta.
         </p>
       )}
-      {error && <p className="error-message">{error}</p>}
+      {error && (
+        <p className="error-message" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

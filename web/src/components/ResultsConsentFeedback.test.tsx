@@ -162,7 +162,8 @@ describe("ResultsConsentFeedback decline flow", () => {
 
   it("prefills remembered comarques and reports them when sent", async () => {
     const onComarquesSaved = vi.fn();
-    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+    const fetchMock = vi.fn((...args: [RequestInfo | URL, RequestInit?]) => {
+      const [input, init] = args;
       const url = String(input);
       if (url.endsWith("/feedback")) {
         return Promise.resolve(response({ feedbackId: "feedback-id" }));
@@ -213,7 +214,7 @@ describe("ResultsConsentFeedback decline flow", () => {
     ).toMatch(/Barcelonès/);
 
     const send = container.querySelector(
-      ".feedback-comarca-skip",
+      ".feedback-comarca-send",
     ) as HTMLButtonElement;
     expect(send.disabled).toBe(false);
     await act(async () => {
@@ -285,5 +286,127 @@ describe("ResultsConsentFeedback decline flow", () => {
     });
 
     expect(onResearchDeclined).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not auto-submit comarques when the sheet is dismissed", async () => {
+    const fetchMock = vi.fn((...args: [RequestInfo | URL, RequestInit?]) => {
+      const [input] = args;
+      const url = String(input);
+      if (url.endsWith("/feedback")) {
+        return Promise.resolve(response({ feedbackId: "feedback-id" }));
+      }
+      if (url.endsWith("/research-consent")) {
+        return Promise.resolve(
+          response({
+            analysisSessionId: "session-id",
+            researchConsent: true,
+          }),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await act(async () => {
+      root.render(
+        <ResultsConsentFeedback analysisSessionId="session-id" preConsented />,
+      );
+    });
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 350));
+    });
+
+    const thumbsUp = container.querySelector(
+      'button[aria-label="Sí"]',
+    ) as HTMLButtonElement;
+    await act(async () => {
+      thumbsUp.click();
+      await Promise.resolve();
+    });
+
+    const option = container.querySelector(
+      ".comarca-picker-option",
+    ) as HTMLButtonElement;
+    await act(async () => {
+      option.click();
+    });
+
+    const backdrop = container.querySelector(
+      ".feedback-sheet-backdrop",
+    ) as HTMLButtonElement;
+    await act(async () => {
+      backdrop.click();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 250));
+    });
+
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+    const feedbackBodies = fetchMock.mock.calls
+      .filter(([url]) => String(url).endsWith("/feedback"))
+      .map(([, init]) => JSON.parse(String(init?.body ?? "{}")) as {
+        comarques?: string[];
+      });
+    expect(feedbackBodies.some((body) => (body.comarques?.length ?? 0) > 0)).toBe(false);
+  });
+
+  it("skips the comarca sheet with Ara no", async () => {
+    const fetchMock = vi.fn((...args: [RequestInfo | URL, RequestInit?]) => {
+      const [input] = args;
+      const url = String(input);
+      if (url.endsWith("/feedback")) {
+        return Promise.resolve(response({ feedbackId: "feedback-id" }));
+      }
+      if (url.endsWith("/research-consent")) {
+        return Promise.resolve(
+          response({
+            analysisSessionId: "session-id",
+            researchConsent: true,
+          }),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await act(async () => {
+      root.render(
+        <ResultsConsentFeedback analysisSessionId="session-id" preConsented />,
+      );
+    });
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 350));
+    });
+
+    const thumbsUp = container.querySelector(
+      'button[aria-label="Sí"]',
+    ) as HTMLButtonElement;
+    await act(async () => {
+      thumbsUp.click();
+      await Promise.resolve();
+    });
+
+    const skip = container.querySelector(
+      ".feedback-comarca-skip",
+    ) as HTMLButtonElement;
+    expect(skip.disabled).toBe(false);
+    await act(async () => {
+      skip.click();
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 50));
+    });
+
+    expect(container.textContent).toMatch(/Hem desat la teva veu per a la recerca/);
+    const feedbackBodies = fetchMock.mock.calls
+      .filter(([url]) => String(url).endsWith("/feedback"))
+      .map(([, init]) => JSON.parse(String(init?.body ?? "{}")) as {
+        comarques?: string[];
+        selfReportedDialect?: string;
+      });
+    expect(feedbackBodies.some((body) => body.selfReportedDialect === "unknown")).toBe(true);
+    expect(feedbackBodies.some((body) => (body.comarques?.length ?? 0) > 0)).toBe(false);
   });
 });

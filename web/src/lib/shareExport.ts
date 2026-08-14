@@ -1,5 +1,4 @@
 import {
-  DIALECT_ZONE_LABELS,
   DIALECT_ZONES,
   type AccentScores,
   type DialectZone,
@@ -103,19 +102,35 @@ export function openSocialShareUrl(url: string): void {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+/** Full dialect names for public share copy (not the short ranking labels). */
+export const DIALECT_ZONE_SHARE_LABELS: Record<DialectZone, string> = {
+  balearic: "català balear",
+  central: "català central",
+  northern: "català septentrional",
+  northwestern: "català nord-occidental",
+  valencian: "valencià",
+};
+
+function shareSimilarityLine(topLabel: DialectZone, unresolved: boolean): string {
+  const label = DIALECT_ZONE_SHARE_LABELS[topLabel];
+  if (unresolved) {
+    return `L'Oracle d'accents catalans no n'està del tot segur, però la meva veu s'assembla més al ${label}.`;
+  }
+  return `L'Oracle d'accents catalans ha calculat que la meva veu s'assembla més al ${label}.`;
+}
+
 /** Catalan similarity caption for native share text (no recordingId). */
-export function getShareCaption(topLabel: DialectZone, siteUrl = getPublicSiteUrl()): string {
-  const label = DIALECT_ZONE_LABELS[topLabel];
-  return (
-    `L'Oracle d'accents catalans ha calculat que el meu accent s'assembla més al ${label}.\n\n` +
-    `Prova-ho: ${siteUrl}`
-  );
+export function getShareCaption(
+  topLabel: DialectZone,
+  siteUrl = getPublicSiteUrl(),
+  unresolved = false,
+): string {
+  return `${shareSimilarityLine(topLabel, unresolved)}\n\nProva-ho: ${siteUrl}`;
 }
 
 /** Short in-card sentence (same framing as caption, without promo). */
-export function getShareCardSentence(topLabel: DialectZone): string {
-  const label = DIALECT_ZONE_LABELS[topLabel];
-  return `L'Oracle d'accents catalans ha calculat que el meu accent s'assembla més al ${label}.`;
+export function getShareCardSentence(topLabel: DialectZone, unresolved = false): string {
+  return shareSimilarityLine(topLabel, unresolved);
 }
 
 export function getShareFilename(topLabel: DialectZone): string {

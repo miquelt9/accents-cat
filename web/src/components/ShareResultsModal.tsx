@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useWebImageShare } from "../hooks/useWebImageShare";
 import {
   DIALECT_ZONE_LABELS,
@@ -21,6 +22,7 @@ import {
 interface ShareResultsModalProps {
   scores: AccentScores;
   theme: "light" | "dark";
+  unresolved?: boolean;
   onClose: () => void;
 }
 
@@ -128,8 +130,14 @@ function DownloadIcon() {
   );
 }
 
-export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalProps) {
+export function ShareResultsModal({
+  scores,
+  theme,
+  unresolved = false,
+  onClose,
+}: ShareResultsModalProps) {
   const captureRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const imageCacheRef = useRef<string | null>(null);
   const captureAbortRef = useRef<AbortController | null>(null);
   const { shareImage, isSharing, canShare } = useWebImageShare();
@@ -137,13 +145,14 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [actionHint, setActionHint] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  useFocusTrap(dialogRef, true);
 
   const topThree = rankTopDialects(scores, 3);
   const topLabel = topThree[0] as DialectZone;
   const siteUrl = getPublicSiteUrl();
-  const sentence = getShareCardSentence(topLabel);
+  const sentence = getShareCardSentence(topLabel, unresolved);
   const fileName = getShareFilename(topLabel);
-  const caption = getShareCaption(topLabel, siteUrl);
+  const caption = getShareCaption(topLabel, siteUrl, unresolved);
   const socialLinks = getSocialShareLinks(caption, siteUrl);
 
   useEffect(() => {
@@ -326,16 +335,17 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
 
   return (
     <div
+      ref={dialogRef}
       className="share-modal"
       role="dialog"
       aria-modal="true"
       aria-label="Comparteix el resultat"
+      tabIndex={-1}
     >
-      <button
-        type="button"
+      <div
         className="share-modal-backdrop"
-        aria-label="Tanca"
         onClick={onClose}
+        aria-hidden="true"
       />
       <div className="share-modal-panel">
         <div className="share-modal-header">
@@ -483,7 +493,11 @@ export function ShareResultsModal({ scores, theme, onClose }: ShareResultsModalP
           )}
         </div>
         {actionHint && <p className="share-modal-hint">{actionHint}</p>}
-        {captureError && <p className="error-message">{captureError}</p>}
+        {captureError && (
+          <p className="error-message" role="alert">
+            {captureError}
+          </p>
+        )}
       </div>
     </div>
   );

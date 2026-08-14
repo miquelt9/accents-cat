@@ -30,14 +30,14 @@ DEFAULT_INPUT = PROJECT_ROOT / "data/metadata/cv26-ca/validated_sentences.tsv"
 DEFAULT_OUTPUT = PROJECT_ROOT / "web/src/lib/readAloudPrompts.generated.ts"
 
 TARGET_PROMPTS = 300
-MIN_PROMPT_CHARS = 180
-MAX_PROMPT_CHARS = 220
-MIN_PROMPT_WORDS = 28
-MAX_PROMPT_WORDS = 36
+MIN_PROMPT_CHARS = 110
+MAX_PROMPT_CHARS = 170
+MIN_PROMPT_WORDS = 16
+MAX_PROMPT_WORDS = 26
 MIN_SENTENCE_CHARS = 20
 MAX_SENTENCE_CHARS = 280
-MIN_SINGLE_FALLBACK_CHARS = 180
-MAX_SENTENCES_PER_PROMPT = 4
+MIN_SINGLE_FALLBACK_CHARS = MIN_PROMPT_CHARS
+MAX_SENTENCES_PER_PROMPT = 3
 MAX_CANDIDATES_PER_SOURCE = 3000
 MAX_SOURCE_BUCKETS = 12
 SIMILARITY_FLOOR = 0.15
@@ -45,6 +45,15 @@ PROGRESS_INTERVAL_ROWS = 100_000
 
 SENTENCE_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 WORD_RE = re.compile(r"[^\W\d_][\w'-]*", re.UNICODE)
+# Official-gazette / Generalitat catalogues are readable Catalan but dry to
+# speak aloud. The source column is enough to down-weight them; they are only
+# used if preferred buckets cannot fill TARGET_PROMPTS.
+BUREAUCRATIC_SOURCE_RE = re.compile(
+    r"(?:^|[_\s.-])(gencat|dogc|dogv)(?:$|[_\s.-])",
+    re.IGNORECASE,
+)
+SENTENCE_TERMINATORS = frozenset(".!?…")
+TRAILING_CLOSERS = frozenset("\"'»”’)]")
 
 # Removing frequent function words makes a shared topic word meaningful. This
 # is deliberately a small, conservative list: the TF-IDF score remains the
@@ -84,6 +93,43 @@ def normalize_text(value: str) -> str:
 
 def word_count(text: str) -> int:
     return len(text.split())
+
+
+def ensure_sentence_final_punctuation(text: str) -> str:
+    """Guarantee a terminator before a joining space.
+
+    CV26 sentences often omit a final period, which produced run-ons such as
+    ``…Industrial Prou de xocolata…`` instead of ``…Industrial. Prou…``.
+    Colons and semicolons already mark a pause, so they are left unchanged.
+    """
+    stripped = text.rstrip()
+    if not stripped:
+        return stripped
+    core = stripped
+    while core and core[-1] in TRAILING_CLOSERS:
+        core = core[:-1].rstrip()
+    if not core:
+        return stripped
+    if core[-1] in SENTENCE_TERMINATORS or core[-1] in ":;":
+        return stripped
+    return f"{stripped}."
+
+
+def join_sentences(texts: Iterable[str]) -> str:
+    return " ".join(ensure_sentence_final_punctuation(part) for part in texts)
+
+
+def prompt_fits_limits(text: str) -> bool:
+    chars = len(text)
+    words = word_count(text)
+    return (
+        MIN_PROMPT_CHARS <= chars <= MAX_PROMPT_CHARS
+        and MIN_PROMPT_WORDS <= words <= MAX_PROMPT_WORDS
+    )
+
+
+def is_bureaucratic_source(source: str) -> bool:
+    return bool(BUREAUCRATIC_SOURCE_RE.search(source))
 
 
 def content_tokens(text: str) -> set[str]:
@@ -209,8 +255,10 @@ def build_source_prompts(
         seed_index = min(unused)
         unused.remove(seed_index)
         selected = [seed_index]
-        selected_sentence_keys = {sentences[seed_index].text.casefold()}
-        selected_text = sentences[seed_index].text
+        selected_sentence_keys = {
+            ensure_sentence_final_punctuation(sentences[seed_index].text).casefold()
+        }
+        selected_text = ensure_sentence_final_punctuation(sentences[seed_index].text)
         pair_scores: list[float] = []
         current_index = seed_index
 
@@ -227,9 +275,9 @@ def build_source_prompts(
                 if score < similarity_floor:
                     break
                 candidate = sentences[index]
-                if candidate.text.casefold() in selected_sentence_keys:
+                if ensure_sentence_final_punctuation(candidate.text).casefold() in selected_sentence_keys:
                     continue
-                next_text = f"{selected_text} {candidate.text}"
+                next_text = join_sentences((selected_text, candidate.text))
                 if (
                     len(next_text) > MAX_PROMPT_CHARS
                     or word_count(next_text) > MAX_PROMPT_WORDS
@@ -253,8 +301,10 @@ def build_source_prompts(
 
             unused.remove(chosen_index)
             selected.append(chosen_index)
-            selected_sentence_keys.add(sentences[chosen_index].text.casefold())
-            selected_text = f"{selected_text} {sentences[chosen_index].text}"
+            selected_sentence_keys.add(
+                ensure_sentence_final_punctuation(sentences[chosen_index].text).casefold()
+            )
+            selected_text = join_sentences((selected_text, sentences[chosen_index].text))
             pair_scores.append(chosen_score)
             current_index = chosen_index
 
@@ -264,20 +314,19 @@ def build_source_prompts(
             ):
                 break
 
-        if (
-            len(selected_text) < MIN_PROMPT_CHARS
-            or word_count(selected_text) < MIN_PROMPT_WORDS
-        ):
+        if not prompt_fits_limits(selected_text):
             # A single long sentence is preferable to an incoherent join. A
             # short unfinished group is discarded rather than padded at random.
+            fallback_text = ensure_sentence_final_punctuation(
+                sentences[seed_index].text
+            )
             if (
-                len(sentences[seed_index].text) < MIN_SINGLE_FALLBACK_CHARS
-                or word_count(sentences[seed_index].text) < MIN_PROMPT_WORDS
-                or word_count(sentences[seed_index].text) > MAX_PROMPT_WORDS
+                len(fallback_text) < MIN_SINGLE_FALLBACK_CHARS
+                or not prompt_fits_limits(fallback_text)
             ):
                 continue
             selected = [seed_index]
-            selected_text = sentences[seed_index].text
+            selected_text = fallback_text
             pair_scores = []
 
         prompt = Prompt(
@@ -300,17 +349,30 @@ def choose_prompts(
     similarity_floor: float,
     progress: ProgressReporter | None = None,
 ) -> list[Prompt]:
-    active_sources = sorted(
+    ranked_sources = sorted(
         (source for source, sentences in buckets.items() if len(sentences) >= 2),
-        key=lambda source: (-len(buckets[source]), source),
-    )[:MAX_SOURCE_BUCKETS]
+        key=lambda source: (
+            int(is_bureaucratic_source(source)),
+            -len(buckets[source]),
+            source,
+        ),
+    )
+    active_sources = ranked_sources[:MAX_SOURCE_BUCKETS]
     if not active_sources:
         return []
 
     source_cap = max(1, (target_prompts + min(len(active_sources), 10) - 1) // min(len(active_sources), 10))
     source_prompts: dict[str, list[Prompt]] = {}
     if progress:
-        progress(f"Building prompts from {len(active_sources)} source buckets")
+        skipped = sum(1 for source in active_sources if is_bureaucratic_source(source))
+        progress(
+            f"Building prompts from {len(active_sources)} source buckets"
+            + (
+                f" ({skipped} bureaucratic overflow)"
+                if skipped
+                else " (bureaucratic sources down-weighted)"
+            )
+        )
     for source_index, source in enumerate(active_sources, start=1):
         if progress:
             progress(
@@ -389,6 +451,7 @@ def write_typescript(output_path: Path, prompts: list[Prompt]) -> None:
 def print_summary(prompts: list[Prompt], valid_rows: int) -> None:
     joined = [prompt for prompt in prompts if len(prompt.sentence_ids) > 1]
     lengths = [len(prompt.text) for prompt in prompts]
+    words = [word_count(prompt.text) for prompt in prompts]
     similarities = [prompt.similarity for prompt in joined]
     print(f"Read {valid_rows:,} valid CV26 sentence rows.")
     print(f"Generated {len(prompts)} prompts ({len(joined)} joined).")
@@ -397,6 +460,16 @@ def print_summary(prompts: list[Prompt], valid_rows: int) -> None:
             f"Prompt chars: min={min(lengths)} median={int(np.median(lengths))} "
             f"max={max(lengths)}"
         )
+    if words:
+        print(
+            f"Prompt words: min={min(words)} median={int(np.median(words))} "
+            f"max={max(words)}"
+        )
+    print(
+        f"Sentences per prompt: max={max(len(prompt.sentence_ids) for prompt in prompts)}"
+        if prompts
+        else "Sentences per prompt: n/a"
+    )
     if similarities:
         print(f"Mean joined TF-IDF similarity: {float(np.mean(similarities)):.3f}")
     for prompt in prompts[:5]:

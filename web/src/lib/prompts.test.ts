@@ -24,17 +24,20 @@ describe("pickReadAloudPrompt", () => {
 });
 
 describe("READ_ALOUD_PROMPTS", () => {
-  it("has unique ids and 15–20 second-length texts", () => {
+  it("has unique ids and shorter read-aloud texts", () => {
     const ids = READ_ALOUD_PROMPTS.map((prompt) => prompt.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const prompt of READ_ALOUD_PROMPTS) {
       expect(prompt.id).toMatch(/^cv26-[0-9a-f]{16}$/);
-      expect(prompt.text.length).toBeGreaterThanOrEqual(200);
-      expect(prompt.text.length).toBeLessThanOrEqual(220);
-      expect(prompt.text.split(/\s+/).length).toBeGreaterThanOrEqual(28);
-      expect(prompt.text.split(/\s+/).length).toBeLessThanOrEqual(36);
+      expect(prompt.text.length).toBeGreaterThanOrEqual(110);
+      expect(prompt.text.length).toBeLessThanOrEqual(170);
+      expect(prompt.text.split(/\s+/).length).toBeGreaterThanOrEqual(16);
+      expect(prompt.text.split(/\s+/).length).toBeLessThanOrEqual(26);
       expect(prompt.sentenceIds.length).toBeGreaterThanOrEqual(1);
-      expect(prompt.sentenceIds.length).toBeLessThanOrEqual(4);
+      expect(prompt.sentenceIds.length).toBeLessThanOrEqual(3);
+      if (prompt.sentenceIds.length > 1) {
+        expect(prompt.text).toMatch(/[.!?…]["'»”’)\]]*\s+\S/);
+      }
       const sentences = prompt.text
         .split(/(?<=[.!?])\s+/)
         .map((sentence) => sentence.trim())

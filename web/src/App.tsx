@@ -28,6 +28,8 @@ import {
   syncDevFlagFromUrl,
   type AccentOracleMode,
 } from "./lib/devFlags";
+import { useAnalyzingLabel } from "./hooks/useAnalyzingLabel";
+import { useFocusTrap } from "./hooks/useFocusTrap";
 import type { LegalDocId } from "./lib/legalDocs";
 import { aggregateValidationResults, needsValidation } from "./lib/needsValidation";
 import {
@@ -38,22 +40,13 @@ import {
 } from "./lib/prompts";
 import { trackUiEvent } from "./lib/telemetry";
 
-type AppPhase =
-  | "landing"
-  | "recording"
-  | "validation"
-  | "offer-third"
-  | "refine"
-  | "results"
-  | "manage-data"
-  | "privacy"
-  | "terms";
+type AppPhase = "landing" | "recording" | "validation" | "offer-third" | "refine" | "results";
+type ChromeOverlay = "manage-data" | LegalDocId;
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "accent-oracle-theme";
 /** Slightly longer than `--theme-crossfade-duration` so the class outlives the CSS transition. */
 const THEME_CROSSFADE_CLASS_MS = 500;
-const OVERLAY_PHASES = new Set<AppPhase>(["manage-data", "privacy", "terms"]);
 
 function applyThemeToDocument(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
@@ -78,9 +71,18 @@ function getInitialDevToolsEnabled(): boolean {
   return isDevToolsEnabled();
 }
 
+function overlayTitle(overlay: ChromeOverlay): string {
+  if (overlay === "manage-data") {
+    return "Gestiona les meves dades";
+  }
+  return overlay === "privacy" ? "Política de privadesa" : "Termes d'ús";
+}
+
 function App() {
   const [phase, setPhase] = useState<AppPhase>("landing");
-  const [returnPhase, setReturnPhase] = useState<AppPhase>("landing");
+  const [chromeOverlay, setChromeOverlay] = useState<ChromeOverlay | null>(null);
+  const overlayOriginRef = useRef<ChromeOverlay | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState<Theme>(() => {
     const initial = getInitialTheme();
     if (typeof document !== "undefined") {
@@ -115,6 +117,8 @@ function App() {
     researchRetained,
     accentOracleMode,
   });
+  const analyzingLabel = useAnalyzingLabel(isAnalyzing);
+  useFocusTrap(overlayRef, chromeOverlay != null, chromeOverlay);
 
   useEffect(() => {
     trackUiEvent("homepage_viewed");
@@ -201,26 +205,55 @@ function App() {
     });
   }
 
-  function openOverlay(next: AppPhase) {
-    const holdingPending =
-      phase === "validation" ||
-      phase === "results" ||
-      phase === "offer-third" ||
-      phase === "refine";
-    if (holdingPending && next !== "privacy" && next !== "terms") {
-      declinePendingAnalysis(analysisSessionId);
-    }
-    setReturnPhase(OVERLAY_PHASES.has(phase) ? returnPhase : phase);
-    setPhase(next);
+  function openOverlay(next: ChromeOverlay) {
+    overlayOriginRef.current = null;
+    setChromeOverlay(next);
   }
 
   function closeOverlay() {
-    setPhase(OVERLAY_PHASES.has(returnPhase) ? "landing" : returnPhase);
+    if (
+      (chromeOverlay === "privacy" || chromeOverlay === "terms") &&
+      overlayOriginRef.current === "manage-data"
+    ) {
+      overlayOriginRef.current = null;
+      setChromeOverlay("manage-data");
+      return;
+    }
+    overlayOriginRef.current = null;
+    setChromeOverlay(null);
   }
 
   function openLegalDoc(docId: LegalDocId) {
-    openOverlay(docId);
+    if (chromeOverlay === "manage-data") {
+      overlayOriginRef.current = "manage-data";
+    } else if (chromeOverlay !== "privacy" && chromeOverlay !== "terms") {
+      overlayOriginRef.current = null;
+    }
+    setChromeOverlay(docId);
   }
+
+  useEffect(() => {
+    if (!chromeOverlay) {
+      return;
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeOverlay();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+    // closeOverlay only depends on chromeOverlay / origin ref.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- overlay identity
+  }, [chromeOverlay]);
 
   function resetFlow() {
     declinePendingAnalysis(analysisSessionId);
@@ -229,7 +262,8 @@ function App() {
     // (landing auto-promote or results Sí) — not a bare unchecked→checked checkbox.
     const keepConsent = visitResearchConsented || researchRetained;
     setPhase("landing");
-    setReturnPhase("landing");
+    setChromeOverlay(null);
+    overlayOriginRef.current = null;
     setResult(null);
     setPendingResult(null);
     setTakeResults([]);
@@ -459,19 +493,10 @@ function App() {
     );
   }
 
-  const showPrivacyFooter =
-    phase === "landing" ||
-    phase === "recording" ||
-    phase === "validation" ||
-    phase === "offer-third" ||
-    phase === "refine" ||
-    phase === "results";
-  const analysisStatusText =
-    isApiMode(accentOracleMode)
-      ? "Analitzant la mostra… La inferència pot trigar una mica en CPU."
-      : "Analitzant la mostra…";
   const showRecorder =
     (phase === "recording" || phase === "validation" || phase === "refine") && activePrompt;
+  const takeIndexLabel =
+    phase === "refine" ? "Lectura 3" : phase === "validation" ? "Lectura 2" : "Lectura 1";
 
   const resultsScores =
     phase === "results" && result
@@ -524,7 +549,7 @@ function App() {
         <section className="hero landing-hero">
           <div className="hero-copy landing-copy">
             <p className="eyebrow">Oracle d&apos;accents catalans</p>
-            <h1>Quin és el meu accent en català?</h1>
+            <h1>A quin accent s&apos;assembla la teva veu?</h1>
             <p>
               Llegeix un text en veu alta i descobreix amb quines zones dialectals del català la teva veu
               sona més similar.
@@ -535,6 +560,7 @@ function App() {
             </button>
             {visitResearchConsented ? (
               <p className="landing-preconsent-retained">
+                Col·labores en aquesta visita.{" "}
                 <button
                   className="privacy-link legal-inline-link"
                   onClick={() => openLegalDoc("privacy")}
@@ -569,12 +595,15 @@ function App() {
               </label>
             )}
           </div>
+          <div className="hero-panel landing-hero-map" aria-hidden="true">
+            <img alt="" src="/map-oracle-linework.svg" />
+          </div>
         </section>
       )}
 
       {phase === "offer-third" && result && (
         <section className="card prompt-card offer-third-card" aria-label="Tercera lectura opcional">
-          <h2>Ens dones una última oportunitat?</h2>
+          <h2>Tercera lectura</h2>
           <p>
             Pots fer una tercera lectura per refinar el mapa, o continuar amb el resultat actual.
           </p>
@@ -606,9 +635,11 @@ function App() {
       {showRecorder && (
         <>
           <section className="card prompt-card">
+            <p className="take-index-label">{takeIndexLabel}</p>
             {phase === "validation" ? (
               <>
                 <h2>Encara no n&apos;estem del tot segurs</h2>
+                <p>Hem rebut la primera lectura. Llegeix un altre text per confirmar el resultat.</p>
                 {devToolsEnabled && pendingResult && (
                   <p className="validation-note">
                     <span className="dev-only-hint">*dev mode</span> Les zones més properes són{" "}
@@ -630,7 +661,7 @@ function App() {
               </>
             ) : phase === "refine" ? (
               <>
-                <h2>Ens dones una última oportunitat?</h2>
+                <h2>Encara no n&apos;estem del tot segurs</h2>
                 <p className="read-instruction">Llegeix aquest text en veu alta</p>
                 <blockquote>{activePrompt.text}</blockquote>
               </>
@@ -648,12 +679,21 @@ function App() {
               onRecordingReady={analyzeRecording}
               theme={theme}
             />
-            {devToolsEnabled && isAnalyzing && (
-              <p className="analysis-status" aria-live="polite">
-                {analysisStatusText}
+            {isAnalyzing && (
+              <p className="analysis-status">
+                <span aria-hidden="true">
+                  {analyzingLabel.visible}
+                  {devToolsEnabled && isApiMode(accentOracleMode)
+                    ? " La inferència pot trigar una mica en CPU."
+                    : ""}
+                </span>
               </p>
             )}
-            {analysisError && <p className="error-message">{analysisError}</p>}
+            {analysisError && (
+              <p className="error-message" role="alert">
+                {analysisError}
+              </p>
+            )}
           </section>
         </>
       )}
@@ -670,8 +710,13 @@ function App() {
           <ResultsMapStage
             scores={resultsScores}
             unresolved={terminalUnresolved}
+            confidenceSummary={result.confidenceSummary}
           />
-          {analysisError && <p className="error-message">{analysisError}</p>}
+          {analysisError && (
+            <p className="error-message" role="alert">
+              {analysisError}
+            </p>
+          )}
           <ResultsConsentFeedback
             preConsented={preConsented}
             initialComarques={rememberedComarques}
@@ -712,43 +757,52 @@ function App() {
             <ShareResultsModal
               scores={resultsScores}
               theme={theme}
+              unresolved={terminalUnresolved}
               onClose={() => setShareOpen(false)}
             />
           )}
         </>
       )}
 
-      {phase === "manage-data" && (
-        <ManageMyData
-          onBack={closeOverlay}
-          onOpenPrivacy={() => openLegalDoc("privacy")}
-          onOpenTerms={() => openLegalDoc("terms")}
-        />
+      {chromeOverlay && (
+        <div
+          ref={overlayRef}
+          className="chrome-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={overlayTitle(chromeOverlay)}
+          tabIndex={-1}
+        >
+          {chromeOverlay === "manage-data" && (
+            <ManageMyData
+              onBack={closeOverlay}
+              onOpenPrivacy={() => openLegalDoc("privacy")}
+              onOpenTerms={() => openLegalDoc("terms")}
+            />
+          )}
+          {(chromeOverlay === "privacy" || chromeOverlay === "terms") && (
+            <LegalDocument docId={chromeOverlay} onBack={closeOverlay} onOpenOther={openLegalDoc} />
+          )}
+        </div>
       )}
 
-      {(phase === "privacy" || phase === "terms") && (
-        <LegalDocument docId={phase} onBack={closeOverlay} onOpenOther={openLegalDoc} />
-      )}
-
-      {showPrivacyFooter && (
-        <footer className="privacy-footer">
-          <button className="privacy-link" onClick={() => openOverlay("manage-data")} type="button">
-            Gestiona les meves dades
-          </button>
-          <span className="privacy-footer-sep" aria-hidden="true">
-            ·
-          </span>
-          <button className="privacy-link" onClick={() => openLegalDoc("privacy")} type="button">
-            Privadesa
-          </button>
-          <span className="privacy-footer-sep" aria-hidden="true">
-            ·
-          </span>
-          <button className="privacy-link" onClick={() => openLegalDoc("terms")} type="button">
-            Termes
-          </button>
-        </footer>
-      )}
+      <footer className="privacy-footer">
+        <button className="privacy-link" onClick={() => openOverlay("manage-data")} type="button">
+          Gestiona les meves dades
+        </button>
+        <span className="privacy-footer-sep" aria-hidden="true">
+          ·
+        </span>
+        <button className="privacy-link" onClick={() => openLegalDoc("privacy")} type="button">
+          Privadesa
+        </button>
+        <span className="privacy-footer-sep" aria-hidden="true">
+          ·
+        </span>
+        <button className="privacy-link" onClick={() => openLegalDoc("terms")} type="button">
+          Termes
+        </button>
+      </footer>
     </main>
   );
 }

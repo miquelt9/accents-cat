@@ -31,16 +31,24 @@ describe("rankTopDialects", () => {
 });
 
 describe("getShareCardSentence / getShareCaption", () => {
-  it("frames similarity (not origin) with the top dialect label", () => {
+  it("frames similarity (not origin) with the full dialect name", () => {
     const sentence = getShareCardSentence("central");
-    expect(sentence).toContain("s'assembla més al Central");
+    expect(sentence).toContain("s'assembla més al català central");
     expect(sentence.toLowerCase()).not.toContain("origen");
     expect(sentence.toLowerCase()).not.toContain("nascut");
+    expect(sentence).not.toContain("s'assembla més al Central");
+    expect(sentence).not.toContain("s'assembla més al Nord");
+  });
+
+  it("uses an unresolved variant when the result is still uncertain", () => {
+    const sentence = getShareCardSentence("northern", true);
+    expect(sentence).toContain("no n'està del tot segur");
+    expect(sentence).toContain("català septentrional");
   });
 
   it("appends promo URL without recordingId", () => {
     const caption = getShareCaption("valencian", "example.com");
-    expect(caption).toContain("s'assembla més al Valencià");
+    expect(caption).toContain("s'assembla més al valencià");
     expect(caption).toContain("Prova-ho: example.com");
     expect(caption).not.toMatch(/recording/i);
     expect(caption).not.toMatch(
@@ -72,7 +80,7 @@ describe("getPublicSiteHref / getSocialShareLinks", () => {
     const caption = getShareCaption("central", "example.com");
     const links = getSocialShareLinks(caption, "example.com");
     expect(links.whatsapp).toContain("https://wa.me/?text=");
-    expect(links.whatsapp).toContain(encodeURIComponent("s'assembla més al Central"));
+    expect(links.whatsapp).toContain(encodeURIComponent("s'assembla més al català central"));
     expect(links.x).toContain("https://twitter.com/intent/tweet?text=");
     expect(links.telegram).toContain("https://t.me/share/url?");
     expect(links.telegram).toContain(encodeURIComponent("https://example.com"));

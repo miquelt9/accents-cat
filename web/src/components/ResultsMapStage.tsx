@@ -20,11 +20,13 @@ import { DialectMap } from "./map/DialectMap";
 interface ResultsMapStageProps {
   scores: AccentScores;
   unresolved?: boolean;
+  confidenceSummary?: string;
 }
 
 export function ResultsMapStage({
   scores,
   unresolved = false,
+  confidenceSummary,
 }: ResultsMapStageProps) {
   const rankedZones = useMemo(
     () => [...DIALECT_ZONES].sort((a, b) => scores[b] - scores[a]),
@@ -75,6 +77,7 @@ export function ResultsMapStage({
 
   function onMapSelect(slug: string) {
     if (!slug) {
+      setInspectedComarca(null);
       return;
     }
     const zone = zoneForComarcaSlug(slug);
@@ -104,6 +107,9 @@ export function ResultsMapStage({
             <strong>{DIALECT_ZONE_LABELS[topZone]}</strong>
             <span className="top-result-score">{Math.round(scores[topZone] * 100)}%</span>
           </article>
+          {confidenceSummary ? (
+            <p className="results-confidence-summary">{confidenceSummary}</p>
+          ) : null}
 
           <div className="dialect-rank-list" role="list">
             {rankedZones.map((zone) => {
@@ -123,20 +129,21 @@ export function ResultsMapStage({
                   >
                     <span className="dialect-rank-name">{DIALECT_ZONE_LABELS[zone]}</span>
                     <span className="dialect-rank-pct">{pct}%</span>
+                    <div className="dialect-rank-bar-track" aria-hidden>
+                      <div
+                        className="dialect-rank-bar-fill"
+                        style={{
+                          width: `${pct}%`,
+                          transition: `width 190ms cubic-bezier(${accordionEase.join(",")})`,
+                        }}
+                      />
+                    </div>
                   </button>
-                  <div className="dialect-rank-bar-track" aria-hidden>
-                    <div
-                      className="dialect-rank-bar-fill"
-                      style={{
-                        width: `${pct}%`,
-                        transition: `width 190ms cubic-bezier(${accordionEase.join(",")})`,
-                      }}
-                    />
-                  </div>
                 </div>
               );
             })}
           </div>
+          <p className="results-ranking-hint">Toca un accent per veure&apos;l al mapa</p>
         </div>
 
         <DialectMap

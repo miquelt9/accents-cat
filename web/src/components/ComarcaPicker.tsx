@@ -199,6 +199,11 @@ export function ComarcaPicker({
           Seleccionades: {selectedLabels.join(", ")}
         </p>
       )}
+      {selectedSlugs.length >= MAX_COMARQUES && (
+        <p className="comarca-picker-cap" role="status">
+          Màxim 12 comarques
+        </p>
+      )}
 
       <div
         id={listboxId}
