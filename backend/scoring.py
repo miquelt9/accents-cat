@@ -5,6 +5,15 @@ from typing import Any, Sequence
 import numpy as np
 
 
+DIALECT_LABELS = {
+    "balearic": "balear",
+    "central": "central",
+    "northern": "septentrional",
+    "northwestern": "nord-occidental",
+    "valencian": "valencià",
+}
+
+
 def evidence_band(top_two_gap: float, confidence: float) -> str:
     if top_two_gap < 0.08 or confidence < 0.32:
         return "limited"
@@ -15,12 +24,12 @@ def evidence_band(top_two_gap: float, confidence: float) -> str:
 
 def confidence_summary(band: str, ambiguous: bool) -> str:
     if ambiguous:
-        return "Top two areas are close, so the map intentionally shows a broader similarity pattern."
+        return "Les dues zones principals són properes, així que el mapa mostra intencionadament un patró de similitud més ampli."
     if band == "strong":
-        return "The model signal is relatively concentrated, but still not an exact origin estimate."
+        return "El senyal del model és relativament concentrat, però encara no és una estimació exacta de l'origen."
     if band == "moderate":
-        return "The model has a leading area with meaningful uncertainty around it."
-    return "The recording offers limited evidence, so uncertainty is high."
+        return "El model detecta una zona principal, però hi ha una incertesa significativa al voltant."
+    return "La gravació aporta evidència limitada, així que la incertesa és alta."
 
 
 def build_result(probabilities: np.ndarray, labels: Sequence[str]) -> dict[str, Any]:
@@ -42,5 +51,8 @@ def build_result(probabilities: np.ndarray, labels: Sequence[str]) -> dict[str, 
         "isAmbiguousTopTwo": ambiguous,
         "evidenceBand": band,
         "confidenceSummary": confidence_summary(band, ambiguous),
-        "interpretation": f"This recording sounds most similar to {top_label.title()} Catalan areas in the current model.",
+        "interpretation": (
+            f"Aquesta gravació sona més similar a la zona del català "
+            f"{DIALECT_LABELS.get(top_label, top_label)} segons el model actual."
+        ),
     }

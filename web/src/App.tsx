@@ -28,7 +28,6 @@ import {
   syncDevFlagFromUrl,
   type AccentOracleMode,
 } from "./lib/devFlags";
-import { useAnalyzingLabel } from "./hooks/useAnalyzingLabel";
 import { useFocusTrap } from "./hooks/useFocusTrap";
 import type { LegalDocId } from "./lib/legalDocs";
 import { aggregateValidationResults, needsValidation } from "./lib/needsValidation";
@@ -117,7 +116,6 @@ function App() {
     researchRetained,
     accentOracleMode,
   });
-  const analyzingLabel = useAnalyzingLabel(isAnalyzing);
   useFocusTrap(overlayRef, chromeOverlay != null, chromeOverlay);
 
   useEffect(() => {
@@ -595,9 +593,6 @@ function App() {
               </label>
             )}
           </div>
-          <div className="hero-panel landing-hero-map" aria-hidden="true">
-            <img alt="" src="/map-oracle-linework.svg" />
-          </div>
         </section>
       )}
 
@@ -679,16 +674,6 @@ function App() {
               onRecordingReady={analyzeRecording}
               theme={theme}
             />
-            {isAnalyzing && (
-              <p className="analysis-status">
-                <span aria-hidden="true">
-                  {analyzingLabel.visible}
-                  {devToolsEnabled && isApiMode(accentOracleMode)
-                    ? " La inferència pot trigar una mica en CPU."
-                    : ""}
-                </span>
-              </p>
-            )}
             {analysisError && (
               <p className="error-message" role="alert">
                 {analysisError}

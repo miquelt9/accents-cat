@@ -300,10 +300,7 @@ export function RecorderPanel({
 
       <div className="recorder-stage">
         <MicrophoneWaveform isActive={isRecording} stream={activeStream} theme={theme} />
-        <p
-          aria-live="polite"
-          className={liveStatus ? "recorder-live-status" : "visually-hidden"}
-        >
+        <p aria-live="polite" className="visually-hidden">
           {liveStatus}
         </p>
         <button

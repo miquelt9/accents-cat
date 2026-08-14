@@ -468,18 +468,6 @@ export function ShareResultsModal({
               >
                 <DownloadIcon />
               </button>
-              <button
-                type="button"
-                className="secondary share-modal-copy"
-                disabled={busy}
-                onClick={() => void handleCopy()}
-                aria-label="Copia el text"
-              >
-                <span>
-                  <CopyIcon />
-                  {copied ? "Copiat" : "Copia el text"}
-                </span>
-              </button>
             </>
           ) : (
             <button

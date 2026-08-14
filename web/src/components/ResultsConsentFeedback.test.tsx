@@ -351,7 +351,7 @@ describe("ResultsConsentFeedback decline flow", () => {
     expect(feedbackBodies.some((body) => (body.comarques?.length ?? 0) > 0)).toBe(false);
   });
 
-  it("skips the comarca sheet with Ara no", async () => {
+  it("requires a comarca selection before sending", async () => {
     const fetchMock = vi.fn((...args: [RequestInfo | URL, RequestInit?]) => {
       const [input] = args;
       const url = String(input);
@@ -387,26 +387,9 @@ describe("ResultsConsentFeedback decline flow", () => {
       await Promise.resolve();
     });
 
-    const skip = container.querySelector(
-      ".feedback-comarca-skip",
-    ) as HTMLButtonElement;
-    expect(skip.disabled).toBe(false);
-    await act(async () => {
-      skip.click();
-      await Promise.resolve();
-    });
-    await act(async () => {
-      await new Promise((resolve) => window.setTimeout(resolve, 50));
-    });
-
-    expect(container.textContent).toMatch(/Hem desat la teva veu per a la recerca/);
-    const feedbackBodies = fetchMock.mock.calls
-      .filter(([url]) => String(url).endsWith("/feedback"))
-      .map(([, init]) => JSON.parse(String(init?.body ?? "{}")) as {
-        comarques?: string[];
-        selfReportedDialect?: string;
-      });
-    expect(feedbackBodies.some((body) => body.selfReportedDialect === "unknown")).toBe(true);
-    expect(feedbackBodies.some((body) => (body.comarques?.length ?? 0) > 0)).toBe(false);
+    expect(container.querySelector(".feedback-comarca-skip")).toBeNull();
+    expect(
+      (container.querySelector(".feedback-comarca-send") as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 });

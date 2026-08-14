@@ -25,10 +25,10 @@ def test_evidence_band_boundaries(gap: float, confidence: float, expected: str) 
 
 
 def test_confidence_summary_variants() -> None:
-    assert "broader similarity" in confidence_summary("limited", True)
-    assert "concentrated" in confidence_summary("strong", False)
-    assert "uncertainty" in confidence_summary("moderate", False)
-    assert "limited evidence" in confidence_summary("limited", False)
+    assert "similitud més ampli" in confidence_summary("limited", True)
+    assert "concentrat" in confidence_summary("strong", False)
+    assert "incertesa significativa" in confidence_summary("moderate", False)
+    assert "evidència limitada" in confidence_summary("limited", False)
 
 
 def test_build_result_ranking_and_ambiguity() -> None:
@@ -52,4 +52,4 @@ def test_build_result_strong_non_ambiguous() -> None:
     assert result["topTwoGap"] == pytest.approx(0.60, abs=1e-4)
     assert result["isAmbiguousTopTwo"] is False
     assert result["evidenceBand"] == "strong"
-    assert "Valencian" in result["interpretation"]
+    assert "valencià" in result["interpretation"]

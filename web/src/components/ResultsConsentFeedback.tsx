@@ -278,13 +278,6 @@ export function ResultsConsentFeedback({
     await submitComarcaFeedback({ comarques: slugs, selfReportedDialect: dialect });
   }
 
-  async function skipComarca() {
-    await submitComarcaFeedback({
-      comarques: [],
-      selfReportedDialect: "unknown",
-    });
-  }
-
   function dismissSheet() {
     if (isSubmitting || legalDoc) {
       return;
@@ -634,14 +627,6 @@ export function ResultsConsentFeedback({
                       type="button"
                     >
                       Envia
-                    </button>
-                    <button
-                      className="secondary feedback-comarca-skip"
-                      disabled={isSubmitting}
-                      onClick={() => void skipComarca()}
-                      type="button"
-                    >
-                      Ara no
                     </button>
                   </div>
                 </div>
