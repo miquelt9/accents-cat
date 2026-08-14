@@ -54,6 +54,9 @@ describe("trackUiEvent", () => {
   it("dual-fires new allowlisted events by name only", () => {
     for (const event of [
       "analysis_completed",
+      "recording_press_hold",
+      "recording_too_short",
+      "recording_no_speech",
       "share_clicked",
       "research_consent_accepted",
     ] as const) {

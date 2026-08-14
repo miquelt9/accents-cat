@@ -15,6 +15,11 @@ from backend.observability import (
 def test_ui_event_allowlist() -> None:
     assert is_ui_event_allowed("page_load")
     assert is_ui_event_allowed("homepage_viewed")
+    assert is_ui_event_allowed("recording_started")
+    assert is_ui_event_allowed("recording_press_hold")
+    assert is_ui_event_allowed("recording_too_short")
+    assert is_ui_event_allowed("recording_no_speech")
+    assert is_ui_event_allowed("recording_completed")
     assert is_ui_event_allowed("analyze_pressed")
     assert is_ui_event_allowed("analysis_completed")
     assert is_ui_event_allowed("validation_started")
@@ -27,6 +32,9 @@ def test_ui_event_allowlist() -> None:
         "page_load",
         "homepage_viewed",
         "recording_started",
+        "recording_press_hold",
+        "recording_too_short",
+        "recording_no_speech",
         "recording_completed",
         "analyze_pressed",
         "analysis_completed",

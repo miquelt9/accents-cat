@@ -415,8 +415,14 @@ h2 {
 }
 
 .hero-link {
+  gap: 0.2rem;
   margin-top: 1rem;
   width: fit-content;
+}
+
+.hero-link-icon {
+  height: 1.15em;
+  width: 1.15em;
 }
 
 .prompt-card blockquote {
@@ -437,6 +443,14 @@ h2 {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.prompt-card .quiet-recording-hint {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0.65rem 0 0;
 }
 
 .landing-hero {
@@ -1481,6 +1495,26 @@ h2 {
   justify-items: center;
 }
 
+.recorder-panel .recorder-live-status {
+  color: var(--danger-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  margin: 0;
+  text-align: center;
+}
+
+.recorder-panel .recorder-caption {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  margin: 0;
+  text-align: center;
+}
+
 .mic-button {
   align-items: center;
   background: var(--accent);
@@ -1532,6 +1566,11 @@ h2 {
   position: relative;
   width: 34px;
   z-index: 1;
+}
+
+.mic-icon-stop {
+  height: 28px;
+  width: 28px;
 }
 
 .mic-progress-ring {

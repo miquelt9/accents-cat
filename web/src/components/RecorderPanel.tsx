@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   SILENCE_DURATION_MS,
   SPEECH_RMS_THRESHOLD,
@@ -13,6 +13,10 @@ import { MicrophoneWaveform } from "./MicrophoneWaveform";
 export const MIN_RECORD_SECONDS = 1.5;
 /** Matches the backend's default `ORACLE_MAX_AUDIO_SECONDS`. */
 export const MAX_RECORD_SECONDS = 25;
+/** Pointer-down duration that counts as leftover press-and-hold (name-only telemetry). */
+const PRESS_HOLD_MS = 400;
+/** Click can lag pointerup (touch); only count a hold if the start click arrives soon after. */
+const PRESS_HOLD_CLICK_GRACE_MS = 500;
 
 interface RecorderPanelProps {
   onRecordingReady: (audio: Blob) => void;
@@ -47,6 +51,9 @@ export function RecorderPanel({
   const startedAtRef = useRef<number | null>(null);
   const maxDurationTimerRef = useRef<number | null>(null);
   const [showRetakeHint, setShowRetakeHint] = useState(false);
+  const pointerDownAtRef = useRef<number | null>(null);
+  const holdUntilRef = useRef(0);
+  const startWasHoldRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -65,6 +72,35 @@ export function RecorderPanel({
 
   function showSilentTakeHint() {
     setShowRetakeHint(true);
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (event.button !== 0) {
+      return;
+    }
+    pointerDownAtRef.current = performance.now();
+  }
+
+  function handlePointerUp() {
+    const downAt = pointerDownAtRef.current;
+    pointerDownAtRef.current = null;
+    if (downAt != null && performance.now() - downAt >= PRESS_HOLD_MS) {
+      holdUntilRef.current = performance.now() + PRESS_HOLD_CLICK_GRACE_MS;
+    }
+  }
+
+  function handlePointerCancel() {
+    pointerDownAtRef.current = null;
+  }
+
+  function consumeStartHold(): boolean {
+    const now = performance.now();
+    const downAt = pointerDownAtRef.current;
+    pointerDownAtRef.current = null;
+    const fromPointer = downAt != null && now - downAt >= PRESS_HOLD_MS;
+    const fromGrace = now < holdUntilRef.current;
+    holdUntilRef.current = 0;
+    return fromPointer || fromGrace;
   }
 
   async function startRecording() {
@@ -116,11 +152,13 @@ export function RecorderPanel({
 
         if (elapsedMs / 1000 < MIN_RECORD_SECONDS) {
           const minSecs = MIN_RECORD_SECONDS.toFixed(1).replace(".", ",");
+          trackUiEvent("recording_too_short");
           setError(`La gravació és massa curta. Calen almenys ${minSecs} segons.`);
           return;
         }
 
         if (silenceMonitor && !hasDetectedSpeech(silenceSnapshot, SPEECH_RMS_THRESHOLD)) {
+          trackUiEvent("recording_no_speech");
           showSilentTakeHint();
           return;
         }
@@ -137,6 +175,9 @@ export function RecorderPanel({
       startedAtRef.current = startedAtMs;
       recorder.start();
       trackUiEvent("recording_started");
+      if (startWasHoldRef.current) {
+        trackUiEvent("recording_press_hold");
+      }
       setIsRecording(true);
       if (typeof AudioContext !== "undefined") {
         try {
@@ -169,12 +210,21 @@ export function RecorderPanel({
 
   function toggleRecording() {
     if (isRecording) {
+      pointerDownAtRef.current = null;
+      holdUntilRef.current = 0;
       stopRecording();
       return;
     }
 
+    startWasHoldRef.current = consumeStartHold();
     void startRecording();
   }
+
+  const liveStatus = analyzing
+    ? "Analitzant la mostra…"
+    : isRecording
+      ? "Gravant…"
+      : "";
 
   return (
     <div className="recorder-panel" aria-labelledby="recorder-title">
@@ -184,6 +234,12 @@ export function RecorderPanel({
 
       <div className="recorder-stage">
         <MicrophoneWaveform isActive={isRecording} stream={activeStream} theme={theme} />
+        <p
+          aria-live="polite"
+          className={liveStatus ? "recorder-live-status" : "visually-hidden"}
+        >
+          {liveStatus}
+        </p>
         <button
           aria-busy={analyzing || undefined}
           aria-label={
@@ -193,6 +249,9 @@ export function RecorderPanel({
           className={`mic-button${isRecording ? " recording" : ""}${analyzing ? " analyzing" : ""}`}
           disabled={disabled || analyzing}
           onClick={toggleRecording}
+          onPointerCancel={handlePointerCancel}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
           type="button"
         >
           {analyzing && (
@@ -201,17 +260,19 @@ export function RecorderPanel({
               <circle className="mic-progress-ring-arc" cx="24" cy="24" r="20" />
             </svg>
           )}
-          <svg aria-hidden="true" className="mic-icon" viewBox="0 0 24 24">
-            <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z" />
-            <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7 7 0 0 0 19 11Z" />
-          </svg>
+          {isRecording ? (
+            <svg aria-hidden="true" className="mic-icon mic-icon-stop" viewBox="0 0 24 24">
+              <rect height="12" rx="2" width="12" x="6" y="6" />
+            </svg>
+          ) : (
+            <svg aria-hidden="true" className="mic-icon" viewBox="0 0 24 24">
+              <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z" />
+              <path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7 7 0 0 0 19 11Z" />
+            </svg>
+          )}
         </button>
-        <p className="visually-hidden" aria-live="polite">
-          {analyzing
-            ? "Analitzant la mostra…"
-            : isRecording
-              ? "Gravant… Quan deixis de parlar, la gravació s'aturarà i començarà l'anàlisi."
-              : ""}
+        <p aria-hidden="true" className="recorder-caption">
+          {isRecording ? "Toca per aturar" : "Toca per gravar"}
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { MoonStar, Sun } from "lucide-react";
+import { ChevronRight, MoonStar, Sun } from "lucide-react";
 import "./App.css";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
@@ -530,7 +530,8 @@ function App() {
               sona més similar.
             </p>
             <button className="primary hero-link" onClick={startRecording} type="button">
-              Descobreix el resultat
+              Comença
+              <ChevronRight aria-hidden="true" className="hero-link-icon" />
             </button>
             {visitResearchConsented ? (
               <p className="landing-preconsent-retained">
@@ -640,6 +641,7 @@ function App() {
               </>
             )}
 
+            <p className="quiet-recording-hint">Procura gravar en un lloc tranquil.</p>
             <RecorderPanel
               analyzing={isAnalyzing}
               disabled={isAnalyzing}

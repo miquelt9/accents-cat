@@ -122,6 +122,9 @@ posts event names without properties. The current allowlist is:
 page_load
 homepage_viewed
 recording_started
+recording_press_hold
+recording_too_short
+recording_no_speech
 recording_completed
 analyze_pressed
 analysis_completed
