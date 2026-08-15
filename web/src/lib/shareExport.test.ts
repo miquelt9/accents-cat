@@ -10,6 +10,7 @@ import {
   getSocialShareLinks,
   isCaptureAbortError,
   rankTopDialects,
+  relativeShareBarWidth,
 } from "./shareExport";
 
 const sampleScores: AccentScores = {
@@ -31,19 +32,26 @@ describe("rankTopDialects", () => {
 });
 
 describe("getShareCardSentence / getShareCaption", () => {
-  it("frames similarity (not origin) with the full dialect name", () => {
-    const sentence = getShareCardSentence("central");
-    expect(sentence).toContain("s'assembla més al català central");
+  it("uses a short kicker without repeating the dialect name", () => {
+    const sentence = getShareCardSentence();
+    expect(sentence).toBe("La meva veu s'assembla més a");
     expect(sentence.toLowerCase()).not.toContain("origen");
     expect(sentence.toLowerCase()).not.toContain("nascut");
-    expect(sentence).not.toContain("s'assembla més al Central");
-    expect(sentence).not.toContain("s'assembla més al Nord");
   });
 
-  it("uses an unresolved variant when the result is still uncertain", () => {
-    const sentence = getShareCardSentence("northern", true);
-    expect(sentence).toContain("no n'està del tot segur");
-    expect(sentence).toContain("català septentrional");
+  it("uses an unresolved caption while the card kicker stays short", () => {
+    const sentence = getShareCardSentence();
+    const caption = getShareCaption("northern", "example.com", true);
+    expect(sentence).toBe("La meva veu s'assembla més a");
+    expect(caption).toContain("no n'està del tot segur");
+    expect(caption).toContain("català septentrional");
+  });
+
+  it("frames similarity (not origin) with the full dialect name in the caption", () => {
+    const caption = getShareCaption("central");
+    expect(caption).toContain("s'assembla més al català central");
+    expect(caption).not.toContain("s'assembla més al Central");
+    expect(caption).not.toContain("s'assembla més al Nord");
   });
 
   it("appends promo URL without recordingId", () => {
@@ -54,6 +62,17 @@ describe("getShareCardSentence / getShareCaption", () => {
     expect(caption).not.toMatch(
       /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
     );
+  });
+});
+
+describe("relativeShareBarWidth", () => {
+  it("scales bars so the winner fills the track", () => {
+    expect(relativeShareBarWidth(0.48, 0.48)).toBe(100);
+    expect(relativeShareBarWidth(0.24, 0.48)).toBe(50);
+  });
+
+  it("keeps a visible nub for very small scores", () => {
+    expect(relativeShareBarWidth(0.01, 0.8)).toBe(8);
   });
 });
 

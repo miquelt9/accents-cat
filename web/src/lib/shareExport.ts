@@ -128,9 +128,21 @@ export function getShareCaption(
   return `${shareSimilarityLine(topLabel, unresolved)}\n\nProva-ho: ${siteUrl}`;
 }
 
-/** Short in-card sentence (same framing as caption, without promo). */
-export function getShareCardSentence(topLabel: DialectZone, unresolved = false): string {
-  return shareSimilarityLine(topLabel, unresolved);
+/** Short in-card kicker; the dialect name is the headline, not this line. */
+export function getShareCardSentence(): string {
+  return "La meva veu s'assembla més a";
+}
+
+/** Bar length relative to the winner so the ranking reads as a poster, not a meek 40% fill. */
+export function relativeShareBarWidth(
+  score: number,
+  topScore: number,
+  minPercent = 8,
+): number {
+  if (topScore <= 0) {
+    return minPercent;
+  }
+  return Math.max(minPercent, Math.round((score / topScore) * 100));
 }
 
 export function getShareFilename(topLabel: DialectZone): string {
@@ -170,7 +182,7 @@ export async function captureShareCard(
   throwIfCaptureAborted(options?.signal);
   const { toPng } = await import("html-to-image");
   const dataUrl = await toPng(node, {
-    pixelRatio: 2,
+    pixelRatio: 3,
     cacheBust: true,
     skipFonts: true,
     backgroundColor: getShareCardBackgroundColor(options?.theme),

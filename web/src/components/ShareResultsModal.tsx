@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useWebImageShare } from "../hooks/useWebImageShare";
 import {
@@ -6,6 +6,7 @@ import {
   type AccentScores,
   type DialectZone,
 } from "../lib/accentOracleClient";
+import { ShareCardMap } from "./ShareCardMap";
 import {
   captureShareCard,
   downloadPng,
@@ -17,6 +18,7 @@ import {
   isCaptureAbortError,
   openSocialShareUrl,
   rankTopDialects,
+  relativeShareBarWidth,
 } from "../lib/shareExport";
 
 interface ShareResultsModalProps {
@@ -130,6 +132,27 @@ function DownloadIcon() {
   );
 }
 
+function BrandMark() {
+  return (
+    <svg
+      className="share-card-brand-mark"
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect width="32" height="32" rx="8" fill="#257cac" />
+      <circle cx="16" cy="14" r="5.5" fill="none" stroke="#ffffff" strokeWidth="2" />
+      <path
+        d="M8 24.5c2.2-3.2 4.9-4.8 8-4.8s5.8 1.6 8 4.8"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function ShareResultsModal({
   scores,
   theme,
@@ -145,12 +168,15 @@ export function ShareResultsModal({
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [actionHint, setActionHint] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [cardReady, setCardReady] = useState(false);
+  const handleCardReady = useCallback(() => setCardReady(true), []);
   useFocusTrap(dialogRef, true);
 
   const topThree = rankTopDialects(scores, 3);
   const topLabel = topThree[0] as DialectZone;
+  const topScore = scores[topLabel] || 0;
   const siteUrl = getPublicSiteUrl();
-  const sentence = getShareCardSentence(topLabel, unresolved);
+  const sentence = getShareCardSentence();
   const fileName = getShareFilename(topLabel);
   const caption = getShareCaption(topLabel, siteUrl, unresolved);
   const socialLinks = getSocialShareLinks(caption, siteUrl);
@@ -168,7 +194,7 @@ export function ShareResultsModal({
   useEffect(() => {
     imageCacheRef.current = null;
 
-    if (!canShare) {
+    if (!canShare || !cardReady) {
       return;
     }
 
@@ -204,7 +230,7 @@ export function ShareResultsModal({
         captureAbortRef.current = null;
       }
     };
-  }, [canShare, scores, theme]);
+  }, [canShare, cardReady, scores, theme, unresolved]);
 
   async function ensureCaptured(): Promise<string | null> {
     if (imageCacheRef.current) {
@@ -332,6 +358,7 @@ export function ShareResultsModal({
   }
 
   const busy = isBusy || isSharing;
+  const imageBusy = busy || !cardReady;
 
   return (
     <div
@@ -360,21 +387,37 @@ export function ShareResultsModal({
         </div>
 
         <div className="share-card" data-theme={theme} ref={captureRef}>
-          <div className="share-card-accent" aria-hidden="true" />
-          <p className="share-card-brand">Oracle d&apos;accents</p>
-          <p className="share-card-top">{DIALECT_ZONE_LABELS[topLabel]}</p>
-          <p className="share-card-sentence">{sentence}</p>
+          <div className="share-card-header">
+            <p className="share-card-brand">
+              <BrandMark />
+              Oracle d&apos;accents
+            </p>
+            {unresolved ? <span className="share-card-badge">Resultat obert</span> : null}
+          </div>
+          <div className="share-card-verdict">
+            <p className="share-card-sentence">{sentence}</p>
+            <div className="share-card-hero">
+              <p className="share-card-top">{DIALECT_ZONE_LABELS[topLabel]}</p>
+              <p className="share-card-hero-pct">{Math.round(topScore * 100)}%</p>
+            </div>
+          </div>
+          <ShareCardMap zone={topLabel} theme={theme} onReady={handleCardReady} />
           <ul className="share-card-rows" aria-label="Tres accents més similars">
-            {topThree.map((zone) => {
+            {topThree.map((zone, index) => {
               const pct = Math.round(scores[zone] * 100);
+              const barWidth = relativeShareBarWidth(scores[zone], topScore);
               return (
-                <li key={zone} className="share-card-row">
+                <li
+                  key={zone}
+                  className={`share-card-row${index === 0 ? " is-top" : ""}`}
+                >
                   <div className="share-card-row-meta">
+                    <span className="share-card-row-rank">{index + 1}</span>
                     <span className="share-card-row-name">{DIALECT_ZONE_LABELS[zone]}</span>
                     <span className="share-card-row-pct">{pct}%</span>
                   </div>
                   <div className="share-card-bar-track" aria-hidden="true">
-                    <div className="share-card-bar-fill" style={{ width: `${pct}%` }} />
+                    <div className="share-card-bar-fill" style={{ width: `${barWidth}%` }} />
                   </div>
                 </li>
               );
@@ -428,7 +471,7 @@ export function ShareResultsModal({
             <button
               type="button"
               className="share-social-button is-instagram"
-              disabled={busy}
+              disabled={imageBusy}
               onClick={() => void handleInstagram()}
               aria-label="Comparteix a Instagram"
             >
@@ -454,15 +497,15 @@ export function ShareResultsModal({
               <button
                 type="button"
                 className="primary"
-                disabled={busy}
+                disabled={imageBusy}
                 onClick={() => void handleShare()}
               >
-                {busy ? "Preparant…" : "Comparteix"}
+                {imageBusy ? "Preparant…" : "Comparteix"}
               </button>
               <button
                 type="button"
                 className="secondary share-modal-download"
-                disabled={busy}
+                disabled={imageBusy}
                 onClick={() => void handleDownload()}
                 aria-label="Desa la imatge"
               >
@@ -473,10 +516,10 @@ export function ShareResultsModal({
             <button
               type="button"
               className="secondary share-modal-download"
-              disabled={busy}
+              disabled={imageBusy}
               onClick={() => void handleDownload()}
             >
-              {busy ? "Preparant…" : "Desa la imatge"}
+              {imageBusy ? "Preparant…" : "Desa la imatge"}
             </button>
           )}
         </div>
