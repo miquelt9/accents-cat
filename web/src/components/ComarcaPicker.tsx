@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { comarcaNameMatchesQuery } from "../lib/comarcaDisplay";
 import {
   COMARCA_MAP_META,
@@ -58,8 +58,10 @@ export function ComarcaPicker({
 }: ComarcaPickerProps) {
   const baseId = useId();
   const listboxId = `${baseId}-listbox`;
+  const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const hasQuery = query.trim().length > 0;
 
   const selectedSet = useMemo(() => new Set(selectedSlugs), [selectedSlugs]);
 
@@ -86,6 +88,22 @@ export function ComarcaPicker({
       .getElementById(`${baseId}-option-${safeActiveIndex}`)
       ?.scrollIntoView({ block: "nearest" });
   }, [baseId, safeActiveIndex]);
+
+  useEffect(() => {
+    const isNarrow = window.matchMedia?.("(max-width: 639px)").matches ?? false;
+    const isCoarse = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+    if (!isNarrow && !isCoarse) {
+      return;
+    }
+
+    const focusInput = () => inputRef.current?.focus({ preventScroll: true });
+    if (typeof window.requestAnimationFrame === "function") {
+      const frame = window.requestAnimationFrame(focusInput);
+      return () => window.cancelAnimationFrame(frame);
+    }
+    const timeout = window.setTimeout(focusInput, 0);
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   function toggleComarca(slug: string) {
     if (selectedSet.has(slug)) {
@@ -168,13 +186,15 @@ export function ComarcaPicker({
   }, [selectedSlugs]);
 
   return (
-    <div className="comarca-picker">
+    <div className={`comarca-picker${hasQuery ? " has-query" : ""}`}>
       <label className="comarca-picker-label" htmlFor={`${baseId}-input`}>
-        Cerca i marca una o més comarques
+        <span className="comarca-picker-label-desktop">Cerca i marca una o més comarques</span>
+        <span className="comarca-picker-label-mobile">Cerca una comarca</span>
       </label>
       <input
         id={`${baseId}-input`}
         className="comarca-picker-input"
+        ref={inputRef}
         type="text"
         role="combobox"
         aria-autocomplete="list"
@@ -193,6 +213,12 @@ export function ComarcaPicker({
         }}
         onKeyDown={handleKeyDown}
       />
+
+      {!hasQuery && (
+        <p className="comarca-picker-search-hint">
+          Escriu el nom de la comarca per veure coincidències.
+        </p>
+      )}
 
       {selectedLabels.length > 0 && (
         <p className="comarca-picker-selected" aria-live="polite">
@@ -253,7 +279,7 @@ export function ComarcaPicker({
                           onClick={() => toggleComarca(entry.slug)}
                         >
                           <span className="comarca-picker-check" aria-hidden="true">
-                            {isSelected ? "✓" : ""}
+                            {isSelected ? "✓" : undefined}
                           </span>
                           <span>{entry.name}</span>
                         </button>

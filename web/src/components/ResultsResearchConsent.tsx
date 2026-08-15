@@ -65,8 +65,8 @@ export function ResultsResearchConsent({
         <p className="eyebrow">Recerca</p>
         <h2>Gràcies per la teva col·laboració!</h2>
         <p>
-          Ens ajudes a millorar la intel·ligència artificial en català. Pots demanar-ne la
-          supressió des de «Gestiona les meves dades».
+          Ens ajudes a millorar la intel·ligència artificial en català. Els IDs per demanar
+          la supressió (si encara els tens en aquest navegador) són a «Gestiona les meves dades».
         </p>
       </section>
     );

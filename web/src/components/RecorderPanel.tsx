@@ -16,8 +16,6 @@ export const MIN_RECORD_SECONDS = 1.5;
 export const MAX_RECORD_SECONDS = 25;
 /** Pointer-down duration that counts as leftover press-and-hold (name-only telemetry). */
 const PRESS_HOLD_MS = 400;
-/** Click can lag pointerup (touch); only count a hold if the start click arrives soon after. */
-const PRESS_HOLD_CLICK_GRACE_MS = 500;
 
 const BLOCKED_MIC_MESSAGE =
   "El micròfon està blocat per a aquest lloc. Toca la icona del cadenat a la barra d'adreces, obre els permisos del lloc, posa Micròfon a Permet i torna a tocar el botó.";
@@ -57,9 +55,16 @@ export function RecorderPanel({
   const maxDurationTimerRef = useRef<number | null>(null);
   const [showRetakeHint, setShowRetakeHint] = useState(false);
   const pointerDownAtRef = useRef<number | null>(null);
-  const holdUntilRef = useRef(0);
-  const startWasHoldRef = useRef(false);
+  const isRecordingRef = useRef(false);
+  const startingRef = useRef(false);
+  const ignoreNextClickRef = useRef(false);
+  const startedWithThisPointerRef = useRef(false);
   const analyzingLabel = useAnalyzingLabel(analyzing);
+
+  function setRecording(next: boolean) {
+    isRecordingRef.current = next;
+    setIsRecording(next);
+  }
 
   useEffect(() => {
     return () => {
@@ -125,32 +130,42 @@ export function RecorderPanel({
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0) {
+    if (event.button !== 0 || disabled || analyzing) {
       return;
     }
     pointerDownAtRef.current = performance.now();
+    if (isRecordingRef.current || startingRef.current) {
+      startedWithThisPointerRef.current = false;
+      return;
+    }
+    startedWithThisPointerRef.current = true;
+    ignoreNextClickRef.current = true;
+    event.preventDefault();
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Capture is best-effort; start still works if the pointer leaves the button.
+    }
+    startingRef.current = true;
+    void startRecording();
   }
 
   function handlePointerUp() {
     const downAt = pointerDownAtRef.current;
     pointerDownAtRef.current = null;
-    if (downAt != null && performance.now() - downAt >= PRESS_HOLD_MS) {
-      holdUntilRef.current = performance.now() + PRESS_HOLD_CLICK_GRACE_MS;
+    if (
+      startedWithThisPointerRef.current &&
+      downAt != null &&
+      performance.now() - downAt >= PRESS_HOLD_MS
+    ) {
+      trackUiEvent("recording_press_hold");
     }
+    startedWithThisPointerRef.current = false;
   }
 
   function handlePointerCancel() {
     pointerDownAtRef.current = null;
-  }
-
-  function consumeStartHold(): boolean {
-    const now = performance.now();
-    const downAt = pointerDownAtRef.current;
-    pointerDownAtRef.current = null;
-    const fromPointer = downAt != null && now - downAt >= PRESS_HOLD_MS;
-    const fromGrace = now < holdUntilRef.current;
-    holdUntilRef.current = 0;
-    return fromPointer || fromGrace;
+    startedWithThisPointerRef.current = false;
   }
 
   function describeGetUserMediaError(caught: unknown): string {
@@ -169,6 +184,7 @@ export function RecorderPanel({
     clearRetakeHint();
 
     if (typeof window !== "undefined" && !window.isSecureContext) {
+      startingRef.current = false;
       setError(
         "Cal una connexió segura (HTTPS o localhost) per accedir al micròfon. Obre el lloc amb HTTPS.",
       );
@@ -176,6 +192,7 @@ export function RecorderPanel({
     }
 
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      startingRef.current = false;
       setError("Aquest navegador no admet la gravació amb micròfon.");
       return;
     }
@@ -236,10 +253,8 @@ export function RecorderPanel({
       startedAtRef.current = startedAtMs;
       recorder.start();
       trackUiEvent("recording_started");
-      if (startWasHoldRef.current) {
-        trackUiEvent("recording_press_hold");
-      }
-      setIsRecording(true);
+      startingRef.current = false;
+      setRecording(true);
       if (typeof AudioContext !== "undefined") {
         try {
           silenceMonitorRef.current = startSilenceMonitor(stream, {
@@ -256,6 +271,8 @@ export function RecorderPanel({
       }
       maxDurationTimerRef.current = window.setTimeout(stopRecording, MAX_RECORD_SECONDS * 1000);
     } catch (caught) {
+      startingRef.current = false;
+      setRecording(false);
       setError(describeGetUserMediaError(caught));
     }
   }
@@ -266,18 +283,26 @@ export function RecorderPanel({
       return;
     }
     recorder.stop();
-    setIsRecording(false);
+    setRecording(false);
   }
 
   function toggleRecording() {
-    if (isRecording) {
+    if (ignoreNextClickRef.current) {
+      ignoreNextClickRef.current = false;
+      return;
+    }
+    if (isRecordingRef.current) {
       pointerDownAtRef.current = null;
-      holdUntilRef.current = 0;
+      startedWithThisPointerRef.current = false;
       stopRecording();
       return;
     }
 
-    startWasHoldRef.current = consumeStartHold();
+    if (startingRef.current) {
+      return;
+    }
+
+    startingRef.current = true;
     void startRecording();
   }
 
@@ -289,8 +314,8 @@ export function RecorderPanel({
   const caption = analyzing
     ? analyzingLabel.visible
     : isRecording
-      ? "La gravació s'atura quan deixis de parlar"
-      : "Prem per gravar";
+      ? "Gravant… pots deixar anar el botó"
+      : "Toca un cop per gravar";
 
   return (
     <div className="recorder-panel" aria-labelledby="recorder-title">

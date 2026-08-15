@@ -212,6 +212,11 @@ describe("ResultsConsentFeedback decline flow", () => {
     expect(
       container.querySelector('.comarca-picker-option[aria-selected="true"]')?.textContent,
     ).toMatch(/Barcelonès/);
+    expect(
+      container
+        .querySelector('.comarca-picker-option[aria-selected="true"] .comarca-picker-check')
+        ?.textContent,
+    ).toBe("✓");
 
     const send = container.querySelector(
       ".feedback-comarca-send",
@@ -387,9 +392,31 @@ describe("ResultsConsentFeedback decline flow", () => {
       await Promise.resolve();
     });
 
+    expect(container.querySelector(".feedback-sheet--modal")).not.toBeNull();
+    const picker = container.querySelector(".comarca-picker") as HTMLDivElement;
+    expect(picker.classList.contains("has-query")).toBe(false);
+    expect(container.querySelector(".comarca-picker-search-hint")?.textContent).toMatch(
+      /Escriu el nom de la comarca/,
+    );
+    const searchInput = container.querySelector(
+      ".comarca-picker-input",
+    ) as HTMLInputElement;
+    const setInputValue = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )?.set;
+    await act(async () => {
+      setInputValue?.call(searchInput, "Barcelonès");
+      searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(picker.classList.contains("has-query")).toBe(true);
+    expect(container.querySelector(".comarca-picker-option")?.textContent).toMatch(/Barcelonès/);
+
     expect(container.querySelector(".feedback-comarca-skip")).toBeNull();
-    expect(
-      (container.querySelector(".feedback-comarca-send") as HTMLButtonElement).disabled,
-    ).toBe(true);
+    const send = container.querySelector(".feedback-comarca-send") as HTMLButtonElement;
+    expect(send.disabled).toBe(true);
+    const checkbox = container.querySelector(".comarca-picker-check") as HTMLSpanElement;
+    expect(checkbox).not.toBeNull();
+    expect(checkbox.textContent).toBe("");
   });
 });

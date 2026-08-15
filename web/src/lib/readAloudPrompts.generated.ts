@@ -9,2590 +9,2103 @@ export type GeneratedReadAloudPrompt = {
 export const GENERATED_READ_ALOUD_PROMPTS: readonly GeneratedReadAloudPrompt[] = 
 [
   {
-    "id": "cv26-c9b931750cc24a0d",
-    "text": "Pertany al moviment independentista el Paco? Pertany al moviment independentista la Mari? Pertany al moviment independentista la Mari Carme?",
+    "id": "cv26-c42a51c02f46cdfd",
+    "text": "No hi haurà cap limitació tècnica a implementar qualsevol bandera de les comunitats autònomes de l'estat espanyol.",
     "sentenceIds": [
-      "f992a655d836662c57649d4cf3097e6ba4ca68cd3bc0895bf8fdc8547702e2f4",
-      "65df08a94b68528392786384b097b8eed7ff8aea1f393757b0328445fe6fa3b0",
-      "1fa3ae6ae5a790007107376d3be0599fab2a842b498978c7d64cdb66f9ada03c"
+      "458f47bda1991313c9c7da89b21070919d4684e60dfe5fe0c5415b7af63b734b"
     ]
   },
   {
-    "id": "cv26-12272d78c86f58d7",
-    "text": "Un espectacle musical va servir per homenatjar el poeta. Com a poeta és una mediocritat. Un poeta de la darrera fornada.",
+    "id": "cv26-a4aa19d9d83d64c0",
+    "text": "El resultat és força conegut: l'abstracció musical del motiu com a símbol específic, carregat de significació.",
     "sentenceIds": [
-      "dea06f5b41f3c99fb536e4ed488aa5909cb58dafa8cce3a16c205bf441be4686",
-      "8e3e72fb0f5602d7bc2939e1bc9dae39f79764fead93788d66c83cc9d2ae8ec7",
-      "3d09730b5be615bf81559d3442701e4db4a6c3a3061b53c9bf1a48906df14e83"
+      "4cbff4e87cb95ad176bfb85300954d46ace16a08cc1d079aa6fb5a933d80ff62"
     ]
   },
   {
-    "id": "cv26-c87d6bec3bf01cf8",
-    "text": "Pertany al moviment independentista la Carmeta? Pertany al moviment independentista la Lluna? Va fer desapareixer la lluna.",
+    "id": "cv26-4671eff039bc79b2",
+    "text": "Xavier Carbó i Maymí va ser un clergue, poeta, lingüista i traductor dels clàssics nascut a Cassà de la Selva.",
     "sentenceIds": [
-      "fbe19a5f58574827643c4c27d84131883ef36aecbfb0f56eaface92a247d38ca",
-      "fcc2a1518af1d930be23b67b5df9d9d298f29a5508e18d5aa16b14f81ae6afb9",
-      "2f39a1752daf077f2d03d1f38a34943d3e72601e161a2a798406c1fb40294d98"
+      "ea6509d1d64ac5ae69a0862cfa7c80338130fb312a8be0de831e67c75f474797"
     ]
   },
   {
-    "id": "cv26-ee4219162f620267",
-    "text": "L'un any arner i l'altre llenyer. L'un no es pot burlar de l'altre. Com els esquiladors de Sants, l'un darrere l'altre.",
+    "id": "cv26-208827518a4219fa",
+    "text": "Per evitar això, els estats fan una excepció al desitjable principi de lliure competència i concedeixen patents.",
     "sentenceIds": [
-      "d5472f317751c5820c935c81e978d5d62c667e8df5ca6ba549144a6ffa79faa2",
-      "e6e5481944e31149091a0bb8a9538bb0bf4fc5544183e05b824bc9a7fa1caf9d",
-      "4caa674fb5fc5077625394c0825ff77de680a562c89df724076b89532250eb25"
+      "38fa744ceb6d1abac21268ed800663b731796b9a303bde420fda2c6cb63c4411"
     ]
   },
   {
-    "id": "cv26-2b4f0c9247214b23",
-    "text": "El progrés de la humanitat en el curs de la història. Un projecte en curs de realització. Hem contractat dos professors per a aquest curs.",
+    "id": "cv26-a4e5cf5cf81a5d54",
+    "text": "Tan aviat com intentava gitar-se s'ofegava, i calia córrer a alçar-ho, com si li haguera arribat la darrera hora.",
     "sentenceIds": [
-      "fa4a366ea3fee8c255eceea5faf45fba65622e86160782905dea6edbade6d2ab",
-      "ab97997238788b22b1598dbbb572d0f84ab12be8f182236cb978fd40f86f7c78",
-      "c60400335e98c35dc7fba5cc93fb553204495171a5e2c9055bf178278df8f97e"
+      "423bb32d94d3c4e0fdbb63ec51d750371478502e64fefc9dd557b65631f125ab"
     ]
   },
   {
-    "id": "cv26-fc47c1ea213b478f",
-    "text": "El conductor tenia una taxa d'alcohol tres vegades superior a la permesa. L'home gairebé tenia una taxa d'alcohol sis vegades superior a la permesa.",
+    "id": "cv26-84deb10d1e605215",
+    "text": "Però deixarem de banda aquests càlculs matemàtics i ens centrarem a esbrinar la relació entre competència i ús.",
     "sentenceIds": [
-      "f0b3bef0ee41909cce3f3b7d5d7b2d840bf47b7cd9b47103c84541f64827d284",
-      "61cf134e1e4b5b13c9894c738c5ab0a41229eb1884c1a96631585e2c71c53583"
+      "f63d0b722866b7a1707ad967bff0438663256ef72cf4841629b6116b64ebdde7"
     ]
   },
   {
-    "id": "cv26-dbe2414551c24732",
-    "text": "Quins pactes ha fet Ciutadans? Entre quins partits són pactes compartits? Quins partits van fer aquesta petició?",
+    "id": "cv26-1f749504e89e328f",
+    "text": "D'aquesta manera s'obté reconeixement del capital intel·lectual del participant, cosa que es pot traduir en oportunitats laborals.",
     "sentenceIds": [
-      "1c2992bf1c8211b507630fe3728268710040e549af8d5f587567b9e019db2473",
-      "686053b6cadb0081ade42b4e080d89d0b7d4faa1c12cbbb31b9170d2c52969a9",
-      "b858337f9774664a833938ead351a770c90a4b2664c4433491c92907bdc37f10"
+      "66cd2dc79040067f561efa38c95d66ea51716e40156aa676a37c6d13af41c78a"
     ]
   },
   {
-    "id": "cv26-80f1a17443858329",
-    "text": "Col·lecció de pintures, de monedes. Una col·lecció de pins dels esports olímpics. Aquesta moneda ja no corre, pot servir per a la col·lecció.",
+    "id": "cv26-887f49c5f857c25f",
+    "text": "Sunifred primer d'Urgell-Cerdanya va ser un comte d'Urgell, Cerdanya, Barcelona, Girona entre d'altres nascut a Girona.",
     "sentenceIds": [
-      "bef857b59200081f7a4faf3541488426b8686ee145a30a947c14011148039fad",
-      "988b9ba61f70548fa51a835742bf33276a612751edb8dacc348bc720c0b2fd26",
-      "a5bb399d6eee72f42dee208ba42a30a0ad2674405c2af39e43178b9c4b31627c"
+      "58548ef9fc0be0b12f2e2aa22f5fdf603786b46026ecdd92387d0deeecaa1992"
     ]
   },
   {
-    "id": "cv26-cfaf17d631a18b2b",
-    "text": "Va perdre passa de cent euros. No hi estic el cent per cent d'acord. En relació amb aquesta proposta, no hi estic gens d'acord.",
+    "id": "cv26-5d71510e5500bedb",
+    "text": "Quina és la millor manera d'anar de la carretera de Santa Creu d'Olorda a Sarrià al carrer de l'Arc del Teatre?",
     "sentenceIds": [
-      "724187a873f0755cda7b54b628438ace5f0a58f4b82db8bb4af7d156e13a4676",
-      "747766fdd4e93e91753016107b737621cdcb24abf6009052d491b845c6a76f2c",
-      "af690403dd96fe08069f93764b7158077adfb240cf8b81c45d239a08ce135377"
+      "52009a79da66ca47f052b8923f7bfcb41a30c7be9d5440f69b7df361b536ff73"
     ]
   },
   {
-    "id": "cv26-4aae428e5481aded",
-    "text": "Els animals no volen ser el teu menjar per sopar i estimen als vegans. Els animals no volen ser el teu menjar per sopar.",
+    "id": "cv26-ad37a9827ae365ea",
+    "text": "Al llarg del dos mil quinze s'han baixat quatre-centes vint-i-nou cent vuitanta-tres còpies de programes en català des del nostre lloc web.",
     "sentenceIds": [
-      "9cb41cde20632e66217e7fd4a8ec6b5001de5f193c4dc4022da1e1a123d93b91",
-      "12b9ba5bdc993799d7ff6d4e4804f2be7574cfd67439125d64eb2f90298a64df"
+      "260009e9face720c1fbfb98cea6b26f403ea8f5ca0de3e9652dab375ea487a51"
     ]
   },
   {
-    "id": "cv26-bdeeff1bc6f09b6f",
-    "text": "Dijous na Sira i na Mariona iran a Foios. Demà passat na Sira i na Mariona iran a Ascó. Per Cap d'Any na Sira irà d'excursió.",
+    "id": "cv26-4e0168f3f71de10f",
+    "text": "I en dir açò, assenyalava a un pillet enviat, immòbil a curta distància, amb un capó gros i llustrós als braços.",
     "sentenceIds": [
-      "712554c772c1a607c26b5fb84bc6e41ef3a675b0d8cdf8277283c4666f2a1384",
-      "b5a15806c54f844d839ab023e85c5d7405eda949d4a24e535ec4166482c09a73",
-      "cff051372a84c8e5fe949ba412a26b81f37ab9cb3e5a952a38363c0a36d573b9"
+      "d780237ec92e11fbaea67ad8b10195fe41be9e28d8d86c10c3383c7abf91c999"
     ]
   },
   {
-    "id": "cv26-41c5d021fb9f296c",
-    "text": "Els límits comunals no van ser alterats. Establint-ne els límits actuals. Igual que definix els límits del raonament.",
+    "id": "cv26-1ad7b034870a48a8",
+    "text": "Feliu Elias i Bracons va ser un dibuixant, caricaturista, pintor, il·lustrador i crític d'art nascut a Barcelona.",
     "sentenceIds": [
-      "063d69895fc419757021e71b1f984acb3329798a4ed7b7b123e117d9edb5f804",
-      "24287b0196cdf0f9db33c979522b3b5fdcc5434d245522d5b650aed93bb17038",
-      "c0c2f829707dcf33de56ac3fde1fbf8bdadcc3a91bd8dd349a5e9e04ef8df2d2"
+      "9d1a6e4c191b00292357f7927a8f716808891af734a6fef119e66745c0328b64"
     ]
   },
   {
-    "id": "cv26-88fb447514362b66",
-    "text": "Què se t'hi ha perdut, a Pla de la Selva? Què se t'hi ha perdut, a Catalunya? Què se t'hi ha perdut, a Sabadell?",
+    "id": "cv26-61234159f5850112",
+    "text": "Regne Unit, amb nou milions tres-cents trenta-tres mil vuit-cents noranta-un casos i cent quaranta-un mil vuit-cents seixanta-dos morts.",
     "sentenceIds": [
-      "fabc7cefdaf8e508366a3fd063bfda1ef8b8d30f16455c4b04c272665b3a965f",
-      "aa05c588aefd3ce9e23c4e91d8a4798f2ed33d2c042cfdef7e46b0410314c1dd",
-      "5312f7efe202e6c0a8ba91f67931917d78302072d34303d396b61c770873ea60"
+      "78239e78c23bf4b8f35e672bb566adbf6e80ba8ffa29e44e644029eebcdb52c5"
     ]
   },
   {
-    "id": "cv26-ec3fa370e9faa988",
-    "text": "Enumera'm les llistes que tinc aquí. Dir-me les llistes que tinc aquí. Em podries llegir les llistes que tinc?",
+    "id": "cv26-01b6d2a5153c8b9d",
+    "text": "Se sentia feliç i plorava d'alegria, d'agraïment, satisfeta d'ella mateixa, de la bondat amb què la tractava Déu.",
     "sentenceIds": [
-      "90637be31d8f237af58be8b66361eadd864383f77e5c37974a59a2e78430bf13",
-      "c80b618b0001d3cedcabcb588e961c53e4d1c90df34a5e6fb5aaf344d161cdcb",
-      "f11a1f9b48aeef031cd6bd7cfa36bea8bb853c144df2adbc4d77c0214160fb78"
+      "47fff7e828ecbbf151ec8d4a0e811ad31db9613cb9e4d5174e75cd3639d3abe2"
     ]
   },
   {
-    "id": "cv26-185dc119e6230877",
-    "text": "Una professora d'institut repeteix calleu mitja dotzena de vegades. Potser mitja dotzena en dos anys. La qüestió és que n'hi hagi mitja dotzena.",
+    "id": "cv26-d9a5a987f84d704e",
+    "text": "Josep Rosell i Casablancas va ser un esportista, excursionista, periodista, historiador i cronista nascut a Sabadell.",
     "sentenceIds": [
-      "f966e4b3ffc6deeecabe924899f715a12d16b9789d50057de4c0d5da51f1c2d8",
-      "31029733c25f029dfb4d72532fa6024ad82bb35f7cdf8f3757accc7e9df890c0",
-      "a334236827e3958537e3679e8768a4a5aafd34a2566ba65c2c19e7d4784bdce7"
+      "36c95798e8d176a9e6fd76c505b06197ab469f1a3c979206db85272ae8e9261a"
     ]
   },
   {
-    "id": "cv26-e70ba96063affab4",
-    "text": "Originari de la província d'Akashi, va viure molts anys al santuari d'Hiraoka. Fa molts anys que estem buscant això.",
+    "id": "cv26-409bf18c8da8379e",
+    "text": "Rússia, amb vuit milions nou-cents noranta-dos mil cinc-cents noranta-cinc casos i dos-cents cinquanta-dos mil nou-cents vint-i-sis morts.",
     "sentenceIds": [
-      "fb294fb4e2aef68478a31acc4d5f6ddaeba0b6d8f4a1a022c03e07293b34cdbb",
-      "174f7524259f130e53b8e46f57973259025a0e06fa52f3f2ca5cd54719d25b1c"
+      "3a9a91cb09dc482e97903ef60b691b3faeff32983dce7bfa61ac0b410ac719ad"
     ]
   },
   {
-    "id": "cv26-7c2473ebfe1bbb90",
-    "text": "Perquè fóra ell de nou. No, no podia ser, que tot això fóra veritat. No podia imaginar-me que fóra capaç de tenir una escena com aquella.",
+    "id": "cv26-44be9566e8573e15",
+    "text": "Josep Blanch i Graells va ser un compositor i abat del monestir de Montserrat nascut a Vilafranca del Penedès.",
     "sentenceIds": [
-      "f9a4bb48155cd2be2ea02453ebe2582af01565b2f41af4db98068e368d65011f",
-      "e2b5ab182c4154ff637d4c3862b071e3f2a9aedbc6d12458feef46bdef58a0a3",
-      "d43fd01c56354dc1f75cda6482ffe6f5e10afaec8e31b8ba062f1c5b7f440443"
+      "91e9aebd37a95de0c990216400c22cdb0a5317e28b371a139e60a28bed7ee9e8"
     ]
   },
   {
-    "id": "cv26-c37e9abc0c58ec60",
-    "text": "Tanmateix, no es tracta d'un llançament de Strange Fruit. Aquell dia, no va fer cap llançament. És el tercer dia de Carnaval.",
+    "id": "cv26-2523df20e91a3a2f",
+    "text": "Jaume Almirall i Sardà és un hel·lenista, neohel·lenista, professor i traductor nascut a Sant Sadurní d'Anoia.",
     "sentenceIds": [
-      "3af7f572e03dd911dbca1b70208032e106e5baa0c8b8ab5472377712321ad65c",
-      "d3d961cc460fd7a21267221febc801608f20bc6cdf5330e65090d05c3f2daae6",
-      "893b44a3ee3377c7952725010c464cbb7ba8dd371ae4e3ef1c803ced8ca0d010"
+      "db44d87f3dbab3404378d1603e49ea79aa95adc713661b08fdb5ac0c9121db5f"
     ]
   },
   {
-    "id": "cv26-77c007745ab68bb5",
-    "text": "Indignat el primer que hauries de fer és escriure en la teva llengua. Indignat la primera cosa que hauries de fer és parlar la teva llengua.",
+    "id": "cv26-ebe8a6f915f9f8f5",
+    "text": "A més a més, en general, les obres de construcció d'un edifici d'habitatges normal pot durar entre un i dos anys.",
     "sentenceIds": [
-      "fa2feca11f5b5a4c39ca04ae286521405c38ad81758c93bd6bf31d42101f3c83",
-      "9af7ce9aa96969b2d2372b742ed047bd943334b92ab5118515fa9ab246cdc964"
+      "1d3fc7bf88bcfdb5075b03f800f3577cf99a6ab460ae8257aa2b415d30011592"
     ]
   },
   {
-    "id": "cv26-def9af50890495ad",
-    "text": "Ofereix pel·lícules populars, sèries, espectacles d'entreteniment. Aquest és el motiu per fer pel·lícules. El motiu del crim salta a la vista.",
+    "id": "cv26-b9e2d04b814bd393",
+    "text": "Fins a quinze punts: mèrits científico-tècnics de la persona que avala la sol·licitud en el centre de destinació.",
     "sentenceIds": [
-      "5c372fc031ec30abb26eeba442335645b584c6651338ef22592e597475087532",
-      "54c76cf23f795d9ff62ecbf9db2e7390ac07ab8d0ab7da7d7c40382efc28b56c",
-      "f43b0b33dec7546b70861ffed5ff42c41e30cec14b09bc8ce23fd9c3320aa6fa"
+      "c210fb87565aeb3653c78a9cdbe1ed5a3950d860a626c39398f43837e5644895"
     ]
   },
   {
-    "id": "cv26-6516facd80a5f067",
-    "text": "Per a més informació consulti la nostra Política d'empresa. Per a menys informació consulti la nostra Política de Cookies.",
+    "id": "cv26-17cf41a8748d15f1",
+    "text": "I el numero de targeta és quatre mil cinc-cents setanta-tres quatre mil cinc-cents seixanta-dos cinc mil sis-cents quaranta-tres nou mil cent setanta-tres.",
     "sentenceIds": [
-      "fb660359cdb72265bceb6cb2b5bb4441cb27e9192bfa8aeea90894723f8fbe79",
-      "a47e971668b1f6fd8ae807d14c22c4c661742049b6a4334760832cfe534b9b63"
+      "e9d2f9984122f709c24d138c5dbcfe5c10faee1e44f4cead127b71f381c070dc"
     ]
   },
   {
-    "id": "cv26-9d71c0ced238fff7",
-    "text": "Etapa amb una certa relació amb l'electricitat. Que té una certa iridiscència. Corrents, i probablement amb una certa ràbia.",
+    "id": "cv26-57ee4e2891408297",
+    "text": "La liberalització de les telecomunicacions d'aquest moment no té res a veure amb els pronòstics que la van animar.",
     "sentenceIds": [
-      "b838ba71d3d804e48111e07486f50c53d2f00856489ea3a777671a8a465ae3e8",
-      "04ec5c213d3a67ebab47b4a182955082238dd354da6a26ceb7a8e8376c6dff84",
-      "7e6835b8081c1e9bc9182be48a4967a2f37f2edc9273c8aa61e09ea6a02ef14d"
+      "2461e8e2e9830b498ae0aca4c3b29dfb47040f4c6233c5859f7f7badf34381a7"
     ]
   },
   {
-    "id": "cv26-c0868f3d7d92456c",
-    "text": "Pots dir-me el preu de les accions de Bayer? El preu de les accions de Bosch. Em mostres el preu de les accions de Lidl?",
+    "id": "cv26-195a488fcfcdf51b",
+    "text": "No es podrà transmetre cànnabis o altres substàncies tòxiques a persones que no siguin sòcies del Club social.",
     "sentenceIds": [
-      "fb022f90b59cab066c68d5a4a895c3e14e7c7a0dcacad4d3195596812829710b",
-      "64877f98e05e923b14529de77c9a91e6642c001394082154f1868c644f1b35b5",
-      "2fa8be6bfcc8628fe037bb5a23715d186ab7a9f82ae17f3f691f7b9c10126a76"
+      "34fb9449446774a6adce9c89ad536d39ac25b96e322f3e3a7fc41e816e47aab7"
     ]
   },
   {
-    "id": "cv26-2dc12c92d402499e",
-    "text": "Camina per la sala de la tele, el vestíbul i altres zones de l'establiment. L'alba els enxampa a la sala de la tele.",
+    "id": "cv26-91d852a448a6f241",
+    "text": "Per a l'usuari final, després del sistema operatiu, el paquet ofimàtic és el conjunt de programes més utilitzats.",
     "sentenceIds": [
-      "d51eae09ab0a99fcc031f11aaf7d9a42804d3ba6a3fbf256b3bca4c62b265beb",
-      "9ffc885e7ced3786f46362486b84b5f2cb8d9082d50b4a4254d98fbc161d3a37"
+      "d16e7e03a51ffd768801a0eec4a277d20e98772ae7a165eb99e036abd71d8ed1"
     ]
   },
   {
-    "id": "cv26-21c7e658f67ec263",
-    "text": "En la seva primera experiència com a entrenador principal, Marshall va tenir un èxit immediat. Va ser la seva primera església.",
+    "id": "cv26-baf15db6072fbec1",
+    "text": "Reserva'm un bitllet de tren per anar a Torrelles de Llobregat el vint-i-tres de maig a dos quarts i cinc de set.",
     "sentenceIds": [
-      "5fbb44741582f0fefa9347723fe5c6a1638c379e51d86b2e903bf69f389fd276",
-      "233261a9fcd80c73076b603dcc9daef1edbcc68b6b5f5cf1661eff97d5d947e8"
+      "91def838b174a074cd8d99953d613024b9adcde48cd648c68ac7cc9f39f1d013"
     ]
   },
   {
-    "id": "cv26-294d6cca4d2a085a",
-    "text": "L'obra d'art per al senzill no es percep fàcilment. Va ser llançada com a senzill. La cançó principal va ser llançada com a senzill.",
+    "id": "cv26-a423b600889e4887",
+    "text": "L'altre, sota la figura del vidrier, ens mostra el productor la indústria del qual és fomentada per l'accident.",
     "sentenceIds": [
-      "21058c7a3c6d1fe00da0e2f6b2bb0d2f6d0c52f7872c4395c8ca8a5d9b6daf2b",
-      "a3c8207689f2f69fe597b689820283a056f135afd9441a7d4757f5da4bbf493c",
-      "1f06aa7d2d603114b6df497ef32761359985f6d7314a0918fb2917e5e87d35fc"
+      "0690c697cc117457f26def3bbe47b504ce21754910e2972d4e694dbfc1f2b1ed"
     ]
   },
   {
-    "id": "cv26-8c5c0e0d26d4a2c5",
-    "text": "Digues-me les cançons de jazz que més m'agraden. Per què no em dius les cançons que més m'agraden? Saps si m'agraden els Catarres?",
+    "id": "cv26-297982c1adba12b3",
+    "text": "Hi ha una correlació directa entre el nombre d'usuaris que té una aplicació lliure i la comunitat que li dóna suport.",
     "sentenceIds": [
-      "8af6928e366a8649365160a5b0d00d2d4281709d302b98975be2aee4b22b1f82",
-      "ff0673dcda90975dd1293cbe583c5cd381e5baee2b52c682648d7f755f1a700e",
-      "bb6f98724987c590b5b0090ceed550d05d0af45db4e4a8896b313726784afc37"
+      "232f9006a985db802ac46d23700249ebd560d6b47a7776cda725027a7109a2d2"
     ]
   },
   {
-    "id": "cv26-1e698f35e918380d",
-    "text": "El vint-i-tres de maig n'Oriol voldria anar a Guadassuar. El vint-i-tres de maig n'Oriol anirà a Montblanc. El vint-i-tres de maig n'Oriol anirà a Llanars.",
+    "id": "cv26-45bf370b99456c5c",
+    "text": "En el cas d'accions formatives realitzades en el marc de la Via tres, els alumnes només podran ser desocupats.",
     "sentenceIds": [
-      "70928f3c0112b2627bdaeab05282a7ecf912364d6f94851b087c3cc8aad17c8a",
-      "77587367501d8e3378d3afd5108b5dcf5e5639b9fd13ff4c797ea81ce0525579",
-      "9ab152452de03ce0ad7d287d6ed5194b17562796c2a9dc2479e2f733825a5ffe"
+      "292c064918b6c872fd12a496123fe2efdd7f6e87dadcd5663b92a68acd24bd8b"
     ]
   },
   {
-    "id": "cv26-af9fe1ce846985a0",
-    "text": "El primer petó cau amb la taula interposada entre els dos cossos delerosos. Som dos cossos molt fogosos, dos fongs.",
+    "id": "cv26-27594f5db50878bd",
+    "text": "Són membres nats el rector o rectora, el secretari o secretària general i el gerent o la gerent de la Universitat.",
     "sentenceIds": [
-      "5fd4af51f704fb2cabf2ad1d491e66e20aa852c2a4f366874d26412930d51185",
-      "96df0f8ed6e2920c0b85ff9404c5362a2fc10f1856ae4821f8bfc576ef15ee6c"
+      "1e96c71cbf2251a4a1c26049763ad9816196375f15c8be835c70c00393bdc7c6"
     ]
   },
   {
-    "id": "cv26-70ae6e39abd8c7d4",
-    "text": "Per Cap d'Any na Queralt vol anar al metge. Per Cap d'Any na Queralt vol anar a Aiguafreda. Demà na Queralt vol anar a la platja.",
+    "id": "cv26-40ffa9bc69acf7c8",
+    "text": "Els drets d'autor són l'eina jurídica bàsica utilitzada per a la protecció dels programes informàtics i les creacions intel·lectuals.",
     "sentenceIds": [
-      "90fca6ec02c4a900e4198eb34e10acbdd3fc485c5fba2cd234d247a8c08d4bd0",
-      "f766b118cc3fa8e3db6773aa5709c56e23ad0fb102f3ef67c972682162a55ae0",
-      "715cbd256299a3c2bec0bed2f2f51b2d4c81e1f5edb827410e8b33ef94bf3ea1"
+      "0ba8bc51ec2dfd82a4f37b602f3265f788b2a022eb9aa9ded5d086a1fb6834c2"
     ]
   },
   {
-    "id": "cv26-cfdfc0033e65004b",
-    "text": "A sa casa mana tant com la granera. Molt mal sa casa governa, qui va molt a la taverna. El cor ningú el governa.",
+    "id": "cv26-9e8acd3fd141af0f",
+    "text": "Quan s'ha considerat necessari, es completa la informació amb notes de tipus conceptual, lingüístic o pragmàtic.",
     "sentenceIds": [
-      "fc07de20e6a6bfe469b5ec2d08e45dc215d84b5eb6a8f55ec10d1bf29e13e411",
-      "534ab7f05410402d951087e84f57455c10c2686de2a4c618a781fbe6db532bad",
-      "f03fe91f36d258df1758e699b807f7e213cdd4dd4f521eec20c0b9d68d5e36e2"
+      "ca4502812151f86e53cdf9a1ccef17c4865144aaf55487bf504da171becd357d"
     ]
   },
   {
-    "id": "cv26-b70dce10efaaf0f0",
-    "text": "Què ha clausurat el govern de l'estat espanyol? Rajoy és l'amo de l'estat espanyol? Es vol entrevistar amb el president de l'estat espanyol?",
+    "id": "cv26-113d10170c9da45a",
+    "text": "Les tres comunitats amb una concentració més alta d'empreses de programari lliure eren Madrid, amb seixanta-vuit, Catalunya, amb quaranta-sis, i Andalusia, amb quaranta.",
     "sentenceIds": [
-      "c83a86bd6a62a1a580acceab894315e78c8510a033bcb574f4a2543d474a7c56",
-      "d8871e0f70a63ea84bef42f685ce813869757704dcba1ce74409e858e2f3e456",
-      "d2f2c324c237f26649bc487e70f8d1f243b23714a6f5eee2dc601e87a92e685c"
+      "76c135686e96efcc3f7e762a12194db1bb6e6bcd516cc9ba4ffed5a7122d1881"
     ]
   },
   {
-    "id": "cv26-09006ef7dfa7301e",
-    "text": "Ho guardes entre els novens i els onzens, en posició n. En la posició dels perdedors. L'adverbi dels que van en segona posició.",
+    "id": "cv26-f78f1567b7506744",
+    "text": "Mira'm quina és la millor manera d'anar del passatge d'Isabel Vicente al carrer de la Mare de Déu de la Salut.",
     "sentenceIds": [
-      "653a039ba2eb594edc7e82eed0746c4a3d93d46156fbccfe4755a49dcea9906e",
-      "9e567d869197ffa379af6ad029a3d7d62d3ba0aad9d4f2a38d9fb5b519eadbcc",
-      "572322dea0ba2c27a5f89ed524b481a1f8347bc64a138528aecf19cdb6faa604"
+      "7d9f977a6ceac7804c272cd90459c120c9cf02d5f06a30d5a47ca73f1de6f474"
     ]
   },
   {
-    "id": "cv26-bb2a6e61508bb2e7",
-    "text": "Divendres en Pol anirà a la Serra d'en Galceran. Divendres en Pol anirà al teatre. Divendres en Pol irà al metge.",
+    "id": "cv26-bd0241c1a7c3961b",
+    "text": "Després de vint-i-cinc anys, el planejament en l'entorn del Mercat de Mossén Sorell està completament embossat.",
     "sentenceIds": [
-      "28232a1a6294718d07515602827d95d9dfa3fa67c39225ba281645c3844b173b",
-      "242296a4695b35a05170daa232ccf82072e3531e15255e11ab6476f6cb27ab74",
-      "92cf681966ac1a1737d1e6ee9577cd147bfcc6a77acdb49456df8e3cf4b8539d"
+      "50b183cea43bfe583cb245471740229150c52e7e769d1abfafccf634d6b6dbf1"
     ]
   },
   {
-    "id": "cv26-505b3acdffb0fa5a",
-    "text": "Amb els ulls d’aquell dia em deia que havia de fer-ho. Per què no em deia que havia vist la mamma tots els dies?",
+    "id": "cv26-be7b20bbf49ff364",
+    "text": "Hi ha qui creu, erròniament, que la venda de llicències és una font extraordinària d'ingressos per a qualsevol empresa.",
     "sentenceIds": [
-      "f9dc6311097f1a478333b73c4f1860e10f001705245893a60789840f0cf062bb",
-      "5691cb51f2ee2eeae1ce7032b2ba0a9eb4b733e585382a03f0fb73bfcf1ce21b"
+      "5a5d17e8d4ebd41fb37d1fbb1fe1a95c6c3ace2a65841efb5067cedcd7d29ba5"
     ]
   },
   {
-    "id": "cv26-aacffe8cd4282e09",
-    "text": "No sé quina hauria estat l'opinió de l'àvia en tot aquest afer. Hauria estat amb la Donatella? Amb l'Elena, hauria estat impossible.",
+    "id": "cv26-95abd2c9cf52f9b5",
+    "text": "Qualsevol empresa o professional, amb els coneixements adequats, pot seguir oferint desenvolupament o serveis per a la nostra aplicació.",
     "sentenceIds": [
-      "faf5acbefd18edf7079cf5139c7f5426aeca9ab4421211e1ab9c71b4267e5cdd",
-      "6b1b544c3fc8bd18644331d454db0fbaf522fde5c2b260941d8bb4ea610b37ed",
-      "cd92a241aa8b7b6c2fdad73e633b2c9b198653444ab0150c2a941fe28ff12732"
+      "380aa64b806b56cb4fa9b23ff961fa57915ece6edb099f9787957a468cfd6791"
     ]
   },
   {
-    "id": "cv26-abaff9fb26df37a7",
-    "text": "Ni d'un cuc ni d'un bruc se'n pot treure gran suc. No fer cas d'un pa ni d'un penjoll. Un alguerés, d'un pa te'n fa tres.",
+    "id": "cv26-a23a9a17e627975d",
+    "text": "El quinze de gener de dos mil u nasqué la Viquipèdia i el setze de març del mateix any ho féu la Viquipèdia en català.",
     "sentenceIds": [
-      "fe13cd573d1bdd3c08d9e4bc55b31289bcc4e0ea6417e6191096f563690fe649",
-      "b45a88a69c35074d15167afe0900f6fa7636b907d886b53acfba578ae484eb1f",
-      "49fb84eecdd211f3fb8c855e3dafb280d46cc396901ee4932ef26e2578b6d69c"
+      "055ca0d9ed8d89cb452fd36ff6522cd0c1d3d268d454d12d00d6496b2f36664f"
     ]
   },
   {
-    "id": "cv26-ff203f25bfe3be02",
-    "text": "Què ocorrerà si no compleixen això? Què comenta Torrent que ocorrerà si Junqueras arriba a ser diputat europeu?",
+    "id": "cv26-3f771d5cb995b9e5",
+    "text": "L'empresa va gastar aproximadament tretze milions de dòlars i va arribar a tenir setanta empleats en plantilla.",
     "sentenceIds": [
-      "2df0ce1f51f3fc922432625586f0632e3fc6db5073c5c3a6723720a16e81c96a",
-      "b19d7c077e48f647a77c30aea041cdcfcd5fccf64895c9aad2007f956584eac0"
+      "427176c4242e6de6e8b5d2a7c7e37f27736f93dcaf916aa096fdbf55bac4bc42"
     ]
   },
   {
-    "id": "cv26-de2f8cb90711b024",
-    "text": "Els desordres que han esclatat a la ciutat. Una panoràmica de la ciutat. És la providència dels pobres de la ciutat.",
+    "id": "cv26-93d4a1dd861fb833",
+    "text": "Això vol dir que el consorci ha desacoblat l'actualització dels emojis de l'actualització de l'estàndard Unicode.",
     "sentenceIds": [
-      "8fd6d6e65af6cb4aaf89a23bd7d0f041bd9350d90b7e32a76cfd0a330de1de2f",
-      "e8998aa200d97fe0f2da2bfee482555bf68f75091d51299e52f5b1e76fb4a32b",
-      "f88d253e4e703e037f534e9e887b7be82928783c5859eb22aae4d9cedaf09b14"
+      "e5151b7ddf56994ad458de0113147880b2dbe827d25531152aad5a1500dfd198"
     ]
   },
   {
-    "id": "cv26-de17a54670986f3c",
-    "text": "Han sortit a la llum els seus versos? Què ha sortit a la llum avui? Quina publicació ha sortit recentment a la llum?",
+    "id": "cv26-10d7df5a9c47b447",
+    "text": "Esquerra Republicana de Catalunya parla d'eixamplar la base social de l'independentisme, incorporant polítics d'altres opcions polítiques properes.",
     "sentenceIds": [
-      "6f8a5bf0f7a2f41bdd90051d66cd5c1f80b060b7c40317ad3c4bb873f11a2c5f",
-      "727496b6f161627f05ada8dabeecb0faa84e3f2d87cae6d31fa108b6244b4362",
-      "5a4d3011deb2c992ab74fec102021e9c600b134aad0dc886be66dbc873cbbdb9"
+      "ea4a88a5f6029490c8506ec66b95406f15b709c96b999dd92e9671cb9777afa8"
     ]
   },
   {
-    "id": "cv26-5d477bd1a7ada5fd",
-    "text": "La paret de migjorn de l'església. Abans de l'església hi ha el cementiri. Del cementiri arrenca un camí estret.",
+    "id": "cv26-8f01d049b84f42dd",
+    "text": "Per l'abril, blat espigat; pel maig, granat; pel juny, segat; pel juliol, trillat; per l'agost, mòlt i pastat.",
     "sentenceIds": [
-      "9378a0a76eab3a27d38b4249eed78bb424044f887cfb5dc534d6835db6271c3e",
-      "e175e9cd73df729d9cf858af2b1394fda691b7c94ecad64a93889bc726feed93",
-      "dac65993d2d51a179ae3e582ec0363a941e7b4fd1dd91fbd62ece7c9f073b6a6"
+      "08ea3e76ee44d56c834b2034c1f8ba84e87e68e7726d4616ae9bc01ac586b87e"
     ]
   },
   {
-    "id": "cv26-6f5ea2147d6a7327",
-    "text": "Alguns d'estos noms no apareixen a cap altre document contemporani. Alguns d'estos peixos són populars a aquaris.",
+    "id": "cv26-621cfcdef4dc2904",
+    "text": "Per això, utilitzen unes circumscripcions de no més de cinc escons a la República d'Irlanda i de sis a l'Ulster.",
     "sentenceIds": [
-      "f40e3433083c9cd407b001f238304c773315f7065002e73b69207c659ee59649",
-      "ccd4dbdf8c14358e3fc97d67bb10955181d92b3dc74233b7095589e83656378f"
+      "ed9a4310accf9fe30f7bba7328cf862eaf1ad015e94661d2dd34326e5fd72938"
     ]
   },
   {
-    "id": "cv26-282abb69ced6b68e",
-    "text": "Demà na Berta i na Mariona iran al metge. Divendres na Berta i na Mariona iran al metge. Divendres na Mariona va al Verger.",
+    "id": "cv26-83ff1983da7ac7b1",
+    "text": "Des de la seva creació, la fundació ha rebut més de cinc-centes contribucions econòmiques d'empreses i particulars.",
     "sentenceIds": [
-      "6469e7e80f607fc9a016ca759ca25452f2f077e23ada6cd01bef1deece58fab7",
-      "ccda1914637b6d48febccd8ec5f61cf3a7d471b41a243034683fcb03a3270a92",
-      "76e2dcf8dce65260ed457b12a405452f055b6b20c679ff0f0423f3d59bc01571"
+      "7648be225fe47d97ce3108bb6696f6b5f5c9094d792a43d39040bbf146fa15c4"
     ]
   },
   {
-    "id": "cv26-b47b961f40304105",
-    "text": "D'ací a casa hi ha un bon tros. D'ací a casa encara hi ha un tret. D'ací al molí encara hi ha una bona tirada.",
+    "id": "cv26-a9700daa1dccb849",
+    "text": "Mentre que Bruce Byfield de Linux Pro Magazine Online escrivia Calligra necessitava un primer llançament impressionant.",
     "sentenceIds": [
-      "dfb080dc79d02a2f42c0b2b17bd2098ffa6472ff3b3c9633c0b293427bbbcab7",
-      "b9bb7daf9af0a0b742aca6f19093f631abbf770eb3d78052c92ce9f10e04747b",
-      "585302fbf9629e913e58afc05a130f73516c1d9634fd001b4b16643c024c2f7f"
+      "6117ef6bfdb0c8cb1789ed8bba07e1ef722be774faf52b991f59da4cffdd556c"
     ]
   },
   {
-    "id": "cv26-ee8b632e70537345",
-    "text": "Dimecres anam a Massanes. El nou d'octubre na Frida va a Massanes. El nou d'octubre na Frida i na Clàudia aniran a la biblioteca.",
+    "id": "cv26-ff2ff95a9f9a657b",
+    "text": "De fet, en aquest context tan hostil resulta quasi un «miracle» que el valencià —amb penúries, sí— sobrevisca.",
     "sentenceIds": [
-      "54ad85a310880d29c0bb465697cd8ca05b9c00b06eff358bfcacde2e2c25e1c1",
-      "e5657e6aa53d51d67cbe878211dd664c8dc368deb77a7258c30fcd558edcd987",
-      "865ad00cdea02d5206615b21bb60bd918ede65ecd78bc81e86bf0d63deb37ee2"
+      "bb89e577ee99e1e3531795d8a55b50cc973789b27bdf6c09983e14a6e9d04916"
     ]
   },
   {
-    "id": "cv26-9305769b0cc63a93",
-    "text": "De la naturalesa d'un carbó semblant a l'hulla. Aquesta és de la naturalesa del blat. Que són de la naturalesa del sèu.",
+    "id": "cv26-58cf4ad820eb397a",
+    "text": "Regne Unit, amb vuit milions vuitanta-un mil tres-cents casos i cent trenta-set mil cinc-cents quaranta-un morts.",
     "sentenceIds": [
-      "771b0aad4e89a3436b57dd57b85eb386d91fb2f9f02c79e0404925db299b3530",
-      "93112530903df249da9c02e1e1507b3c7cb717f610fa066e164a2271cd7518fd",
-      "a51d2d32da7e8b570fe5986d420039c055e6105f78b8d382f97859904ff70383"
+      "37526903430c64e397cf820782c127275edd3b7e35fb9c96d7e2b129cc681a25"
     ]
   },
   {
-    "id": "cv26-d87a62af55433280",
-    "text": "El deu d'agost na Marta i en Tom aniran a Llíria. Dimecres na Marta i en Tom van a Ventalló. Dissabte na Marta va a Jorba.",
+    "id": "cv26-8235a77331f853bb",
+    "text": "Hi ha diverses llicències legals que garanteixen això, amb garanties per a l'autor i el conjunt de la societat.",
     "sentenceIds": [
-      "e9288dccbd6a9ae49f8758fb098ab515eb0eba7f2b4ef24c6f66606630b57990",
-      "bdf0cfd2f4eb9c26ab14fe9d55b67f13ce299db1d9b268d333560e1187470a3c",
-      "e00d72ebcb94a2a2dbfbdfac3137f93cba324010cee3b7245f7ca8baed4766b2"
+      "3dfe84f73707d52ada1445633461f79febbeac06d54f8de53f3af8965d6ef364"
     ]
   },
   {
-    "id": "cv26-b584ab215d33b40c",
-    "text": "Algunes àrees similars en Gran Bretanya són North Downs i els Chilterns. S'ha produït com un rar errant que ha arribat fins a la Gran Bretanya.",
+    "id": "cv26-af1d8ab11a32f976",
+    "text": "Però en països on no és ni jutge ni general, com a Anglaterra, a males penes es podria saber quin és el seu ofici.",
     "sentenceIds": [
-      "b0e6e0882d7882e78e6aa43983ac3fca97bb71dc649ca31720c2fcb7bbb993ef",
-      "9dddc8c5ccef00bb958a3f575e6df69af4ee1ba222126ef12ddacc0920e091c3"
+      "e3cb122b562cb348656633fe7a95704b7c44f2b39092ad33e54b1eb06cbc9caa"
     ]
   },
   {
-    "id": "cv26-932b45af4dec5ec2",
-    "text": "Un canvi per als dos, sobretot per a mi, molt beneficiós. I, sobretot, tindria la seguretat que es recordaria més de mi.",
+    "id": "cv26-8c48e534354c67ad",
+    "text": "Una segona característica, que també suposa un gran repte, és la necessitat d'augmentar de l'esforç innovador.",
     "sentenceIds": [
-      "fb1f05eb66d69c4985e5deb050e59a30180d5b38065d9173268f4e18682ae83e",
-      "c62c382c501ae0034b39906d22606ff92039e2a9a1d41e1717af27880217edac"
+      "63f9d29689801559cb4dc1785636f42dfd219820a193ef8fb5d37df41291258d"
     ]
   },
   {
-    "id": "cv26-45757dd2add13cdc",
-    "text": "Ho va fer de bones maneres? A quins fets atribueix la disminució de les persones bones? Quins fets han succeït recentment?",
+    "id": "cv26-fddfe74d98df709a",
+    "text": "Si en algun punt té alguna llacuna de coneixement, només cal que no n'escrigui res: algú altre ja ho completarà.",
     "sentenceIds": [
-      "adc6cbc6ce30e10e426844ee26cdaa56c4a74ba7152aa171f288f3bb136236ee",
-      "338dd56d4ad2b73e2c2f2f9841b8cef54be8fa14eccc8cc5ea1d309ac9bbf5c9",
-      "57b3c2a5236250da454076c9cb2b998e582261119712415a4226706cfdf68089"
+      "7ca5054553c348a18bf2749699dc8d178c3a237d5ae6e53a40dd158e83e1487b"
     ]
   },
   {
-    "id": "cv26-ef2db32a9f5a21c9",
-    "text": "Els dos pilots van eixir pels seus propis mitjans. Els dos pilots van sobreviure. Els dos pilots van ser declarats morts al lloc de l'accident.",
+    "id": "cv26-a9488b6e6e283d3b",
+    "text": "Regne Unit, amb setze milions quatre-cents seixanta-vuit mil cinc-cents vint-i-dos casos i cent cinquanta-cinc mil sis-cents noranta-vuit morts.",
     "sentenceIds": [
-      "e2f6846cd67b77ec7b435f085f659ad80384c3f35b948b64a57da81e57ca737b",
-      "5ccdc8340c8de8496610102004377b4bb25d9d0c214849f9098f308dd759b6bc",
-      "d90f065c8e04e2b9f7f0cc26f506cfa30bb2d745c76bf98228667511025ff508"
+      "9faa6b7876929ec30a9051cd1fd4fff388cb1ed1aefeaa7eba846f00b02c393f"
     ]
   },
   {
-    "id": "cv26-1201b09b2dcc0b9f",
-    "text": "Un home amb uniforme vermell i blau tocant el contrabaix. Futbolistes vestits amb uniforme vermell i blanc caminant per un camp.",
+    "id": "cv26-df024d00ad9a6794",
+    "text": "A tot el món, les darreres xifres són de cinquanta-cinc milions setanta-nou mil cent nou confirmats i un milió tres-cents vint-i-vuit mil dos-cents seixanta-dos morts.",
     "sentenceIds": [
-      "a65b646b36f997322bd0a4fd97883d3b579d29facd2132eff96e5f0c2caa5c1b",
-      "bd1e26fa3cde50f2f59750ec9aa8065d51eadcdecbddb1901eb6e1e9032346f3"
+      "d81f5cb1d9e7ae58a86c797200741f07c5cd2c3979a0fa64cf60731ab878bc49"
     ]
   },
   {
-    "id": "cv26-64bbc218e7895cd5",
-    "text": "Al Fabrizio li encantava adular-me en públic, cosa que provocava automàticament la meua vergonya. No vaig poder amagar la meua vergonya.",
+    "id": "cv26-be9a807eccba54ed",
+    "text": "Tot i que la mostra no és una botiga, si algun grup té material representatiu vendible, també el podria portar.",
     "sentenceIds": [
-      "fb85d5d1c148ccbe1d9298de9bd62ab67a67761332fa204c8ad1d5fb29be9905",
-      "7f843f9b2c12ba85c65be9252616c8a6b0974ba6910633fe9bd2ae2922322433"
+      "cc544babd4e9c0c1fcf1bccfa00ac5d777ffacaee67b87566e59e636eea5a336"
     ]
   },
   {
-    "id": "cv26-60a032ce523905fe",
-    "text": "Recepta fàcil de com es prepara la samfaina. Com es prepara el pollastre amb samfaina? Encomana pollastre amb samfaina a Ca l'Enric.",
+    "id": "cv26-20b205f79291a93c",
+    "text": "Quina és la millor manera d'anar del carrer de la Capella de Can Caralleu al carrer del Doctor Farreras i Valentí?",
     "sentenceIds": [
-      "b51f2c3d4c3386f1580784032dab551643557a08da11821ae182346c06f33320",
-      "0c51d6e4c387069d511802162ed103b1b44033fd6c62af5d85420feb76bef575",
-      "f86e346b05fa95390080f957929a01f47a5dcbe8b80d35e9e512f7dffbe84d1f"
+      "52a3fefef9a79c2de3789b615cdbb726d2c81a7a1b892600e0ec2b6ec8b6ef9e"
     ]
   },
   {
-    "id": "cv26-8cb69d29cdda6b97",
-    "text": "Es tracta d'una corba de distribució logística simètrica, que sovint es confon amb la funció gaussiana \"normal\". Tanmateix, es tracta d'una condició més restrictiva.",
+    "id": "cv26-cfc205a055e88344",
+    "text": "Aquesta versió, com les anteriors, no descuida el rendiment, i s'han fet millores importants en aquest aspecte.",
     "sentenceIds": [
-      "92981efc8930e9b98686705b5ba14ad36f98d07a5edd95d572c6b0bb363e0f7f",
-      "51f63ce9c6992c54cd913a9b6ceb8c81192476ccf1cd2ada7c690041ef2cd864"
+      "738d882bbc8989290d5e0fca17d8877cea109d321b2702bd34f5000c4ba980bb"
     ]
   },
   {
-    "id": "cv26-6e5d6a56b62ebb6f",
-    "text": "L'aiguardent, de primer es beu amb aigua, després sense aigua i després com aigua. Beu aigua de cada fontana. A Sella, beu aigua i fuig d'ella.",
+    "id": "cv26-e814a58708d08fc2",
+    "text": "Els tres principals sectors industrials de Fremont són el processament d'aliments, la fabricació de metall i els teleserveis.",
     "sentenceIds": [
-      "fdaf47aea872e63717aae4f04930a11343fbd78d8ea4e3bfba08049a6031fa4b",
-      "eecd7409a8b02908405821d432aea80220677f0bde2c64f808b855a7b0a05852",
-      "873cdda6502eebcd71f003ac5a632a17547fa4b4eb5756f7bc0ec59cc6479cfd"
+      "bbce2da47a2b4ee8174441120c79cb3715b6fdd9e0e76a514e6304002318faba"
     ]
   },
   {
-    "id": "cv26-0cc973e82ab1da20",
-    "text": "A més, ha realitzat diverses breus aparicions en documentals. Han realitzat documentals rescatant diverses tradicions musicals dels tròpics llatinoamericans.",
+    "id": "cv26-482d7dcb01a6ae4d",
+    "text": "En total hi ha més de vuitanta mil nou-cents seixanta-set contagiats i tres mil dos-cents quaranta-vuit morts.",
     "sentenceIds": [
-      "c39bdaf48c1fd2061ec0ee7b0b492e58d71ea829d47461ae07505ca33c201a89",
-      "3f0ca313dfa91a66bc1df3e7a865838024358b237c6b6d45496e31527a512b1d"
+      "3d81cf77500a9694a57a07745c0b593e042aedc094713622197c52480378fbcc"
     ]
   },
   {
-    "id": "cv26-98da36fc8382d11e",
-    "text": "Comprova què està passant a l'Instagram de la meva germana Bea. El telèfon de la meva germana. Fes una trucada a la meva germana.",
+    "id": "cv26-b01c3200167a9f56",
+    "text": "Afegeix a l'agenda el número de la Fiona Carrasquilla: set, quaranta-set, zero, set, vint-i-cinc, zero, quatre.",
     "sentenceIds": [
-      "1eb7437e186acd6db4762d442635b913f2bcb7dd076b58f57d6a93b82e0a5f70",
-      "aa8bcf4433882c8c4fdc58bb3c53013c19fad8c2300f0b8d6e2e33a604215587",
-      "3cbddca515d487070c6350c126dac226521f37f211f48fff50e4b40d3e94eee7"
+      "e24c704421e4a1391a5549c2fea6e60cbe6cf2e270888d2a3c3b76f6ea91c4d5"
     ]
   },
   {
-    "id": "cv26-eaf6bc50e3b32cd4",
-    "text": "La meua amiga va voler relatar-nos el trencament de la seua relació. No vaig voler creure la meua amiga. Era la meua amiga i prou.",
+    "id": "cv26-fbcb6da9cc554bf3",
+    "text": "L'engany és un gran senyal de covardia, perquè l'altre actua confiadament i no utilitza mitjans d'autodefensa.",
     "sentenceIds": [
-      "fd5f046cbbeeeb53a7c84fc1a9120fac51a88a404b1069f6938381086d55b6ea",
-      "e73888c81d31b40f07fb285ed8141175254b3557487e3fedb202bc6d629126d3",
-      "0523ef706f5a21a9ee3a2df856fefc53da5b5accadf4e82da0e2ad26868d901a"
+      "2d44257c105efb72eb4b1f07b79d1b48125c1814fd1bbc1352500ca7c8a37ee5"
     ]
   },
   {
-    "id": "cv26-d71181c62a9e2fcd",
-    "text": "Aquesta és l'única divinitat de Caldea. Divinitat caldea que no resulta gens necessària. Aquesta és una veritable divinitat.",
+    "id": "cv26-1c0bd9687bec06d1",
+    "text": "Els articles podran dividir-se en apartats en el cas que regulen aspectes que s'hagen de diferenciar amb precisió.",
     "sentenceIds": [
-      "5f8a0eec46dee8c5554da280e5e5c04bb4c364c3b40d82fad0a16a733e826da1",
-      "9840cf9e16aa6ecc85cfbc7b731140d030821a061be4bd1db4a4fe33103ca799",
-      "ac74f9a9e1e6d8c6c0fb527f969cdee45f40518ce37485847b7fdedc0d46d918"
+      "68f88c134b1d7c1fa529cb27c31b4c0fd752a7d043e9c9d5a0f91357d3ed2e91"
     ]
   },
   {
-    "id": "cv26-2944089220812a8f",
-    "text": "Va agafar-me entre els seus braços i em va deixar al llit. Amb el suport dels meus braços, va deixar de plorar.",
+    "id": "cv26-10dd5b44b8af21ce",
+    "text": "Els fills, quan són petits són de les mares, quan són fadrins són de les noies i quan són casats són de la dona.",
     "sentenceIds": [
-      "fcebc011c0acc1ccbfedc6ec5733f4d0b3e53fe8325a39bca5b299e7f259efd7",
-      "78c56318e1b87bf78a53a4df5fb69e70452534f09f02ee63c21fc859bcd7b066"
+      "24496e548c87bbe44632aad89850c970efab525a3c6ef12c5439ea5298157fda"
     ]
   },
   {
-    "id": "cv26-ba52c723e9e2a5d5",
-    "text": "Tenir molta merda als peus. Tenir molta merda a les ungles dels peus. Tenir molta merda a les ungles de les mans.",
+    "id": "cv26-ef439bd733c235e6",
+    "text": "Ignasi de Sagarra i de Castellarnau va ser un entomòleg, ornitòleg i conservador de zoologia nascut a Barcelona.",
     "sentenceIds": [
-      "fdbd5e56fd0f6c4d331d7553d482ae3a972f3c5d769aae923c7e062892aa6892",
-      "f393e9b625457d43f985de0d0641bd7069ea4b809c8a4fdab4fc55f1e62a091a",
-      "ec5aa70ec5033095c8fa738093db68156c8f11c1d1aca365ff6428b71a1d1351"
+      "1097a308660b5e5699bef65b79aae88b841b9d96292a5707c814e1b0d1e367b3"
     ]
   },
   {
-    "id": "cv26-317e4b1de2542628",
-    "text": "La viuda ploranera altre marit espera. La viuda que plora molt altre marit vol. La bona viuda mai s'oblida del primer marit.",
+    "id": "cv26-dca090fa96591ee8",
+    "text": "El Brasil, amb un milió quatre-cents vint-i-sis mil nou-cents tretze casos i seixanta mil cent noranta-quatre morts.",
     "sentenceIds": [
-      "7ea6dfa6ab452fbaeb8f22cf8fe7a2d416593c19596a07277d08500c52c46c0e",
-      "d7df5e7c261519e2f40d936bfdcb7543fd55e845a7e6c69f2e77e3f19d385432",
-      "477406b9e0a4725413a9211cd4241ee45b2dbccfc65c793b4e3fcdecab465819"
+      "ef7bc1509612bc86ee2fb6f82aa42a669fa881819cdf304a6c308e958ba91949"
     ]
   },
   {
-    "id": "cv26-30ce598e2a14b9d9",
-    "text": "Aquest se centra en alguna temàtica concreta? En quina temàtica se centra? Quina temàtica va representar sobretot?",
+    "id": "cv26-5ee39921d0791142",
+    "text": "Josep Maria Guilera Albiñana va ser un alpinista, esquiador, dirigent esportiu i assagista nascut a Barcelona.",
     "sentenceIds": [
-      "134822ae54bc7fac5366947d0b12c87cda8d2d2de97da8fb90e45121d91918a9",
-      "3d0d0c206fa245ff932db9f43485e349754153f4005d6c40bea357077d8f8075",
-      "c137bb0bd68a305ab08a0360d8595a190677b50d9a22dd4c2bc8ddc712bf0ede"
+      "a3bc951d7a6deb66640a784869569b41c01a3f630b0a4461cbfe0c157fe403f0"
     ]
   },
   {
-    "id": "cv26-c6371c00ab79d522",
-    "text": "Quan la immortalitat radica en acoblar el cervell amb un ordinador. Quan la quotidianitat consisteix a connectar el cervell a un ordinador.",
+    "id": "cv26-c9af1a8d6cf073e5",
+    "text": "Rússia, amb set milions cinc-cents onze mil vint-i-sis casos i dos-cents set mil dos-cents cinquanta-cinc morts.",
     "sentenceIds": [
-      "f9ecdcf4f060ae3c69080a5d9a8c5a12ba7a10f8a5ecf80b5d221599bb68761f",
-      "30ab290919454797eb4deeb739dbddce3c18df4f411841dac418e178375145d8"
+      "13a513011e096bb1dbc4a2b756d6b5d2345ff671e69284ccb14e3aeca5072d98"
     ]
   },
   {
-    "id": "cv26-716335e6b56103ba",
-    "text": "Està orgullós de participar en les mobilitzacions de la diada? A on no va participar Torra? Va participar en competicions fora de Catalunya?",
+    "id": "cv26-9a1d5a0177902a00",
+    "text": "Mira'm quina és la millor manera d'anar de l'avinguda de la Reina Maria Cristina a la plaça de Josep M. Folch i Torres.",
     "sentenceIds": [
-      "f9a869728ecbe4fb8ae0033e80c54b10ace4fc8d6595f438fa80fa1810e8f205",
-      "bc34b694edd74874a9d9ec6b6d4a1df8fe05f1690535641d79788fff8ca6ffb8",
-      "eb909c64e232c7e04b9f661a0b7e9e1841946a2b7096a71134104c94ce97468c"
+      "4f1fb2b4f3a4038d67c67ab1dee6fc8cf184ba4c1dac962eaa40aa7c5970177d"
     ]
   },
   {
-    "id": "cv26-c162d009e7b61514",
-    "text": "El primer de tots a la Universitat. Indefinit a l'entrada de la universitat. Universitat per a Solistes Venecians.",
+    "id": "cv26-d7df9ebbb437abad",
+    "text": "En aquest mes, la xifra de desocupats registrats ascendia a tres milions tres-cents trenta-tres mil nou-cents quinze.",
     "sentenceIds": [
-      "7620faf0937a7e88070b42edc2a0275600f3f27b6cbcac55b5105ae8af8f8c07",
-      "ee0846a84ec6f5de26728241803f23eddba0c3800532ed1a86f9af52ac18773d",
-      "6bd298b9c82b4a14ab73a334d866b3f33dc1f2bf4efac733eb7f0da29a9a7898"
+      "4e254051941ad162932dc9f69944587c5d5f55f720895c0c59349ad70eb59996"
     ]
   },
   {
-    "id": "cv26-ca3e10f201e7e70f",
-    "text": "L'immens castell del poble, aquella mola imposant. El castell no era defensable. El castell ha desaparegut gairebé del tot.",
+    "id": "cv26-d11eca22edd137cd",
+    "text": "Ramona Peralba Sala va ser una teixidora, activista republicana executada pel règim franquista nascuda a Gironella.",
     "sentenceIds": [
-      "fa3dcd4d4f9a9a02d1a85758cdc58197ea06fbf20f844bb164af983b05fdc556",
-      "0d5115fddd4afd8a8edceffca50ce101eb35e9cc22f619021eaa01638ea75591",
-      "e54315a15bf52fc8c2f8f775db945a7b7b2b433b65aab7f1d67066373c43d791"
+      "ac6e1ed1dcc9a2383267f46ad03dc64fde0aceb6f6688d2d3bd4b4500afa435e"
     ]
   },
   {
-    "id": "cv26-ae463384f628f9b1",
-    "text": "A les nou em toca posar-me el Ginecanespié. A les nou em toca l'ansiolític, m'ho recordaràs? M'ho podries repetir de nou?",
+    "id": "cv26-35b091f73a9c8daf",
+    "text": "Rússia, amb quatre milions set-cents noranta-sis mil cinc-cents cinquanta-set casos i cent nou mil set-cents trenta-un morts.",
     "sentenceIds": [
-      "fb11b18c62a2aad9a080277d40312e92e44d99f781287b7ac4081bbddd1e5e94",
-      "8f804c5cd927c331afa9f45d3f6f15009648218cd46a6e3429200204c6379bbb",
-      "ba2349b670c7248b6a8cf3533962b86aa6eb276e5ca7c8246b21adc525d4a746"
+      "080322aec9871417ad427b2f97ef67836296ea72c708ce27cfb1517e30571199"
     ]
   },
   {
-    "id": "cv26-c66fdc95a17d88dc",
-    "text": "La regió ha estat afectada per la guerra civil durant molts anys. Allí ha treballat molts anys. Alemanya no va tindre cuirassats durant molts anys.",
+    "id": "cv26-c71cdc9290a4e155",
+    "text": "És una conseqüència de la instrumentalització que l'espanyolisme ha fet a casa nostra de la identitat valenciana.",
     "sentenceIds": [
-      "074f50aed21b9d85cf1c016663e34983fe94ef7e05aca8f5850700da3393f4a2",
-      "fc7c7eb25e506615910367ecf8292403ab570ee36572b72445c9af7a3237e90d",
-      "612f19e2128c741260c4cffb58c06c84415701a463240e6694c6046dfad548e7"
+      "c1501c86576bc8bc1019eca38b6acdde6a9bf9e89ef7ad395594d9802ae26a7e"
     ]
   },
   {
-    "id": "cv26-93b1beee17a9d1c3",
-    "text": "Endolceixi els records de la pel·lícula “Amélie”. Pel·lícula que poden veure tots els públics. Faig fora la banda sonora de la pel·lícula sense cap sotrac.",
+    "id": "cv26-b7556e7e7f250848",
+    "text": "Les persones s'han reunit a la gespa per veure alguna cosa amb telescopis, possiblement amb finalitats científiques.",
     "sentenceIds": [
-      "8734fd326ae62fe099a1a2a33fb92903b38527ac3a4830cb52daa503db62fce2",
-      "0ee85aa3fe4bae95cee8758246eabbe112bb24aba197b07a52eaaf2b7229acb1",
-      "c436e5128c84ed475a9b2fb4931cf576c5f41f49b30e2a248ec540051c43ced5"
+      "f0d03fd5317bb3b3c044664cc34b31d386d3ab772dec7289793177fa1c0e428f"
     ]
   },
   {
-    "id": "cv26-bf8038d2fa2e3cbd",
-    "text": "El cerdà que és bon català, pels seus fills no es deixarà governar. Riure pels seus dintres. Escapar-se-li el riure.",
+    "id": "cv26-77daf7b08ce8b2b9",
+    "text": "Com a projecte lliure, el Catalanitzador per al Windows està obert a la col·laboració d'usuaris i programadors.",
     "sentenceIds": [
-      "b0a0fd7e11e335e6695f3ad99995f20517a72b8690aae9062a41500d021670ce",
-      "77960f466e022a80b2f9a9c89f897d0c161d39296676173ef256a0e8920f6587",
-      "741f949c68aea9d8b65ed019ca9cebe348270c541b3ecccd495b29507e37edf8"
+      "187ec0a97ddaff196cad7048119462ee6d7110916adf469348a91933892c94a7"
     ]
   },
   {
-    "id": "cv26-1039bffdfd5af08b",
-    "text": "Ensenyar-me les notícies d'assumptes internacionals més noves. Digue'm les noves notícies sobre Europa. Ensenya'ns les noves notícies sobre Europa.",
+    "id": "cv26-1a2b7adc7cf3173c",
+    "text": "Josep Oriol i Bernadet va ser un matemàtic, científic, agrimensor, poeta i arquitecte nascut al Far d'Empordà.",
     "sentenceIds": [
-      "f99d6e0ab2b8bb5320093067172023b3ddd93a849f641aca91a9b2c21470b4ef",
-      "be3b187654628ff8f9dd89a680b415a94662d000e1636ed0c3525c4382c1ee7f",
-      "aba6261b707b1e6f99c42de15b46fe98797e2ea9f69a93eeba05c10f9880dacd"
+      "649599754294ddc79825d910b9bedeae5b88e127512436db6ff75c626cf9e769"
     ]
   },
   {
-    "id": "cv26-61128a41f1f1cfc3",
-    "text": "El Northfield Grand Army Post va rebre el seu nom en honor seu. El gènere bivalve \"Turtonia\" i l'espècie \"Galeomma turtoni\" van rebre el seu nom.",
+    "id": "cv26-628c2629e5218d39",
+    "text": "A hores d'ara el diccionari conté cent trenta mil arrels de paraules que poden generar més d'un milió de formes.",
     "sentenceIds": [
-      "62095e1488c681e59c98b6b2813ebab762ebdbf9cf7728f91044b5e183226c6c",
-      "ada01a36de88bac2675444f41ac57d22532e967914981561c08c880f3bb1bd0c"
+      "10e856c567176ba0b8cfe567d8320e7276ed1745020d5a45c6953c143832bd52"
     ]
   },
   {
-    "id": "cv26-c51db55103ecbd0a",
-    "text": "On és el bus que va cap a Camprodon? Quant falta per arribar a Lleida amb aquest bus? Per arribar a Ripollet, quin bus agafo?",
+    "id": "cv26-3404b387bbe0ef85",
+    "text": "Francisca Rius i Sanuy va ser una dibuixant, pintora, il·lustradora, professora de dibuix, escriptora nascuda a Barcelona.",
     "sentenceIds": [
-      "96a5eca1a768e91f3857f3ee0343b56b4b63c85c2c1ece5a533464ad16969ec0",
-      "690e8a07964d8d9d172ab61bb4317fb005ca75f511f35fd1ae4f7a9db2e10a49",
-      "b7ebd149b318aa25e801da3aa809529386522fb1aa37cb2f0ffdbce577f9c163"
+      "439cab5798ed8b80e6034c319322df7d34b777e87213e6124cd899fe192cd3ba"
     ]
   },
   {
-    "id": "cv26-d962b25319f4f073",
-    "text": "Tampoc tenia clar si havia d'avisar algú, els veïns, els amics, la policia... Tampoc tenia clar què volia. És clar que volia saber coses meues.",
+    "id": "cv26-6598aa16c58397dd",
+    "text": "Rússia, amb vuit milions tres-cents cinquanta-dos mil sis-cents un casos i dos-cents trenta-tres mil vuit-cents noranta-vuit morts.",
     "sentenceIds": [
-      "fa638e3439c177f08f4c3503c42288f4b94b63a617487619297d43ec0e0db22d",
-      "32e4b6cee3610114973835d4565950a297529ef627d973008fae37ee58a0cd3c",
-      "2b8e41cc00466b043e2e8a3d14f407ac4f51fc6a05b0b574b58c979cafd70d68"
+      "5ed94661c8d997333b4d96677e55a81e0719581b44c66f445d0f8c830b421e59"
     ]
   },
   {
-    "id": "cv26-876514c287fdd098",
-    "text": "Un xicot, una noia, elegant. Aquest xicot ja fa temps que ens ronda la noia. Fa temps que us dec una resposta.",
+    "id": "cv26-00e06aeec241ffa5",
+    "text": "Hi ha un poble prop d'Atenes que es diu Mandra. Quan em toqui la loteria hi compraré un xalet i me n'hi aniré a viure.",
     "sentenceIds": [
-      "aeae7a66d9f437c9806123aa70f0206f1852e60fee9902492d0bc657c57c5ca8",
-      "a8f225a876bc51a4cbd6af57b850a9439bf07e1df769814d56034bfc047be846",
-      "428791d6f2ce7d2403ef5c8cf8235f00f43dba3269f47e02b65be49cc869e993"
+      "36b9d180875506ee13a235624dcc1bd0fe01b449a058c04136865ff340a03d33"
     ]
   },
   {
-    "id": "cv26-2690711a6976345b",
-    "text": "Allí jugaria la seua última temporada com a professional. Allí va desenvolupar la seua carrera professional. A més de la seua carrera com a futbolista.",
+    "id": "cv26-3fcad62ad57507b7",
+    "text": "Maria Teresa Utgés Nogués és una metgessa especialista en psiquiatria i política nascuda a les Borges Blanques.",
     "sentenceIds": [
-      "e256c8cd5f881872a25bfecdf2f51b036d1a03c4859b1be6def8cb9fa0010447",
-      "16cf44551046ee2849f3522baf6d4d08f004a7473909c6a26dcfd242259a8c81",
-      "ac67e97ffec8dcc66f59041a943dd1dd8cbb8efcd3892e059ab6d3b011398092"
+      "46f45bdfc95f3fd6a2d5bd0d24d88d879bd80c2a305a7f69fc89a49d2e96107f"
     ]
   },
   {
-    "id": "cv26-eb0c57fe72a0f9ed",
-    "text": "Ni que el matessin no ho sabria dir. Ni tan sols sabria expressar repulsa o demanar ajuda. Ni tan sols no sortirà el sol.",
+    "id": "cv26-100b7907ca6b97b9",
+    "text": "Totes aquestes eines, juntament amb el talent dels membres dels diferents projectes, és el que fa possible la producció de programari lliure.",
     "sentenceIds": [
-      "5a1cbaa0037db5ea0a972463fedde82df77d24fa6e36b04a5f1c70bd69bda6ca",
-      "b0cc5a4de3b7bf0eb28b065f85b4329072a626219ff5cdfcb38107e70cd111ae",
-      "65a6eb8510ba5f2f7d9997436346815f31773e443f54d1f1e907fe4bc76d6713"
+      "3d8f6a752c4cb9603e293f5e02d93b7a9c5b0338d6bf9201082cdf10d81ac0f4"
     ]
   },
   {
-    "id": "cv26-8861a294aaf58aba",
-    "text": "Riure's de la processó. Els gegants van a la processó perquè els hi porten. Acabar com la processó de la Moixeta.",
+    "id": "cv26-b9c7cb8732559c51",
+    "text": "La Universitat de Boston, ja implicada en l'educació local, va prendre el relleu de l'administració de l'escola.",
     "sentenceIds": [
-      "78014795e73ce7eaedf271665a44eb590b310e5617201375f1f999844ad986e0",
-      "bf39bfd6e830619d2114d89941fd4b64b8bf56c3b4c2e6d218507fe7dfc00d49",
-      "424701da96f7a3d9c75463aa307d90562307fc5958e47263dd1ee020149e651b"
+      "f6df0b818c2a9c4d67d254f4918c1343f586845f52937360874ab9254966b9fa"
     ]
   },
   {
-    "id": "cv26-977ec4505d5be41f",
-    "text": "Us desitgem unes bones festes. Així com abans tot eren festes, ara tot són plors. Les coses no es poden fer així com així.",
+    "id": "cv26-57616fc973886c44",
+    "text": "Dels fills de la meua filla, sé del cert que l'àvia en sóc; però dels fills del meu fill, potser sí i potser no.",
     "sentenceIds": [
-      "f1ea4da56f5d88aed090ee9d51c58e41cdf0c767eb1f7d1a6df8dc446bd463a8",
-      "999bc8c6de2f7203f3e437737accf23b03aeaa2ae3d0ec516b3a8810759addd5",
-      "8f7299f5c4007a1b667044607e54eb62f4ebb598f4b9b15ccccf07d63a141e0f"
+      "8adaefd5d154531f7c2921c252721ba1dece5f6d4188be33998705c815864c01"
     ]
   },
   {
-    "id": "cv26-90ae318572ca2fa9",
-    "text": "Necessito que miris si tinc cap missatge de Whatsapp nou. He rebut avui algun missatge de Whatsapp nou de la Georgina?",
+    "id": "cv26-2b0bf179f284ebf3",
+    "text": "D'altra banda, en la taula dos s'arreplega la llista de clústers identificats que actualment funcionen a Catalunya.",
     "sentenceIds": [
-      "95cd530b6d17729f413ae182a1a6a86ee20c846b9332978b4a6c5de706651833",
-      "9fac9e4a474bb139ff917ddc7fc4bc789f4b17a9c8e037464b3ca61df3e640e1"
+      "0a4070e5cefa41bdab3a427e5f3989d9a4eaa9440782496aeab847d75426bacb"
     ]
   },
   {
-    "id": "cv26-3d0576517c1870b4",
-    "text": "Gelades de març afavoreixen els sembrats. A les tres gelades, pluja segura. Mar serè i muntanya obscura, pluja segura.",
+    "id": "cv26-8ce8b0f385cbe4b0",
+    "text": "La meva mare es diu Miranda De La Concepcion: de, e, espai, ela, a, espai, ce, o, ena, ce, e, pe, ce, i, o, ena.",
     "sentenceIds": [
-      "80c31928a14a185ec6fa020517661df1837f9f8682c8a4019497d48ecbf98980",
-      "234a165e126a8e158f82cdb90d1755289b2ce523cc8389dcb6c48b3afe87e3c5",
-      "ced2d51e8d7b838898a2a1aeb48166f696e12fdbc83c48d322fde0523ab43e5a"
+      "0c8642a4e4f3c40d3076fa7b08ef9731923e027f81286f46a8c81a95f4fc4e6d"
     ]
   },
   {
-    "id": "cv26-82b3372dffde5136",
-    "text": "El Primer Portaveu porta Channis a \"casa\", on se li restaura la seva ment \"original\". Ella el va derrotar, i la seva ment semblava destruïda.",
+    "id": "cv26-9553935e4e03074e",
+    "text": "Mira'm quina és la millor manera d'anar del carrer dels Mestres Casals i Martorell al passeig Marítim del Bogatell.",
     "sentenceIds": [
-      "4ede08a028ea6e14529b84e4e8e4a57445fdab92698b7de6b3d82627e07a258f",
-      "e97ec7d5efc9debcf1d36f89dbba468d66a87a4d3bf4bdefdbc99078c93b1ab2"
+      "8e6dc7cc95c27cadb41ede3d8970713327fab242261621a15ad0cef1087abc90"
     ]
   },
   {
-    "id": "cv26-02b44b397d6618e3",
-    "text": "De com s'escriu una novel·la. Transformen mitja novel·la en una novel·la inacabada. Monocle és mitja novel·la, i no pas una novel·la sense final.",
+    "id": "cv26-9beb8f1317715aab",
+    "text": "A diferència de la majoria d'altres localitats de la seva grandària, Kawerau va ser planificat acuradament abans de construir-se.",
     "sentenceIds": [
-      "196d9cd37bb586f16d30ad6c4afc9c83973697df0ba6ed058fa6e7e7268b939d",
-      "7c1e0146576bc59c9a94a62e9642f75ba54f4b109d25bae940604dbd6fa8db3c",
-      "347d58c7f221fb5fcb65fdfb93716b9589cf487adfa7161c21ddfe1a3bcdf4f1"
+      "3508dde7eb353b7691991aef9e3992adba3e5f970f2e835882f8122c7bddebda"
     ]
   },
   {
-    "id": "cv26-9cac3a1f00aa6a96",
-    "text": "Prengui a algú altre allò que ja li havia donat. Fem el que fa algú altre. Rompé les bones relacions que tenia amb algú altre.",
+    "id": "cv26-bf63e9ee7812c533",
+    "text": "Ricard Masó i Llunes va ser un cartògraf, aparellador, polític i activista cultural nascut a Sant Feliu de Guíxols.",
     "sentenceIds": [
-      "42a624554a986bb1f832f6952debed9a025cfb0a3b6f0402f2c54366b1624981",
-      "a70c08377985a05f7a32f10f01e05e13765c889a95441a3ab54c2e6ee7507623",
-      "9919d7c13f7f29dc41a6187c9c2e77f182357fd449b1ebc7666e316c0a1022e6"
+      "077897513a838725151ab2bd7b2d93899758a6f05a4c661b28afaa2c00acc27e"
     ]
   },
   {
-    "id": "cv26-8e47640bf233674f",
-    "text": "El conductor d'un cotxe mor en un accident amb un camió a Girona. Un passatger agredeix i roba al conductor d'un tren a Tarragona.",
+    "id": "cv26-02f534f099c9e977",
+    "text": "Wolffheim es va associar amb aquesta tendència i en poc temps es va convertir en el col·laborador més pròxim de Laufenberg.",
     "sentenceIds": [
-      "b13d11f5cd0ca7b926a90a17a4a0cd12830140889ab4a2eb32a32edc652d17e4",
-      "377caba97041f47c1c34c467564f2330bd56abd5f1aa855f6b3e8fa1234afc58"
+      "b9f62a4f863c06a099dc2719c3bf76487a2eb5f18cdd27badfc528a384e5ec6a"
     ]
   },
   {
-    "id": "cv26-f8b5a2a989b8d9d9",
-    "text": "Qui té a prop el molí, mol abans que el seu veí. El veí que té bon vi, ventura té prop de si. Arriscar la ventura.",
+    "id": "cv26-097b66cb2705fc57",
+    "text": "Melòdicament, aquest interval es fa servir amb molta freqüència, i té una importància especial en les cadències.",
     "sentenceIds": [
-      "8c1a825946f55145e4c607cfb7568db1133e032d9f0956f8e0b81edfccf1a3de",
-      "2bae5af39283a59f281d553e8e8262c7b817f4ab2e90ebb8d6481b6d13bbe5e6",
-      "9876d4adbe08312b5799bb42fe510f464718163d495a963c5a52242ef9e04b19"
+      "ff4606aa8f6838417f24ce2b60731bad0eb30d36a2e4a347b032de7b16a708ea"
     ]
   },
   {
-    "id": "cv26-30c4f452e5d7c819",
-    "text": "En temps de carestia no hi ha forment segon. Sol i vent, bo per al forment. Santa Rosa de Lledó, sol i vent i aigua no.",
+    "id": "cv26-349f7cd53c36ab21",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de la Mare de Déu del Coll als jardins de Manuel Sacristán.",
     "sentenceIds": [
-      "afcfbcaad26cb1e2bb178a8b7232f9c2731cdf987d0f38f9d5bf4d9f504035e5",
-      "6d978d9fdb5b793987399743a64aea4a7868b13d6203eceece66936b8f6b9feb",
-      "d0c3b55c83c71428b10e44c29599c66d3f09d35ac6824f683659b7ed9bb742c4"
+      "15da33a31c70768c1fa03e08286599a7ef42ed81710004398ff5c229c2b1972b"
     ]
   },
   {
-    "id": "cv26-6a052cb62c95510d",
-    "text": "La campanya els va involucrar fent servir samarretes numerades que representaven cada canvi legislatiu. Aquella tarda, el temple s'estava fent servir.",
+    "id": "cv26-1d70b5140d5d8d23",
+    "text": "Atés al que establixen els articles quaranta-cinc i quaranta-sis de la Llei reguladora de l'activitat urbanística.",
     "sentenceIds": [
-      "aa405c7cac96c46c5a27c29a94b54ee4f634dccdffc095e2913a53ac460acbd0",
-      "f7f66ce28772e217f7f8235e8ec62d760b6cf80c703a61c4933652f4ebcee654"
+      "57f7d315ebb9af36e88de70b7fde467bbf3f595a18bfe4f59cc972f627f4ffe7"
     ]
   },
   {
-    "id": "cv26-244ac5ac006b01ad",
-    "text": "El cinquè en joc és una novel·la excel·lent centrada en la culpa. Els meus oncles sempre resulten una excusa excel·lent quan no sé què dir.",
+    "id": "cv26-a093da4d5c178324",
+    "text": "Pere Bohigas i Balaguer va ser un filòleg, bibliotecari, bibliòfil i professor nascut a Vilafranca del Penedès.",
     "sentenceIds": [
-      "9afc839c5b2c21b5c331196caa560e1758de1bc3ce883dee25e7faf8ee5b1dd5",
-      "c547de7011a49e877201917b9c27bab3610063c692d92d5521078053b97388ad"
+      "0468da2103ca139fbd48c1e6a9b75337de04fefca6f2b639bc4047df9a4d1628"
     ]
   },
   {
-    "id": "cv26-8c07765b6eae86e2",
-    "text": "Per Sant Jordi na Lena anirà al metge. El vint-i-tres de maig na Lena anirà al cinema. Dilluns na Lena anirà a Llobera.",
+    "id": "cv26-ce80082509da1927",
+    "text": "En qualsevol cas, aquests nombres situen el lloc web de Softcatalà entre els principals webs en llengua catalana.",
     "sentenceIds": [
-      "3ff28debf14f9f1dac8bd46187aba051c5d19f642fe1c5d42ef6be0508d115c9",
-      "6431c8d256f19e12bc8334f10bea3827fe5c8443a1bb223325380608733a4710",
-      "836a1053f2886aa4e731b326630ce6911fd85be4a2805b27259871f905cede47"
+      "aaea3e681f674b60e9bba5c64b446d21f4a39f934029ee863f83251cb952e375"
     ]
   },
   {
-    "id": "cv26-866ba8286617f69b",
-    "text": "Dona'm l'adreça postal de la Laura. Dona'm l'adreça de l'escola bressol. Mira'm quins serveis ofereix l'escola bressol.",
+    "id": "cv26-80222dcf016fed02",
+    "text": "Els grills i les cigales provoquen contaminació acústica i les cuques de llum, lumínica; de les vaques, ni en parlo.",
     "sentenceIds": [
-      "faa54aa3a9ce594bec7b3ca2ccfd6d00ab0db6a09b65ac75bc8acaa1a8a44aad",
-      "e7876ff8842dd13d2a0550ea04c2ff58714f4fe48db2efdcb66601d6b2861ece",
-      "52e4bfb18f734babcbf1ba9f29701f91ad2ac5e38b87bae23a375d7ba06fb7fb"
+      "5cef64522be8b213f204ab0549d20c18f4c5950a74a38284ed633d0f7941deb6"
     ]
   },
   {
-    "id": "cv26-d28f1359b6d0912f",
-    "text": "Era en veritat la bèstia de Gavaldà? Com s'anomenava la bèstia que vigilava l'arbre de la vida? Com s'anomenava el més gran?",
+    "id": "cv26-49473770ab4c5c96",
+    "text": "En el fons, es tracta més d'una operació de màrqueting que d'una acció que busqui afegir transparència a l'explotació de les solucions Microsoft.",
     "sentenceIds": [
-      "a22e1a50cc02fc281fb6789b506ca39ceb19f1c7f346d16522dbaa626bc73707",
-      "6ee1e3e13c7c6939ef0fc86d489f5a12053d6fd8fd5bf8406a2db91129634e2f",
-      "841c6fc15c4619d227e77ae4863734c3de660a9913623a6cc1624a0413dd43e5"
+      "b5499e470cc435c7615738244db30072f853a408cde6043513ea1a4ee2b86008"
     ]
   },
   {
-    "id": "cv26-82c4ecde80df677f",
-    "text": "Una dona que parla pel mòbil i una dona que porta faldilla caminen juntes. Una dona amb una jaqueta taronja parla pel mòbil.",
+    "id": "cv26-d502aa516bc8ea0e",
+    "text": "A més, va arribar a estar entre les deu cançons més populars a Dinamarca, Hongria, els Països Baixos i Suïssa.",
     "sentenceIds": [
-      "e97242b4acf061af98875d8237ba264c93cd69b6949b0fb2366464fe0a6f3412",
-      "113e9d22a5f774ca1b8b3f8f4596101f4969330e8e63c008c5c98213b278a8ea"
+      "ab77e8952cef30cd21d187333ba176a2589475619e3c5087a2d1d37781de8ba4"
     ]
   },
   {
-    "id": "cv26-96fda77eef1e45b6",
-    "text": "Amb el vistiplau de la seua companya. La seua companya, també. L’Elena, la seua companya i el Valentí em saluden.",
+    "id": "cv26-ee690dc342c2fc3c",
+    "text": "Una gran part de la indústria del programari està basada en el desenvolupament de projectes on cal un programari personalitzat.",
     "sentenceIds": [
-      "faebce802d0ef3ecae4cee6cfb03f58227c26c7b839a208417ba481835e7a79b",
-      "e41ad3750f0e35052ac8a642f3abff311aadaebb3ab56b4186c4d7035da82220",
-      "7a5506337db1329f208211345f315d2388510e3cfe7623c19ca267fd56a2f456"
+      "e257ce8015f763beb55bcb8ac0b1df44fccc62c59696d83bc0c52bc21d5f3687"
     ]
   },
   {
-    "id": "cv26-6fc4389ba227233d",
-    "text": "Demà passat na Damià irà a Sant Llorenç de Morunys. El vint-i-tres de maig na Blau anirà a Sant Llorenç de Morunys.",
+    "id": "cv26-e2e9bbf7c59b119a",
+    "text": "A les escoles, instituts, universitats i altres centres de formació el programari cada vegada hi és més present.",
     "sentenceIds": [
-      "1fedd814aa9f4faa3859093147464e5c56034bb46443326c297bae0c96c2092b",
-      "1fac79141084d01b728cca5fbd67c71e4eb32998b22c09abcc5a03122e6e0cce"
+      "348726e5b59efb74c9dca593f3cb76a539f607b03622990fc9fb72706caf9dee"
     ]
   },
   {
-    "id": "cv26-e0201d4aaca0c27d",
-    "text": "Reparteix la cervesa en dues parts iguals. Que consta de dues parts. Aquesta té dues parts en forma de llavis.",
+    "id": "cv26-ac705a7b88bae286",
+    "text": "Rússia, amb vuit milions seixanta mil set-cents cinquanta-dos casos i dos-cents vint-i-cinc mil tres-cents vint-i-cinc morts.",
     "sentenceIds": [
-      "fb2e40045fc5f153a346f1bdc8e4e500476577d5ffd873ac518f3cfd4d6a23ed",
-      "ea030cc09dfc7f16ec67a9bc3b684577791b4e55fe664e353d33c6cb2b4004d0",
-      "44d9d3974f03696094efde9c86fb388cbb90573662c996259fd634551c85bee6"
+      "bd4fc167397e5f505a887955c73ec26af9b836e06cdf47d4c8f0b60034e7e3ff"
     ]
   },
   {
-    "id": "cv26-3ee1e60763628c7d",
-    "text": "Què va crear, Apol·lo, per a commemorar aquest episodi? Què va crear més endavant? I per què van extraviar-se més endavant?",
+    "id": "cv26-2d999c1afcf33cef",
+    "text": "No es podia moure en el rogle d'aigua i fang on feia la seua vida sense topar alguna cosa que li la recordara.",
     "sentenceIds": [
-      "473e12ee2fcb4c04654623fa28af969608f37a02778863a0afb1c339f98d0634",
-      "f8d1d88095b3a1bbbadaf5dfb368cacf6cc09e37bdccd2bcbec95a88bb116b51",
-      "20ac3779e587d9ce3c88c244a046ea4c97701a0c4d2b6f079b02364d34bada80"
+      "9d0bc57559d0d05d288c1165b89091576601440cce4964c68c466faecc65ea05"
     ]
   },
   {
-    "id": "cv26-d0b54017d5a278a3",
-    "text": "Aquesta fa les coses amb gran lentitud, ronsejant. Fent veure que fa les coses de veritat. Fent veure que són algú altre.",
+    "id": "cv26-b1063770d4dddd64",
+    "text": "Esquerra Republicana de Catalunya ha defensat que s'ha de trobar una oportunitat per assolir la independència.",
     "sentenceIds": [
-      "a3acc3be4ba97fd3bd7519dbfba9ee5e68169a22e5fd51b7e446d27bc9b2a9bf",
-      "28cf85e346cff74f6647b6f45011ed7504efe439789824bd6d70f3977ba2a6e3",
-      "e59c8428aa99bb58cf749363df318f94f92dedc377e80b05a30c9bc205090f4a"
+      "30378e4c5696dd91c90d930514b0f7c88e9f849ca3c8cb6cab3e2b04a133fa5c"
     ]
   },
   {
-    "id": "cv26-7b3845e7dbf85d4b",
-    "text": "Pertany al moviment independentista el David? Pertany al moviment independentista la Dona? Pertany al moviment independentista la Nit?",
+    "id": "cv26-c4b56bce83a38be7",
+    "text": "En el món del programari de propietat, cada traducció i recurs lingüístic creat està lligat al fabricant i a les seves restriccions d'ús.",
     "sentenceIds": [
-      "fa9618be9ae97a0a73c6b4102e4e2ce0729638ca8a242cf368adf553f0187e24",
-      "d823fc2ea9ba3c5e3929fc49761442a9ffa28911cf1699af750d27933eab2cdc",
-      "c14ddaa5116b2e1f327a53e9778e3d9ea6baf1c8ebc24fb369aa75fb82a8feff"
+      "dd736db522cb5fd4f053db68c01fd69dc5f7473c996f7db508b1199ab47dad53"
     ]
   },
   {
-    "id": "cv26-e119ff2a0e8fedd0",
-    "text": "Dilluns na Lis i en Pol iran a Campllong. Diumenge na Lis i en Pol van al Pla del Penedès. Demà na Lis anirà d'excursió.",
+    "id": "cv26-5e6c6f376e2f48ff",
+    "text": "Francesc Sanahuja i Toledano és un excursionista, alpinista i dirigent esportiu nascut a l'Hospitalet de Llobregat.",
     "sentenceIds": [
-      "329e2ab07de788e038cb7b35a43afc28dc98f6843f93da0b4f77f3a19c85b0d8",
-      "e887d1347174782b8c49017e288b47216182b3c97ef7d2754907ed4abfa23895",
-      "cf95eee9fa1eda41ed9cb433cef5523e48cf29b95079453483393c4fe94750c2"
+      "12278192df36f77d52f1d690ba727b0800f0bfd58aedd1e22868bf98be420339"
     ]
   },
   {
-    "id": "cv26-be041c021370f17e",
-    "text": "De manera que el Marcel havia acomiadat el seu cunyat. El Marcel assisteix a les escaramusses entre la noia i el seu cunyat.",
+    "id": "cv26-df7f291b2e12cb3b",
+    "text": "Molts van pensar que, pel fet de tractar-se d'un espai que abastava més enllà de fronteres de països, quedaria fora de tota regulació.",
     "sentenceIds": [
-      "72593bb7aa9a30faeabfec76903e5ba562a39b747fc95abc2b261bf6c1b2f8a9",
-      "9a3328b165dcccf9709055cecf221c6bbd2859887bbc1341b5e47813160af59d"
+      "d069149ded85b9c2e63f84ba6650d72b9f0b8789948f50c0d4ab43a95ba86ca1"
     ]
   },
   {
-    "id": "cv26-fe0bdd29afc74f18",
-    "text": "A més, conserva encara restes de l'església medieval. Les restes de la creu estan situades al peu de l'església de Móra.",
+    "id": "cv26-4d476e0a2149083e",
+    "text": "Andreu Fortuny i Fàbrega va ser un violinista, compositor i director d'orquestra nascut a Sant Martí de Provençals.",
     "sentenceIds": [
-      "8e9948510eb65fb390f1be62c18d16cfbfff8ca85457f05c35a55ec7002519fd",
-      "e0fb73d68158fb0fe82023fbe3d4db79b38103cd35ea7a7eb1746db718e58e9f"
+      "78ec873d24004239774f7cfcbd1dd80e285939b463830a39d1451fd3c0d3c31a"
     ]
   },
   {
-    "id": "cv26-53e42d2f89c080c5",
-    "text": "Ves al cul de ta mare. Ves a ta mare que et bolque, monyicot. —Vint i vint? —Quaranta. —Quan ton pare pixa, ta mare canta.",
+    "id": "cv26-7eecc5d2078594eb",
+    "text": "Les universitats públiques catalanes ofereixen en llengua catalana menys del seixanta per cent de les classes.",
     "sentenceIds": [
-      "fc679d5d57dd281f396d2994afeeb4251b8bc3754bdcf11bdaee42a407c17129",
-      "30a57f10a2dd4e889dcd0cf69bfcb5fdb1b26939565bfd8d478d6fcccc96586e",
-      "e836102e2468e25e8ab88c38353d6677449ea91e8b458110f9fc5745231c2361"
+      "66efcb77e143b1947e31390e731db36ee18a3e527c212cafaee5b575cefd8b13"
     ]
   },
   {
-    "id": "cv26-b0c68140606b0250",
-    "text": "Et poses les sabates tot mostrant la roba interior. La roba interior de l'àvia que fa bordar. Li roba tot el que pot.",
+    "id": "cv26-edcce0d4245a7b0f",
+    "text": "En tot cas els llibres hauran de tenir l'ISBN acreditatiu, i els treballs només podran ser valorats una vegada.",
     "sentenceIds": [
-      "480a61bc963b6f73c7677d0081e4894c0680082d05e4e27843a01949dd1eedec",
-      "46ec1729d7843483fafbbc864d532dc59c3737a863e5daf15be47c519c11bc0e",
-      "cef40745c3ca8a54ca314609c221a66d13840440cf620a967560660215dabaeb"
+      "08d4693c11a8ff865de02316d1aeb472bff271da80ff370c8651015a745ce06c"
     ]
   },
   {
-    "id": "cv26-27059c9565a0d013",
-    "text": "Tota la col·lecció de marfil mercantil està esgotada. La National Portrait Gallery disposa de quatre de les seves obres en la seva col·lecció.",
+    "id": "cv26-ecdaa2343e1a1833",
+    "text": "Gràcies a la disponibilitat del codi font, el programari lliure garanteix una independència respecte al proveïdor.",
     "sentenceIds": [
-      "7ab602e0c19a250c07d94e00867457600fb7fe1a16cfd31111429b17013f83e8",
-      "6af49f69aca299c89ace5901eda14476d0c056e7a455572ba054e7928decf901"
+      "7e2659f1f8a49d5ac62b1a63c85f13f4971ac550f89b32471cec081285d3e3a6"
     ]
   },
   {
-    "id": "cv26-a5d55ca4485ffad8",
-    "text": "Necessito saber quant fan quaranta multiplicat per cinquanta. Necessito saber quin dia és. Necessito saber quin dia és la festa nacional de França.",
+    "id": "cv26-7749f831194e30c9",
+    "text": "Apunta el sis, trenta-quatre, setanta-cinc, vint-i-tres, trenta-set com a telèfon de la Clàudia Ladron De Guevara.",
     "sentenceIds": [
-      "fb02c87152e6054aa1b8fe73137d341bea1450e0ce3d0bbac4b5ae7229cf1233",
-      "c8cd9f5685a815c7f0743b5e3244d8fdcada361ef29503c0daab6a0a8334efed",
-      "f7650a18bcee1bbbdcbf582776f4acff5434cb9b09f000e6ff5d56de9a68e6cf"
+      "d2ba310840173fe7486f68511112b2e907fbf4007ddab51c11cbb2b594a3fe0e"
     ]
   },
   {
-    "id": "cv26-b61f8b94c455e795",
-    "text": "Els tres homes compten amb nombrosos antecedents policials i penals. Els dos homes tenen molts antecedents policials i penals.",
+    "id": "cv26-53f0da69deaca3c2",
+    "text": "Els subscriptors es poden subscriure per a missatges específics en temps de compilació, en temps d'inicialització o en temps d'execució.",
     "sentenceIds": [
-      "fa8e56a9a967a9df04f386d285df81e51ab35b86725f6cddaf0feb48319fef27",
-      "7fa72cfa212f25f04b3615807241758131311be35fa2cf3fa4d3d8f0e9781b35"
+      "a9cf1ff96a28f7c89bae567b7819e8457d34542c757788bdf7c8274c58238df4"
     ]
   },
   {
-    "id": "cv26-3fa40d35e0abced7",
-    "text": "I, senyors meus, he d'admetre que va ser un amor a primera vista proverbial. Lectura a primera vista d'un fragment inadequat a l'instrument.",
+    "id": "cv26-e24640c424cdbde8",
+    "text": "Doncs perquè la societat, els treballadors i les empreses, han produït béns i serveis que els romans no produïen.",
     "sentenceIds": [
-      "990206a816de07ddef3565d6054896ec176e259e28d0b1c055c43f1d7e3d1ae9",
-      "71825b988fe50b6bce33b88cda7837d9523d6e37fc343cbdfa41793101339336"
+      "9a9d69d1e08f56b70374d5efe54ed33be847eac8a23f6c0a7511f7e1d370beda"
     ]
   },
   {
-    "id": "cv26-6baf376b1691f736",
-    "text": "Donna Moss també es va unir al seu personal de la campanya, i finalment es va convertir en secretari de premsa.",
+    "id": "cv26-beab5691b6ebcb94",
+    "text": "En totes les indústries hi ha factors disruptius que ocasionen que alguns fabricants surtin del mercat i que n'apareguin nous.",
     "sentenceIds": [
-      "1fe6eeabdf249ca404884a739737ffa2c85d5460f47cbd14fd2f4471575762c6"
+      "5963111d6a2e72a57f8000427afde0fa7795453e19b72a2e2269fcd5ddda1b89"
     ]
   },
   {
-    "id": "cv26-6874e9fec2ebe02a",
-    "text": "Què van aconseguir els germans? Amb qui va aconseguir la fama? Com sabem que va aconseguir la fama de forma ràpida?",
+    "id": "cv26-70ee6bcd911af0b3",
+    "text": "Exigeix paciència de tracte i és agraïda al mos si anem desengranant-la amb lentitud fins a omplir un plat soper.",
     "sentenceIds": [
-      "b278d5007bf85c719976d31244bb3abe23eeb4fbe0eac9bc4c758ec31918ece6",
-      "195c6fd3f34aff7fad68f536c83c484b319ccca71f1ee8a4e7cfa1ba4fc7bc72",
-      "6938e11f7ccb4e05e0aec95d26d3c4f76ab2f0f7b5504488e17602c40336531a"
+      "42238b9f883e7c6260f992319bcc19e32227e26c1e8450fb464eed754db5fc62"
     ]
   },
   {
-    "id": "cv26-65feb294ae331b65",
-    "text": "Anàveu d'ací d'allà darrere les noietes. Vagareja d'ací d'allà, tot vibrant. Vagareges d'ací d'allà, tot vibrant.",
+    "id": "cv26-2d5f735689df3d47",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de la Mare de Déu dels Desemparats al carrer de les Carretes.",
     "sentenceIds": [
-      "6be971796373b7a66c7417201d6d27750bbbcc8b2a53978c2aa6719a1ae501bb",
-      "fca2b5883cae081e81c7cd07d36c210ac4d35fdd5f1d5bc535ddaca83727605a",
-      "521f11794b0af239055da921b393a6096c43ec40f95a5f805d1eeead0d4701fa"
+      "c52a088306d440ebcb7f4297bf4f4e4be681ea1bad121bc4b885315b78fc4d4d"
     ]
   },
   {
-    "id": "cv26-4b335d98724cecfb",
-    "text": "Ho faci amb un compte corrent o amb una porta. Estiraria la mà més del compte. Sumo sense tenir en compte el zero.",
+    "id": "cv26-84a3fdbe06eb9260",
+    "text": "Jacint Barrera i Arenas va ser un professor, naturalista, meteoròleg, farmacèutic i esperantista nascut a Teià.",
     "sentenceIds": [
-      "546f5772b95886f1bf2a0edd960c3ed53621cbcb021ef17b7bf8f6234f8bdb89",
-      "38cf6b0bd234e5dab0cdd0e7e5e7cc44367bf28262aa3203f9e47d5ba0c578e1",
-      "f3ff10b5de4c680da162202238bccb54053a800200395cbf7fd9b1b7a66bf020"
+      "adfe4e9b71951e847b633c35b759f6bce072713200c9c32a149e1020c926e57e"
     ]
   },
   {
-    "id": "cv26-6bbb4e370d68c9be",
-    "text": "Juny eixut, bon vi al cup. Bon vi i bon pa, curta la jornada. Borró que neix per l'abril no té temps de fer bon vi.",
+    "id": "cv26-89dc959f0feb2e9e",
+    "text": "Crec que venia un cop l'any, es posava en una classe i, un per un, anàvem desfilant perquè ens fes unes preguntes.",
     "sentenceIds": [
-      "7b8e91bc939805f6212309c74da8688930aa3a06aff386800ec145e6cd3fcaf4",
-      "37a799fb9f85b845a2169ba2e1df3d054a04e48fa9c001b3b959cb8333b17ad1",
-      "7e42a1bbec8eb9fe41481217825c6cc19485cfd22fdf2d7469f8110d5be5b2b1"
+      "39b3906a72ae8bb00ff080cb0e64c980ac3ee64e46a0389a486711b52b3117be"
     ]
   },
   {
-    "id": "cv26-3311d63a5caf79f1",
-    "text": "Aquella pestilència engendrà una epidèmia. Una epidèmia ha destruït la població. Aquesta població té cent focs.",
+    "id": "cv26-f438a7d5abec56cb",
+    "text": "Pere Gil i Babot va ser un comerciant, empresari, banquer, mecenes i col·leccionista d'art nascut a Tarragona.",
     "sentenceIds": [
-      "a85b353e3bda1e3a137a804e469a4a4bf7fb04e9b5ae306dd71d6f729e294df5",
-      "78c77c2ec9a67a933c93604326ab169ca0ae2d95ca6aa2590b292c694ce96e89",
-      "72613758deeb252167645c43d2e4e499498f8d8e38f84cc25cf07b1254c96cc6"
+      "3ecf2b88731d30e244c17c147838313edd96dc24b9b8870dc8214e07ed2bb25f"
     ]
   },
   {
-    "id": "cv26-3df671f404388439",
-    "text": "A més, és la segona més llarga de l'àlbum. Hi ha qui va ser més crític amb l'àlbum. Va ser un crític incessant del positivisme.",
+    "id": "cv26-eb0c1235d8b2d5f2",
+    "text": "Durant els anys seixanta i part dels setanta era habitual distribuir les aplicacions juntament amb el seu codi font.",
     "sentenceIds": [
-      "b17eca27ea5fd40a0b55412031d381f5341f92718f92f0341f115b4d94caba50",
-      "032093a7372016d852c37c3c9cb5bb77a9c99bf5d79dac99497d251645e88d94",
-      "2b7a0c5ac7e210359292214ae264a4d994f3204019216a0fe1b709f11729708f"
+      "53529c72d2ca9f596652d574af3b145b7cb0d67d8591d73fbf9eb0035f5f71e3"
     ]
   },
   {
-    "id": "cv26-9b3ea57a7154b5c1",
-    "text": "Si plou el primer divendres de mes, abans de vuit dies hi haurà saó. El temps que fa el dijous domina vuit dies.",
+    "id": "cv26-b902ea9fbd7f60be",
+    "text": "Els episodis se centraven en l'eclosió de la pubertat dels protagonistes i sovint incorporaven un ensenyament.",
     "sentenceIds": [
-      "fbf9228cad7f0e2f0ed81e2bdb186b9c09c62bc9eca17fa8f99e372d85cff25e",
-      "e52d3cc81c893cbc42e8f9fa974ab30aa47f135f1af4dfce25de5891c99d9284"
+      "536adb841ef9ee6afa4fb3b9d786d1cb5680f74c203c9ac1dbb77c6b496234d3"
     ]
   },
   {
-    "id": "cv26-fa34e3dc5c4551a6",
-    "text": "La curiosa de ma nora, que va fer les farinetes sense escurar la cassola. Escurar la rossellona. Escurar la cisterna.",
+    "id": "cv26-510671123944ac32",
+    "text": "Per exemple, les banderes de la Unió Europea i de l'ONU, codificades amb les parelles EU i UN, respectivament.",
     "sentenceIds": [
-      "f9da427efdad445eb4a19326e0c753759773d6d54c0ce218c9062d649cf4364b",
-      "dfecf8088f869ef2ad0516bcb35f21a5986c429293a58f363d7af3281858df03",
-      "9bc38a9adab5b605175393f5d435221b5c55c890b44f8ecba26ef9f1cfc2396f"
+      "2e3e60f1163ebe8fab76bb21076921bd46d152d21a4dad0ada0c64ab2cd2207c"
     ]
   },
   {
-    "id": "cv26-ea3fe0614ee57093",
-    "text": "La medicina tradicional li atribuïx diverses propietats medicinals. Ha estat molt utilitzat per la medicina tradicional xinesa.",
+    "id": "cv26-77c03884eb4ef17f",
+    "text": "El mòdul Calc s'ha ampliat per a funcionar amb fins a seixanta cinc mil cinc-centes trenta-sis files de dades.",
     "sentenceIds": [
-      "04bfc464c879555db3edbedbfb696bd58e691d0c788d533b2e443399a2ac3a6c",
-      "27a63951d9ea24e674484f853aa0753937e2e180d17fa1d497d14629ab404654"
+      "be6b7013943b621847ba1076b10a7220aef96243e16255d72a11523defcbcec8"
     ]
   },
   {
-    "id": "cv26-3a495537e579bc17",
-    "text": "Ha estat recentment acomiadat de la televisió en què treballava. Els dos casos eren pacients que havien estat recentment als Estats Units.",
+    "id": "cv26-415c0f41c9cfa175",
+    "text": "El programari lliure ofereix una transparència total, i permet als governs fer llurs pròpies auditories de seguretat sobre el programari.",
     "sentenceIds": [
-      "04c774380124dff49a3593143fc7dd007583aab7f1249bf1224f1fce00a8382c",
-      "a78d89a9dc88a27937c868ca5b4c2a4329cf3fb464e7d70fdee36272ed56a8f5"
+      "f981a7cb67478efb8413f3b62053165d4a315f7f8198f89387faeb8cfc8c051e"
     ]
   },
   {
-    "id": "cv26-c4e58928ad5db228",
-    "text": "M'agradaria recordar una entrevista amb el cap de servei el dijous vinent. Hi ha alarmes configurades per dijous vinent?",
+    "id": "cv26-ef84d0262c470f18",
+    "text": "Joan Caball i Subirana és un coordinador nacional d'Unió de Pagesos de Catalunya nascut a Santa Llogaia d'Àlguema.",
     "sentenceIds": [
-      "f9d32cee81050109a39f1a92ce4e82ae5c49837a161bf13705a888d65264a124",
-      "9e8258eb5ef16f7e3438bf255bad1e69edc89b97689f2ea6ac6030ec6a04a01f"
+      "2a84257d6399976b68a044f73503bf95b57d3cae0b958fb53c7e10db6ff8663b"
     ]
   },
   {
-    "id": "cv26-069d16d3f1a935d1",
-    "text": "Què va demanar el seu pare a l'home que es volia casar amb ella? El seu pare també era músic? El seu pare va ser Hèracles?",
+    "id": "cv26-e72c26b0f71d138a",
+    "text": "La majoria dels solars sense explotar de la ciutat estaven en un procediment d'execució hipotecària o no tenien cap valor.",
     "sentenceIds": [
-      "9bbf64e89426960d2cf9e48893b31569d1b71f3611e181afd6c009b606ca4dfd",
-      "79f92d1593398782d37c00a8148bb8897d41d400061e0acd2a8746d4efd1af58",
-      "6c2fe7f2f7702428a6b526f501851da73b9cc578793ad21e5ea2148af2a67640"
+      "5d16f89a789da35dc621b4ef83e1a31b125537015a63bca2c3f76fd67109b6aa"
     ]
   },
   {
-    "id": "cv26-30e9afe6ac9a17bf",
-    "text": "Posa la cançó \"Seguirem somiant\", que m'agrada molt. Posa la cançó \"L'Empordà\", que m'agrada molt. Posa la cançó \"Camins\" que m'agrada molt.",
+    "id": "cv26-270a99fff2ee1944",
+    "text": "Li diu el senyor notari que davant de l'increment del protocol no té més remei i que ha de posar un nou escrivent.",
     "sentenceIds": [
-      "fb5f61a36018aa65cf6b865d92a72e76eaa246429bc3f88d8330c890d541eae9",
-      "fcf4dd003bebd2021b25bb6c92edbac773fc391412e03cefa51e0c950b86eafe",
-      "a4520b9044db062f8b8945bb147ce226307b51e1ca9649d79cf1fc047aadf47e"
+      "5bd2b6c09c13552e008b00cf8984d3d95380c7d9de73dc91a262d9f3aa4a563a"
     ]
   },
   {
-    "id": "cv26-83d344b2fc2e7e9a",
-    "text": "Encara no coneixia la Befana napolitana. Amb fades bones i bruixes dolentes, encara no coneixia la Befana napolitana.",
+    "id": "cv26-797064c2e5ba4b0b",
+    "text": "A escala mundial les darreres xifres són de cent trenta-quatre mil vuitanta-vuit casos confirmats i quatre mil nou-cents seixanta-quatre morts.",
     "sentenceIds": [
-      "fae9f299256780640b12ecfd841c8f40c4cb517eb747110d6e9c7a44669edd1b",
-      "901976fd815478de471e97f9c4cfb28394a99d5102507764396ccefac61e6b96"
+      "fefb7bb3460515e0b683c2165803f875079ae102d1c354ce4b31ec3dc4feff96"
     ]
   },
   {
-    "id": "cv26-fdead333bdf270fb",
-    "text": "Estem esperant que ens obrin el senyal per a poder reprendre la marxa. Aquí estem esperant, mentre intentem no desesperar.",
+    "id": "cv26-336116645c7f9312",
+    "text": "Avui comença una nova etapa amb canvi de format, una pàgina renovada que inclou més continguts i noves seccions.",
     "sentenceIds": [
-      "2940b5b65f0f473b0c56c08d0225f3615250ed4712aaca9e6e6dc4ef2de44ff0",
-      "a9c739d3b6b67d7273d4122f64a31bcaab044c40a51999c2a7bc314a75943f09"
+      "4d88eb15d81795c78a0c766ba98f683ac1a424ac3f1367c23eb1aa9b2e989a51"
     ]
   },
   {
-    "id": "cv26-32a5444776dee865",
-    "text": "El vint-i-tres de maig na Clàudia i en Telm volen anar a la biblioteca. Divendres na Clàudia i en Telm volen anar d'excursió.",
+    "id": "cv26-fc992e5d80ba61cd",
+    "text": "La part receptora de la comunicació haurà de respondre i ambdues podran establir un calendari o pla de negociació.",
     "sentenceIds": [
-      "e3b686c9eedd312b4e96af8eaf894edf36e55b6dc1619fdd057e84222559dd69",
-      "6701fa5549a16c37cbd9dec7daaa4ef57733461dafd46d76ffb425428d759a14"
+      "23ea3b7605120eba032e0ab3c61141594227f070554d7cf109246bc013f91e42"
     ]
   },
   {
-    "id": "cv26-c42469169b4b0b46",
-    "text": "Afluents poc fons recorren els amples i profunds canyons fins al riu San Juan. I drena cap al sud-est fins al riu Schuylkill.",
+    "id": "cv26-a93e91d9afd5439c",
+    "text": "Rússia, amb nou milions sis-cents trenta-sis mil vuit-cents vuitanta-un casos i dos-cents setanta-cinc mil cent noranta-tres morts.",
     "sentenceIds": [
-      "4f47151dfd5fa2035fa95abb2286537ef2aae6dcc96335ee5d03640629347299",
-      "dabae29d3ad56046c4e5e7e93a288954793eff609d622cfb65d439203814244a"
+      "ec32a16d43548335107fc6c7a3b95804d845905b3514c67d9a1f0c40274c5ba2"
     ]
   },
   {
-    "id": "cv26-b492dfb1266bf0cd",
-    "text": "Aquell noi m'agrada la mar. Anar per mar, per terra. El nivell de la mar Càspia és inferior al de la mar Mediterrània.",
+    "id": "cv26-480193913b4e7ee3",
+    "text": "La música popular romanesa va influir en el seu ús poc convencional de la variació rítmica i el color instrumental.",
     "sentenceIds": [
-      "fcf43642f77b83db5f1e76501f7f71327ab35fd6d1c8eadc5ffc6a16465b0cbb",
-      "fdbe92a6ba5d1b10ec09ec23a93b2e4311124461e94fe7bbc34e66b7e6add323",
-      "15e7c826d3cd1e8ae92e2415db66d69c5e3bca4c99f03f2b8808ac193b15c5a7"
+      "e55f2880d68cf69710091ce8e92c5e21a66622a843a154ad18148a7ff96fce96"
     ]
   },
   {
-    "id": "cv26-ac565447ae7f4934",
-    "text": "Demà en Dídac i en Gerard iran a Casinos. Demà passat en Pau i en Gerard iran al cinema. Demà passat en Pau va a Tous.",
+    "id": "cv26-da5225c4a8546d07",
+    "text": "Rússia, amb quatre milions set-cents setanta-un mil tres-cents setanta-dos casos i cent vuit mil cinc-cents vuitanta-vuit morts.",
     "sentenceIds": [
-      "b7168997963c8060d246adfc8afdf6025ea94aaadac31b6851fb08fead887472",
-      "6767545a08c4d38b195cb13da718af1c7202a33754260464e1ee36a448045aa6",
-      "f2463412c787908e20b2713ee08e88f77b2cedcf3f4169ef7da49e3efdcb2b0c"
+      "db44c410fdb794e42bf92ed49f60981983a23204bfc738cedb2f2f3ed827a6c6"
     ]
   },
   {
-    "id": "cv26-e408f2e035c7f138",
-    "text": "I doncs, a quina idea ha donat suport? Quina és la idea que hi ha per a executar-lo? Quina idea va aportar ell?",
+    "id": "cv26-d1923337aa43fdf1",
+    "text": "Es tracta, habitualment, d'empreses que han impulsat projectes de programari lliure i en són titulars dels drets d'autor.",
     "sentenceIds": [
-      "b3d7e9b797702f399e166c643cc09c42ca33444458528259ce408988631036ee",
-      "60c43487bf979434f9c2484208baedf339b466742bf4d95a1704055d4fcdd512",
-      "63668511e820ebd5f4079307fa29c4743df537148a3862edd8b3400fa07a6603"
+      "0c4274f3f55e919ae49d9db03cfb4df7f1c2d187bb2ff449bd62ed93c6b6ec64"
     ]
   },
   {
-    "id": "cv26-8d6e09ee77114eb6",
-    "text": "Se n'ha anat ràpidament en deixar els diners? On ha anat Puigdemont? Què ha reconegut Puigdemont sobre la benvinguda a aquesta ciutat francesa?",
+    "id": "cv26-d8a3a39dd383cf04",
+    "text": "Els i les aspirants disposaran d'un termini màxim de quaranta-cinc minuts per contestar les preguntes formulades.",
     "sentenceIds": [
-      "5b69923d78a4482d410213fef0eec6a0ead5715bca3e9ee3ea890382da7b9e1f",
-      "ee6f09e2c17e56f779d76ab78f2a3f6dea8253f546fd0279c5165b5bc7cdbee6",
-      "134d237509d1cb08860de093416bd0824af4b799861202119fa2165f6d5df65a"
+      "a89f94dc27360fc02f132dcd3744aba9a31bcf82aad880ff39367a380516de40"
     ]
   },
   {
-    "id": "cv26-edc2f8fa4512d1cd",
-    "text": "Embullar els cabells. Els germans s'estiren els cabells i no es fan mal. Armes de cavaller no fan mal a donzella.",
+    "id": "cv26-8d21028d8c728d98",
+    "text": "El més destacable és que permet l'ús i explotació de l'aplicació, en forma de programa o codi, sense cap mena de limitació.",
     "sentenceIds": [
-      "7884f122a1723f27f8324445d5572476c783cc2111a5b8dbc6f56921f4a34998",
-      "a1023a77b0ff4fe9852c973879e0208d81be9d1eb174f7adef7a00510a62ed94",
-      "a7038ac33efed940aac619e1cc537ce2ed6367b5843aae0dec3fb552f77f4335"
+      "3ff2dee64c9e02d8b4f65fad108ef010b0562b39c35a42c4ebc9593f937684b3"
     ]
   },
   {
-    "id": "cv26-d50728f456958549",
-    "text": "Sempre està a tres quarts de quinze. Una noieta de quinze anys. A quinze anys ja li començava a punyir la barba.",
+    "id": "cv26-b5e600117944b18e",
+    "text": "Joan Evangelista Jarque i Jutglar va ser un teòleg i periodista fundador de \"Catalunya Cristiana\" nascut a Barcelona.",
     "sentenceIds": [
-      "ce1799cec3b4a5d333ea2979839b3ba538c606430070f1395f79fd30557c1901",
-      "31d51f1cf1721c60b5107e2789c1a7a6efd21e39cfe366304d8d4181067a05fe",
-      "c1ebd2a023dca8d5f582811a5203601446e0871d07f05a3ebcf2dd8831c374a7"
+      "55cc1faa1ce94d3af873abfdbab336d7fbc418bc651c8f17788028b529e3ae76"
     ]
   },
   {
-    "id": "cv26-ace35e473f2dff2f",
-    "text": "Ja feia temps que anava a la saga d'aquella propietat. Una idea que es gestava des de feia temps. Donar una notícia, una idea.",
+    "id": "cv26-f391b2b24029f8d0",
+    "text": "Johnson va conservar algunes persones designades per Kennedy, algunes d'aquestes al llarg de tota la seva presidència.",
     "sentenceIds": [
-      "f9806390bd517a2edeb202cb0eeaf00639787eed4c6086d1768df6b7da3cddc0",
-      "32c339d1f652bf070ad00c579325fdee23231bde6c3ffc595af1b76619e20a74",
-      "0becdb411f3298e147560156f5de29f434613dcd703f1e332fe847f96f820a5c"
+      "b96917f9531fada85775d090ef08e0a900f7e29e984a9992df6762e88fdfd3e9"
     ]
   },
   {
-    "id": "cv26-c52ae223857863c5",
-    "text": "Toqueu música balladora, que volem ballar! Sense música no es pot ballar. Saber molt de ballar i ballar malament.",
+    "id": "cv26-34d7759da9e420c4",
+    "text": "Josep Maria Carreras i Puigdengolas és un economista, professor, urbanista i funcionari nascut a Vilanova i la Geltrú.",
     "sentenceIds": [
-      "a08f0c65c23df66accd2fe5017790dbd9e90067ec4a2e6ce122cc2edb4baffb9",
-      "6c36e327302cabcd3cdba90dd47547ca7d573cf9cc4f67ad39d5c862369bdb23",
-      "e0c375aa6e965fbbd726277f7abe317a4ea0d4132229a7d85936f8d7ef03c833"
+      "c9ecb8eff1f952baa26d2903dc04822f078a33beb9c6fba2ed4bbcec89f328ed"
     ]
   },
   {
-    "id": "cv26-26686563963616cf",
-    "text": "Seguidor radical d'un equip de futbol. Jaç portàtil que traginen els massatgistes d'un equip de futbol. Equip titular en el futbol.",
+    "id": "cv26-de487497f4fec917",
+    "text": "Encara que era una mica pesat pujar després el prat amb la roba molla, no deixava de ser un esdeveniment social.",
     "sentenceIds": [
-      "e6aa57be0be9b841879bd42ed4c9280107b232d356c9844e71903cc06c02e811",
-      "649a312de2ac01d5261dae9f4d23ae50e2c5632b3cd0dc96bd0c573410a0c69b",
-      "5277fb429aca02123e58c264768409ba02afa273a95cc5851e1e4b40d4d61f02"
+      "84e8a2e168835cfc0bb5b3b2236711f873a365cce799cb434cd995b092786518"
     ]
   },
   {
-    "id": "cv26-c6c71bb960146356",
-    "text": "Aquest partit ha radicalitzat el seu discurs. Ha llegit el seu discurs de cap a cap. He llegit aquest llibre molt per sobre.",
+    "id": "cv26-30673ac89890f3a1",
+    "text": "El mòdul Calc s'ha ampliat per a funcionar amb fins a seixanta-cinc mil cinc-centes trenta-sis files de dades.",
     "sentenceIds": [
-      "c3255debee4d0e32404306c9175d1e8cf0e93df9f78f89583940d3a77f74073a",
-      "71029e765ae29c11ab8d2fb2ce3aebf2510e2480ec7725ec72a2b490ee5efad4",
-      "44c813cd4f14fa828920e47f675fb73a044354b6ab2d57e7c25aa36243a07a36"
+      "b4929390e4a9d8e30a040c3ba4df3075203c9d92a819d2c55ceccf7dfa6faf66"
     ]
   },
   {
-    "id": "cv26-906c192c50154761",
-    "text": "Aquest hit que estic escoltant quin any va sortir? Aquesta cançó que estic escoltant de quin disc és? La cançó que estic escoltant, quina és?",
+    "id": "cv26-5a1edb470f67f402",
+    "text": "Francesc Pérez-Cabrero i Ferrater va ser un compositor de sarsueles i director d'orquestra nascut a Barcelona.",
     "sentenceIds": [
-      "fae0d09e11e01d4c3fb3388a5b6e5092bef7044e83ae962f3c8a2fd751461cd3",
-      "17bf9be07931c2abbca68e19c9963a5c2dc762fbe5547a03036779151aa095ee",
-      "ae0de6390fc8bdd3737a6776bca7c9e84e4044b6505609618732824460db7144"
+      "35eb929b9d6081699910fbf78b34ef77a71c540584823b7b76335c0bd7e073e4"
     ]
   },
   {
-    "id": "cv26-4f957cf592569821",
-    "text": "Pren, ací tens un regal que t’ha deixat la Befana. I em va dir, tens una vista magnífica ací. No, no l'havia vista.",
+    "id": "cv26-d5ac3f45e95970fa",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de la Mare de Déu dels Àngels a la placeta de Miquel Pallés.",
     "sentenceIds": [
-      "fbab45f8b4447571432eb3460cc27aef669402c0f933c1bfb02b38b005a4bdee",
-      "1899a1f129c0d3ca2e9d39c8ada0aca942309ddd938b61416ef9c7df8839132f",
-      "b5f890b084092048df5da87d88fddaf390913f2a277d04e9d5e4e4d4611ffed9"
+      "c6d9da77c6998c2e8514fcd02fc87c7a3b0eb52920a26d0b84cbb77fdc94a1c1"
     ]
   },
   {
-    "id": "cv26-b8efa3a57b5be074",
-    "text": "Els seus peus ens permeten avançar molt de pressa per sota de l'aigua. Els seus peus ens permeten nedar més de pressa.",
+    "id": "cv26-1be1963f11eceb4f",
+    "text": "Com a resultat, es va disposar de menys diners per donar suport a la programació d'entreteniment de xarxa de ràdio de qualitat.",
     "sentenceIds": [
-      "bbdfabe485b887e41b9decadd763fd93c0c736d8db68102bbab8cf0a9c6b4beb",
-      "2a5dd3eeff453ceb6e52c9770b95a444e8b1229ff27ec80cedbe960f1e16e6b4"
+      "006cb0e55c70d6d6388cbd96aaf1538f1322399a0f5ad08d4e9062db8b0c9913"
     ]
   },
   {
-    "id": "cv26-f9c288d0daab0fce",
-    "text": "Remaràs enrere en presència d'espies de tota mena. Remaré enrere en companyia d'un munt d'espies estatudinencs.",
+    "id": "cv26-eff94356aeceb6a7",
+    "text": "No ens equivocaríem si parlàvem d'una profunda empremta, d'un rastre detectable en el treball temàtic i motívic.",
     "sentenceIds": [
-      "91e753825685120d4050a5ed04a79f40febc5ee1803ac9e4a3f3772c7aef5d01",
-      "3a5d587357faa3c44c026554bc2a6896c43756d2f97f7c68913e3b2c34fbbeb6"
+      "666d9d22ce0e0d91651247776d164bbc20722d89c7b1961f3dfa4f0287ad0bc7"
     ]
   },
   {
-    "id": "cv26-b97c7f158f16abda",
-    "text": "Tres homes drets amb camises de colors sòlids brillants i barrets acolorits. El vaixell tenia un complement de tres homes.",
+    "id": "cv26-27d5b1d611bc636d",
+    "text": "Insilicos desenvolupa una aplicació informàtica científica per a proporcionar un programa per al diagnòstic de malalties.",
     "sentenceIds": [
-      "977be7315c4ea7e3cf1d423a38bc4c38980f49745c4c0e7b9f986bedf8990765",
-      "bc6f554a44cc5e13612ea72b3d95fb8a961c4f653869979f1cc77517c21457a2"
+      "2cbfbf8348e775c2570a18571430f05d0f342770389f6bb72433217c6ef2f7dc"
     ]
   },
   {
-    "id": "cv26-8c7d516cdee154d4",
-    "text": "El fum en l'incendi d'un habitatge al Prat de Llobregat intoxica cinc persones. Un ferit lleu per inhalació de fum en l'incendi d'un cinema a Salt.",
+    "id": "cv26-83620ac00e129062",
+    "text": "La web ha tingut un paper central en el creixement d'Internet i, conseqüentment, en la difusió del programari lliure.",
     "sentenceIds": [
-      "f9c9addc9ddfc3967bc0b6f90b7a5acd26236e44cfccda5ecfc48a5c3d0a8e07",
-      "15b86bd3ae6868f56499195a04850e24dcbd99967dd565bd045b49891a553fb7"
+      "fa0dd81ef80b67a3f37c09ba94442bb91ba4d16acabe985e63afdfa8d92de90a"
     ]
   },
   {
-    "id": "cv26-f282649b517f5fe1",
-    "text": "Què va passar quan Hermíone els va descobrir? Què li va passar quan va entrar a la cort? Quan va entrar a l'ajuntament?",
+    "id": "cv26-9509013affc97129",
+    "text": "Les despeses de consultoria i serveis equivalents no podran excedir el cinquanta per cent de les despeses totals de coordinació.",
     "sentenceIds": [
-      "1207e86d51454da53ca8230fbdcc153d3143690b36b74a788aea8d95c41aaf51",
-      "86f9222735dc4e8d70a5a65d5cc2303bc93f855fa1819aa7dec609f41318ca07",
-      "8ea863cdea5ee3b6532eb523e3c79e330ec9d3d6a79bec7a4ab2e940b4487945"
+      "0a18d94253b63f2e36699543d7a1d4479e720e1bca724f85275f587ebb92e74d"
     ]
   },
   {
-    "id": "cv26-127c9cc572a80260",
-    "text": "En els últims anys s'han dut a terme programes de desenvolupament de tecnologia per a sistemes d'energia espacial termoiònica que s'escalfen amb el sol.",
+    "id": "cv26-b1c5972b9e439b84",
+    "text": "Josep Maria Figueres Artigues és un historiador i professor d'història del periodisme nascut a Vilanova i la Geltrú.",
     "sentenceIds": [
-      "4716845093d90a6663f61e6c8ca74cf16bbce4b128a8fb707e9b6fec94164919"
+      "d434a8cd0b2d2b4eed359966d6f1b7c8a82fa2c3e6f10cfb2fe9e33ad50ef10c"
     ]
   },
   {
-    "id": "cv26-0333da5225d8e4c2",
-    "text": "Un peso xilè a quant equival en rúpies índies? Em dius a quantes rúpies índies equival un franc suís? Em dius quantes alarmes hi ha posades?",
+    "id": "cv26-773ed6091a30d9f2",
+    "text": "Bufa amb mètode implacable i no para fins que deixa la natura derrotada i una collita de deixalles desfermades.",
     "sentenceIds": [
-      "dba300688adcdaecf52deae426e65c68a1f3457775b7097d5c31cfea30cc37eb",
-      "0d17127b7bab0114baf66609be01d97f711d1639359ed643f73a22be0b219a55",
-      "6212bfdb7a091466a10c1d7b6c425a5a4d83b267e95f13be47ed462b4bae3e6b"
+      "5f9fe78daee1fbeca62d9e1e8299b23f154865dbf2ca75b15f7a3784ea164ed8"
     ]
   },
   {
-    "id": "cv26-0c828f1ce7ce9740",
-    "text": "Doncs ja ho tinc! —va cridar l'Alf, i li va mostrar el mòbil—. Doncs ja m'explicaràs com pensen impedir-nos-ho.",
+    "id": "cv26-5ec510e6255f6c2a",
+    "text": "A més de publicar el codi font calia crear un lloc a Internet per organitzar el desenvolupament de tot el projecte: naixia Mozilla.",
     "sentenceIds": [
-      "6c4f0b0cf4ea378ae450689d3fd2e61f1e271440d125c51fb5d045b8c51e8021",
-      "f45084485774058b7113f9443a58b84f34644402630acc1a0836e19c2b6683d0"
+      "7aa7c5689b18dc0fe1732d64d73cbb060f22874a39f29ea2603ee8cab5356658"
     ]
   },
   {
-    "id": "cv26-4becd3776507712b",
-    "text": "M'havia furtat el que més estimava. Però els estimava, Déu meu, els estimava. I ara, Déu meu, no hi ha cap solució...",
+    "id": "cv26-71fb5c1610ea59ee",
+    "text": "Rússia, amb quatre milions sis-cents cinquanta-set mil vuit-cents vuitanta-tres casos i cent tres mil sis-cents un morts.",
     "sentenceIds": [
-      "fd7578842f8661f321782032b4d7a2e43bcb1cc7df7237f35180bc3aebed1802",
-      "6bd46ebfa1363f1dc3885463cc5138eac2347396e3f2d9a2033a53212cd3e39e",
-      "9b0a81b6f9f9a2c71a04383273f4273ee0e9f78441c8d3a189486955a1488d28"
+      "47576cd1a39fdf4e7f06665b23d9a0fa4a0bbbc8a1d440ee1de251ff51df7ea9"
     ]
   },
   {
-    "id": "cv26-9145ddaa9e4e0a3c",
-    "text": "Vaig avançar un dia la meua arribada. Aquella mateixa nit vaig dubtar a ajornar algun dia més la meua partida.",
+    "id": "cv26-be2ed939bcb26e13",
+    "text": "També s’ha habilitat el número nou set tres sis zero tres vuit cinc dos per avisar quan es trobin animals abandonats.",
     "sentenceIds": [
-      "fd0cdb44fd38b67e3b34a1b6a54ce879277bc8dc8a90ca0ae719a8bbab184f35",
-      "de6e857c4eaf5245c9f68ccbd0c66ed09065207ee3be40b80d8048b80677cfe6"
+      "52e4b757f24592e4a38daa2f974356a6feba848936791743efa33c4146deeaf1"
     ]
   },
   {
-    "id": "cv26-829e2487d39cf225",
-    "text": "Dimecres en Sol vol anar a l'Ametlla del Vallès. Per Cap d'Any na Sol vol anar al teatre. Demà passat na Sol vol anar al teatre.",
+    "id": "cv26-b1f828d3939cbb95",
+    "text": "El jurat podrà declarar desert el certamen si considera que les peces presentades no tenen la qualitat suficient.",
     "sentenceIds": [
-      "26080961cce9a653487381c0e4ca426bbbfbbb200bd9ebc58d474d44e65fa52d",
-      "49181871a17ae62e1245083726165a0d03175dd235f0699c0aada7d83afb02f2",
-      "41aa5f955d1518746d70e79b37e9522391653e263f277990953c5a245c35180d"
+      "01e029cf5501988b171c50a42805b22e4bf1dc0cecf7dc089f7a7c742b0e5f25"
     ]
   },
   {
-    "id": "cv26-581265f3f6eecdb6",
-    "text": "Quan valen els quadres de la monarquia? Quan valen les sabates de la monarquia? Quan valen els cotxes de la monarquia?",
+    "id": "cv26-7120fd0bdda8870b",
+    "text": "L'any dos mil vuit, l'última vegada que havíem renovat el nostre lloc, sembla el segle passat a escala tecnològica.",
     "sentenceIds": [
-      "9827e73e001fc48b3b6d7971b16abc7292f0f35695fb0962a13bf697463db16b",
-      "7c63783824fd661ea93375975d62e7a495c9461bd3ca5142306dde11480e90de",
-      "fbb41614a5a35d9f24ae4f10a4faf579bb75b1aa59bb201717f40c3ad2f4bc48"
+      "e34269903a5da06f3dde0a92009f443260eee97eba9a00d09860c53ed56c9ff0"
     ]
   },
   {
-    "id": "cv26-664c24e02d0c83ad",
-    "text": "Fonamentalment, canviar una indústria ràpidament deixa poc temps per adaptar-se. La Rutènia subcarpàtica no tenia indústria fonamentalment.",
+    "id": "cv26-1ef5614877470bf5",
+    "text": "Gràcies al procés continuat de millora en què està sempre, ja disposa de dos mil dues-cents regles de revisió.",
     "sentenceIds": [
-      "6c220639c1dc2356826a15fe98eb1ae2fc631d61765348631d7762da8f5d079d",
-      "5d88552f775d7bfcac061f52676e2324de4dc392826b510674b79eea43d9c38c"
+      "0d4e7490ff8a9cbf57a01a1ba711d8e4a482c30fb39a5b128910f87d46d9984c"
     ]
   },
   {
-    "id": "cv26-51371271ce342cbe",
-    "text": "Llistes de paraules, dos o tres títols de llibres, segurament recomanacions. Paraules que són i no hi eren. S'aïllaran sense paraules.",
+    "id": "cv26-c23d57170f119afa",
+    "text": "Mira'm quina és la millor manera d'anar de la plaça de Carme i Enriqueta Soriano i Tresserra al carrer del Cardenal Reig.",
     "sentenceIds": [
-      "985b5aefde83615bb875f5acbae3e95d0ab43425700d86539809182572dc539d",
-      "be1d3efeeccc66ac69cf3713ca59563dbf874f079250493e48df0989db6fc6f0",
-      "b9cced5039a7e8e0d1739b75752bb9528b155eba51685210b54c35e3a891820f"
+      "bad3e675d45332759420a433e015004cac2c71b20ca6c7319d6bc5092ac2cc7b"
     ]
   },
   {
-    "id": "cv26-ccb898f7911cf7db",
-    "text": "El company va relacionar llavors la tradició amb un Tabi'un, el company del company. No estava enfadat per l'entusiasme del seu company.",
+    "id": "cv26-8f832b185539d746",
+    "text": "Els seus importants mediadors, la bradiquinina i la cal·lidina, són vasodilatadors i actuen sobre molts tipus de cèl·lules.",
     "sentenceIds": [
-      "ba938d7e6811c1bc517b79f5ed557792f87233816b2c158d2e7fd6930d2d61b3",
-      "692c4d100204076b7ec93fe95969523668e89e45904cbd052de12e6f80dd032c"
+      "dddc187dcb46767225938459794fdc46987db65f6ecc59426e3a04a1343f3968"
     ]
   },
   {
-    "id": "cv26-fb6f42d8a9676602",
-    "text": "De quina manera es categoritzen aquestes criatures? De quina manera era la seva veu? De quina manera se li va dirigir ell?",
+    "id": "cv26-9640c4a01dfc4b92",
+    "text": "Els índexs de victòries fàcils en eleccions parlamentàries són extremadament altes quan les comparem amb normes internacionals.",
     "sentenceIds": [
-      "b99163ee2f9e9566c4dc93131af04064c27d0ce75c19e88edf2fa57cb1681ecb",
-      "77893d8e4d82628157843425c1750d7d95f1862647a23bc40203eadc34d0b9cd",
-      "1c47fb3f1a3e57a17bd66aae7f02668b13f89fa382e2dec268d28859b9b952a9"
+      "31641de8fd79d82ada3881f724822577313656bacdff91ced8c849ad9fcf9b63"
     ]
   },
   {
-    "id": "cv26-451d54687e58c6fb",
-    "text": "Després torna a mirar cap a la butaca on seu la seva interlocutora. Després torna a posar el lloro a lloc. Hi torna i hi torna.",
+    "id": "cv26-bdc7ea964c633cd8",
+    "text": "Ramon Cotrina i Puig va ser un escriptor, traductor, sociòleg i activista polític nascut a Sant Joan de les Abadesses.",
     "sentenceIds": [
-      "73406b788c1e9a733e95a5231e82e03b6807b1dba1a75a7e5bb2ded1a4664dc2",
-      "1d859ebf530f8bfc289cde696eef4d0133927ce146e9867e7c4b99db40babbb6",
-      "26272099365ccd7cb45eda2fe0274f82f7ff0fa671b45e142b4301c896ca2313"
+      "05f6f185d6e8e2b3f50d61e728fcc298e45a3ab428217b72340d2c0420d98351"
     ]
   },
   {
-    "id": "cv26-3e4af7b454ca8fd9",
-    "text": "Pertany al moviment independentista la Maria Carme? Pertany al moviment independentista la Maria del Mar? Pertany al moviment independentista la Maria del Pilar?",
+    "id": "cv26-408288f39042b6c1",
+    "text": "No es pot negar a ningú fer ús del programa amb una finalitat determinada, com per exemple comercial o militar.",
     "sentenceIds": [
-      "fc0dc4c313521ae6a557b30b90770b0f1cfa83919620c1481390d38466ef7df8",
-      "cba7f1ba610c9dbedb9f21dee40e74414b1605d18da9d1c4722625b92f1c9b12",
-      "fc27ae9be7f1a6ca4f2046324d0452cb82a6593e8f136aa072d29a74bdb905ae"
+      "af50cdfc5429a7af2aacae6a042334fea0ed10f6fab75d4d5f702138f9ade28f"
     ]
   },
   {
-    "id": "cv26-49bf3bef40c8f107",
-    "text": "Dissabte na Vinyet i na Vera iran a Campins. Demà na Vinyet i na Vera volen anar al Verger. Dissabte na Vinyet irà d'excursió.",
+    "id": "cv26-28e15db2668a60da",
+    "text": "Aquestes xifres signifiquen un augment del quaranta-cinc per cent dels beneficis en comparació amb el dos mil vint.",
     "sentenceIds": [
-      "8e96ed4bc1a7b00fd8601662e6d4be1123b036de42b9c0c1e036313b8e8c7283",
-      "95aac6288052b7a33dc8dbdf1591486f22b3caee417d7189d95b013b89a43405",
-      "0cf68e44593be9976686a4b1353114e1556f66d812e76fda689ff73fe7b2d034"
+      "4cbeb93c237ec2251824c50393f2f59bd66d5e477d40a9db9de9cdb371dde5fe"
     ]
   },
   {
-    "id": "cv26-561d240c4d36deee",
-    "text": "També va fundar i va ser secretari general de la Societat Catalana d'Eugenèsia. També va ser fundador i secretari general de la Societat Catalana d'Eugenèsia.",
+    "id": "cv26-cf36028f76dc8347",
+    "text": "La sèrie discontinuada de caixmir presentava efectes d'impulsió amb un patró de caixmir en recintes d'estil original.",
     "sentenceIds": [
-      "da8f6f3118994edc7b2c4706a650c69158b70bc106a1cfdf1c7f116d40cae484",
-      "4d8b79e293bb62cb0f08491a6227add7fec94f62b2bd2d292ec3bba9f2145843"
+      "09231178f013232d49a1700258bf904ec7c31492a5d6e710c7f1b3690023fa6d"
     ]
   },
   {
-    "id": "cv26-86376d06afac2492",
-    "text": "A Salt, des de quan són negres? Els espanyols, des de quan són negres? Si tant ens estimen els espanyols perquè no aprenen tots el català?",
+    "id": "cv26-20712207e2461591",
+    "text": "Les patents són la concessió d'un monopoli sobre una invenció durant un període limitat de vint anys, després del qual tothom en pot fer ús.",
     "sentenceIds": [
-      "4ab36cd55892f11d659f22a3ffba157c0bb56e0d519f34fc85b1e82580f830f3",
-      "10acadbe9a611ba24457790192a8a50bdde33c9bfb51038d2f4b6d38b85cc783",
-      "8f514c3e5c6b0b93eb5fc9e1b9a1319cbe3be25f61222fb619bb222f111f24ea"
+      "e4aea4a4c8749c2c26b5bb4af7509382ca03c9707ad5c879e6c2513142d7e713"
     ]
   },
   {
-    "id": "cv26-741ff9cc13e29349",
-    "text": "Les dos naus estan separades per pilars amb arcs de mig punt. La baixa amb arcs de mig punt que descansen sobre columnes.",
+    "id": "cv26-8ab0c1b3137b83e0",
+    "text": "Regne Unit, amb deu milions tres-cents setanta-nou mil sis-cents quaranta-set casos i cent quaranta-cinc mil quatre-cents vint-i-quatre morts.",
     "sentenceIds": [
-      "a85e164441b0a2f582cc18f62d32c5be8bf0b3f21fe743660d26e0328e8bd0dd",
-      "0c5a5755aa74a55872769c95983b644858c8f43c57a6a9f96bd5ba908e7daad1"
+      "fc6d1e9153308cdf8820498228c06944072b009e8beaa0844ac5d9498f85eb68"
     ]
   },
   {
-    "id": "cv26-301f4f666566a444",
-    "text": "Durant els anys en què els pares vivien, venia dues vegades a l'any. Era un mal estudiant i havia repetit dues vegades el mateix curs.",
+    "id": "cv26-c864ea41d615c77d",
+    "text": "Josep Xifré i Casas va ser un negociant, industrial, comerciant, financer, filàntrop, mecenas nascut a Arenys de Mar.",
     "sentenceIds": [
-      "fb65bf5ab0ea5bcf249f1fc55a804b23e0972a77cd28f94a741f58b8b0258e9e",
-      "715a3fb184429c6f32bb083698cb311132f71348a076d2d2688cd8daf2076180"
+      "de8f32d797688c19ae7f4edc1e4b8faf4acc8008f81e45e9d654170cf7994fca"
     ]
   },
   {
-    "id": "cv26-06cc13f336e1b7f1",
-    "text": "A més, va dirigir la petició oralment al president d'Adif. A més, la petició va ser dirigida de forma verbal al president d'Adif.",
+    "id": "cv26-8ef930bb383b212f",
+    "text": "Aquest tipus d'empreses representa l'àrea principal en què s'està concentrant el desenvolupament del negoci del programari lliure a Espanya.",
     "sentenceIds": [
-      "fb789ee0f055bf3d2c27643dc7e92f5a1c5d7a1ab1247ac903800282a19e02b9",
-      "f5f4bfc2c5ada6b812c3bfa2235c273f05dc3b32d7c0389d7221442da221fba2"
+      "0c384516c0255ccdb025944888ba7d1adcbd392468aef06958bbc1699a6f6e4f"
     ]
   },
   {
-    "id": "cv26-922cc188e3ea0d0d",
-    "text": "Quant de temps dura la pell d'una persona? Quant de temps feia que no ens vèiem? Quant de temps feia que no venia per Hawaii, doctor?",
+    "id": "cv26-c54a1a1f9ac11573",
+    "text": "Cinc mil set-cents vint-i-tres nou mil dos-cents cinquanta-tres nou mil nou-cents vuitanta-set dos mil tres-cents seixanta-vuit cinc mil cent trenta-cinc...",
     "sentenceIds": [
-      "24f2501c75b3e054a426c2ea5f105b4cc5f8b5b523c82274c9ae3ed7730797a2",
-      "95ef432f0da989854b5fbd3210feaf5574d37ad6e3d2e4fa30461fb44417f9e8",
-      "ca6ac54bb4bd1ff38128b3fe8dab74957956413fc562b34b0e4faa43a71dad24"
+      "e43ed6046a86384dda6bc2ace4fdfa5f5a8565473d15ff4d9f407b81abee19b6"
     ]
   },
   {
-    "id": "cv26-fa595c1777ae357f",
-    "text": "Pertany al moviment independentista el Fausto? Pertany al moviment independentista la Sol? Pertany al moviment independentista el Carles?",
+    "id": "cv26-21190591baac5436",
+    "text": "És bon senyal, en aquest sentit, que cada cop ens costi més trobar nous llocs d'interès per a llistar en el directori.",
     "sentenceIds": [
-      "f9bd6bf813e96c4d03fa1d00bf568bc58b856f9540b08bb35f851a4776d3b452",
-      "68ac20ea1358c5a2d85e46f9d9ecfd73b70c7cadfc7d12a62da19b7967b0149e",
-      "af14d87333b23f42381cdb19df74d961e967bbdbea04c665a958c1e9b2d65f24"
+      "ce484ce1ec32a6f00520fcbde739d401e4772764278bcea0f9291f17cc9fbf6f"
     ]
   },
   {
-    "id": "cv26-1f31ad362d8ae6de",
-    "text": "Un guàrdia de seguretat s'acosta a grans gambades des del fons del passadís. Crido els de seguretat ara mateix.",
+    "id": "cv26-1d0f84ade85ce590",
+    "text": "Des de maig a Sant Miquel, pastor d'ovelles vull ser; però de Sant Miquel a març, que les meni l'amo del ramat.",
     "sentenceIds": [
-      "1462e0005a1e2a1aa4d116e5af8f55af10a4ed99efd0ab503887c66aa96df4fe",
-      "a9bdc006f35217644dbe5865671b718e80f77f146657b348e70d4b7e3813d593"
+      "fca1ffe6db9e3c4e04b32a0e6a507f16fc1d040382320eb29c3328c5a50f4da1"
     ]
   },
   {
-    "id": "cv26-d4e5caf084b669d0",
-    "text": "Amb aquella gesta guanyà fama immortal. Tenir bona fama, mala fama. Ell sol s'emporta la mala fama de tot el poble.",
+    "id": "cv26-123753846c88d96e",
+    "text": "Afegeix a l'agenda el número de la Fàtima zahra El Amrani: sis, vint-i-set, tretze, cinquanta-cinc, seixanta-quatre.",
     "sentenceIds": [
-      "639e74c10aa59d38da9b623942dcd8b06a88d8f01244bb601d09c739cf78f0d8",
-      "4f76033435cf03407e88520a62c0968091cf5dd601aec5aa5dd4d50d993d1bf5",
-      "782920e5c2b3d35d40dfeed481af8a5f10ca4146f257492c754138bcc78e046f"
+      "bc355efb6afe20fc946d94128a6e68ffba9ec8970e4bd9c1625257cbc064a8aa"
     ]
   },
   {
-    "id": "cv26-0a4f1e1c448b3bb8",
-    "text": "Per què va voler dedicar-se a l'actuació? De què va treballar abans de dedicar-se a la política? I com pot treballar en ella?",
+    "id": "cv26-3274e68b2a4e6113",
+    "text": "Rostit sense vi no val un comí, pilota sense pebre no val un senabre, estofat sense xocolata no val una patata.",
     "sentenceIds": [
-      "c2a71a608adc0fc34ed3052afe755a1cd0f4ae0530c49bec44cadfc34de168ac",
-      "911e45f34c19fcde851c1b83ab7a552f49556b1b5dfd35f38c2417d6eca62f06",
-      "00cc8765764017ce426de651117d7e6bb4d8a179e284040aaf8a3d878808e893"
+      "7577e43dbf2a2053bda5de3ce6188b64a409718f09967a1d0b7ce93d2d78f30e"
     ]
   },
   {
-    "id": "cv26-70fd60f3e03a6507",
-    "text": "Talla quaranta que, segons com te la miris, tendeix a créixer molt i molt. Talla de samarreta que podria ser la quaranta però no ho és.",
+    "id": "cv26-b68b653aa20681fe",
+    "text": "Per fer front als xocs, es va aplicar una política fiscal expansiva i van caure els ingressos provinents de privatitzacions.",
     "sentenceIds": [
-      "deaab8815a6197183b8f4b3b7c7b887fd9bfd7b7a55f770e6ef6e34fbb613555",
-      "0640dfa3da3d52c49e7eba399709f9dafa5fdd660672e09cab3c70bc74c707ee"
+      "1070c86557010758da906962c3455f6906741fbf4b2d43467a624ebca8d2da84"
     ]
   },
   {
-    "id": "cv26-d433d45c90963283",
-    "text": "Tot seguit va llançar els soldats a l'assalt. Llançar un autor, un artista. Llançar una persona a fer una cosa, a un afer.",
+    "id": "cv26-14fd0b47cdb7f9f1",
+    "text": "Posteriorment, va deixar d\"estudiar química però va seguir interessat en aquest camp durant tota la seva vida.",
     "sentenceIds": [
-      "847a746845156eab233d79b344ff43e7c56825ec2f29cd37caeb5c681351e273",
-      "6036bece34b3a89a3aafa1ad519f8467552519bac55b148416c41d8e7da0a781",
-      "861fea214bd2d4d802602d2d2439d003cc07725c9d3621790542279d167f0202"
+      "56015662aa4bef24aa3c570608856f109cc5245ae3036750fd1e35eea5b8ab63"
     ]
   },
   {
-    "id": "cv26-6489ebfb240e65a7",
-    "text": "Sense diners no es pot comprar menjar i sense menjar et mors. Sense diners no hi ha menjar. Sense diners no hi ha res de res.",
+    "id": "cv26-ab91e25a0ef54d23",
+    "text": "Reclamem un turisme cultural, d'esports i de caràcter familiar i d'aire lliure que estiga arrelat al territori.",
     "sentenceIds": [
-      "fa8a21018962b79a79d887c8eb2612ad13a7e87f6cce07b62e004895d86f8a6d",
-      "5e32e8a43aa8610b40db499ffebe25d3d27d1c11100821b1854c85aa82dbd6f5",
-      "cd7a6265a9f810936e6bd64f0fd2070a8c640d2475e9424acc79254bdb86346d"
+      "52a708da89820bbb1c988eba113ad2250db1f91605482c5235ac4f1ff758bffa"
     ]
   },
   {
-    "id": "cv26-2b112ba2b349ea5a",
-    "text": "Aquesta nit, descobriran la veritat. Al final d'una nit encantadora, que petó bona nit com els adolescents tímids.",
+    "id": "cv26-483b67c17360461c",
+    "text": "Mira'm quina és la millor manera d'anar de la passatge del Rector Oliveras a la placeta de la Marquesa de Caldes de Montbui.",
     "sentenceIds": [
-      "249467bf4382fbc4f5b670b078793b61975784c2e4cc3e69359c57f286290441",
-      "500c53917b20707e056709ee68850e4f9ecbdd600245ee0b700ddc36d41fc8b7"
+      "989c63977a15cde4aec07720b67bba44633adf5def09bb34a11864e5ad0518f2"
     ]
   },
   {
-    "id": "cv26-da9f7578af450003",
-    "text": "Què ha trobat la dona, segons explica en Bonosi? Què va fer Cidó, segons el que explica la història? Qui ho explica tot això?",
+    "id": "cv26-d9305e44696315ff",
+    "text": "Algunes d'aquestes idees han estat adoptades posteriorment per creadors de continguts digitals com ara música, vídeo o llibres.",
     "sentenceIds": [
-      "b9ce1fd30d625fb28f70535258cf693e9a984d5b334c6ba14ffc8469c904cae9",
-      "86cc29f87380f5739fdcabc5e7fb315798c49da5b51dd9ef277e98294ede07e5",
-      "84a135d43c91a52cf454c2b6d32d0509456bf57cc9da3d9ebfbcd9ac8333fd7e"
+      "55945ee019fa1223dd30d666be7da07333916e4d046d95c8b3f69138622e9afc"
     ]
   },
   {
-    "id": "cv26-aaf73501c798f536",
-    "text": "Llibre que s'enquaderna amb els plecs sense tallar. Tallar les gònades a un mascle. Ara resulta que l'ovella és mascle.",
+    "id": "cv26-76bc5102f3f6a00f",
+    "text": "Algunes caixes fortes de paret tenen portes antifurts encastades amb frontisses ocultes que protegeixen de robatoris.",
     "sentenceIds": [
-      "9653e46b11e3995fa2f1d268e4e784d7163d0d88dceab135f1d55a220830bd24",
-      "506c17a2af5f4bed2540ca7baeb3c80346a47b88da578f7c7ad60820ce574bd1",
-      "bb10b1557f5e2cfc74d66bbf3ee47a5a5ec77e0a77bd32bd6212853b5a3d2186"
+      "b3f1c8aad78103f346d5f525ad5b8ba43537fa6f4a29390fbf7f0fc4588cb985"
     ]
   },
   {
-    "id": "cv26-e4a2f28b2af40d09",
-    "text": "Transformes les taronges en sucs. Transformarem la fruita en sucs. Llaura el camp tres vegades per consumir sucs de fruita.",
+    "id": "cv26-802069481733eed9",
+    "text": "En la gestió tradicional de relacions públiques, el control de danys suposava la supressió de la informació pública.",
     "sentenceIds": [
-      "38ef8c7692f79c6e65542d9da3dbf45bcba4ba1344b119461df1ff07a85dc2d5",
-      "7198cd8ce2cc9f0bfb3b01d600476b4ca9b1e6e49a32f4966da6f7fd2e13fbad",
-      "0ceb9154ea9f277571ec7a6e56880d37085cc06fe73fc6fe46083221843df9ea"
+      "c051637bab5d150206cc0f8a148129196e143344a0caefc12a0e3903054bcc64"
     ]
   },
   {
-    "id": "cv26-ae59cfc2ad55e336",
-    "text": "Espatllar-li la festa. Dies de festa, butxaca buida. Qui tots els dies fa festa, no té diumenges en tot l'any.",
+    "id": "cv26-6e6af2d0095e0e56",
+    "text": "Regne Unit, amb vuit milions quaranta-sis mil tres-cents noranta casos i cent trenta-set mil quatre-cents disset morts.",
     "sentenceIds": [
-      "6ab7739a5f068421090caa76cf42dc60b561d3cc359eaa8d3d8128405b667634",
-      "7776e6cdb1aa94635c56a26887bf1bbdbd8f3be5c74d38f0d13c316668ec25a9",
-      "f7fa19671c437fcc278b13cb68de79e1746429c70d645f4e5092b55ac8996a4b"
+      "9deb12fb7f8a27b8430e031e685b8a608aa958f4dd392671043a1a6dcc557b6f"
     ]
   },
   {
-    "id": "cv26-aa429e66a65bbef0",
-    "text": "La més generalitzada era la connexió en línia. Va ser la primera línia construïda. Va ser la primera línia de transport urbà local de la ciutat.",
+    "id": "cv26-d1f4717148e38032",
+    "text": "Des de maig a Sant Miquel, pastor d'ovelles vull ser; però de Sant Miquel a març, que les mene l'amo del ramat.",
     "sentenceIds": [
-      "06e6121dd7ff50ba2805ae19c775021a6eed6707711cb74784a11b64059eea65",
-      "6452c4bc97d44cded376147ede17517c02880b41cb79ca733330ba70527c71c5",
-      "2b0ee88756e1d180a51224ce62abd67aa1c492c5e286c6ba5ee6afa248af88a6"
+      "4058682c3af5fcf43edfa5f4ada1029ac74c28fe13c97277d062b9fe9a820d50"
     ]
   },
   {
-    "id": "cv26-b6bc6e618a7d843b",
-    "text": "Com ha determinat la llei la Comissió Europea, doncs? Contra quina empresa ha obert un cas la Comissió Europea?",
+    "id": "cv26-aa58e65bbb17591f",
+    "text": "El mateix instint que el feia recelar li féu avançar la mà, que va alçar lleument un costat del misteriós domàs.",
     "sentenceIds": [
-      "16681cabe6764ca8095570820398bf3f0549f296cdd07d5054a16b9f6fba218a",
-      "60dc9e0af5cd57c9e5cd4ffbdd5832afed7c9e7884c8bc39f33d66f7844c8f25"
+      "7266a9e30f6dc333a1f417582bf2ed1ebbd667662b2efca9bc3921091dbf9894"
     ]
   },
   {
-    "id": "cv26-9e947e1a20cc400c",
-    "text": "No hi ha registres d'exhibicions de les seues pintures. Adscrit per les seues pintures al moviment dels nous surrealistes.",
+    "id": "cv26-0d0171823b1a06cf",
+    "text": "Núria López Bigas és una investigadora en genòmica computacional del càncer nascuda a Monistrol de Montserrat.",
     "sentenceIds": [
-      "0055a0a7adbaee1777623903bc8bba9284540c039827cec5a3dab6e2703ffecf",
-      "ef1329f6404f9e127df71a5986bb029ecdf1937da6ea7424094cfd78e81ec472"
+      "7db156472dfde7b9d58f92842a760225e1eb1d8c7ea68d54c881b0bdd33a7489"
     ]
   },
   {
-    "id": "cv26-98e23dc895fadb4a",
-    "text": "Quan valen els mobiliaris dels Palaus Reials de la monarquia? Quan valen els vestits de la monarquia? Quan valen els vaixells de la monarquia?",
+    "id": "cv26-3772d97a27b2500a",
+    "text": "Des del juny del dos mil tretze funciona a la web de Softcatalà un nou corrector gramatical i d'estil de català.",
     "sentenceIds": [
-      "78ea69b3ad348666be89cf1cf3a00af8b574e50c471e9cc394bc84675ead0a8f",
-      "20dfd79f01ae60b025adefe0fd386ac560734f860980eb80aea097c571d4bcd3",
-      "9c7c89c74402f5e23255ac1d8c9c21edc588467c4ab1b250e94d7f8d877e9c9b"
+      "208054aa56fe6645168892aa44c994cb445ed02f5a1cb411ddb468b772dc8ee1"
     ]
   },
   {
-    "id": "cv26-f224afa9f8caa3d2",
-    "text": "Tornava a casa per sopar. Per què tornava just a l'hora de sopar? Li telefonava a l'hora de sopar, era a casa.",
+    "id": "cv26-9e1efc6d7ebac269",
+    "text": "Francesc Murgadas i Bardí és un biòleg i periodista especialitzat en gastronomia nascut a Vilanova i la Geltrú.",
     "sentenceIds": [
-      "f96694876264fc3aa059951163150a92dcd64da5a9a1009703034b95d7edcd47",
-      "94ae6c36fa59aa3b928ae27d532a7ea6709abffd5572285398178362409f903b",
-      "7020f801484eeb87d6fc56c5eeeb056b1d64b61cbc7b37cc951c6eb35cc7f16d"
+      "039db383ad9df796c86bb52aebf04a4edd99efe5ecc8199a9ea4e4f244533ffd"
     ]
   },
   {
-    "id": "cv26-96b89ea0bc41aff3",
-    "text": "Moltes de les seues obres porten números relacionats amb este esquema. Algunes de les seues obres van ser caps.",
+    "id": "cv26-a9f03efafac76b80",
+    "text": "Es creu que el nom \"drone\" (borinot, per un tipus d'avió) deriva de \"Queen Bee\" (abella reina, un altre avió).",
     "sentenceIds": [
-      "00f80065e1c36865c3b66e779dd6f71f13923722c039ce2d900288fecfe7e891",
-      "fa30d8f32e6822951eef1020fe1b445895ad8c97ef0504fc33de85d80ed5dc17"
+      "bf608744bc97f36a67341eed0141ff3640f488d0b13014d01c98533b844eb640"
     ]
   },
   {
-    "id": "cv26-6670ae1b4bfe5128",
-    "text": "La Comissió Europea diu que Espanya podrà demanar l'extradició de Valtònyc. La Comissió Europea multa YouTube per mentir en la compra de WhatsApp.",
+    "id": "cv26-8a4a4433a4796187",
+    "text": "A Espanya hi ha poca indústria pròpia de programari estàndard, i gairebé totes les aplicacions de consum massiu es desenvolupen a altres països.",
     "sentenceIds": [
-      "d0aeab0c132ec01fe2c00faf69a8ee8a0fd726113196f162c01e5dd86e5d24a5",
-      "c0318e5d4ca4623717f3e8d68dbd50b65868e40ffb8042fe124096f877779d4b"
+      "a45e4be9a2d7bbaa879c3a0398ee81a6c308ace83c5ea7c072211499b0f6e2c4"
     ]
   },
   {
-    "id": "cv26-cd8197a797b09d1e",
-    "text": "Què va aconseguir el déu en colpejar una pedra? Què va descobrir aquest déu? Entre quins documents es va descobrir?",
+    "id": "cv26-b875dd262e899a9f",
+    "text": "Mitjançant el Programari Lliure es disposa de solucions per a la gran majoria dels problemes que pateix en José.",
     "sentenceIds": [
-      "8149400560037e34892f316dba25ea1eb09a4c10066639347573e04e5358e5e9",
-      "f84a9ee51233fbc0fbf2b3fe2f394b25fcfed1bb5b994ff70aa90ae64486af8f",
-      "dc65ccaf9b4e58929d27971d725eda4655f16bb2d1e1c167f5de4912cbade1d3"
+      "80a89b43d7be6e26cb631bcb894db067c5a7b68efcd11ddf03d08e0e9df37780"
     ]
   },
   {
-    "id": "cv26-7b31370558855f25",
-    "text": "Les baixes en esta última superaven la meitat dels seus efectius. La meitat dels seus membres serien castellans.",
+    "id": "cv26-cad82aa83ccb1d62",
+    "text": "dues persones de l'equip parlen sobre un motor de carreres automobilístiques durant un espectacle de carreres automobilístiques.",
     "sentenceIds": [
-      "15b8b5db6cf3d8dfbccd8a4fc47e3003f021556c79c8fe71a43f0736c77ff939",
-      "1b3cb458e1c9954cf46fe5f1f3267aa4b0bc79613e16ecfca245740dfde832ab"
+      "bfec99ee81a1ca1e7bcf745329a625b56d0a3cace45b90cfaa63294fb6f5614d"
     ]
   },
   {
-    "id": "cv26-b1f05c7d7f6fc9fc",
-    "text": "Tenint en compte l'anterior, què és difícil de diferenciar llavors? Tenint en compte això, l'aplicació d'una sanció seria comuna?",
+    "id": "cv26-789493e076dcaf2a",
+    "text": "En tot cas, l'informe clínic pertany a l'esfera íntima de les persones treballadores i com tal ha de ser protegit.",
     "sentenceIds": [
-      "86fdd8bcb20a153ab6783d261bc64d40c3856adb6d525f58732a943af90e3c14",
-      "e4432c0fd325afd67d1e5a0e66f3cf0a501ceed6b9041d8cddbb83d2587d472c"
+      "57a68414bd02a222680b1f876ebae02a063acdde9e15f9356724fc91387bb614"
     ]
   },
   {
-    "id": "cv26-23f58cad215c9683",
-    "text": "Aquest suplement es va publicar poc després del conjunt de caixes. Poc després, Ambundii va tornar a l'ajuntament.",
+    "id": "cv26-d3d2a4c95e950515",
+    "text": "Aleshores, hi havia cent trenta-quatre mil persones en aquesta situació i ara ja en són cent setanta-quatre mil.",
     "sentenceIds": [
-      "ebcb3cc3d84e9e0c7b460408738e9549ede641fb0d0e76fdac7fbf929e5cdb42",
-      "877c9526a0a0c08427495cfcb609f7f4c5d6d4ad8d73e92628f5ed94fc894a6b"
+      "c72de21c393dd728d838b617260040042bed3069e011c1d663f96d804956bee7"
     ]
   },
   {
-    "id": "cv26-4cf5c2ae4d842f7a",
-    "text": "M'agradaria enviar un correu als meus pares. Vull reservar taula per als meus pares. Vull reservar taula a un restaurant.",
+    "id": "cv26-5fb042a001e0ed39",
+    "text": "Regne Unit, amb nou milions dos-cents quaranta-un mil nou-cents setze casos i cent quaranta-un mil cinc-cents vuitanta-vuit morts.",
     "sentenceIds": [
-      "fab219fd0d99571742db4e6535f9f429ec74f38acfb02a5f2c94f650c60fdf2c",
-      "1eae01eef7f021d56e16d75fa9315403fcd933167599a191e51fb35537cbb8c0",
-      "58f14511f8f31cbcf58a36d7f733b8fb9dad40f9a7a8c8bad368426443774330"
+      "2c38a0db9a96d4a29191d0b60e15a63e5af480dba8f1ba5012a81a2884ccb262"
     ]
   },
   {
-    "id": "cv26-44532c68d897df97",
-    "text": "A més de comissaria, quines altres tasques ha desenvolupat en el cos? Quines altres disciplines va treballar? De quines disciplines va impartir classes?",
+    "id": "cv26-73e0065b8004b215",
+    "text": "Aquesta proposta serà notificada al sol·licitant qui tindrà un termini de deu dies per presentar-hi al·legacions.",
     "sentenceIds": [
-      "f3ad60cbfa7d27d3fe8f22648259a36d7a61ff1458d64cb42c685db14fe2747c",
-      "2db857659a713413527ad1ead109e3874e09f510dcf04c4fa5a4e893f54d5efa",
-      "61d449104da189213c316c78e253dec3fa4e3427bb7da52d53fcd6a93a53ef67"
+      "20673861ee7fe9d34a8d8d58dd04708e47a11eb2f214930d2af7fdc9284cab8c"
     ]
   },
   {
-    "id": "cv26-3cfac78fc2a4fe13",
-    "text": "Pertany al moviment independentista l'Andrea? Pertany al moviment independentista la Nena? La nena està una mica pesada ara.",
+    "id": "cv26-d8ddbd00a185dcb9",
+    "text": "El president podrà expulsar del local a aquelles persones que impedeixin el normal desenvolupament de l'escrutini.",
     "sentenceIds": [
-      "fd8928921fe64168c5a8f75da74dc3d78e48ad62c8e23c6a236b0b7ca3f2439e",
-      "56e2fc05debe71c0017e46a1eee73f2428ed4598bfcd79ca95c24e628932901a",
-      "52ee6a23c96f50f30e46899ef50f96abd45296328a43fd67f407f7177f0ad322"
+      "57937e55763516e02268e203b5ab0189cf82c22ce386c71c4524390a59f1bd7a"
     ]
   },
   {
-    "id": "cv26-ac276e178197370c",
-    "text": "Quan es va tornar a exhibir-los per la ciutat? Quan es van tornar a fer els Jocs Florals a la capital catalana?",
+    "id": "cv26-d18b581b1f519959",
+    "text": "Quimet ha acompanyat Anna a ca l'oncle Joan, que ja estava una mica preocupat per la tardança de la seua neboda.",
     "sentenceIds": [
-      "9e125b93a2983745e8b7926706e8cc64fcc3125c5230b6fa2488046131cbb456",
-      "0a2fd3a214302416eabdb64aad627dbb4eb3a66cd1ddb77078eaa102fa442bbf"
+      "4a32ecb914332c1307949087ff3f2a8deea01a105c5a3a9f1d012f1da48b9fda"
     ]
   },
   {
-    "id": "cv26-acd55efa30a939c4",
-    "text": "Els que hauríem d'espavilar som els valencians. Els catalans ja som grandets i hauríem de voler decidir per nosaltres mateixos.",
+    "id": "cv26-6322c9a518e605d2",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de Lluís Nicolau i d'Olwer al carrer del Naranjo de Bulnes.",
     "sentenceIds": [
-      "f9cf3e7b8a766a91ea430c892240fe8f688727f70afd0af19deddd3541366edc",
-      "df76730a9e3ad24d3f386ef37cd33bb304f7cbfb1648165c20633405060e0330"
+      "ec1e4a5e609a2b0af8b7f97def4902db6ceda207587f076bd8177ee9dad3b743"
     ]
   },
   {
-    "id": "cv26-c9b6786c3764ce28",
-    "text": "Clinchport va rebre el seu nom de la seva ubicació a la riba del riu Clinch. La \"T\" del seu nom correspon amb \"The\".",
+    "id": "cv26-4ec58630300ccfbf",
+    "text": "Havent dinat, cap allà a les dues, està prevista la visita al taller i a les vuit del vespre, el vol de tornada a Barcelona.",
     "sentenceIds": [
-      "bc330f7a08a78e77a34bd9b8445fa6ad138c8bb40d085d35a2ae3ab15d2737f3",
-      "08c86d65a98211da5038372a245478ffc52ef29b8ba1faf9e89831f2457e64b9"
+      "abb85ec4c8b3794cd74c3ddb7f9122a15440f601d92062dfcd71d0779ddc215d"
     ]
   },
   {
-    "id": "cv26-e4dd7382c63a0c0f",
-    "text": "La feina s'ha convertit en una fixació: sempre parla del mateix. S'ha convertit després d'una crisi religiosa.",
+    "id": "cv26-c03460dc0ffa639d",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de Felip Bertran i Güell al carrer del Doctor Ribas i Perdigó.",
     "sentenceIds": [
-      "c3af95fb7ff7f913be76fd58c08bf79af81f090f4b5a0e871935a2c97fed71fa",
-      "fe56d87556b9dff0c2cc065a6ee75491a2f9280c25e2ea2198fb355cbbfe73ba"
+      "dca1af05a7df96d81150dfb82eac0995849c9a343a71bb281f4bd3ea9fabb0e5"
     ]
   },
   {
-    "id": "cv26-45b075fafc8fb776",
-    "text": "M'he enclòs els dits amb la porta. M'he endinsat en el bosc i m'he perdut. M'he d'entrevistar amb el director.",
+    "id": "cv26-deeb4191e38d3df1",
+    "text": "Només ara, quan la situació ja és especialment greu, sembla que hi ha una certa reacció rebel cap a la metròpolis.",
     "sentenceIds": [
-      "8c07f880c57b1203ddc268a10ee5b90a444a4d2c56f84228a9013f3fb5924c13",
-      "724fd8a830836351149c90b1b124da25c924a9eb279d4680ec45208d4f809dba",
-      "3eef4b4d68717d505d4dc3d2fc9b6e03fce4b6e35a184c04078c3b5e36025098"
+      "52aa08e71703af662e8baaf85cca3a05c158101de37d2ae5d039c4da6967de7f"
     ]
   },
   {
-    "id": "cv26-4720150d7b83ad40",
-    "text": "Viu a zones forestals degradades. Viu tant en zones de boscos com a les estepes àrides. Viu en boscos de fulla perenne.",
+    "id": "cv26-38418a3d1b1763ed",
+    "text": "Imaginem-nos que només pretenem poder votar als nostres ajuntaments i juntes de districte en horari d'oficina.",
     "sentenceIds": [
-      "138dc22e82474968539330ce4c5806301fcdd8e7fec56e382f3c9cd7f73002cc",
-      "3d2ddc9ceb68b6f8a72089b8156fecc7269ca8d797cfbe59f104d471903d24f7",
-      "2fe42ab1dad8df3b358d65873dbb5a77432548200858665a417ce0498cc2c457"
+      "04b8489e239d05ddc4b3a9b15201b4c7bda3f66652b8398dd027df75103f2c7f"
     ]
   },
   {
-    "id": "cv26-6b279d11a9b6932b",
-    "text": "Els símptomes poden romandre diversos dies fins a setmanes. Allà va romandre durant diversos mesos. Allà va romandre durant més de dos anys.",
+    "id": "cv26-c5059d5c8f587d25",
+    "text": "Entre la superació de la part teòrica i la realització de la pràctica, no podran transcórrer més de dotze mesos.",
     "sentenceIds": [
-      "0a51f97c9bcede58173935e382a9baf0630be577ee8f625743bc6872df21cbfb",
-      "e3d9fee05e1680b9a6cf4f8477ca32c7baa5b9d0d761bc2e15a54116e3ad99d9",
-      "faa47ea3c30332308aee69e88f503b7108b096fb10534f2fb738045a5807f411"
+      "1fd1c46c5a5cbad01935c50b8cfd06f77e25db04fa3898927717ba908707d3e1"
     ]
   },
   {
-    "id": "cv26-bf2ab86be1981e18",
-    "text": "L'element químic que surt a totes les pel·lícules de l'oest. L'element químic de les piscines. L'element químic més fonamental en el gènere del Western.",
+    "id": "cv26-a23c4bb293de80ad",
+    "text": "Aquest cop en DVD, encara que més endavant està previst fer la versió en CD-ROM i també la de seixanta-quatre bits en DVD.",
     "sentenceIds": [
-      "fa5498261f21ea851fefb2d56c8560dad9fac444f1ba4d05ecb29ddac24e0be4",
-      "e7a52a43c15f15a352e0f499c5087780fddfab061d01f8833ee15ba9087030c1",
-      "78fd6fd9b6b55115b80da2ff650f764e658175185b9874902c9bc0ca13817bf7"
+      "d0276f3a3253e25fb86b1d4f3503f381abd845074c5124375165632189a40190"
     ]
   },
   {
-    "id": "cv26-8c274606fd5ed63f",
-    "text": "La bandera era de color verd amb mitja lluna blanca al mig. La bandera era vermella amb mitja lluna blanca al centre.",
+    "id": "cv26-6cbeca36c8488d05",
+    "text": "L'arxivament ajuda a gestionar la safata d'entrada i desa el correu en un nou sistema de carpetes d'arxivament.",
     "sentenceIds": [
-      "f5ca315b2e55246910a0cb9880102dd7865383e92c8065bd3f4a34e2e701f1e6",
-      "f255bdc1d71fc97f9e7a2cce4c118b9d9cb4d6f2e723a1c7d1786b1ee54f6e38"
+      "2e82d9804be3880567010715df2c999e0212899b9c3ce63a304dc59d49f9f7b3"
     ]
   },
   {
-    "id": "cv26-935a59b014cb93db",
-    "text": "Qui creia que el considerava seu? En la seva obra, com considerava el Ragnarok? Quina va ser la seva obra debut com a actriu?",
+    "id": "cv26-e8ccb8cf655ca27e",
+    "text": "Reserva'm un bitllet de tren per anar a Sant Salvador de Guardiola el disset d'octubre a tres quarts de dotze.",
     "sentenceIds": [
-      "9b35fc38a518c0b63c8a58bcf2e5f5577c7d0814ec5a287d7a7fd7c7978c8404",
-      "77abc363a39ba3edc1d4143c98e58415f015bd85b712f1cc422142793a37692d",
-      "0c24fc74f57826dcca35c481959c41b3bded7997d9e17a0f0a1b1214f5d577cf"
+      "26d0e88a53f3a2db0182d0f283055950a6252ad9fa89540a828d896add9c544c"
     ]
   },
   {
-    "id": "cv26-d5917407a2e7373e",
-    "text": "M'interessaria saber quant és dos dividit entre setanta. M'interessaria saber què puc fer amb llonganissa. M'agradaria saber què puc cuinar amb bacallà.",
+    "id": "cv26-2d3676facb0a7023",
+    "text": "El Ple del Consell es reunirà cada tres mesos i podrà celebrar les seves sessions en qualsevol lloc de Catalunya.",
     "sentenceIds": [
-      "fae1f6ad9bda9f29955ba83243cf0d234015e54aaa51bb8a34dd212e80ec39b9",
-      "0100f52ee98da5065d81260a49284baeddf6a57b09681b9a432818e46cbfe6c3",
-      "b4643f23acc24351f78f791ca0d83f9211750ef5cdc2b07a320dae8d4b95f183"
+      "2f8021479556bcf61e86a6ad5d1c64234535220e055b8298b2bc08e54bbd23d6"
     ]
   },
   {
-    "id": "cv26-0b10b2fb97d4be01",
-    "text": "Valtònyc derrota Espanya a Bèlgica però es carrega les raons per guanyar a Estrasburg. La denúncia de Valtònyc contra Espanya és admesa a tràmit per Estrasburg.",
+    "id": "cv26-eab2b5020ce52355",
+    "text": "Les dutxes ens queden a uns dos-cents metres, però el camí és absolutament pla, cal travessar una gran esplanada.",
     "sentenceIds": [
-      "daa3ff96084b39edeb18e80653aeaa4eea671c368281e9b49a9b377ff2ac9f9d",
-      "df17982ccb41d8dc331f9f354870b53431641d232f2e66c652d36c5f0e0c1180"
+      "090ce94138850301d44d7883a041410ec12ce88c9b3214fbdd229cce41356df4"
     ]
   },
   {
-    "id": "cv26-9fab8aeb965a3b95",
-    "text": "En un cert sentit, el setè és el més proper a la felicitat. En un cert sentit, vaixell. En un cert sentit, pànic.",
+    "id": "cv26-1af58cd20a4ce36e",
+    "text": "Rússia, amb deu milions quaranta-sis mil quatre-cents cinquanta-quatre casos i dos-cents noranta mil sis-cents quatre morts.",
     "sentenceIds": [
-      "8bea29b131c5ca86c34902fc7dc4d53ddff1753fe0c390ef5e296c527773355e",
-      "a7c7a16480988e379a426fc1b2e8786a08c5b456478a8e12a277696430f82ac4",
-      "4a043515d44c1dce697909854ac54a898e2584957690b6acb8e9543493307f51"
+      "6f8ee8a237710332688ad1b1c410ecef3db6c4f7bc960363d3a529a03d99b8ab"
     ]
   },
   {
-    "id": "cv26-8aef0d9fdbb96d6c",
-    "text": "Mon oncle s'hi posa, somrient. Mon oncle i el senyor Cerc estan molt excitats. El senyor Cerc anava al seu costat.",
+    "id": "cv26-a346fd8528d0e7fc",
+    "text": "S'ha millorat la barra d'eines de cerca amb una llista desplegable de tipus de cerca per a agilitzar la navegació.",
     "sentenceIds": [
-      "7a2dfdb74373e664ab8e5ec49389c2471a069e294ed5dcf39cfbc2b080793ce1",
-      "725ecd9ccfea3f0cd4d424f8828a2a8e8d168a56fb8386637be6e293311554b9",
-      "cd128a6523b42894c0a7ee4fef10f91f4acd6787dcdf92193cc3eae5207005b1"
+      "93b0d116c7474ec53552791dd463abac9fc4ec4c0b80a4228c1aef824c0875ff"
     ]
   },
   {
-    "id": "cv26-7683683eb1f42775",
-    "text": "L'una al terra, i l'altra als llençols que ara cobreixen el seu cos vexat. Cobreix el seu cos esprimatxat amb el rus.",
+    "id": "cv26-8d2fca7285b5a2ef",
+    "text": "El programari lliure és, probablement, l'única opció que tindran molts països en vies de desenvolupament per sumar-se a les noves tecnologies.",
     "sentenceIds": [
-      "f9de38d7dd7ddc1e975ebc1a61b46bf7d465a0068ae3d6f6d559017a80db53ac",
-      "0cf79ecc44f63be4d896d2d6fafafab8299afd6c49c29753c17c382f62cc921e"
+      "9407608cb064fe86a12d0e8c8d62966ba22cff4d34862e6822bd4f2e289c2afe"
     ]
   },
   {
-    "id": "cv26-d47a4c9a1ea4170d",
-    "text": "Això és llet semidesnatada, doncs jo només bec líquid vegà. Això és llet semidesnatada, les llets animals no són bones per als humans.",
+    "id": "cv26-5aab8ac03817a90b",
+    "text": "Jornada adaptada a l'horari d'obertura de les instal·lacions, el que pot suposar treballar en jornada partida.",
     "sentenceIds": [
-      "6b4e353c66d426147fce3a9b487b419b1a49e89b247009597538a8e5c59032d3",
-      "d99c82817ddc9b36bc4723c4aff02109103fed524efd37bb05633aa4d9f0cd9f"
+      "c4ef1f52c4c82d88147372e853ef3f43e56a14c4d434b912c4330b2c81846fd4"
     ]
   },
   {
-    "id": "cv26-af7db5f0ced060c8",
-    "text": "Elimina el llistat que es diu \"llibres\". Elimina el llistat \"restaurants\". Elimina el llistat que s'anomena \"còmics\".",
+    "id": "cv26-45d8e99afe1a8bff",
+    "text": "El codi font del projecte s'ubica en un servidor centralitzat, el qual gestiona un programari de control de versions.",
     "sentenceIds": [
-      "a1eba765f12558f483df9cfd94e26fdb7fbf8e33d4ee970ea0c6c683346c3729",
-      "5dfe60eda324d931a47bbb73707589c6186438ca5ae3baa54b57536ecd9b4c75",
-      "322633db8f52863c45990fdbb6a32495065c5274f52ac69d7e5c1c24d061dba6"
+      "67de10d0eeb27ef0d96954c8f658e9fb7d1ca174894b555e8afdf1899fd086dc"
     ]
   },
   {
-    "id": "cv26-bbcaacc8423958ba",
-    "text": "Matrícula internacional que llueixen els vehicles de l'Onu. L'article indeterminat que llueixen els cascos blaus als vehicles de servei.",
+    "id": "cv26-31946658da9072eb",
+    "text": "A partir d'aquesta versió es pot fer la instal·lació i configuració del sistema completament en aquesta llengua.",
     "sentenceIds": [
-      "dd026640d5464b43b8b59a90e34d2588af419728c7d6781fd9bf0a11dc98e7b2",
-      "f338655362fc86e13d374cf8fdb27b51af3ef8cc5bd24fc5a8f9b859d5b2e307"
+      "a08207d9408cbbce86130cadc0cffd20cb37226dae27ee290a5686610d8e2501"
     ]
   },
   {
-    "id": "cv26-1e6bb5bd9fe9c855",
-    "text": "Ell repassa mentalment l'agenda. Ho busca a l'agenda. Abans de mirar la postal, l'oncle Joan busca la llegenda del dors.",
+    "id": "cv26-ce2958c7f8792cda",
+    "text": "Les operacions paral·leles són, per tant, cent noranta-un mil nou-cents trenta-dos multiplicat per dos més nou.",
     "sentenceIds": [
-      "a9765888df5ae0bafc053375d35305aa95e3184c3a88a0cf77f95856e2a1b747",
-      "3b2921e6126d7e44ae3ec825b147defe85dbf7477effa2ccf62e44d9f43b40ce",
-      "96e887e64edc4c785021ec31122a5f7787fe765dfc850b7f47bda559f51488c4"
+      "0f4651ffa380b589850a7e97d4cbe88947e0ffa7082432a4b24b8102bff22378"
     ]
   },
   {
-    "id": "cv26-c18a156dd201617d",
-    "text": "Com a tal, l'àlbum només es venia als concerts en directe de la banda. De dimecres a diumenge hi ha concerts d'arpa en directe.",
+    "id": "cv26-589fd40fc71fcb6b",
+    "text": "Rússia, amb sis milions set-cents vuitanta-cinc mil tres-cents setanta-quatre casos i cent setanta-set mil sis-cents catorze morts.",
     "sentenceIds": [
-      "158466a189ae9d32863ca3525ce5718f6c8086f33bc35b83ce39f4f84ab93e62",
-      "b3af876e315a5f32c90e946867aaf7af33403d84a6c956e2ee32a76f10e68a07"
+      "63c1bb268a42f3ca236399294778144a8b9e474e21d5abfab3a65a77f8842e60"
     ]
   },
   {
-    "id": "cv26-afd700c64a6145c5",
-    "text": "Dimecres a les nou tinc metge, apunta-ho. He d'anar dimecres a les nou a la consulta de la doctora de l'ambulatori.",
+    "id": "cv26-f90ea4b146dc7b1b",
+    "text": "Els factors de risc mediambientals inclouen el tabaquisme, l\"exposició al plom i altres tipus de contaminació de l\"aire.",
     "sentenceIds": [
-      "fae2abad0cc7a5cf989ae98718accdceabb562023d30d462b2e7892d75087f64",
-      "40a9de5a8c00717eae391cb4f17f5e1786cce276b9671bab7e0d61cf5d0a407a"
+      "407f3f0f87946373384b1a0274fe8a198283ac3aba14eda558a5544676a725e4"
     ]
   },
   {
-    "id": "cv26-3ef638d1fdd0745b",
-    "text": "El vint-i-nou de febrer na Sibil·la i en Biel aniran a Vallés. Per Sant Jordi na Sibil·la i en Biel aniran a Abella de la Conca.",
+    "id": "cv26-90c21cf98bb3e1df",
+    "text": "Regne Unit, amb nou milions set-cents vint-i-un mil nou-cents setze casos i cent quaranta-tres mil cinc-cents cinquanta-nou morts.",
     "sentenceIds": [
-      "7610a068124d3a5f03c2f695b983110af6617dcea43e5794e5e00adbb33f70cc",
-      "9c815082cb1ddb5e03cc4e42b38673fc52267b499015cbe63f4679ee5bf12c8e"
+      "e5c50770293c20c3fc134f4559171fa90728396f4f22be5b69e42d9f0abe2255"
     ]
   },
   {
-    "id": "cv26-e38af446cc6636c2",
-    "text": "Cobria la cara del meu amic mentre es besaven, silenciosament. Cobria la cara del meu amic mentre es besaven silenciosament.",
+    "id": "cv26-8e7875862b1e0ff0",
+    "text": "Quina és la millor manera d'anar de la camí Vell de Santa Creu d'Olorda a Vallvidrera als jardins de Rubió i Tudurí?",
     "sentenceIds": [
-      "fb92ba157f11b9551501cbb5264a9d616deac6405ca8d94dd6c2aa0edd2d14d3",
-      "28dfd9c4767fe07623d6de06bf86c98f0d58c91afba63d1ff7b022eedc144468"
+      "555aa76a801c6e1301147dae660a98fa4f170026caef0f3530b78ba00917e900"
     ]
   },
   {
-    "id": "cv26-142636306017f5ec",
-    "text": "Pertany al moviment independentista el Keanu? El Keanu pertany al moviment independentista? Pertany al moviment independentista el Pau?",
+    "id": "cv26-0eeab59299d4afd5",
+    "text": "Per tant, vam demanar a Google que durant la Diada mostrés un logotip específic per commemorar l'conze de setembre.",
     "sentenceIds": [
-      "fcd8369a61e0d887a993d600347f41478b5b1c82e92c3f61e77a018611fe66e9",
-      "19e8a6eac79e44f698bdb7a5d6d190c7e540f5c0e49f6313f025b8f57c6ddc2b",
-      "273ade1fc00e70223f06cb97834ec85f5f2a8a10b1b3ec72db88a05500a3fb2d"
+      "4d26d119f602f78ae6f895cd6be021e2e8e173e92c6b2a7eca6a4d274c975d4a"
     ]
   },
   {
-    "id": "cv26-6cfd4ca0529ea660",
-    "text": "Amb les seves bones paraules, sempre deixa tothom guarnit. Sempre deixa les coses a mig fer. Em vaig equivocar de mig a mig.",
+    "id": "cv26-9bf1a848fb9885bd",
+    "text": "Entre les contribucions de Graham a \"Cuphea\" es troben dos volums de la sèrie \"Monografies de Botànica Sistemàtica\" (Systematic Botany Monographs).",
     "sentenceIds": [
-      "48380192026b5121602357b49fa9ecd672c8c4d400c070880690080f56f13575",
-      "502b76d6ec343c047faa3d7e3b40c588f8254e58539d79fcac5753dec4561629",
-      "79976dcd19de417459aee1ff5a1908e5660c1c5b50cca67ecc17ced5a195411a"
+      "091daf8f1f9920d00f67b3799aa35de036b54795d161cdb7a22d129977a3ff15"
     ]
   },
   {
-    "id": "cv26-530bb76b8b149f4f",
-    "text": "Demà passat en Sam vol anar a visitar mon oncle. Demà passat en Nel vol anar a visitar mon oncle. Dimecres aniran a visitar mon oncle.",
+    "id": "cv26-6ec6bc4bcb5a1c34",
+    "text": "El termini començarà a comptar-se des del sendemà a aquell en què adquirisca fermesa la resolució sancionadora.",
     "sentenceIds": [
-      "38c8940df12c73388e0a5a5162fda9a6daf72ddc8840b71d98a00b2ed6c2d5e3",
-      "10fae27da92a63d173b168e5b1061ad01ddc7c5aea7d9773d3b37d9f69846613",
-      "55f9b39599dcd1d617da70cff495fe16bea3196f5f239f596fc4053913c3b2f0"
+      "07cb9f3be6f64911f8a2eaeb797f74a81596874f6f364db70388aced0a3d4f33"
     ]
   },
   {
-    "id": "cv26-42d23669fc5b901e",
-    "text": "Edifici de planta triangular amb coberta de quatre vessants aràbiga. L'edifici, aïllat i trapezoidal, consta de dues plantes i una coberta de quatre vessants.",
+    "id": "cv26-4c5676f83387715f",
+    "text": "Així, si estem realitzant una creació combinant creacions de tercers, com per exemple un article, hem de demanar permís a l'autor original.",
     "sentenceIds": [
-      "bccef4dd7319d0c6427d8ac1fbdd3ddca53189b794c02b74328efe7ddba4b2a4",
-      "82e4c9a0068761c4e2055a1261d9ca4dbb3905badcf4ff83f3e7f034291dd9ab"
+      "bd35df8802b6258b2d5bd8c6a29587c8dd23952dffb6d7b0e07265ce97c4cf1c"
     ]
   },
   {
-    "id": "cv26-60f6e3c68d777956",
-    "text": "Dissabte na Tanit i en Nel volen anar d'excursió. El nou d'octubre na Tanit i en Nel volen anar d'excursió. Dissabte na Tanit anirà a Porreres.",
+    "id": "cv26-ec68d359ba2dd39f",
+    "text": "Bonaventura Frigola i Fanjula va ser un compositor, director i professor de música nascut a Castelló d'Empúries.",
     "sentenceIds": [
-      "52ddc284b9cdf994c078f831686280b00167422dde8336264282a2bf94da0026",
-      "eedabcb15f1f5dbad5f32601b425370ea83f5d632b12c4e3145449797ac6d425",
-      "9870b92f5dee10b3bd0230bc39a02cbdfff8479d0b6e3fd168d47dc4db416c3d"
+      "11122fc7cf08278fbb6153bc1deef6f4727a12622df4c462814d3fd6916f8ce0"
     ]
   },
   {
-    "id": "cv26-aef1a83f06f16a87",
-    "text": "Convidar algú a fer servir una Kodak Instamatic. Que es pot fer servir. Que es poden fer servir a l'americana.",
+    "id": "cv26-e4a5a4cc6384ca53",
+    "text": "Altres productes temàtics de Morrigan inclouen làmines enrotllables i pòsters, samarretes i fundes de Capcom, entre d'altres.",
     "sentenceIds": [
-      "733fc5a3d4535145d82c231451e35049aa5d07a49ef5183a92a3dedff271066e",
-      "6c7af501b4d5d36dffaf3549d5fe6c93c94cf35742faf862ae907873d62e11d6",
-      "08edb4b23da4efdbb6d2143adfaadf3533f08c1a2767157c91ace5fab812a3d0"
+      "a1d6d6545bfc654d79b5af0d09b62fbc9be93cbc73fdae2225ebeb6695b14293"
     ]
   },
   {
-    "id": "cv26-c9c69c203f92c406",
-    "text": "A Rajoy se li acaba el temps per tal d'actuar en contra de l'autonomia. Duri més temps o menys temps, tot acaba al final.",
+    "id": "cv26-72efc17ff3c85f19",
+    "text": "Reserva'm un bitllet de tren per anar a Monells i Sant Sadurní de l'Heura Cruïlles el vint-i-tres de maig a les dotze.",
     "sentenceIds": [
-      "b595114f5d4a5f3dccbc0e9699940ff3b32a79876672b352474b68354ab6d155",
-      "76d170ce7e9b014fa67335cfc56a69352b83ba563906018bca0a753a4b33ea26"
+      "b9a3feb70e97d911c9b733d989be5fac51ce77a0b151c31ef0cab94a7004d2a7"
     ]
   },
   {
-    "id": "cv26-cfa742f86c224aa2",
-    "text": "Febrer ha estat el mes dels mots banana i els mots ananàs. Les mots sous les mots. Tots els mots provenien del Llibre dels proverbis.",
+    "id": "cv26-78c207470df994c0",
+    "text": "De la terra pujava una olor fresca, de terra humida, que perfumava tot l'ambient amb eixa aroma característica.",
     "sentenceIds": [
-      "7e1d34ed5504fd9a5ed885bad2f399899b201700ad34b4aad6162f50ce416086",
-      "dcf09ad3c879ad91632bc10e149ebc3f678876d70666dd3558f658a2f5c59d93",
-      "4706fb7a191fb3ea36bac61cd61460cabb44acae0c14524c0d4d7fa36eefac5c"
+      "99b9e9ae51da806329ffec443535cd284071cc5dd2283b3c9ab1d63a99293440"
     ]
   },
   {
-    "id": "cv26-b48a6990cbd24275",
-    "text": "El temps passava i es feien grans. I el temps passava i no en sabíem res. Almenys sabíem que aparentment estava bé.",
+    "id": "cv26-595f4bbbe364f3ab",
+    "text": "Baix, a la plaça, els xics xisclaven com condemnats i la xarradissa de les dones pujava com un brunzit molest.",
     "sentenceIds": [
-      "fb26303a6a798dcd7e109df31220a1817b8af12badeb182133555e94e534645e",
-      "b1ec7732484123b56abf2b9d0c2ee31161f71c33b0812d9a9bcf61ecf6615f9e",
-      "bddb074b54594defcac09636a1b3a2f61a2988eb8a83b20e866231478210f5bc"
+      "cf30127fc9f9aa9767f6fbf94cabced9257e9d03a32c09ec948e5cbe1544b968"
     ]
   },
   {
-    "id": "cv26-345814a8550cb791",
-    "text": "A les golfes, et faria res seguir amb l'audiollibre Soulwars? Podem seguir amb l'audiollibre \"Fungus\"? Podria seguir escoltant al dormitori l'audiollibre \"Ara o mai\"?",
+    "id": "cv26-bc02862b5f4a625f",
+    "text": "L'èxit d'una pel·lícula als Estats Units es determina amb la recaptació del primer cap de setmana d'exhibició.",
     "sentenceIds": [
-      "fa2b3e56d68ab7a05fc66b05e2f4a6b239e38b7e82d59873d4430731d2f4624f",
-      "41b398e712e54695f928e87d9aec9ab2a14110b7a15e6078ae145871f4db7480",
-      "742fc136a7655b8c4702a48b43abecba2bdf8b8d258e0af25562a43e9cf630c5"
+      "9591716d625a3703c9b4b62ae4a7cdf42be55bb582a72743c4bb085690b6b8e4"
     ]
   },
   {
-    "id": "cv26-316d85b84716e8aa",
-    "text": "Penjaré una foto de la meva promoció a l'aeroport de París. Embelleixin les sales d'espera de l'aeroport de París.",
+    "id": "cv26-4419b8fe008a0bb8",
+    "text": "Apunta a l'agenda el número de la Roma Ladron De Guevara: sis, noranta-nou, setanta-cinc, quaranta-quatre, zero, set.",
     "sentenceIds": [
-      "a4fae868a0c62e62962154bf69d3752fae680fa45d6e0f06150b8eae264fa9d8",
-      "f179805e4f9b1722e81510187caf657c53f25a41f62f40e209e3d5bdb56ec390"
+      "466d0d19feb53bc95855646dc351b74dbf8c2c4b4b07be142bc3e27b15e4ef8f"
     ]
   },
   {
-    "id": "cv26-febcb6f6b2fedb65",
-    "text": "El deu d'agost na Mar i en Nil volen anar d'excursió. Per Cap d'Any na Mar i en Nil volen anar a la biblioteca.",
+    "id": "cv26-5a0853442f2af6b6",
+    "text": "Les marques solen justificar-se perquè un client pugui identificar, de forma clara, que un producte o servei prové d'un fabricant determinat.",
     "sentenceIds": [
-      "c8f7cd8ba54906c84a2a5f90a50d1726db85ed6e1c92ceaf86335a398dd295a6",
-      "13632ca520bea6ae14c63acd7cb65f4f94affd8f9e26f4a186490da8f1c0d2f7"
+      "0792ff9c4416afe4811097e47ffb2971b4b65ebf928822cc4d957e925ed698c5"
     ]
   },
   {
-    "id": "cv26-a58a87e5ff3bb320",
-    "text": "Escolte la veu del Fabrizio que em recorda des de l'horitzó... Nàpols em recorda París. Però a Nàpols no hi era.",
+    "id": "cv26-96caa01e9c593ef9",
+    "text": "Melcior Niubó i Santdiumenge va ser un dibuixant, caricaturista, pintor, Il·lustrador i animador nascut a Barcelona.",
     "sentenceIds": [
-      "fbb0d7f3c8e66627d088f9a156d38cdf07dc60c4a421f83c58f8f1a12e6c8347",
-      "a6b23fd0513516a7570493d92071d03778b68f23b945e1b984507f0d9da91e86",
-      "1be6d5d41635c8f09d15d60bfd7bc8af15007515f93631864849cbe36076d787"
+      "48f2f6321c4878f78e166c6b62b41b717449f56796ee0bc6a7971edb12149eda"
     ]
   },
   {
-    "id": "cv26-ce4564c3e3efed32",
-    "text": "Els partits es van disputar a la ciutat de Tanga. Els dos últims campions van disputar un partit per a disputar este títol.",
+    "id": "cv26-263fb8701072b291",
+    "text": "Mira'm quina és la millor manera d'anar del passatge de Santa Maria de Vilalba a la plaça de Miguel de Unamuno.",
     "sentenceIds": [
-      "256c55af153caae0c608f033293e7fdaafb61bfd9bffd89a3fd8e0fbe9734fa3",
-      "20fd86d02aec3f25c395891a1d72667ea239c06f0340540d8dab0174e255a890"
+      "453404833955ecc5c9b78032befcdb0e70f3e1390b9873889042dca375e08a1f"
     ]
   },
   {
-    "id": "cv26-2e7d42afbcff234b",
-    "text": "Pertany al moviment independentista el Dani? Pertany al moviment independentista la Dani? Pertany al moviment independentista la Cel?",
+    "id": "cv26-b808ac4854925709",
+    "text": "Quan arriba el fred de l'hivern, com que tenen els rebosts plens, no tenen necessitat d'eixir fora a gelar-se.",
     "sentenceIds": [
-      "faeaad3f4a58d0b258f121e57087ecf7536fa24e523d93772e352d5e76885fbe",
-      "4c6a7ff301ffaf5e3e523e88b101c2ed653d99ed28056e6bd91862e3371ed8f0",
-      "f5c181654ce2734269061b76cffafc38097fd327a7edfe6ea552aaf92d3bb7f6"
+      "b0812902b058c382f3e1f102926246c3c55e24b4c6706613aaae62f84d2b89e5"
     ]
   },
   {
-    "id": "cv26-43a665f6abf019f0",
-    "text": "Em ve de gust escoltar la ràdio. Em ve de gust escoltar una cançoneta. Em ve de gust escoltar la meva col·lecció de música en aleatori.",
+    "id": "cv26-b7484c425da637f2",
+    "text": "Els tretze savis van acordar que farien una processó després del dinar de festa major, però que en dirien cercavila.",
     "sentenceIds": [
-      "fa5e86d1334b7ef670d9e725cb35ff6bb1ed1766fecaa3a1f9ad861a9008d1cd",
-      "3e2b2730bd61a05391ed08ff6617df29855a5009957f33b8d9eda739ac6311c4",
-      "faed8f7a4c0d9db1403b05fd6e489902d9aa54ac2ae547734355462d296ae77f"
+      "9ceb9ff3124fb94d774e2b9b28a5d53d527652e0730abc7fb9e9ac236c4835eb"
     ]
   },
   {
-    "id": "cv26-71c66269e7b438e3",
-    "text": "Dimecres en Biel i na Clara iran a Cardona. Dimecres en Biel i na Clara aniran a Eslida. Divendres na Nina i na Clara aniran d'excursió.",
+    "id": "cv26-3d5b5f20e86f026d",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de Dolors Lleonart a la plaça de l'Escultor Ramir Rocamora.",
     "sentenceIds": [
-      "e92b92cd13fb7c2a049f96232b5e6198639b8a827acc3640aca16c1c88fddd3a",
-      "4d6d220469bead6cbe569277779edd1f23d2b6eb15e8e4f26e43a8e83c01e910",
-      "2cfef48a06a180caaec92c9b3eaafba415455239a1da07169e7bf120f73f313c"
+      "974b9161fe6ff5ce06000b75853abfdd7e166407ea47ca89d56e3d2f4bb156ca"
     ]
   },
   {
-    "id": "cv26-cf3ec59dc7e13969",
-    "text": "Els partits es van jugar a Espanya. Immigració russa a Espanya. Va ser vuit vegades internacional per Espanya.",
+    "id": "cv26-a33f430320f1a251",
+    "text": "Àgels Torrents i Rosés va ser una professora universitària, doctora en demografia històrica, investigadora nascuda a Sant Pere de Riudebitlles.",
     "sentenceIds": [
-      "15ac786e3447958c66d4a39a2b8079620c4d37559e915f0f70e0fc3dde377d52",
-      "08327780b7c2a565495437e920fed6a67747cc90cf82fb2a9cae9c74a4953684",
-      "4d8635deea82b59cbdaf60b704b0304b6090f57707bf5ec87021a1861b2a9385"
+      "e6972b63fa6eba7a1de762833192c53c94c5308362376f5fd1dd331f93c158f6"
     ]
   },
   {
-    "id": "cv26-4b185b4a5e3f8134",
-    "text": "\"Una lluna l'aigua\" és una de les cançons que m'agraden? Podria escoltar una de les cançons que més m'agraden?",
+    "id": "cv26-53669137a16c1a27",
+    "text": "Aquests ports són els primers a ser inclosos en un llançament de Debian sense estar basats en el nucli de Linux.",
     "sentenceIds": [
-      "124d1abd4713250785e3fdd879128660c498710d4a0ea92274f30b04f9dfb067",
-      "b29f19fb079e6fdffc449c05dcc8be8e0ceea2930b6626cbbc1919fbfea985d4"
+      "46c25c63be141adf6cacc49126ea6a3e3eaa4034d935c8ea1063ceaa7acded02"
     ]
   },
   {
-    "id": "cv26-e378c727c373b29e",
-    "text": "Potser ja saps, però, qui hi ha al darrere de les pancartes. Ja saps, Abelard, que tothom estimava el meu pare.",
+    "id": "cv26-d9a9dbc579f58aaf",
+    "text": "Regne Unit, amb set milions cent trenta-dos mil setanta-dos casos i cent trenta-tres mil vuit-cents quaranta-un morts.",
     "sentenceIds": [
-      "a32518714692f4317299dcabfa434b1e6779bd21b8825f23b9e39b85263fcd37",
-      "9f20fcc3782677115cb9e101b1fe94912e02752d9db16a3400a50296b91a7d4a"
+      "6b5db407663b9949dc97728192420f49a4024cf739a327d5dabf69765874d49a"
     ]
   },
   {
-    "id": "cv26-88cdf052d4832bbd",
-    "text": "Les fulles d'esta espècie estan ordenades en forma de roseta basal. Les fulles estan dividides en fulles més xicotetes.",
+    "id": "cv26-2a9ea2e8571ba587",
+    "text": "Amb més de vint-i-cinc mil nou-cents noranta-tres contenidors, ja hi ha un iglú per cada cent noranta-cinc habitants.",
     "sentenceIds": [
-      "18befba97e9c34c22e21340e7f6ac7fe389fdabe2379377e9ef378531666e890",
-      "19192a40d390e0cd66c328640dd38e25b6b40e2ced5e4b1528ffb91cf2ebe46c"
+      "5c059a09ad058125ab8143a2f49566e94a0786f367abd26e030267c2c2f56d1f"
     ]
   },
   {
-    "id": "cv26-62acc9d5010ffa3b",
-    "text": "Despatxar la sardineta. Val més una costelleta que una sardineta. Suca, suca, Marieta, que val més el suc que la sardineta.",
+    "id": "cv26-f9453e4b624236ca",
+    "text": "Mira'm quina és la millor manera d'anar del passatge de Flaugier a la placeta de la Marquesa de Caldes de Montbui.",
     "sentenceIds": [
-      "be966892ee55af1833437ea034c4b27cc2afc11f7416d84aad05bb0c031df75f",
-      "4f50aa057e0a7e5048fc1d2f46a650e798a545ab986b8c4be5199a1ac88cf10e",
-      "6e2a114f86aa0cf5a09d0476658773f5733d3a32330585961f7370cc41df3c94"
+      "4cda91008233468080eb49d9fa269ad74e87ff1d36f0e525bb766ee85bb2ff36"
     ]
   },
   {
-    "id": "cv26-4d6394b67d9e9f89",
-    "text": "La seva resposta és equívoca. La duresa de la seva resposta, de la seva mirada. La seva resposta em va deixar descol·locada.",
+    "id": "cv26-359dbce5d21065b0",
+    "text": "Afegeix a l'agenda el número de la Sofia maria Escuer: sis, vuitanta-set, quaranta-set, vint-i-quatre, zero, vuit.",
     "sentenceIds": [
-      "fc1ad3fdf68392ab77fe32ee256332c44b04e2e63be546b784f844b73a8ce062",
-      "40d947cbcfffed52ff51cdd90d8eda4c75df2f0de755536b420429e3f1e470b4",
-      "1681e9bcac4d5b4559ea6783604f040cd7e647bb403f9a295ff0f308e7fd13b5"
+      "32ffba059d9a6ac0f99c58cb3884f2ed25464b011beda3ac36d425d65bd742e4"
     ]
   },
   {
-    "id": "cv26-aaee73799083bb6d",
-    "text": "Tenir molta merda a les ungles dels peus. Tenir molta merda a les ungles de les mans. Tenir molta merda a les mans.",
+    "id": "cv26-7e6c54154cea8bcf",
+    "text": "El noranta-sis coma cinc per cent fa servir Windows, el dos coma dos per cent Mac i l'u coma tres per cent Linux.",
     "sentenceIds": [
-      "959408b1f3816e831d5b2c64c6020d297b9c15ac09776ddc067853de8c95fac6",
-      "4eab25f5c5027c85a9a0ad6975618587f3daaafd1faf654f9948f49aa390234f",
-      "a50e7ff18be05635e364ad22b178a82d43641617a17dae53a9faaff19421056d"
+      "3bbf67e2e9000407f82c06747d512273f6c384026fd5ea257e05541bec210ac0"
     ]
   },
   {
-    "id": "cv26-6dc88a2830a5933a",
-    "text": "També vaig negar-li les seues sospites en referència al meu treball. Mentrestant, el meu treball en la Universitat es consolidava.",
+    "id": "cv26-32eb63d04c5a1dc6",
+    "text": "A escala mundial les darreres xifres són de cent tretze mil cinc-cents setanta-cinc casos confirmats i tres mil nou-cents noranta-cinc morts.",
     "sentenceIds": [
-      "f9d15a10fcb50d20493e865d29c0cc9880feb2b9fd88202209137aa0b2eb9c4a",
-      "e148225ea219ac67992eae1a2c90aa1f083883ac0e1b4717e8b0493c32493832"
+      "be6e6cd1b41bf3de5567495e635473127ee370fd76092e38d980b432342314f4"
     ]
   },
   {
-    "id": "cv26-ab6a2952e2427597",
-    "text": "Tenia la percepció d’haver estat des de menuda ballant-la. Deu haver estat amb els amigots! Deu haver vingut per Nadal.",
+    "id": "cv26-99e49ea8a8f702f0",
+    "text": "Wood era un batedor dretà que també jugaba a bitlles part del temps, però va fer principalment de wicketkeeper.",
     "sentenceIds": [
-      "f9f52a6d4977e2d7cf67544ac06d9ef7c6cf80b9f5d7690daa71b36ecc837b6a",
-      "d5b5f9ebda0652df2a7b009c1c26e64587765886c9d5f0209b6f4e377c11ccf5",
-      "b34c82c15ec735349270ceb931f32d8f93038222213eabfbea0d866572e82221"
+      "e1507103433ab0579c377395d23922959cfb93669c74d1aef5bcb6ee085a916f"
     ]
   },
   {
-    "id": "cv26-29e74a45c200c322",
-    "text": "Va fundar el festival de música internacional de Lakshminarayana, que té lloc a l'Índia i que encara dirigeix.",
+    "id": "cv26-90cdf6bc21c92f37",
+    "text": "La primera versió del navegador Firefox ha tingut dos milions i mig de descàrregues durant els dos primers dies.",
     "sentenceIds": [
-      "affe6715b0755b8e363d209c1506135bc73bddda5adc3ee3f095f6deb4d0544b"
+      "586bba6a1be3cda17ccc52a587df14c7339c8f273b453ca7d0e76d5ad3208353"
     ]
   },
   {
-    "id": "cv26-457beb1bbe444f1e",
-    "text": "Va insistir-me que mai l'havia estimada de debò, només com una amiga. Que l'havia estimada fins que m'havia conegut.",
+    "id": "cv26-6fe9bfd4577f5b1d",
+    "text": "Les estrelles supergegants són estrelles evolucionades amb una gran quantitat de massa, i són més grans i lluminoses que les estrelles de seqüència principal.",
     "sentenceIds": [
-      "fb7c33982666bc44000eded17aa780e51743b2fbbbfcc06dad81dad28077778d",
-      "9fb9209e37320c2921a118178eff03bba3bf2803ee3864b06c0f882c087c95ae"
+      "4a898218ab9f644f5395d9639946e75a947dd6a7d913f8e67c5287e009e8c891"
     ]
   },
   {
-    "id": "cv26-1f06ef8fbac88b4b",
-    "text": "Hi ha alguna condició per poder participar en la rifa? Qui pot entrar en la rifa? Per on va entrar una ràfega?",
+    "id": "cv26-7f60a12023ec83e4",
+    "text": "Donar publicitat per mitjans telemàtics de la present resolució, la qual podrà consultar-se a la web municipal.",
     "sentenceIds": [
-      "a66a9af86f8f5a2402d828da6870530631d9100533d9fa64633c6661fdde51c8",
-      "cede0c4de43ac504bdb488edf32fc3630d181ae8fe07d3321ab99878d32523cd",
-      "77bf8e610d95ebf825d9cc1c25d1bcf7b03b562266ed2ae4eb1395fb0bb566d4"
+      "480bc42f0271fee34d1ba7a7d1689b2ee52269c59d1a7e00cebb8365cc617695"
     ]
   },
   {
-    "id": "cv26-4ecf558f72c420c1",
-    "text": "Ensenya'm quina cançó està sonant ara mateix. Quina és la cançó que està sonant ara? Mostra'm la cançó que està sonant.",
+    "id": "cv26-012957227e130994",
+    "text": "Esquerra Republicana de Catalunya no descarta cap camí \"democràtic\" i \"pacífic\" per a aconseguir la independència.",
     "sentenceIds": [
-      "eaf7cbf00f1573234bd2dc24d5a274eda4c0ff9648de5cc3cda4dde86c2ca945",
-      "8e77656d300df3de3ca98433cecc4b9b4615b8316e2ab31c0a5ef57f10242b78",
-      "13b08461452b19f4067d5d3a4341e452d91bacaccedf6a497276b0035ecce79c"
+      "8eb4b90abc17b3b3a77c8f9a3b3a0ded1c7ad395e5f2605149050f9cfbd21266"
     ]
   },
   {
-    "id": "cv26-f29c08aedf4d9933",
-    "text": "Les Interpretacions van aparèixer originalment en el \"Journal of Accountancy\". És un editor de l'\"International Journal of Nuclear Knowledge Management\".",
+    "id": "cv26-32996e74211bacd3",
+    "text": "Mira'm quina és la millor manera d'anar de la camí de Santa Creu d'Olorda a Vallvidrera al passatge del Doctor Torres.",
     "sentenceIds": [
-      "af8b5fbad7f36f7a83f338daa3d54f9b89cfbd7848dd8329f9796c026cb9694e",
-      "5904a985647963b34f9c7866d268852fac716f05c41f6040382902812aad68ae"
+      "0e765d467f49d1d65e01c2d748e25f5ce9eb47908e2d3189cc481c0e8733e9b3"
     ]
   },
   {
-    "id": "cv26-e2232d6bcc6472f4",
-    "text": "A Campanar, ni a vendre ni a comprar. Vendre i comprar a casa, fan casa. A Cullera, a vora mar, més val vendre que comprar.",
+    "id": "cv26-9f56544d7c4744bb",
+    "text": "Mentrestant, l'Internet Explorer anava guanyant quota de mercat i s'anava consolidant com el navegador més popular a Internet.",
     "sentenceIds": [
-      "15e2885d2c0cbacba935e261c0a4d3ce4bff26cbffa849ab0068bc6383ecad88",
-      "d17eafdaaf2e399d723ec55a26ea00dda3885e75402ec62ec56bb6e8f31a302c",
-      "1ab2ce0ab459485e9a8ee40c5eca0c412fe9b69cb6c3f2d8c72fa024d3cd1825"
+      "6055005da5e64eedc66e0046457dd3b27e9cb3e96f1c93fae78c423ddf0fa287"
     ]
   },
   {
-    "id": "cv26-b01fc9ab1fbcf655",
-    "text": "Anem a Vigo però sense segones. Anem al mercat i ens ho comprem. Anem sense el miler que ens encalcen per darrere.",
+    "id": "cv26-190dcec8e8a0aea8",
+    "text": "Quant al cost, qualsevol programari lliure es pot vendre, sempre que es respectin les llibertats originals que el defineixen.",
     "sentenceIds": [
-      "f9e9ca3a2d7dc3de5af2fa393a68756eabdae68759f8d79ae3df0fde253efc4e",
-      "2e974ba64e305bb6b9744bf48fb8ca5331aedb3e9f0d8505de4abe89dde9a739",
-      "3af2ee1b2f0e77fe13d6e66a51533f7ffa76d79f92c57f5e1bbec52804af61c0"
+      "8552714d692f085a0338aa1a9f7cfe44bbb23cd4fd6fab8459032013f57c5a23"
     ]
   },
   {
-    "id": "cv26-f2943b4f06e10e62",
-    "text": "Em pots dir qui és el compositor d'això que estic escoltant? D'això que estic escoltant, em sabries dir quin és el compositor?",
+    "id": "cv26-1a1bb47a512d4157",
+    "text": "Josep Fèlix Pons i Alonso va ser un periodista esportiu i actor de doblatge nascut a l'Hospitalet de Llobregat.",
     "sentenceIds": [
-      "fa6680989b4bf4c46ba2f0e99c6f3ed4a73e99301f805e7c21214a2afc8a732f",
-      "0f0b2324e0ce4f4bdaccd3f0842bd5ddde6de4a9bc646d8cace85629ef17a3c3"
+      "4955af316e398cf2b96f6faa999423e0e94b1ac8aa6e53e545ed8d227d4c2ae6"
     ]
   },
   {
-    "id": "cv26-94880c85b4108c29",
-    "text": "Pertany al moviment independentista el Javi? Pertany al moviment independentista el Mel? Pertany al moviment independentista la Mel?",
+    "id": "cv26-98d4a1ce36086f6b",
+    "text": "L'any dos mil huit es preveu que el consum siga d'uns vint mil huit-cents metres cúbics, de cada tona produïda consumix uns huitanta-tres litres d'aigua.",
     "sentenceIds": [
-      "fb768b6ba494bb9d5264e12652d3018320cb0800c4020c5047bce66c2ffaded2",
-      "c64be9685870f549b1af597d50be8fc4f3d3391724f54177b2df0be38ddb7ca0",
-      "d91b7b6880380e3e3d71c23a8e041783de3ad032ecfec75afe8462efe03c673c"
+      "94d8f07b3df9a965e3da3921eb0dce03536bf38384e1aac05592f893cd12ce86"
     ]
   },
   {
-    "id": "cv26-7427d0bd37b8b8a7",
-    "text": "Llavors, hauràs de portar la meva mare i torturar-la davant meu. Aleshores, hauré de portar la teva mare per torturar-la al teu davant.",
+    "id": "cv26-e8db4e1f25656e57",
+    "text": "Mira'm quina és la millor manera d'anar del carrer d'Alexandre de Torrelles al carrer de Santa Caterina de Siena.",
     "sentenceIds": [
-      "f999f9dd7244e0fe247bae53698838c3193349ecdb5756c3924988e9bd634245",
-      "569137ee098eae8dec85c3fdbba208b714c55b51a2ddd8267c0890957e6fc640"
+      "40669603787224d50279b5742ae6560c6d7e75a6b730065746ba450d81bf69b8"
     ]
   },
   {
-    "id": "cv26-deae010cd76a8794",
-    "text": "Negre com el cul de la paella. Més negre que un carboner. No prendre el blanc per negre, ni el negre per blanc.",
+    "id": "cv26-f104dd9200a149a0",
+    "text": "Rússia, amb vuit milions sis-cents trenta-tres mil sis-cents quaranta-tres casos i dos-cents quaranta-dos mil seixanta morts.",
     "sentenceIds": [
-      "8ed5ee2ffbbe3055b3b22a7f32c67630952a7d08e205f88eb1ae081e6d3f6c5d",
-      "5bbfd2b0712cd7274047daee79107e498957a8755ba5df480366bb580a5042ca",
-      "1f78ac76616521ae7828c5a3dc80fae14cc1e5ee1faee57bd82ec85ffbd0ee55"
+      "cb60df13a4d17608439abf9420de2168f8d0489ceead6dccbdf78fc52a19a335"
     ]
   },
   {
-    "id": "cv26-49eac76aaa4366bc",
-    "text": "Aquestes expressions acastellanen el text. Els copistes corromperen el text. No podem atenir-nos a la lletra del text.",
+    "id": "cv26-b426c4b7b42df1b7",
+    "text": "Antoni Maria Aragó i Cabañas va ser un historiador, arxiver, poeta, traductor i professor nascut a Lloret de Mar.",
     "sentenceIds": [
-      "779b21e825e7ed4b855b0aa11c059fa1e879c98e2246a89e2faa35bf25cde1a0",
-      "8ecd36b4c0fe869be0b3423085e02f7034ec6f0000a9dfca1b5cea21b1dfa0b1",
-      "61dcd6969ef91b27755f62628917bb96760b4ab96cb541ea189f7db8be1d41d3"
+      "89a95451769f6b36f8cb30daf4617d60aea693d204085b8564b80d13a3bab127"
     ]
   },
   {
-    "id": "cv26-da7b04a4e80177dc",
-    "text": "Una idea fixa l'obsedeix. El Bru es fixa que ha dit “us”. Jo només he llegit el que m'has dit —s'excusa el Bru, immòbil.",
+    "id": "cv26-c54c2e226f17eaa4",
+    "text": "Els glossopteris van ser, així, uns de les principals víctimes de l'esdeveniment d'extinció massiva de finals del permià.",
     "sentenceIds": [
-      "68a2f7b3f6c20398b184413e03597cbc517ae0704c1a7380b7967d6a0d65eaba",
-      "a642e435a8a2627708388b6cffc9d114566e87472d72dd15efa1c8d28a510c19",
-      "f9fd4855ff4380617eadf78b8db3fc089744b2931a7165b3f4dcaeb5eb1a7d51"
+      "1461dc393a877944fd1fa13de018957e7637fe40fbd6bf5ff72a204d1000293e"
     ]
   },
   {
-    "id": "cv26-e8b5ac9d10fba598",
-    "text": "El deu d'agost na Carla irà a Cassà de la Selva. Dilluns na Neida va a Cassà de la Selva. Dilluns na Neida va a Isòvol.",
+    "id": "cv26-bd39817f31b8f8bf",
+    "text": "Regne Unit, amb vuit milions vuit-cents noranta-set mil cent quaranta-nou casos i cent quaranta mil quaranta-un morts.",
     "sentenceIds": [
-      "c3ec096d2c8c16403a8f980e35552ffac5ac5810221ae94220db4c8fc6af593d",
-      "f15519653e82bbebe52dc14922b106467715401142e0e5eac01b8e95ee734248",
-      "8d5ab5dca45cbdb8fd5bd7527d3c1a1f835f053e1a5b8decb6d7eee059da3ebd"
+      "c8c657322722eef17647f111f33ad99514a8778e96f9c02dfdb3398108ca6784"
     ]
   },
   {
-    "id": "cv26-946af4cdf2c6d6a1",
-    "text": "Diumenge en Mateu anirà a Cirat. Dilluns en Mateu anirà a Alfés. El nou d'octubre en Mateu anirà a Torregrossa.",
+    "id": "cv26-7773c0d4b7af04c2",
+    "text": "El destí de les assignacions econòmiques concedides no podrà alterar-se en cap cas per la persona beneficiària.",
     "sentenceIds": [
-      "8697ef19a8a3983388ad60eebe962aa7f2cdc4feecd86ad93ab6c02034d327a6",
-      "3e10f8f5126239f330e4ab6003b97c2a9e936c96d63610f4b1a56a65f3f887a8",
-      "a8350bd085013748a6adc9d0995ebfc21ffb6992cf7568efdd2e46f42f09d1c9"
+      "800b92c332e17b6b84a45c6ca8abb516a6659004f6f4aa6a59a60bc35a5fb3c1"
     ]
   },
   {
-    "id": "cv26-c07936980c6e34c9",
-    "text": "El raïm desenvolupa uns nivells elevats de sucre de manera natural abans que els tanins arribin a la maduresa.",
+    "id": "cv26-514cbcf350d183cd",
+    "text": "Els matins són més avorrits que les tardes, les tardes més avorrides que les nits i les nits més avorrides que els matins.",
     "sentenceIds": [
-      "da5561ffc8e7f0a05c207a0c80cadbf3044961c08877b87bfcd3282f272b453e"
+      "927e1ede79d4b15cc74c69663928da4400828dde606cc10b7d1a30907bd7b21e"
     ]
   },
   {
-    "id": "cv26-e9faed82250299c6",
-    "text": "Podeu visitar el seu lloc web clicant allí. Podeu llegir el seu currículum aquí, però no podeu clicar el seu lloc web.",
+    "id": "cv26-de0a9601d1e76575",
+    "text": "Les acadèmies són escoles de gran capacitat establertes amb el patrocini de grups de negocis, de fe o voluntaris.",
     "sentenceIds": [
-      "e6ac5a2d42b9c3c3cc9930e691439c58d68967ad45dfae7118431f4b93c60ac4",
-      "2f4c1efe86fc05222ccf489b97dbfb23add8d2bf7902fb81bab57ea056172a1c"
+      "e0116e8c2bdbff540a88061686a2767368efc7188928f2ce71bee7113e951299"
     ]
   },
   {
-    "id": "cv26-751bbe12382ba357",
-    "text": "Sense pa no es troba bo cap menjar. Qui pa vol menjar ha d'estalviar. Tant de lletres com de pa no ho fa tot el menjar.",
+    "id": "cv26-ad36ce722a1df2ab",
+    "text": "Només el tres coma tres per cent dels pacients que pertanyen a aquest grup necessiten assistència respiratòria.",
     "sentenceIds": [
-      "6c23e07f5a8cd0b47d9bbb44908bad6389f93fc6604f3af4d3a079f165de6cbb",
-      "b6b6787d347c2996930590b7e89b9ab72d9cd1e247e57278395da76514474dfb",
-      "8c00195d304fa17d67d5809dd0f4dfe26eabe68d9ae25edd99e116398e17d459"
+      "37c2bf430f4b59245736e04d62966ff26f97175a29d5c6f2b6137f407f08cbb6"
     ]
   },
   {
-    "id": "cv26-95bdee0094d39976",
-    "text": "Quanta estona triguen a restablir la conversa, després de l'asseveració? I quanta estona l'ha de tenir allà? Quanta estona va durar l'última temporada de la sèrie?",
+    "id": "cv26-98abfbfcd955ddac",
+    "text": "Antoni Agramont i Quintana va ser un compositor, director i fiscornist de sardanes nascut a Castelló d'Empúries.",
     "sentenceIds": [
-      "89ec80a46c77143deca7d5ff6cdda3a2a03076953fcca93dfedd0bc40366bce3",
-      "d4fe6ac6a09c66c09b099cb082e2ba5ad2abfe5e575ba11607ddb28d3bda1100",
-      "b7ddaf6f0d3c7442a638fbeaec881327a4e1190159d98194f5c87953a9a6d985"
+      "bb45fdddbe776cd7f7670617ca4c02a4935bb37a010aecf0032562e1e09b3ac6"
     ]
   },
   {
-    "id": "cv26-672bf90bdd92ad15",
-    "text": "Els mascles posseïxen una prominent franja blanca a les ales. A més, es caracteritza per una franja malar blanca.",
+    "id": "cv26-2826fc80b1d89449",
+    "text": "La conscienciació de tots els operaris perquè es facin servei en primer lloc els productes que caduquin abans.",
     "sentenceIds": [
-      "13cd98f622ab127b864ff088a7b42fc767d72e7e79e96a3bf98e45f597466347",
-      "2313b36261bf6384afdfc5c19f27d07552839d5be3ab355e6856af91745b595a"
+      "7034e7c60473b0c8bcba05b41b7670af3a2b5a999ea024ea78d94e531b6c539e"
     ]
   },
   {
-    "id": "cv26-e700af625ed0af66",
-    "text": "La sardina escabetxada vol bona tirada. Qui vol bona aigua que vagi a la font. De llàgrimes, hi ha qui en té una font.",
+    "id": "cv26-485feda3f188f120",
+    "text": "La propietat de l'edificació comporta associat el dret d'utilitzar la superfície del subsòl per al mateix edifici.",
     "sentenceIds": [
-      "608a99a87128e6c73af9938b63696a9d95822835bfdd64e3bd7c885663cbb64e",
-      "1803c3cbd0db9ec33389e498d51fe7583b5dd9895d334e2dfd2f0daeb479c2f5",
-      "4a72a492f33592bfd2ac0b63d91fbfb5274bdbeea8ae71be87b428326e062558"
+      "23ec5f2808094d11c19960c2206a56b7514d53981b61acaf57cf1540424cf60a"
     ]
   },
   {
-    "id": "cv26-f3923525c7f6773f",
-    "text": "L'església té planta rectangular. L'església va ser reconstruïda. La presa ha estat reconstruïda amb més capacitat.",
+    "id": "cv26-4f4dc989d096691d",
+    "text": "Si vols parlar amb nosaltres des de l'estranger, truca al trenta-quatre noranta-tres cinc-cents quaranta-set vuitanta-vuit seixanta.",
     "sentenceIds": [
-      "144d2e9ddff02413c884b61e725fe89ecfc08470884f6d7d9d5fe4071bccdfb2",
-      "2896a8589ca8ed80df3a31b13651afcc24d03d5d03a88019b3337457eaf3763f",
-      "164eed9dc6a8e115248f8346be64f35399a2fc314e1f4033277c77e46a4a950e"
+      "1fc442779a4b5f9478d712945ec06a7385e784dbc6cad5f6e40b0639ea471caf"
     ]
   },
   {
-    "id": "cv26-920d5188e43795d0",
-    "text": "Només està intentant allunyar-se de la Primera Ordre. Tan sols estic procurant allunyar-me de la Primera Ordre.",
+    "id": "cv26-aafb657f45704411",
+    "text": "Rússia, amb set milions quatre-cents seixanta-quatre mil set-cents vuit casos i dos-cents cinc mil cinc-cents trenta-un morts.",
     "sentenceIds": [
-      "b0c5c465b85e9a437fea781f1fd615d8e5d12f4c41572d1cb10f8b21fe691de7",
-      "052fc08a4f4395dc245cc29bed6accad982a3d193ea0643620cfbbd17f9533c3"
+      "a464a477a1fe916830efc696ce26a2c41de1ff48469a13eb4d9b69d27937b880"
     ]
   },
   {
-    "id": "cv26-71d8da928d068b74",
-    "text": "Seixanta-dos de les reflexions anteriors. Seixanta-dos de la Ciutadella. Seixanta-dos vaig al mateix ritme en català que en italià.",
+    "id": "cv26-c7792c72d807d4d8",
+    "text": "I a mi em recorda, és clar que amb la boira de la perspectiva, una curiosa ressemblança amb les serventes fidels.",
     "sentenceIds": [
-      "a162699c8c0f1d2e8e5d98b692e21d09b4d9961af27e2f084e1f69709396b0e8",
-      "67a790d083f7c717a1483824e1829ea4911820f6271d51f3fda8b8f88aa625bd",
-      "b47f0ae57a6bbb52dea307b8aed522d87950fab6817ba5fa16c253b414ce9b8c"
+      "bfcbc64d5993a42fae2dffa44a82eb36a935e54f245cd2e6c79d92e6603df12b"
     ]
   },
   {
-    "id": "cv26-cc1ffc0af44973d5",
-    "text": "En el cinc, l'amor hi tinc. Cinc i cinc fan deu, aquí i a tot arreu. —Cinc i cinc? —Deu. —Ensuma el cul de la guineu!",
+    "id": "cv26-600c94e6b65f6508",
+    "text": "El meu pare té dos telèfons: el sis-cents set zero setanta-quatre quatre-cents quaranta-tres i el sis-cents cinquanta-quatre setanta-sis cinquanta-quatre trenta-set.",
     "sentenceIds": [
-      "b5364b1c34e7ebde83314047348233cef312f25679aefa96ad3542d1274c4131",
-      "7398a22c3638748192d68d8edc45f4f4112cff7a6efbc3f1a1ce56df96d028c1",
-      "5c8b2814750ccabbf5e06e7fef237e900c66b34e5c33eecc0329954f1f0a1c2a"
+      "16425569d87632c2193cafe3f50f087efe8cb7c17081c9e77ce858a3d84b05d1"
     ]
   },
   {
-    "id": "cv26-b2aaac5f9995d5c6",
-    "text": "Sostenir, fer prevaler, algú, la seva opinió. La seva opinió va acabar de fer la balançada en la decisió presa.",
+    "id": "cv26-c5910d2adb991bba",
+    "text": "Al capdavall, les idees, immaterials com són, no tenien amo, i tampoc en el sentit que hom li ha donat després.",
     "sentenceIds": [
-      "50f1dedc991529ad0330574f84d3243f4099158aacd901d4828632bea6c957c4",
-      "f0ac1864ec3215d849867f9d730671f27c651a91ade00f3a8383f6df03ad4ce2"
+      "7d5edd585759f77eecba7f0afb9011e71bd7908838063387661f1a51b17d8af7"
     ]
   },
   {
-    "id": "cv26-2d95d974ddf7fee7",
-    "text": "Juga a la Preferent Autonòmica Femenina de la Regió de Múrcia. Juga de portera a la Selecció femenina de futbol de Colòmbia.",
+    "id": "cv26-0cdec51cf83b26cd",
+    "text": "Mira'm quina és la millor manera d'anar del carrer de la Reina Cristina al passatge Mare de Déu de l'Estrella.",
     "sentenceIds": [
-      "090c27a0dd4e393150f30615905c424d38f788b82e5f528a2d2778a74fe417c0",
-      "3fa0b8bf3786a0e3faf686c633e3ed782761e14bbc18a0a857442924a93f374b"
+      "639ad4639c6ab462c5667cac2368e18ca5d6ba00b9376028c29f1d376be1c987"
     ]
   },
   {
-    "id": "cv26-2a9352b227e46783",
-    "text": "Sap perfectament que el Marcel respondrà amb un somriure de gairell. La Dols sap perfectament qui és i què vol, però calla.",
+    "id": "cv26-8f2cbb0d2b1832b7",
+    "text": "Va ser enterrat a la catedral de Viterbo, però la seva tomba fou destruïda durant les tasques de renovació del segle setze.",
     "sentenceIds": [
-      "97e3b9c3bd652418b50db9cf6f138a91aa98b2c81a56c284e2104dcc8d236ac8",
-      "6c72ae38de47b31fc3d79aeffa30f19fd33ae523c0863ed81c108a12d68aa087"
+      "910e512cb5b3e31dd3acac083a8b238738f349dab3a7b0c84f3f8742a2d728da"
     ]
   },
   {
-    "id": "cv26-a911fae9c164a1be",
-    "text": "La conversa entra en un bucle. L'Àngels es desentén de la conversa. El gos sent la nena i es desentén de la galeta.",
+    "id": "cv26-70530dbc78275c9a",
+    "text": "Dídac Vilà i Moragues va ser un compositor, director d'orquestra, contrabaixista i polític nascut a Cornellà de Llobregat.",
     "sentenceIds": [
-      "500def3394bd621b6705d93a8e16a0897103d3608a948d7a462991cca43efe6e",
-      "434c069fc1f254c137f8e208cf77b5b1fbdb9a4b2b6cc5f578d6a8ef1dbb141d",
-      "d770ebcb5bf400e3fc409163d354d96ed95d00b0e1ed71b78137c0104f20300b"
+      "7115c80fe46fee79d937b8cd5c7b45ffa619b3ed12567c9c724a1ebe48652460"
     ]
   },
   {
-    "id": "cv26-c7292f90b92b2283",
-    "text": "Així va passar el curs fins que va arribar l'estiu. No era un viatge per a passar l'estiu, no. Amb un home també et pot passar...",
+    "id": "cv26-63e1dc5e547af098",
+    "text": "Quina és la millor manera d'anar del carrer de la Madriguera al camí Vell de Santa Creu d'Olorda a Vallvidrera?",
     "sentenceIds": [
-      "fd77afae12fdf049384d0f01b1468c83cdeb50cc8775e0e86ac7ea43912d532b",
-      "663d7533e75a0fde7ef8fb63dc412b50b520e63c8bdc402f4cc01c52ad3a74ea",
-      "575e39d77daa379dc26f88696a40bb8d942a6c949e05886f423eec9c8f7e4bda"
+      "f3d931794376601d6fba654ee6e9f49ef2460fbe7e897d3a6e42e4c35a45032f"
     ]
   },
   {
-    "id": "cv26-40a01546de3bc321",
-    "text": "El deu d'agost en Llop i na Tura volen anar a la Vall d'Ebo. Demà na Sira i na Chloé volen anar a la Vall d'Ebo.",
+    "id": "cv26-7b52b51d3143e18f",
+    "text": "Al llarg del dos mil quinze s'han baixat quatre-centes vint-i-nou cent vuitantat-tres còpies de programes en català des del nostre lloc web.",
     "sentenceIds": [
-      "12d016aead661d60dfe7b8dae7bc1045654d9898dcf4d5d1bb70738c7ba6e838",
-      "9f95cbdcc8f26bc3dec90f9eaef281f5e103f1bc3ea1b7217221b7d3fb9a0e86"
+      "d7668def083a750fafa4288d510f45f7fd168dd8573ede7e7a9068d4c08626ae"
     ]
   },
   {
-    "id": "cv26-0a4960df0cea0ef5",
-    "text": "Pot ser de cases o deserta. Els rucs que són a totes les cases. Emblanquina les parets de moltes cases andaluses.",
+    "id": "cv26-9f4f180a114bad50",
+    "text": "Emma Maleras i Gobern va ser una ballarina, coreògrafa, concertista i professora de castanyoles nascuda a Ripollet.",
     "sentenceIds": [
-      "faec62b0769219dcd4825ce18e2262854c1216947dab240079e7664b8a4dd398",
-      "da544f4d43ea4eddfc2c3017699a1a8c0e2100156c9c70fdc1e2447eed7bcff7",
-      "7ba486ebb89ffc22060292717ede44c782955f6630ba7b27d24671c9080f048a"
+      "2e275ad843b76b0f3b5682629ffa1c33ac3d9a0cf7d032ebd6fdb33dd6308229"
     ]
   },
   {
-    "id": "cv26-fe9cd0ad01d4b945",
-    "text": "Cent vuitanta-vuit perquè havia perdut el programa. Això sí que ho tenim garantit al cent per cent. Cent quaranta-dos, cent cinquanta-quatre i seixanta-nou.",
+    "id": "cv26-123770163a497777",
+    "text": "Els meus amics han eixit amb les famílies, i jo no tinc a ningú en aquest món; estic sol..., completament sol.",
     "sentenceIds": [
-      "80e0378e0054b5a0bc1ecfb77fd0f3a506ad173dd15d7c209f90f8b6e3629375",
-      "d4e7a78a7dc481b273b5902e74978b8e0627695b21d865c019c135c9f818e7be",
-      "793d0d3c638d52d21db3211f47d5c5407d156f9bdc7dfa2a88eb234c9cc8c5fd"
+      "3efe6931dcf71cc1ec7fc297e4cb9293ab548eabc29e35a2d51e77e197000455"
     ]
   },
   {
-    "id": "cv26-411bb6ada6ce7677",
-    "text": "Vostè consenteix la rebuda d'aquestes galetes amb la navegació per aquesta web. Aquesta web no utilitza ni galetes permanents.",
+    "id": "cv26-7b90a9f2d6c341a8",
+    "text": "Regne Unit, amb deu milions vint-i-un mil quatre-cents noranta-set casos i cent quaranta-quatre mil quatre-cents trenta-tres morts.",
     "sentenceIds": [
-      "c6f11f1eef6195f3368f7cd685fff64174e58a1bb363d0e0693ec3861af4c29c",
-      "6fde9b50d26d34bb7db7ef0f60f6a3d7665b0f4a9bf5001771be2ce3f8a1b5d6"
+      "5a3bab8ca480056899c3f4340dca8fc188e28ee72530e7fb74b686a70c6053ff"
     ]
   },
   {
-    "id": "cv26-e5a3624c51a0f2bb",
-    "text": "L'article d'en Zarzalejos és irrellevant per tot això. Això per a mi és irrellevant. Això no té cap interès per a mi!",
+    "id": "cv26-a3a782df53d74819",
+    "text": "Mira'm quina és la millor manera d'anar del carrer del Torrent de Can Mariner al carrer de les Naus de La Maquinista.",
     "sentenceIds": [
-      "95cc630390fe3f8f0ab4917365fc8a880f748e9e6cb2a02379d3057394e85e3e",
-      "0550c03ee1de82c4f8f2548a495701171252857f27420dfbeae5f840b518ff2f",
-      "1e69da33e5b20ba9fdf89ea6d06aa46a9004b0dfedf15510961d13256bfb4714"
+      "69645083afd7c607631e1b88b0552fcc2c4eb7bae67b90e9af0826a8297f8701"
     ]
   },
   {
-    "id": "cv26-9c413da7f4178f5b",
-    "text": "Després de jugar a embarbussar-se toca deliberar, que és una altra manera d'entrebancar-se. No les desordenen, les combinen d'una altra manera que també es pot llegir.",
+    "id": "cv26-6a9c7a368b98ecdb",
+    "text": "Temíem potser un fantasiós domini de les màquines i de la racionalitat per sobre dels nostres somnis i fantasies.",
     "sentenceIds": [
-      "bbe2332efb1eaf5c4c0a29d9323040c3e6acd028df26c743c611c40d63474eef",
-      "427f99adeab12652a71d75d3a4ddefd01233d3c128ce1612537b2655e889df06"
+      "6e22ae2275d5a52d28ff0bfcfc6bfc54905351298efd18f9d99ba1f63ec12290"
     ]
   },
   {
-    "id": "cv26-6fffcf2b6b142163",
-    "text": "Em prepararies un cafè amb llet descafeïnat? Em pots posar un cafè amb llet descafeïnat? Un cafè amb llet descafeïnat, ens ho podries preparar?",
+    "id": "cv26-de1f9526ab4409cc",
+    "text": "Als processats per malversació, els ha imposat una fiança solidària de cinc milions vuit-cents tres mil seixanta-vuit coma vuitanta-set euros.",
     "sentenceIds": [
-      "7305a546154533719129d85c1bc1b8f8c527228dc65b9d5f47f1ef4089a61816",
-      "9121c5066ea9aa7b9bfb69f5341fe99af4babca8335355f8faaa3ce3ee224b44",
-      "83b8b2f2b267c5ac0f50e866233b2b10b4d544bd9ffd37becc04780ac5182a6f"
+      "17fa6e33800250773c2462ff82010cf4ae97bb46d279ab1fee16f88be405fbd4"
     ]
   },
   {
-    "id": "cv26-34c8ce78fbf3eab2",
-    "text": "A més, allà tindrà temps per a estudiar el temari de les oposicions. Ara era jo qui li deixava temps per a estudiar.",
+    "id": "cv26-65cdc3aee07c91b6",
+    "text": "El món universitari ha tingut un paper molt destacat en el desenvolupament d'Internet i del programari lliure.",
     "sentenceIds": [
-      "faf190c1c724d1ed7e0bedef42c68f5547e76c56458f3902a19b154bff739b2c",
-      "309c843a3a6b96dec939b7db1ffe91c27f7d4338514d34df762cae7fe0718be6"
+      "c30a6cc6d74d63eec30335eadc342613c8a0a4e81e6d1594ca3d301cf95e1578"
     ]
   },
   {
-    "id": "cv26-65254693439d0e60",
-    "text": "Fer un escorcoll en una casa, en una nau. Una nau que lluita contra la tempesta. La tempesta esbrosta el bosc.",
+    "id": "cv26-e426d3ef9edfa7d4",
+    "text": "El llaurador s'adormí i per segona vegada anaren els veïns a buscar-lo, ara més tranquils i una mica enfadats.",
     "sentenceIds": [
-      "fa7aff86dba8677ecfa09d9ed3113e8d96cbb481c0df8cc2fce952e42cfde91c",
-      "04d6f40c8b6034fad729b24e630b3b4bcd90774daa02c2c9ee4ba65bf37240d6",
-      "b9a8815b440a9878557b8db322c1c4cc16e5fc448ea8b9dd2fa8e6f16e70605b"
+      "f77ed22174a8605ba60829b6f0cbdd2824321549c4a3994aeb727877dc5fa2d4"
     ]
   },
   {
-    "id": "cv26-61ca2eca3d19a478",
-    "text": "També figura en el poema \"The Traveller\" d'Edgell Rickword, escrit durant la Primera Guerra Mundial. Un alter ego de l'autor, tot està escrit en primera persona.",
+    "id": "cv26-06a807efb37b7e63",
+    "text": "La fase d'oficial bàsic (Basic Officer) acaba amb la selecció de la branca i la fase de transició a la fase intermèdia.",
     "sentenceIds": [
-      "f2db5da085e8390f2ad991f89a4fb40d333ae53d7b563de00669ee457316af45",
-      "b35afe9bd25e0857ecc28e00ffa1b403237534eb7066838455868aba0a74f269"
+      "4a9a145ffe47af3555d506fb2c4a949335fe28b04f266212d3ad740b0b302fcc"
     ]
   },
   {
-    "id": "cv26-fdc4ff522432df86",
-    "text": "Em pots dir quant fa noranta dividit entre seixanta? Quant fa sis entre dos? Computa quant fa quaranta per quaranta.",
+    "id": "cv26-c8b4fe1c092692f8",
+    "text": "S'introdueixen regles noves i es milloren les existents, de manera que avui dia treballa amb més de dos mil sis-centes regles.",
     "sentenceIds": [
-      "cb0fb63be10145ce66e9eb8e872270332633b31803140219d325153d1703d71f",
-      "bd9a48a745e927ffb9410224210c3ef87a0350f8585e16a5f197c2ebf046938c",
-      "e6fb2586b413fe0dd44f54c11f0f77bd3fee419dab9d23f332f704f4a83cc406"
+      "badb07f20e9c6b7c704c2fd32b5ac2ca6c4ddebfc07562804c374cc8450f0491"
     ]
   },
   {
-    "id": "cv26-8d23901887f53924",
-    "text": "És senzill, la seua mirada i el seu aspecte de xicot necessitat. El seu aspecte d'home més jove. Tenia el mateix aspecte.",
+    "id": "cv26-e17727e21a153488",
+    "text": "Computer Gaming World va afirmar: \"Aquest joc ha estat dissenyat expressament per als jugadors experts de Wirzardry\".",
     "sentenceIds": [
-      "f9694f8cdb5563d8c6f440e7fd7d02ce84c35b5045f93db643775ef9b813faf1",
-      "bbdbcd4e59742ce5135a5eb798303690fe94f9755000c36b240f60402f3ee502",
-      "60420ffff6e7ef37a792dae8842f7e47d69b52dd8711173156b2869d96426cf9"
+      "39b9689ac8b3cd92f5b7986a7455f3fbce7ef6c1585202124b920ed4f32f82fa"
     ]
   },
   {
-    "id": "cv26-748e3531565e4ede",
-    "text": "Dijous na Lara i na Clara van a Dolors. Demà na Lara i na Clara van a Viladecans. Demà na Clara anirà a Aguilar de Segarra.",
+    "id": "cv26-48536eb425850d41",
+    "text": "Regne Unit, amb nou milions sis-cents setanta-cinc mil cinquanta-vuit casos i cent quaranta-tres punt un tres sis zero morts.",
     "sentenceIds": [
-      "b290f2071045b69e79680dfad4acbfe5c7a5d2c7f8442a7f045ce84f1758ab15",
-      "1b2b3fa332e4341cf05d7400084098e4020543798cb8c73e013e1d73b69d50b9",
-      "074219b54ca41e2d8763b1cc0fbb790c46058d4cb8ff645364439afd5e15eab1"
+      "4138be7a65250c91c90aca2d0b5230fe0d14a12c066d5e12b8d002bb8e074ada"
     ]
   },
   {
-    "id": "cv26-9dbd19b712203242",
-    "text": "El Regne Unit i la Unió Europea arriben a un desacord sobre el Brexit. La Unió Europea i el Canadà trenquen l'acord de lliure comerç.",
+    "id": "cv26-b601e6a0648dc3fa",
+    "text": "Avui dia, Linux és l'únic sistema operatiu que està disponible per a tots els sistemes que comercialitza l'empresa.",
     "sentenceIds": [
-      "79be818b37a3ef248cddfd5861cfe38dbac2c43a270a6ee71d9dfd406ea92329",
-      "256aea64599f32846d1bd76785d75c5b779e19e41a96d88ee396bdc2b46d60c0"
+      "8e6c789394d763712ea1dc83212ab961197f0174806c7ddc4a23babc20d93c90"
     ]
   },
   {
-    "id": "cv26-b22750fa22843ee7",
-    "text": "Diumenge na Gemma anirà a Benigànim. El vint-i-tres de maig na Gemma anirà al teatre. El vint-i-tres de maig en Sam anirà al teatre.",
+    "id": "cv26-8de7f9ae23cfdfe0",
+    "text": "El present encàrrec no es podrà modificar, allargar o esmenar si no és a través d'acord escrit entre les parts.",
     "sentenceIds": [
-      "954f5b01104b28dd5043a8c2e62ec74dfe8f38f29afc1883b17b870f7030dbe5",
-      "a3100f041e8efc53542e86579fbfe727a4e7324799bb705a97407f38fd821be3",
-      "a1606d67090f1b74aa5da9a0b8cc6a9115c3c4f075cd820cb42342e18567c2e7"
+      "1777bb874f7203875f2b1f9e13cbec38621795669d4ea5f7ec9bdb3d6a44a421"
     ]
   },
   {
-    "id": "cv26-09c85dc2e9244932",
-    "text": "Els llops són gossos lliures i s'han de protegir i cuidar. Els coloms formen part de la terra, els hem de protegir i cuidar.",
+    "id": "cv26-c5bb129ebb87e1ef",
+    "text": "S'escampava sobre l'Albufera una llum freda i blavosa, que donava a la seua superfície el dur reflex de l'acer.",
     "sentenceIds": [
-      "faa5e2248ceebcc5ce2105ab08fcc6347759abe23574a4c95cccfe2f7a72d745",
-      "0aa9d3cf12681e6f4ce32945a52d31dba946c63ef2cdedb98c6f2e744d911109"
+      "5a9db0dfafaef02bef46e1cf4afac149eabf596d33b4cf8a998051f0414212e4"
     ]
   },
   {
-    "id": "cv26-bee7e6800096a8b4",
-    "text": "Dora sense preocupar-se gaire de qui l'escolta—. Però l'escolta fascinat. La Napeu se l'escolta des de la cuina, admirada.",
+    "id": "cv26-6d9d9b8d1782177a",
+    "text": "Mira'm quina és la millor manera d'anar dels jardins de Maria Àngels Anglada i d'Abadal al carrer del Degà Bahí.",
     "sentenceIds": [
-      "873602124667fd6f5dd6f8c01dde87bab5f532299a98eee0af4bb3ea9b01e12d",
-      "d7edb2f882dc4fcc7c2a1a5a8334e3e08e3b90a15f9300e964334e791b0c1237",
-      "d01f04fc4001c0f7f6315c345643b0264e920744e1d125cbd6ff78e0c0734e32"
+      "2aa12c30092f8e8d3ce09def14eae96efae8601bdb247da7bac906b1248d2d15"
     ]
   },
   {
-    "id": "cv26-857c2375a0eca085",
-    "text": "Les façanes estan realitzades en pedra artificial íntegrament. Les dos façanes estan adornades amb dos senzills frontons triangulars.",
+    "id": "cv26-e09d8dda4ee389a6",
+    "text": "Ara t'enviaré una imatge meua i així podràs fer-te una idea exacta de com són els habitants d'altres galàxies.",
     "sentenceIds": [
-      "0647d2d4b33eddaf7003b66eadb2b35c94f01da4af8e702c5e49201c2b94e668",
-      "70c2ad060d81ce0eacb7cfb8c6e3dd876d0df52b59757c04a6404185cd691c29"
+      "a40a4a115b14bbe8b6fbbcec02b71b38465b87e321dbe94dc12e2f76a1721b1a"
     ]
   },
   {
-    "id": "cv26-69bba9de7a928154",
-    "text": "Algun dia podíeu venir ací també, a estudiar, no creus? Per a què van venir a estudiar? No va venir aquella nit.",
+    "id": "cv26-d5bc3cb73ffd8549",
+    "text": "La distància màxima des del marge fins a la darrera fila de plantes conreades no podrà ser superior a dos-cents metres.",
     "sentenceIds": [
-      "fb6230e74ffee4d330dd84c2b5cbb12329cffcb6b588e9c8509876fd067cb3e9",
-      "22c0ee127ecc829edd31a1422b0fde43ce2f9bb49e826fff020b82b0dc9b5ec2",
-      "de8e246ec9ed15796838195cf64ed26d9473a207814166f52cf0f00c5e9a6c3b"
+      "9e712841f7e9a8c89c8e9b47d8694eaba76a4ff07d468a1d3d875e85852cee37"
     ]
   },
   {
-    "id": "cv26-ad37496b532206ec",
-    "text": "Ha participat en festivals internacionals de poesia. A més, ha estat guardonada en la seua gira per festivals internacionals.",
+    "id": "cv26-56846e19942b975a",
+    "text": "Tot i que es trobava prostrat al llit, va continuar executant el seu imperi criminal fins que Dagger gairebé el mata.",
     "sentenceIds": [
-      "04bbc83634ad94aa4a98ef09d3a2fbdc4b7f872c144ea7411e230a06e8dbc2b9",
-      "bfe3635eb47632c9fd9d613f7fa29664eae3230ee69a6ab116b7871b9661f792"
+      "f9513a428691a1d0a447defd7e03607af70334b19f54e9e57a4b9290249cac9c"
     ]
   },
   {
-    "id": "cv26-e165f27d42ad46cb",
-    "text": "Mare de Déu de Requesens, advocada dels mongets. Cagar-se en la Mare de Déu. Per la Mare de Déu de la Candelera, l'ou enrere.",
+    "id": "cv26-5c02a1e7af895b9c",
+    "text": "No m'agradaria acabar sense fer una petita conclusió sobre el programari lliure, el seu impacte en el nostre entorn, i el seu futur més immediat.",
     "sentenceIds": [
-      "ce6233dd755ef6e48c84e819c6aa248ea4e2f7e272d960b9d6f2b57dbf2c9b42",
-      "f5b7c7acc6593cdbbbc01316af61b0113d360078daff44bf76a7e1e184b7f76f",
-      "b8c7e3a0e5dfc930c009ce034c2cef6905558d6290cd8902eeb71904c3505ca7"
+      "6f410879f33c604e062ac8f7c1dbf4d1af90b1cc39faa50e34a167ae4feace2a"
     ]
   },
   {
-    "id": "cv26-1e0eaaf4495645b0",
-    "text": "Per menjar peres primer cal plantar l'arbre. Per menjar olives primer cal plantar l'arbre. Per menjar taronges primer cal plantar l'arbre.",
+    "id": "cv26-44cf4203129648fc",
+    "text": "Francesc Nel·lo i Ventosa va ser un ninotaire, dibuixant, escenògraf, interiorista i restaurador nascut a Tarragona.",
     "sentenceIds": [
-      "fac31501483da14c741cb024fe0639cd9adf724c2abc8cff21f6487d82fe8247",
-      "ffb683173415cd6419779a6d09456b48a629ff359897a6e3ec7e3ed22dd8a8c6",
-      "b5cb1227c1212eebbfd46629aaac6de75e917c1da02ebf9d0378f5a0dad0ea42"
+      "5c6caaa89d0442e58aadfeeee4f8678cae04c30da75f86f7757ec0a9eeb5d5b1"
     ]
   },
   {
-    "id": "cv26-267d254d50c3ffda",
-    "text": "No tenir ningú que el governi. No fiïs a ningú ni et fiïs de ningú. No ofenguis mai a ningú, ni t'ofenguis a tu.",
+    "id": "cv26-dd5313ec1eda265d",
+    "text": "El seu Paper Group treballa amb arxius i biblioteques en la conservació i restauració de les seves col·leccions.",
     "sentenceIds": [
-      "d9dda457e33d1918c48a3c0f37a867fbe3257538455296041959d8ab15af1fc3",
-      "32c22da9f9e6f738a53b6e29c7d0193068ff2fea17cd0adb5faabf73a4c8925b",
-      "a1856ad864ed72ee435dcb197522a68f7772592568dc4ced481ea6958f6fc3b3"
+      "3882b973e4461c9df26ea0ba9e5973f5e9e2b08726fd80d10512ee8e80601ff3"
     ]
   },
   {
-    "id": "cv26-0f22f921aeda2429",
-    "text": "Pertany al moviment independentista el Benvingut? Pertany al moviment independentista el Joan? Pertany al moviment independentista la Marina?",
+    "id": "cv26-6aaa8c019607eca8",
+    "text": "Qualsevol pot col·laborar en el projecte, bé escrivint articles nous, o bé corregint i ampliant els que ja hi ha.",
     "sentenceIds": [
-      "fabd6337bccfb67bf56169b4f324ea8fa5747ea86d840a352b412a3ccd5842e1",
-      "3dca9d386504756b0a991be9960431556bc3426dd15f6f8a09291f3d95981440",
-      "977c479b2422306baf2e458594f3e62ee2f89bd66c4d6a32f853ede630d49bb7"
+      "35230c9bcd46b2463436a1d8ac00b1356f26d3e21e76dc2d9d09c201d5ce0e75"
     ]
   },
   {
-    "id": "cv26-fc60149acc3c5f9d",
-    "text": "El vint-i-tres de maig en Nico vol anar a la biblioteca. Per Cap d'Any en Nico vol anar a la platja. Dijous en Nico irà d'excursió.",
+    "id": "cv26-886138b8c83f6135",
+    "text": "Mira'm quina és la millor manera d'anar del carrer dels Safareigs al carrer de la Santíssima Trinitat del Mont.",
     "sentenceIds": [
-      "240315f9680e4a5ef2788e0436b70e45bdfb45cb3ed2e2c8e312c1a9f0add4d7",
-      "afe9b94b25d996dd05064862a996160afbd0e730565406be9c37c80d6c4692af",
-      "3e85c8ddf4ef73f014d1b4f0759d76086c40134c00c456fa76df7a875b33b674"
+      "809eec19ed9ab23ff9165b231985907cb34f352695e378d196b059a5b65ccdd5"
     ]
   },
   {
-    "id": "cv26-dcc87ae4c6b26822",
-    "text": "La veritat és que la redescoberta ens deixà indiferents. La veritat és que la redescoberta ens deixà diferents.",
+    "id": "cv26-dd9e12473e2c6585",
+    "text": "Algunes fan que s'augmenti el rendiment fins a un cinquanta per cent, com es pot llegir en aquest article en anglès.",
     "sentenceIds": [
-      "c48416f3cb46b021499c830b53f8fed12491afddea571c68fda91572855823a7",
-      "68fb6c17b089e76e9fb4e51a4a2d823ee99daed9e614c32df963a70b19345e6a"
+      "a42a64008f4f4ae7d8d1304d1afe7da620860cd51daac42de30ea331f3aebb56"
     ]
   },
   {
-    "id": "cv26-baba9f6fb4356e7a",
-    "text": "Quan li contava això, a cada moment es distreia escoltant els sorolls del carrer. Si et fa un servei, te'l retreu a cada moment.",
+    "id": "cv26-478a1c5c18e3d872",
+    "text": "Regne Unit, amb onze milions cinc-cents quaranta-dos mil cent quaranta-tres casos i cent quaranta-set mil quatre-cents trenta-tres morts.",
     "sentenceIds": [
-      "7ba2d435ba00a9cfaa3bd174ef98aecf0568a820520e275adae257d9e4438179",
-      "924e9963630c831d5bfe0d383607ae783d9a4d223a7867b7b3809abf0afd7754"
+      "334cac0f557bbbf980681347e1f2db5364bd1c3780e7447da50d0b51c44cb69c"
     ]
   },
   {
-    "id": "cv26-e9a3ccfcfa5f1dd4",
-    "text": "Transgredeix realment aquesta acció de Trump la primera esmena? A qui es va fer la primera? Qui va ser la primera a aparèixer?",
+    "id": "cv26-d2be22d96f001db2",
+    "text": "L'Anna ens va presentar una primera versió de l'arbre de continguts durant la trobada anual del dos mil catorze.",
     "sentenceIds": [
-      "0f53f6a7ffcb56f3344c65fbd1d5a1c0a6863a70d480e70f420f4ae53dc3ae52",
-      "0786e453740539ac01cfcfe0c2a6335f9439688ecb4fb8023e4613d0d08de156",
-      "d0dc576ddd44f0f8afe4d37496ed06c7f02a790f2195a6408bd6abd2fdd7a557"
+      "b143e06593a38237fff9945b2bcc9b939096cba4edc5d21bac26c3d1df6128ee"
     ]
   },
   {
-    "id": "cv26-4612e005b8e635c8",
-    "text": "Què puc prendre per reforçar la memòria? Com ens ho hem de prendre tot això? Crec que aniré a prendre un cafè.",
+    "id": "cv26-fa4c2e296a5e5dff",
+    "text": "Més tard aquell mateix any, va guanyar als punts el boxejador olímpic Art Binkowski, que no havia conegut encara la derrota.",
     "sentenceIds": [
-      "f9b8ba09449253bf84afa4662a3c8b74a1ff06491d29d59413186d2a3695cfa2",
-      "282269a4f5cef226e93268ea0d4d8aeac7e878e399c31d17e9eaadde9c6ed6c0",
-      "a8ce19dd32670a2f1baaae4e408588ebd3d2767bf5c5d48523d47eee932565ea"
+      "54a00c929902160f9f544b4198a8ef2b5dfca3c2d9bf477c0cbe790e3470c611"
     ]
   },
   {
-    "id": "cv26-2b52d114d48ea2e3",
-    "text": "La representació s'acaba amb la separació amistosa dels protagonistes. La representació d'un jo. I se la pren d'un glop.",
+    "id": "cv26-6a527d5dd8ae9d0a",
+    "text": "La reacció immediata de les discogràfiques i d'alguns grups musicals fou perseguir legalment el fenomen de la forma més contundent possible.",
     "sentenceIds": [
-      "4227e7a4768af1c12e959ed17c29077276e6ef8158a8a201d6790bb6b2b81c6e",
-      "213dab48fe338712b82fa0b6aff474450851060ba6976d2df3ef6cbda827e85e",
-      "584820f152f447bb84abc53d731137b3e4043b870a9d0c9a1004f3b4373914b2"
+      "d178617f30ee3be1ce84d6ee6df42f6570c30d682f35442bb87d72c4abfa9be0"
     ]
   }
 ]

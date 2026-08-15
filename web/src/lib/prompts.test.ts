@@ -33,16 +33,7 @@ describe("READ_ALOUD_PROMPTS", () => {
       expect(prompt.text.length).toBeLessThanOrEqual(170);
       expect(prompt.text.split(/\s+/).length).toBeGreaterThanOrEqual(16);
       expect(prompt.text.split(/\s+/).length).toBeLessThanOrEqual(26);
-      expect(prompt.sentenceIds.length).toBeGreaterThanOrEqual(1);
-      expect(prompt.sentenceIds.length).toBeLessThanOrEqual(3);
-      if (prompt.sentenceIds.length > 1) {
-        expect(prompt.text).toMatch(/[.!?…]["'»”’)\]]*\s+\S/);
-      }
-      const sentences = prompt.text
-        .split(/(?<=[.!?])\s+/)
-        .map((sentence) => sentence.trim())
-        .filter(Boolean);
-      expect(new Set(sentences).size).toBe(sentences.length);
+      expect(prompt.sentenceIds).toHaveLength(1);
       for (const sentenceId of prompt.sentenceIds) {
         expect(sentenceId).toMatch(/^[0-9a-f]{64}$/);
       }

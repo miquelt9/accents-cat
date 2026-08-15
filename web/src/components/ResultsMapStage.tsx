@@ -143,7 +143,6 @@ export function ResultsMapStage({
               );
             })}
           </div>
-          <p className="results-ranking-hint">Toca un accent per veure&apos;l al mapa</p>
         </div>
 
         <DialectMap

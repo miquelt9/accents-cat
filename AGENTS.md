@@ -58,7 +58,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - Research-consented sessions keep every take's audio, prompt, scores, final merged result and one linked feedback outcome (not anonymity — the voice itself is personal data). Train filter: `research_consent=1 AND deleted_at IS NULL`.
 - Retention: max ~3 years from session consent (`ORACLE_RESEARCH_RETENTION_YEARS`, default 3). Operator purge: `python scripts/purge_expired_research.py`. Session/take delete: `python scripts/soft_delete_submission.py <session-or-recording-uuid>`.
 - Privacy contact + controller name come from build env: `VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME` ([`web/.env.example`](web/.env.example)). Until set, UI shows provisional `privacy@example.com`. Deletion is email → soft-delete script, not an automated API in v1.
-- In-app Catalan **Política de privadesa** / **Termes d'ús**: [`web/src/lib/legalDocs.ts`](web/src/lib/legalDocs.ts) (`LEGAL_POLICY_VERSION`, currently `10 d'agost de 2026`, must match backend `ORACLE_POLICY_VERSION` / default). Not legal advice; set contact + controller name before public launch.
+- In-app Catalan **Política de privadesa** / **Termes d'ús**: [`web/src/lib/legalDocs.ts`](web/src/lib/legalDocs.ts) (`LEGAL_POLICY_VERSION`, currently `15 d'agost de 2026`, must match backend `ORACLE_POLICY_VERSION` / default). Not legal advice; set contact + controller name before public launch.
 - Do not frame feedback or results as geographic origin detection; the comarca is user-declared and optional, and Privadesa says so explicitly.
 
 ## Safe edit boundaries
@@ -135,7 +135,7 @@ From `backend/app.py`:
 
 Keep backend and mock client evidence-band thresholds in sync when changing map copy; validation gate is independent.
 
-Read-aloud prompts: the generated CV26 pool in [`web/src/lib/readAloudPrompts.generated.ts`](web/src/lib/readAloudPrompts.generated.ts), selected through [`web/src/lib/prompts.ts`](web/src/lib/prompts.ts); `/analyze` stores `promptId` + `promptText` + the original CV26 `sentenceIds` on each pending submission row. Regenerate with `python scripts/build_read_aloud_prompts.py` after updating the local CV26 metadata.
+Read-aloud prompts: the generated CV26 pool in [`web/src/lib/readAloudPrompts.generated.ts`](web/src/lib/readAloudPrompts.generated.ts), selected through [`web/src/lib/prompts.ts`](web/src/lib/prompts.ts). Each prompt is one intact sentence in the 110–170 character / 16–26 word window (no joined fragments); `/analyze` stores `promptId` + `promptText` + the original CV26 `sentenceIds` on each pending submission row. Regenerate with `python scripts/build_read_aloud_prompts.py` after updating the local CV26 metadata.
 
 ## Documentation
 

@@ -1,7 +1,7 @@
 /**
- * Runtime read-aloud prompts generated from the CV26 validated sentence
- * catalogue. The previous handcrafted contrastive scripts remain useful
- * research material, but are intentionally not selected for live takes.
+ * Runtime read-aloud prompts generated from intact CV26 sentences that
+ * already fit the length window. The previous handcrafted contrastive
+ * scripts remain useful research material, but are not selected for live takes.
  */
 
 import { GENERATED_READ_ALOUD_PROMPTS } from "./readAloudPrompts.generated";

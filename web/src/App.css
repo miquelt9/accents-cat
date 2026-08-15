@@ -1,6 +1,7 @@
 main {
   box-sizing: border-box;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.25rem;
   margin: 0 auto;
   max-width: 1180px;
@@ -507,6 +508,14 @@ h2 {
   gap: 0.75rem;
   justify-content: center;
   margin-top: 0.35rem;
+}
+
+.restart-flow-anchor {
+  margin-top: auto;
+}
+
+.app-shell:has(.restart-flow-anchor) .privacy-footer {
+  margin-top: 0;
 }
 
 .results-share-button {
@@ -1176,6 +1185,31 @@ h2 {
   margin: 0;
 }
 
+.feedback-sheet--modal {
+  align-items: center;
+  bottom: auto;
+  height: var(--feedback-viewport-height, 100dvh);
+  left: 0;
+  padding: 0.75rem;
+  right: 0;
+  top: var(--feedback-viewport-top, 0px);
+}
+
+.feedback-sheet--modal .feedback-sheet-panel {
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: 22px;
+  max-height: min(calc(var(--feedback-viewport-height, 100dvh) - 1.5rem), 720px);
+  width: min(100%, 28rem);
+}
+
+.feedback-sheet--modal .feedback-sheet-handle {
+  display: none;
+}
+
+.feedback-sheet--modal .feedback-sheet-chrome {
+  touch-action: auto;
+}
+
 @media (min-width: 640px) {
   .feedback-sheet {
     align-items: center;
@@ -1254,6 +1288,10 @@ h2 {
   max-width: 28rem;
 }
 
+.feedback-sheet-panel--comarca .feedback-sheet-body--comarca {
+  min-height: 0;
+}
+
 .feedback-dialect-grid {
   display: grid;
   gap: 0.55rem;
@@ -1292,6 +1330,10 @@ h2 {
   text-align: left;
 }
 
+.comarca-picker-label-mobile {
+  display: none;
+}
+
 .comarca-picker-label {
   color: var(--text-muted);
   font-size: 0.78rem;
@@ -1319,6 +1361,14 @@ h2 {
 .comarca-picker-input:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.comarca-picker-search-hint {
+  color: var(--text-muted);
+  display: none;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .comarca-picker-list {
@@ -1381,14 +1431,24 @@ h2 {
 }
 
 .comarca-picker-check {
-  color: var(--accent);
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--text-muted);
+  border-radius: 4px;
+  color: var(--accent-contrast);
   display: inline-flex;
   flex-shrink: 0;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   font-weight: 900;
+  height: 1.1rem;
   justify-content: center;
-  min-height: 1.1rem;
-  min-width: 1.1rem;
+  line-height: 1;
+  width: 1.1rem;
+}
+
+.comarca-picker-option.is-checked .comarca-picker-check {
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .comarca-picker-selected {
@@ -1432,6 +1492,62 @@ h2 {
 
   .comarca-picker-list {
     max-height: min(46dvh, 320px);
+  }
+}
+
+@media (max-width: 639px) {
+  .comarca-picker-label-desktop {
+    display: none;
+  }
+
+  .comarca-picker-label-mobile {
+    display: inline;
+  }
+
+  .comarca-picker:not(.has-query) .comarca-picker-list {
+    display: none;
+  }
+
+  .comarca-picker:not(.has-query) .comarca-picker-search-hint {
+    display: block;
+  }
+
+  .feedback-sheet--modal .feedback-sheet-panel--comarca {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: min(calc(var(--feedback-viewport-height, 100dvh) - 1.5rem), 640px);
+    overflow: hidden;
+    padding: 0.75rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .feedback-sheet--modal .feedback-sheet-panel--comarca .feedback-sheet-body--comarca {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.7rem;
+    overflow: hidden;
+  }
+
+  .feedback-sheet--modal .feedback-sheet-panel--comarca .comarca-picker {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .feedback-sheet--modal .feedback-sheet-panel--comarca .comarca-picker-list {
+    flex: 1 1 auto;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .feedback-sheet--modal .feedback-comarca-actions {
+    background: var(--surface-strong, var(--surface));
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+    position: sticky;
+    bottom: 0;
   }
 }
 
@@ -1563,18 +1679,39 @@ h2 {
   margin: 0.35rem 0 0;
 }
 
-.recording-main {
-  grid-template-rows: auto minmax(0, 1fr) auto;
-}
-
 .recording-main .prompt-card {
   align-self: center;
   height: fit-content;
+  margin-block: auto;
   width: 100%;
+}
+
+.recording-main .restart-flow-anchor {
+  margin-top: 0;
 }
 
 .prompt-card .recorder-panel {
   margin-top: 1.35rem;
+}
+
+.restart-flow-button {
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 1rem auto 0;
+  padding: 0.35rem 0.15rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.restart-flow-button:hover {
+  color: var(--text-primary);
 }
 
 .recorder-panel {
@@ -1871,13 +2008,6 @@ h2 {
   font-size: 0.88rem;
   line-height: 1.5;
   margin: 0;
-}
-
-.results-ranking-hint {
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  font-weight: 600;
-  margin: 0.15rem 0 0;
 }
 
 .dialect-map {

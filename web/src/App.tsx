@@ -109,6 +109,7 @@ function App() {
   const [rememberedComarques, setRememberedComarques] = useState<string[]>([]);
   const [shareOpen, setShareOpen] = useState(false);
   const [devResultsScores, setDevResultsScores] = useState<AccentScores | null>(null);
+  const flowGenerationRef = useRef(0);
   const leavePurgeRef = useRef({
     phase,
     result,
@@ -254,6 +255,7 @@ function App() {
   }, [chromeOverlay]);
 
   function resetFlow() {
+    flowGenerationRef.current += 1;
     declinePendingAnalysis(analysisSessionId);
     resetMockAnalyzeOrdinal();
     // Only carry consent after an affirmative retain earlier in this visit
@@ -302,6 +304,7 @@ function App() {
     terminalState: "results" | "skipped-third" | "unresolved",
     sessionId: string | null = analysisSessionId,
   ) {
+    const generation = flowGenerationRef.current;
     setResult(next);
     setPendingResult(null);
     const unresolved = terminalState === "unresolved" || needsValidation(next);
@@ -318,11 +321,17 @@ function App() {
           takeCount,
           terminalState: unresolved ? "unresolved" : terminalState,
         });
+        if (generation !== flowGenerationRef.current) {
+          return;
+        }
         trackUiEvent("analysis_finalized");
         if (unresolved) {
           trackUiEvent("analysis_unresolved");
         }
       } catch {
+        if (generation !== flowGenerationRef.current) {
+          return;
+        }
         setAnalysisError("No s'ha pogut desar el resultat de la sessió.");
       }
     }
@@ -397,12 +406,21 @@ function App() {
 
   async function skipThird() {
     if (result) {
+      const generation = flowGenerationRef.current;
       setIsAnalyzing(true);
       trackUiEvent("third_take_skipped");
       await finalizeDisplayedResult(result, terminalTakeCount || 2, "skipped-third");
-      setIsAnalyzing(false);
+      if (generation === flowGenerationRef.current) {
+        setIsAnalyzing(false);
+      }
     }
   }
+
+  const restartFlowButton = (
+    <button className="restart-flow-button" onClick={resetFlow} type="button">
+      Torna a començar
+    </button>
+  );
 
   function switchOracleMode() {
     const nextMode = cycleAccentOracleMode(accentOracleMode);
@@ -419,6 +437,7 @@ function App() {
 
     setAnalysisError(null);
     setIsAnalyzing(true);
+    const generation = flowGenerationRef.current;
     trackUiEvent("analyze_pressed");
 
     try {
@@ -427,6 +446,9 @@ function App() {
         promptText: activePrompt.text,
         sentenceIds: activePrompt.sentenceIds,
       }, analysisSessionId ?? undefined);
+      if (generation !== flowGenerationRef.current) {
+        return;
+      }
       trackUiEvent("analysis_completed");
       if (nextResult.analysisSessionId && !analysisSessionId) {
         setAnalysisSessionId(nextResult.analysisSessionId);
@@ -470,11 +492,16 @@ function App() {
         );
       }
     } catch (error) {
+      if (generation !== flowGenerationRef.current) {
+        return;
+      }
       setAnalysisError(
         error instanceof Error ? error.message : "L'anàlisi ha fallat. Prova de gravar una altra mostra.",
       );
     } finally {
-      setIsAnalyzing(false);
+      if (generation === flowGenerationRef.current) {
+        setIsAnalyzing(false);
+      }
     }
   }
 
@@ -493,6 +520,8 @@ function App() {
 
   const showRecorder =
     (phase === "recording" || phase === "validation" || phase === "refine") && activePrompt;
+  const showRestartControl =
+    Boolean(showRecorder) || phase === "offer-third" || phase === "results";
   const takeIndexLabel =
     phase === "refine" ? "Lectura 3" : phase === "validation" ? "Lectura 2" : "Lectura 1";
 
@@ -505,7 +534,7 @@ function App() {
 
   return (
     <main
-      className={`app-shell ${phase === "landing" ? "landing-main" : ""} ${showRecorder ? "recording-main" : ""}`.trim()}
+      className={`app-shell ${phase === "landing" ? "landing-main" : ""} ${showRecorder || phase === "offer-third" ? "recording-main" : ""}`.trim()}
     >
       <div className="theme-toggle-row">
         {devToolsEnabled && (
@@ -634,7 +663,6 @@ function App() {
             {phase === "validation" ? (
               <>
                 <h2>Encara no n&apos;estem del tot segurs</h2>
-                <p>Hem rebut la primera lectura. Llegeix un altre text per confirmar el resultat.</p>
                 {devToolsEnabled && pendingResult && (
                   <p className="validation-note">
                     <span className="dev-only-hint">*dev mode</span> Les zones més properes són{" "}
@@ -711,7 +739,20 @@ function App() {
             onResearchDeclined={clearVisitResearchConsent}
             onComarquesSaved={setRememberedComarques}
           />
-          <div className="results-share-row">
+          {shareOpen && (
+            <ShareResultsModal
+              scores={resultsScores}
+              theme={theme}
+              unresolved={terminalUnresolved}
+              onClose={() => setShareOpen(false)}
+            />
+          )}
+        </>
+      )}
+
+      {showRestartControl &&
+        (phase === "results" ? (
+          <div className="results-share-row restart-flow-anchor">
             <button
               className="secondary results-share-button"
               onClick={() => {
@@ -738,16 +779,9 @@ function App() {
               Torna a començar
             </button>
           </div>
-          {shareOpen && (
-            <ShareResultsModal
-              scores={resultsScores}
-              theme={theme}
-              unresolved={terminalUnresolved}
-              onClose={() => setShareOpen(false)}
-            />
-          )}
-        </>
-      )}
+        ) : (
+          <div className="restart-flow-anchor">{restartFlowButton}</div>
+        ))}
 
       {chromeOverlay && (
         <div

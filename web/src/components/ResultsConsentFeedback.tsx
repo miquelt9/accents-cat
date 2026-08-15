@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   AnimatePresence,
   animate,
@@ -114,6 +120,7 @@ export function ResultsConsentFeedback({
   const dragControls = useDragControls();
   const sheetY = useMotionValue(0);
   const backdropOpacity = useTransform(sheetY, [0, 260], [1, 0.2]);
+  const [visualViewportStyle, setVisualViewportStyle] = useState<CSSProperties>({});
   const [isCompact, setIsCompact] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia("(max-width: 639px)").matches : false,
   );
@@ -140,7 +147,7 @@ export function ResultsConsentFeedback({
     setSelectedComarques(remembered.length > 0 ? [...remembered] : []);
   }
 
-  const canDragSheet = isCompact && !reduceMotion && !isSubmitting;
+  const canDragSheet = isCompact && !reduceMotion && !isSubmitting && step !== "comarca";
   useFocusTrap(sheetPanelRef, sheetOpen && !legalDoc);
   useFocusTrap(legalLayerRef, legalDoc != null, legalDoc);
 
@@ -158,7 +165,7 @@ export function ResultsConsentFeedback({
       sheetY.set(0);
       return;
     }
-    if (reduceMotion) {
+    if (reduceMotion || step === "comarca") {
       sheetY.set(0);
       return;
     }
@@ -170,7 +177,35 @@ export function ResultsConsentFeedback({
       mass: 0.85,
     });
     return () => controls.stop();
-  }, [sheetOpen, reduceMotion, sheetY]);
+  }, [sheetOpen, reduceMotion, sheetY, step]);
+
+  useEffect(() => {
+    if (!sheetOpen || step !== "comarca") {
+      return;
+    }
+
+    const visualViewport = window.visualViewport;
+    const syncViewport = () => {
+      const height = visualViewport?.height ?? window.innerHeight;
+      const offsetTop = visualViewport?.offsetTop ?? 0;
+      const keyboardInset = Math.max(0, window.innerHeight - height - offsetTop);
+      setVisualViewportStyle({
+        "--feedback-viewport-top": `${offsetTop}px`,
+        "--feedback-viewport-height": `${height}px`,
+        "--feedback-keyboard-inset": `${keyboardInset}px`,
+      } as CSSProperties);
+    };
+
+    syncViewport();
+    visualViewport?.addEventListener("resize", syncViewport);
+    visualViewport?.addEventListener("scroll", syncViewport);
+    window.addEventListener("resize", syncViewport);
+    return () => {
+      visualViewport?.removeEventListener("resize", syncViewport);
+      visualViewport?.removeEventListener("scroll", syncViewport);
+      window.removeEventListener("resize", syncViewport);
+    };
+  }, [sheetOpen, step]);
 
   useEffect(() => {
     if (!preConsented || (!analysisSessionId && !recordingId) || promoted || step !== "promoting") {
@@ -526,12 +561,13 @@ export function ResultsConsentFeedback({
         {sheetOpen && (step === "consent" || step === "comarca") && (
           <motion.div
             key="feedback-sheet"
-            className="feedback-sheet"
+            className={`feedback-sheet${step === "comarca" ? " feedback-sheet--modal" : ""}`}
             role="presentation"
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0 }}
             transition={{ duration: 0.2 }}
+            style={visualViewportStyle}
           >
             <motion.button
               aria-label="Tanca"
@@ -542,7 +578,9 @@ export function ResultsConsentFeedback({
             />
             <motion.div
               ref={sheetPanelRef}
-              className="feedback-sheet-panel"
+              className={`feedback-sheet-panel${
+                step === "comarca" ? " feedback-sheet-panel--comarca" : ""
+              }`}
               role="dialog"
               aria-modal="true"
               aria-labelledby={sheetTitleId}
@@ -560,7 +598,9 @@ export function ResultsConsentFeedback({
               transition={{ duration: 0.2 }}
             >
               <div
-                className={`feedback-sheet-chrome${canDragSheet ? " is-draggable" : ""}`}
+                className={`feedback-sheet-chrome${canDragSheet ? " is-draggable" : ""}${
+                  step === "comarca" ? " feedback-sheet-chrome--modal" : ""
+                }`}
                 onPointerDown={startSheetDrag}
               >
                 <div className="feedback-sheet-handle" aria-hidden="true" />

@@ -41,8 +41,7 @@ export function ManageMyData({ onBack, onOpenPrivacy, onOpenTerms }: ManageMyDat
       <p className="eyebrow">Privadesa</p>
       <h2>Gestiona les meves dades</h2>
       <p>
-        En mode API, només desem al servidor les gravacions de les sessions que has acceptat desar per a recerca després
-        del resultat. Si vols demanar la supressió de les teves gravacions o comentaris, copia la
+        En mode API, només desem al servidor les gravacions de les sessions que has acceptat desar per a recerca. Els identificadors d&apos;aquesta pàgina es guarden en aquest navegador. Si canvies de dispositiu o esborres les dades del lloc, sovint no podrem localitzar les gravacions. Si encara tens els IDs i vols demanar la supressió de les còpies que controlem, copia la
         informació següent i envia-la a{" "}
         <a className="inline-link" href={mailtoHref}>
           {PRIVACY_EMAIL}
