@@ -5,17 +5,9 @@
 
 **Quin és el meu accent en català?** — An open research prototype that estimates which *macro dialect area* your Catalan speech sounds most acoustically similar to, inspired by [BoldVoice Accent Oracle](https://www.boldvoice.com/accent-oracle) and powered by [BSC-LT's](https://huggingface.co/BSC-LT) Catalan speech foundation models (Projecte AINA).
 
-Record yourself reading a short Catalan passage (or upload audio), and the app computes a calibrated similarity heatmap across five dialect zones — not a claim about where you are from, but an acoustic proximity indicator.
+Record yourself reading a short Catalan passage (or upload audio), and the app computes a calibrated similarity heatmap across five dialect zones (`central`, `valencian`, `northwestern`, `northern`, `balearic`) — not a claim about where you are from, but an acoustic proximity indicator.
 
-## What this is (and is not)
-
-| This project does | This project does not |
-| --- | --- |
-| Compare your recording to five macro Catalan dialect areas | Pinpoint your town, comarca, or birthplace |
-| Show calibrated similarity scores on a map of the Catalan-speaking territories | Replace linguistic expertise or self-identification |
-| Mandatory second take when confidence is low; optional third if still unsure | Guarantee accuracy on short or noisy clips |
-
-**Dialect zones:** `central`, `valencian`, `northwestern`, `northern`, `balearic`.
+https://github.com/user-attachments/assets/622d7309-2df2-4f1d-85de-f2d368378e4d
 
 ## Prerequisites
 
