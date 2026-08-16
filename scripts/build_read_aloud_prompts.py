@@ -27,16 +27,26 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = PROJECT_ROOT / "data/metadata/cv26-ca/validated_sentences.tsv"
 DEFAULT_OUTPUT = PROJECT_ROOT / "web/src/lib/readAloudPrompts.generated.ts"
 
-TARGET_PROMPTS = 300
+TARGET_PROMPTS = 1000
 MIN_PROMPT_CHARS = 110
 MAX_PROMPT_CHARS = 170
 MIN_PROMPT_WORDS = 16
 MAX_PROMPT_WORDS = 26
 MAX_CANDIDATES_PER_SOURCE = 3000
 MAX_SOURCE_BUCKETS = 12
+MAX_SENTENCES_PER_PREFIX = 1
 PROGRESS_INTERVAL_ROWS = 100_000
 
 SENTENCE_ID_RE = re.compile(r"^[0-9a-f]{64}$")
+COVID_STATS_RE = re.compile(r"\b(?:casos|morts|positius|defuncions|contagis)\b", re.IGNORECASE)
+NUMBER_WORDS_RE = re.compile(
+    r"\b(?:milions?|milers?|vuit-cents|tres-cents|quatre-cents|cinc-cents|sis-cents|set-cents|nou-cents|dos-cents|dos mil|tres mil|quatre mil|deu mil)\b",
+    re.IGNORECASE,
+)
+COUNTRY_STATS_TEMPLATE_RE = re.compile(
+    r"^[A-ZÀ-Ú][a-zà-ú\s]+,\s+amb\s+(?:un|dos|tres|quatre|cinc|sis|set|vuit|nou|deu|onze|dotze|setze|[a-z-]+)\s+milions?",
+    re.UNICODE,
+)
 # Official-gazette / Generalitat catalogues are readable Catalan but dry to
 # speak aloud. The source column is enough to down-weight them; they are only
 # used if preferred buckets cannot fill TARGET_PROMPTS.
@@ -103,6 +113,19 @@ def is_bureaucratic_source(source: str) -> bool:
     return bool(BUREAUCRATIC_SOURCE_RE.search(source))
 
 
+def is_formulaic_stats_sentence(text: str) -> bool:
+    if COVID_STATS_RE.search(text) and NUMBER_WORDS_RE.search(text):
+        return True
+    if COUNTRY_STATS_TEMPLATE_RE.search(text):
+        return True
+    return False
+
+
+def prefix_key(text: str, n_words: int = 3) -> str:
+    tokens = [w.lower() for w in text.split()[:n_words]]
+    return " ".join(tokens)
+
+
 ProgressReporter = Callable[[str], None]
 
 
@@ -144,6 +167,7 @@ def reservoir_sentences(
                 not SENTENCE_ID_RE.fullmatch(sentence_id)
                 or not text.isprintable()
                 or not prompt_fits_limits(text)
+                or is_formulaic_stats_sentence(text)
             ):
                 continue
 
@@ -173,6 +197,7 @@ def choose_prompts(
     *,
     target_prompts: int,
     seed: int,
+    max_per_prefix: int = MAX_SENTENCES_PER_PREFIX,
     progress: ProgressReporter | None = None,
 ) -> list[Prompt]:
     ranked_sources = sorted(
@@ -206,6 +231,7 @@ def choose_prompts(
 
     chosen: list[Prompt] = []
     seen_texts: set[str] = set()
+    prefix_counts: dict[str, int] = {}
     while len(chosen) < target_prompts:
         made_progress = False
         for source in active_sources:
@@ -215,7 +241,11 @@ def choose_prompts(
                 key = sentence.text.casefold()
                 if key in seen_texts:
                     continue
+                pfx = prefix_key(sentence.text)
+                if prefix_counts.get(pfx, 0) >= max_per_prefix:
+                    continue
                 seen_texts.add(key)
+                prefix_counts[pfx] = prefix_counts.get(pfx, 0) + 1
                 chosen.append(
                     Prompt(
                         prompt_id=make_prompt_id((sentence.sentence_id,)),
@@ -304,6 +334,11 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=MAX_CANDIDATES_PER_SOURCE,
     )
+    parser.add_argument(
+        "--max-per-prefix",
+        type=int,
+        default=MAX_SENTENCES_PER_PREFIX,
+    )
     return parser.parse_args()
 
 
@@ -331,6 +366,7 @@ def main() -> None:
         buckets,
         target_prompts=args.target_prompts,
         seed=args.seed,
+        max_per_prefix=args.max_per_prefix,
         progress=report,
     )
     if len(prompts) < args.target_prompts:
