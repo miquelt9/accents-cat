@@ -64,7 +64,9 @@ def test_save_audio_and_submission_round_trip(isolated_storage: Path) -> None:
     assert Path(row[2]).name == audio_path.name
     assert row[3] == "pluja-vinya"
     assert row[4] == "La pluja fina cau sobre la vinya vella."
-    assert row[5] == '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]'
+    assert (
+        row[5] == '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]'
+    )
     assert row[6] == 0
     assert row[7] is not None
 
@@ -625,8 +627,7 @@ def test_declining_analysis_session_removes_all_audio_and_unlinks_feedback(
     assert session[0] is not None
     assert session[1:] == (None, 0)
     assert all(
-        row[0] is not None and row[1:] == ("", "{}", "deleted", None)
-        for row in takes
+        row[0] is not None and row[1:] == ("", "{}", "deleted", None) for row in takes
     )
     assert feedback == (None, None, None, 0, "valencian", "safor")
 

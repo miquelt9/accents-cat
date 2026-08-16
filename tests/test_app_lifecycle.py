@@ -225,10 +225,7 @@ def test_analyze_purges_expired_pending_sessions(api_client: TestClient) -> None
         '["short"]',
         '["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdeg"]',
         json.dumps(
-            [
-                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-            ]
-            * 5
+            ["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"] * 5
         ),
     ],
 )
