@@ -20,7 +20,7 @@ Allowlisted product events for Accent Oracle. The browser dual-fires each event 
 | `page_load` | Legacy alias | Prefer `homepage_viewed`; kept for older Grafana series |
 | `recording_started` | Mic `MediaRecorder.start` | After permission granted |
 | `recording_press_hold` | Start pointer was held ≥ ~400 ms | Name only; recording starts on pointer-down. Keyboard is not a hold. |
-| `recording_too_short` | `onstop` with elapsed &lt; 1.5 s | Same path as the too-short error copy |
+| `recording_too_short` | `onstop` with elapsed &lt; 3.0 s | Same path as the too-short error copy |
 | `recording_no_speech` | Retake hint (silence / no qualified speech) | Event name only |
 | `recording_completed` | Recording meets min duration and is handed to analyze | |
 | `analyze_pressed` | User submits a take for `/analyze` | Before the request completes |

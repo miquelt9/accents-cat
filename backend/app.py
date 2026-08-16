@@ -66,8 +66,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_DIR = PROJECT_ROOT / "models/cv26-hubert-svm-calibrated"
 MODEL_PATH = MODEL_DIR / "model.joblib"
 METADATA_PATH = MODEL_DIR / "metadata.json"
-MIN_AUDIO_SECONDS = 1.5
-MAX_AUDIO_SECONDS = float(os.environ.get("ORACLE_MAX_AUDIO_SECONDS", "25"))
+MIN_AUDIO_SECONDS = 3.0
+MAX_AUDIO_SECONDS = float(os.environ.get("ORACLE_MAX_AUDIO_SECONDS", "20"))
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 MAX_NOTES_CHARS = 2000
 MAX_PROMPT_TEXT_CHARS = 500
@@ -287,11 +287,7 @@ def extract_embedding(path: Path) -> np.ndarray:
             detail=f"La gravació és massa curta. Calen almenys {min_secs} segons.",
         )
     if duration > MAX_AUDIO_SECONDS:
-        max_secs = f"{MAX_AUDIO_SECONDS:.0f}"
-        raise HTTPException(
-            status_code=422,
-            detail=f"La gravació és massa llarga. El màxim és de {max_secs} segons.",
-        )
+        audio = audio[: int(MAX_AUDIO_SECONDS * sampling_rate)]
     if not np.isfinite(audio).all() or float(np.max(np.abs(audio))) < 0.005:
         raise HTTPException(
             status_code=422,

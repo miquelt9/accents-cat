@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { useAnalyzingLabel } from "../hooks/useAnalyzingLabel";
+import { useAnalyzingLabel, useCyclingDotsLabel } from "../hooks/useAnalyzingLabel";
 import {
   SILENCE_DURATION_MS,
   SPEECH_RMS_THRESHOLD,
@@ -11,9 +11,9 @@ import { trackUiEvent } from "../lib/telemetry";
 import { MicrophoneWaveform } from "./MicrophoneWaveform";
 
 /** Matches backend `MIN_AUDIO_SECONDS`. */
-export const MIN_RECORD_SECONDS = 1.5;
+export const MIN_RECORD_SECONDS = 3.0;
 /** Matches the backend's default `ORACLE_MAX_AUDIO_SECONDS`. */
-export const MAX_RECORD_SECONDS = 25;
+export const MAX_RECORD_SECONDS = 20;
 /** Pointer-down duration that counts as leftover press-and-hold (name-only telemetry). */
 const PRESS_HOLD_MS = 400;
 
@@ -60,6 +60,7 @@ export function RecorderPanel({
   const ignoreNextClickRef = useRef(false);
   const startedWithThisPointerRef = useRef(false);
   const analyzingLabel = useAnalyzingLabel(analyzing);
+  const recordingLabel = useCyclingDotsLabel(isRecording, "Gravant");
 
   function setRecording(next: boolean) {
     isRecordingRef.current = next;
@@ -309,12 +310,12 @@ export function RecorderPanel({
   const liveStatus = analyzing
     ? analyzingLabel.live
     : isRecording
-      ? "Gravant…"
+      ? recordingLabel.live
       : "";
   const caption = analyzing
     ? analyzingLabel.visible
     : isRecording
-      ? "Gravant… pots deixar anar el botó"
+      ? recordingLabel.visible
       : "Toca un cop per gravar";
 
   return (

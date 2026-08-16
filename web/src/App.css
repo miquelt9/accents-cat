@@ -4,9 +4,10 @@ main {
   flex-direction: column;
   gap: 1.25rem;
   margin: 0 auto;
-  max-width: 1180px;
+  max-width: 880px;
   min-height: 100dvh;
   padding: 2rem;
+  width: 100%;
 }
 
 .app-shell {
@@ -18,6 +19,7 @@ main {
   display: flex;
   gap: 0.65rem;
   justify-content: space-between;
+  min-height: 2.85rem;
   width: 100%;
 }
 
@@ -42,8 +44,9 @@ main {
   border-radius: 999px;
   display: inline-flex;
   gap: 0.45rem;
-  min-height: 44px;
-  padding: 0.35rem 0.55rem 0.35rem 0.75rem;
+  height: 2.85rem;
+  min-height: 2.85rem;
+  padding: 0.28rem 0.55rem 0.28rem 0.75rem;
 }
 
 .dev-tools-label {
@@ -431,7 +434,7 @@ main {
 
 .hero-copy > p:not(.eyebrow) {
   margin: 0.15rem 0 0;
-  max-width: 680px;
+  max-width: 760px;
 }
 
 .card {
@@ -553,7 +556,7 @@ h2 {
 
 .landing-hero {
   align-self: center;
-  grid-template-columns: minmax(0, 760px);
+  grid-template-columns: 1fr;
   justify-content: center;
   min-height: 0;
   width: 100%;

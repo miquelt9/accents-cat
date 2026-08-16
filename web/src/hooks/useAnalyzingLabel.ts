@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 
-export const ANALYZING_LIVE_LABEL = "Analitzant la mostra…";
-
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** Visible analyzing caption with cycling dots; `live` stays stable for aria-live. */
-export function useAnalyzingLabel(active: boolean): { visible: string; live: string } {
+/** Visible caption with cycling dots (. .. ...); `live` stays stable for aria-live. */
+export function useCyclingDotsLabel(
+  active: boolean,
+  baseText: string,
+  intervalMs = 480,
+): { visible: string; live: string } {
   const [reduceMotion, setReduceMotion] = useState(prefersReducedMotion);
   const [dotCount, setDotCount] = useState(1);
+  const liveLabel = `${baseText}…`;
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -25,16 +28,22 @@ export function useAnalyzingLabel(active: boolean): { visible: string; live: str
     }
     const timer = window.setInterval(() => {
       setDotCount((current) => (current >= 3 ? 1 : current + 1));
-    }, 480);
+    }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [active, reduceMotion]);
+  }, [active, intervalMs, reduceMotion]);
 
   if (!active) {
-    return { visible: ANALYZING_LIVE_LABEL, live: ANALYZING_LIVE_LABEL };
+    return { visible: liveLabel, live: liveLabel };
   }
 
-  const visible = reduceMotion
-    ? ANALYZING_LIVE_LABEL
-    : `Analitzant la mostra${".".repeat(dotCount)}`;
-  return { visible, live: ANALYZING_LIVE_LABEL };
+  const visible = reduceMotion ? liveLabel : `${baseText}${".".repeat(dotCount)}`;
+  return { visible, live: liveLabel };
 }
+
+export const ANALYZING_LIVE_LABEL = "Analitzant la mostra…";
+
+/** Visible analyzing caption with cycling dots; `live` stays stable for aria-live. */
+export function useAnalyzingLabel(active: boolean): { visible: string; live: string } {
+  return useCyclingDotsLabel(active, "Analitzant la mostra");
+}
+

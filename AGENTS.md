@@ -46,7 +46,7 @@ API response fields must stay aligned with `AccentOracleResult` in `accentOracle
 - `POST /research-consent` body: `{ analysisSessionId, consent, ageConfirmed?, policyVersion? }` → promotes every pending take in the session → `research_consent=1` (+ `consent_at`, `policy_version`) or soft-deletes the complete session on decline. Train later **only** on `research_consent=1 AND deleted_at IS NULL`.
 - Inference: fixed in-process FIFO worker pool (`ORACLE_WORKERS`, CPU-aware default) with bounded waiting queue (`ORACLE_MAX_QUEUE_SIZE`, default `20`) → HTTP 503 + `Retry-After` when full. `ORACLE_ENCODE_CONCURRENCY` is a deprecated compatibility fallback. HuBERT + classifier inference runs in dedicated worker threads with Torch thread caps.
 - IP sliding-window rate limits: `/analyze` (`ORACLE_ANALYZE_RATE_LIMIT` / `ORACLE_ANALYZE_RATE_WINDOW`, default 10/60s); lighter on `/feedback` and `/research-consent` (30/60s). Set `ORACLE_TRUST_PROXY=1` behind a reverse proxy so `X-Forwarded-For` is used for IP. `client_ip()` feeds the in-memory limiters only — **no IP or User-Agent is ever persisted** (`ensure_storage()` NULLs the legacy columns on boot).
-- Audio caps: min 1.5 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 25) + 20 MB upload.
+- Audio caps: min 3.0 s, max `ORACLE_MAX_AUDIO_SECONDS` (default 20) + 20 MB upload.
 
 ### Feedback + Manage My Data
 
@@ -127,7 +127,7 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 
 From `backend/app.py`:
 
-- Min audio: 1.5 s; max duration: 25 s (env `ORACLE_MAX_AUDIO_SECONDS`); max upload: 20 MB.
+- Min audio: 3.0 s; max duration: 20 s (env `ORACLE_MAX_AUDIO_SECONDS`); max upload: 20 MB.
 - Worker pool defaults from logical CPUs; analyze rate 10/min; feedback/research-consent rate 30/min (see env knobs above). Queue depth, active workers, queue wait, inference duration, total request duration, and rejections are logged / exported through OTLP when enabled.
 - Pending research-consent TTL default 30 minutes (`ORACLE_PENDING_CONSENT_TTL_SECONDS`).
 - `evidenceBand`: `limited` if top-two gap &lt; 0.08 or confidence &lt; 0.32; `strong` if gap &gt; 0.18 and confidence &gt; 0.48.

@@ -516,8 +516,6 @@ function App() {
     (phase === "recording" || phase === "validation" || phase === "refine") && activePrompt;
   const showRestartControl =
     Boolean(showRecorder) || phase === "offer-third" || phase === "results";
-  const takeIndexLabel =
-    phase === "refine" ? "Lectura 3" : phase === "validation" ? "Lectura 2" : "Lectura 1";
 
   const resultsScores =
     phase === "results" && result
@@ -598,7 +596,6 @@ function App() {
             </button>
             {visitResearchConsented ? (
               <p className="landing-preconsent-retained">
-                Col·labores en aquesta visita.{" "}
                 <button
                   className="privacy-link legal-inline-link"
                   onClick={() => openLegalDoc("privacy")}
@@ -670,7 +667,6 @@ function App() {
       {showRecorder && (
         <>
           <section className="card prompt-card">
-            <p className="take-index-label">{takeIndexLabel}</p>
             {phase === "validation" ? (
               <>
                 <h2>Encara no n&apos;estem del tot segurs</h2>
@@ -692,12 +688,6 @@ function App() {
                     </button>
                   </div>
                 )}
-              </>
-            ) : phase === "refine" ? (
-              <>
-                <h2>Encara no n&apos;estem del tot segurs</h2>
-                <p className="read-instruction">Llegeix aquest text en veu alta</p>
-                <blockquote>{activePrompt.text}</blockquote>
               </>
             ) : (
               <>
