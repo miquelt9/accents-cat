@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ChevronRight, MoonStar, Sun } from "lucide-react";
+import { ChevronRight, MoonStar, RotateCcw, Sun } from "lucide-react";
 import "./App.css";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
@@ -104,7 +104,7 @@ function App() {
   const [usedPromptIds, setUsedPromptIds] = useState<string[]>([]);
   const [preConsented, setPreConsented] = useState(false);
   const [researchRetained, setResearchRetained] = useState(false);
-  /** Affirmative research consent earlier in this browser visit (survives «Torna a començar»). */
+  /** Affirmative research consent earlier in this browser visit (survives «Tornar a l'inici»). */
   const [visitResearchConsented, setVisitResearchConsented] = useState(false);
   const [rememberedComarques, setRememberedComarques] = useState<string[]>([]);
   const [shareOpen, setShareOpen] = useState(false);
@@ -416,12 +416,6 @@ function App() {
     }
   }
 
-  const restartFlowButton = (
-    <button className="restart-flow-button" onClick={resetFlow} type="button">
-      Torna a començar
-    </button>
-  );
-
   function switchOracleMode() {
     const nextMode = cycleAccentOracleMode(accentOracleMode);
     setModeOverride(nextMode);
@@ -431,7 +425,7 @@ function App() {
 
   async function analyzeRecording(audio: Blob) {
     if (!activePrompt) {
-      setAnalysisError("No s'ha pogut carregar el text a llegir. Torna a començar.");
+      setAnalysisError("No s'ha pogut carregar el text a llegir. Torna a l'inici.");
       return;
     }
 
@@ -537,40 +531,57 @@ function App() {
       className={`app-shell ${phase === "landing" ? "landing-main" : ""} ${showRecorder || phase === "offer-third" ? "recording-main" : ""}`.trim()}
     >
       <div className="theme-toggle-row">
-        {devToolsEnabled && (
-          <div className="dev-tools-bar" role="group" aria-label="Eines de desenvolupament">
-            <span className="dev-tools-label">Dev</span>
+        <div className="header-nav-side">
+          {showRestartControl && (
             <button
-              aria-pressed={!isApiMode(accentOracleMode)}
-              className="dev-mode-toggle"
-              onClick={switchOracleMode}
+              aria-label="Tornar a l'inici"
+              className="nav-restart-btn"
+              onClick={resetFlow}
               type="button"
             >
-              Mode: {accentOracleModeLabel(accentOracleMode)}
+              <span className="nav-restart-knob" aria-hidden="true">
+                <RotateCcw className="nav-restart-icon" />
+              </span>
+              <span className="nav-restart-label">Tornar a l&apos;inici</span>
             </button>
-          </div>
-        )}
-        <button
-          aria-label={`Canvia al mode ${theme === "light" ? "fosc" : "clar"}`}
-          aria-pressed={theme === "dark"}
-          className={`theme-switch theme-switch-${theme}`}
-          onClick={toggleTheme}
-          type="button"
-        >
-          <span className="theme-switch-label theme-switch-label-day" aria-hidden="true">
-            Mode clar
-          </span>
-          <span className="theme-switch-label theme-switch-label-night" aria-hidden="true">
-            Mode fosc
-          </span>
-          <span className="theme-switch-knob" aria-hidden="true">
-            {theme === "light" ? (
-              <Sun className="theme-switch-icon" />
-            ) : (
-              <MoonStar className="theme-switch-icon" />
-            )}
-          </span>
-        </button>
+          )}
+        </div>
+        <div className="header-actions-side">
+          {devToolsEnabled && (
+            <div className="dev-tools-bar" role="group" aria-label="Eines de desenvolupament">
+              <span className="dev-tools-label">Dev</span>
+              <button
+                aria-pressed={!isApiMode(accentOracleMode)}
+                className="dev-mode-toggle"
+                onClick={switchOracleMode}
+                type="button"
+              >
+                Mode: {accentOracleModeLabel(accentOracleMode)}
+              </button>
+            </div>
+          )}
+          <button
+            aria-label={`Canvia al mode ${theme === "light" ? "fosc" : "clar"}`}
+            aria-pressed={theme === "dark"}
+            className={`theme-switch theme-switch-${theme}`}
+            onClick={toggleTheme}
+            type="button"
+          >
+            <span className="theme-switch-label theme-switch-label-day" aria-hidden="true">
+              Mode clar
+            </span>
+            <span className="theme-switch-label theme-switch-label-night" aria-hidden="true">
+              Mode fosc
+            </span>
+            <span className="theme-switch-knob" aria-hidden="true">
+              {theme === "light" ? (
+                <Sun className="theme-switch-icon" />
+              ) : (
+                <MoonStar className="theme-switch-icon" />
+              )}
+            </span>
+          </button>
+        </div>
       </div>
       {phase === "landing" && (
         <section className="hero landing-hero">
@@ -750,38 +761,32 @@ function App() {
         </>
       )}
 
-      {showRestartControl &&
-        (phase === "results" ? (
-          <div className="results-share-row restart-flow-anchor">
-            <button
-              className="secondary results-share-button"
-              onClick={() => {
-                trackUiEvent("share_clicked");
-                setShareOpen(true);
-              }}
-              type="button"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="18" cy="5" r="3" fill="currentColor" />
-                <circle cx="6" cy="12" r="3" fill="currentColor" />
-                <circle cx="18" cy="19" r="3" fill="currentColor" />
-                <path
-                  d="M8.6 13.5 15.4 17.1M15.4 6.9 8.6 10.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeWidth="1.75"
-                />
-              </svg>
-              Comparteix
-            </button>
-            <button className="secondary" onClick={resetFlow} type="button">
-              Torna a començar
-            </button>
-          </div>
-        ) : (
-          <div className="restart-flow-anchor">{restartFlowButton}</div>
-        ))}
+      {phase === "results" && (
+        <div className="results-share-row">
+          <button
+            className="secondary results-share-button"
+            onClick={() => {
+              trackUiEvent("share_clicked");
+              setShareOpen(true);
+            }}
+            type="button"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="18" cy="5" r="3" fill="currentColor" />
+              <circle cx="6" cy="12" r="3" fill="currentColor" />
+              <circle cx="18" cy="19" r="3" fill="currentColor" />
+              <path
+                d="M8.6 13.5 15.4 17.1M15.4 6.9 8.6 10.5"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth="1.75"
+              />
+            </svg>
+            Comparteix
+          </button>
+        </div>
+      )}
 
       {chromeOverlay && (
         <div

@@ -17,7 +17,22 @@ main {
   align-items: center;
   display: flex;
   gap: 0.65rem;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-nav-side {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.header-actions-side {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
   justify-content: flex-end;
+  margin-left: auto;
 }
 
 .dev-tools-bar {
@@ -257,6 +272,83 @@ main {
   outline-offset: 3px;
 }
 
+.nav-restart-btn {
+  --nav-restart-duration: var(--theme-crossfade-duration);
+  --nav-restart-ease: var(--theme-crossfade-ease);
+  --nav-restart-knob: 2.35rem;
+  --nav-restart-pad: 0.28rem;
+  align-items: center;
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-strong);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.65rem;
+  height: 2.85rem;
+  overflow: hidden;
+  padding: var(--nav-restart-pad) 1.15rem var(--nav-restart-pad) var(--nav-restart-pad);
+  position: relative;
+  text-decoration: none;
+  transition:
+    background var(--nav-restart-duration) var(--nav-restart-ease),
+    border-color var(--nav-restart-duration) var(--nav-restart-ease),
+    box-shadow var(--nav-restart-duration) var(--nav-restart-ease),
+    color var(--nav-restart-duration) var(--nav-restart-ease),
+    transform 160ms ease;
+}
+
+.nav-restart-btn:hover {
+  border-color: var(--surface-border-strong);
+  transform: translateY(-1px);
+}
+
+.nav-restart-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.nav-restart-knob {
+  align-items: center;
+  background: var(--surface-strong);
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-strong) 18%, transparent);
+  color: var(--accent);
+  display: grid;
+  height: var(--nav-restart-knob);
+  justify-items: center;
+  transition:
+    background var(--nav-restart-duration) var(--nav-restart-ease),
+    border-color var(--nav-restart-duration) var(--nav-restart-ease),
+    color var(--nav-restart-duration) var(--nav-restart-ease),
+    box-shadow var(--nav-restart-duration) var(--nav-restart-ease);
+  width: var(--nav-restart-knob);
+}
+
+.nav-restart-icon {
+  display: block;
+  height: 1.15rem;
+  stroke-width: 2.25;
+  transition: transform 220ms ease;
+  width: 1.15rem;
+}
+
+.nav-restart-btn:hover .nav-restart-icon {
+  transform: rotate(-45deg);
+}
+
+.nav-restart-label {
+  color: var(--text-primary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 @media (max-width: 640px) {
   .theme-switch {
     --theme-switch-width: 3.15rem;
@@ -267,12 +359,28 @@ main {
   .theme-switch-label {
     display: none;
   }
+
+  .nav-restart-btn {
+    --nav-restart-knob: 2.2rem;
+    --nav-restart-pad: 0.25rem;
+    height: 2.7rem;
+    justify-content: center;
+    padding: var(--nav-restart-pad);
+    width: 3.15rem;
+  }
+
+  .nav-restart-label {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .theme-switch,
   .theme-switch-knob,
-  .theme-switch-label {
+  .theme-switch-label,
+  .nav-restart-btn,
+  .nav-restart-knob,
+  .nav-restart-icon {
     transition: none;
   }
 
@@ -508,14 +616,6 @@ h2 {
   gap: 0.75rem;
   justify-content: center;
   margin-top: 0.35rem;
-}
-
-.restart-flow-anchor {
-  margin-top: auto;
-}
-
-.app-shell:has(.restart-flow-anchor) .privacy-footer {
-  margin-top: 0;
 }
 
 .results-share-button {
@@ -1686,32 +1786,8 @@ h2 {
   width: 100%;
 }
 
-.recording-main .restart-flow-anchor {
-  margin-top: 0;
-}
-
 .prompt-card .recorder-panel {
   margin-top: 1.35rem;
-}
-
-.restart-flow-button {
-  background: none;
-  border: 0;
-  color: var(--text-muted);
-  cursor: pointer;
-  display: block;
-  font: inherit;
-  font-size: 0.88rem;
-  font-weight: 700;
-  margin: 1rem auto 0;
-  padding: 0.35rem 0.15rem;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-}
-
-.restart-flow-button:hover {
-  color: var(--text-primary);
 }
 
 .recorder-panel {
