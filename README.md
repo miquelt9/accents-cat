@@ -1,8 +1,11 @@
 # Catalan Accent Oracle
 
-**Quin és el meu accent en català?** — A research prototype that estimates which *macro dialect area* your Catalan speech sounds most similar to, inspired by [BoldVoice Accent Oracle](https://www.boldvoice.com/accent-oracle).
+[![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-cv26--hubert--svm--calibrated-yellow)](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated)
+[![Speech Encoder](https://img.shields.io/badge/Encoder-BSC--LT%2Fhubert--base--ca--2k-purple)](https://huggingface.co/BSC-LT/hubert-base-ca-2k)
 
-Record yourself reading a short Catalan passage (or upload audio), and the app shows a similarity heatmap across five dialect zones — not a claim about where you are from.
+**Quin és el meu accent en català?** — An open research prototype that estimates which *macro dialect area* your Catalan speech sounds most acoustically similar to, inspired by [BoldVoice Accent Oracle](https://www.boldvoice.com/accent-oracle) and powered by [BSC-LT's](https://huggingface.co/BSC-LT) Catalan speech foundation models (Projecte AINA).
+
+Record yourself reading a short Catalan passage (or upload audio), and the app computes a calibrated similarity heatmap across five dialect zones — not a claim about where you are from, but an acoustic proximity indicator.
 
 ## What this is (and is not)
 
