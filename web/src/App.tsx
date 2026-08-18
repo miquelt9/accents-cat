@@ -7,6 +7,7 @@ import { DevScoreTuner } from "./components/DevScoreTuner";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
 import { ResultsConsentFeedback } from "./components/ResultsConsentFeedback";
+import ResearchFindings from "./components/ResearchFindings";
 import { ShareResultsModal } from "./components/ShareResultsModal";
 import {
   createClientId,
@@ -40,7 +41,7 @@ import {
 import { trackUiEvent } from "./lib/telemetry";
 
 type AppPhase = "landing" | "recording" | "validation" | "offer-third" | "refine" | "results";
-type ChromeOverlay = "manage-data" | LegalDocId;
+type ChromeOverlay = "manage-data" | "research" | LegalDocId;
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "accent-oracle-theme";
@@ -73,6 +74,9 @@ function getInitialDevToolsEnabled(): boolean {
 function overlayTitle(overlay: ChromeOverlay): string {
   if (overlay === "manage-data") {
     return "Gestiona les meves dades";
+  }
+  if (overlay === "research") {
+    return "Recerca i transparència del model";
   }
   return overlay === "privacy" ? "Política de privadesa" : "Termes d'ús";
 }
@@ -787,6 +791,7 @@ function App() {
           aria-label={overlayTitle(chromeOverlay)}
           tabIndex={-1}
         >
+          {chromeOverlay === "research" && <ResearchFindings onBack={closeOverlay} />}
           {chromeOverlay === "manage-data" && (
             <ManageMyData
               onBack={closeOverlay}
@@ -803,6 +808,12 @@ function App() {
       <footer className="privacy-footer">
         <button className="privacy-link" onClick={() => openOverlay("manage-data")} type="button">
           Gestiona les meves dades
+        </button>
+        <span className="privacy-footer-sep" aria-hidden="true">
+          ·
+        </span>
+        <button className="privacy-link" onClick={() => openOverlay("research")} type="button">
+          Recerca del model
         </button>
         <span className="privacy-footer-sep" aria-hidden="true">
           ·
