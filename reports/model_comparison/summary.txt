@@ -1,0 +1,11 @@
+                     variant     evaluation  accuracy  macro_f1  top2_accuracy  log_loss
+cv26-hubert-svm-clips5-votes aina-benchmark    0.5202    0.5157         0.7183    1.2199
+  cv26-hubert-svm-calibrated aina-benchmark    0.4960    0.4977         0.7049    1.2392
+      cv26-hubert-svm-clips5 aina-benchmark    0.4933    0.4948         0.7170    1.2446
+ cv26-hubert-svm-tortosi-val aina-benchmark    0.4798    0.4773         0.7035    1.2518
+  cv26-hubert-svm-tortosi-nw aina-benchmark    0.4623    0.4611         0.6739    1.2928
+cv26-hubert-svm-clips5-votes       dev-test    0.5150    0.5159         0.7350    1.1887
+  cv26-hubert-svm-calibrated       dev-test    0.5056    0.5104         0.7237    1.2282
+ cv26-hubert-svm-tortosi-val       dev-test    0.5056    0.5101         0.7086    1.2231
+      cv26-hubert-svm-clips5       dev-test    0.4925    0.5006         0.7162    1.2434
+  cv26-hubert-svm-tortosi-nw       dev-test    0.4643    0.4731         0.7105    1.2548
