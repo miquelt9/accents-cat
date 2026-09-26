@@ -816,6 +816,17 @@ function App() {
         <button className="privacy-link" onClick={() => openLegalDoc("terms")} type="button">
           Termes
         </button>
+        <span className="privacy-footer-sep" aria-hidden="true">
+          ·
+        </span>
+        <a
+          className="privacy-link open-source-link"
+          href="https://github.com/miquelt9/accents-cat"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Projecte de codi obert ↗
+        </a>
       </footer>
     </main>
   );

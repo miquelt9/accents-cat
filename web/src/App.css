@@ -1747,6 +1747,11 @@ h2 {
   color: var(--text-secondary);
 }
 
+.open-source-link {
+  align-items: center;
+  display: inline-flex;
+}
+
 .legal-inline-link {
   display: inline;
   font-size: inherit;
