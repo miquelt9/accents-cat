@@ -1,5 +1,7 @@
 # Agent guide — Catalan Accent Oracle
 
+Short how-to-change index: [`.agents/AGENTS.md`](.agents/AGENTS.md).
+
 Instructions for AI coding agents (Cursor, Codex, etc.) working in this repository.
 
 ## Mission
