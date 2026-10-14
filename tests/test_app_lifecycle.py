@@ -70,6 +70,9 @@ def api_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     metadata_path.write_text(json.dumps({"labels": list(storage.DIALECT_LABELS)}))
     monkeypatch.setattr(oracle_app, "MODEL_PATH", model_path)
     monkeypatch.setattr(oracle_app, "METADATA_PATH", metadata_path)
+    # These lifecycle tests exercise the reversible research-retention flow.
+    # Production defaults to no retention; opt into this path explicitly.
+    monkeypatch.setattr(oracle_app, "RETAIN_USER_DATA", True)
     oracle_app.load_metadata.cache_clear()
 
     monkeypatch.setattr(oracle_app, "_inference_pool", FakeInferencePool())
