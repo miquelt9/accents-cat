@@ -12,7 +12,10 @@ names without custom event properties. When enabled, PostHog may add a random
 temporary browser identifier and technical metadata; browser persistence is
 memory-only. The Pages workflow sends events to PostHog only
 when the `VITE_POSTHOG_KEY` repository variable is configured; autocapture,
-pageview capture, and session replay are disabled.
+pageview capture, and PostHog session replay are disabled. Sentry diagnostics
+are enabled in the workflow but initialize only when `VITE_SENTRY_DSN` is set;
+they send errors, sampled traces, and error-only replays with text masked and
+media blocked.
 
 The former consent and research-retention flow stays available behind
 `VITE_RESEARCH_RETENTION_ENABLED=1` and `ORACLE_RETAIN_USER_DATA=1`. Those
@@ -208,6 +211,8 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | `VITE_SENTRY_ENVIRONMENT` | Sentry environment (default `development`; Sentry stays off in development unless `VITE_SENTRY_ENABLE_DEV=1`) |
 | `VITE_SENTRY_RELEASE` | Release string tagged on events |
 | `VITE_SENTRY_ENABLE_DEV` | `1` to allow Sentry in development when DSN is set |
+| `VITE_DIAGNOSTICS_ENABLED` | `1` to enable Sentry when `VITE_SENTRY_DSN` is present |
+| `VITE_SENTRY_DSN` | Optional Sentry project DSN; the production workflow reads it from Actions repository variables |
 | `VITE_PRODUCT_ANALYTICS_ENABLED` | `1` to send allowlisted, event-name-only usage events |
 | `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` | Optional PostHog project key and host; the production workflow reads these from Actions repository variables |
 
