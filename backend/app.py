@@ -366,8 +366,11 @@ def live() -> dict[str, Any]:
 
 @app.get("/ready", response_model=None)
 def ready() -> dict[str, Any] | JSONResponse:
-    """Classifier files + metadata loadable + storage writable."""
+    """Classifier files, storage, and the inference worker pool are ready."""
     payload = ready_payload(model_path=MODEL_PATH, metadata_path=METADATA_PATH)
+    pool_started = _inference_pool is not None and _inference_pool.started
+    payload["checks"]["inferencePoolStarted"] = pool_started
+    payload["ok"] = payload["ok"] and pool_started
     if not payload["ok"]:
         return JSONResponse(status_code=503, content=payload)
     return payload

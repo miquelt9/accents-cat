@@ -1750,6 +1750,7 @@ h2 {
 .open-source-link {
   align-items: center;
   display: inline-flex;
+  gap: 0.35rem;
 }
 
 .legal-inline-link {

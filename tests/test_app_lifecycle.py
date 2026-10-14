@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from fastapi.responses import JSONResponse
 
 from backend import app as oracle_app
 from backend import storage
@@ -48,6 +49,7 @@ class FakeInferenceJob:
 
 
 class FakeInferencePool:
+    started = True
     queue_depth = 0
     active_workers = 1
     average_queue_wait_seconds = 0.0
@@ -286,3 +288,25 @@ def test_proxy_relevant_health_and_telemetry_routes_reach_fastapi(
         ).status_code
         == 204
     )
+
+
+def test_ready_fails_when_inference_pool_is_not_started(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("backend.app._inference_pool", None)
+    monkeypatch.setattr(
+        oracle_app,
+        "ready_payload",
+        lambda **_kwargs: {
+            "ok": True,
+            "checks": {"modelFile": True, "metadataFile": True},
+        },
+    )
+
+    response = oracle_app.ready()
+
+    assert isinstance(response, JSONResponse)
+    assert response.status_code == 503
+    payload = json.loads(response.body)
+    assert payload["ok"] is False
+    assert payload["checks"]["inferencePoolStarted"] is False
