@@ -78,7 +78,9 @@ RETAIN_USER_DATA = os.environ.get("ORACLE_RETAIN_USER_DATA", "1").strip().lower(
     "true",
     "yes",
 }
-RETAIN_ORIGIN_COUNTS = os.environ.get("ORACLE_RETAIN_ORIGIN_COUNTS", "0").strip().lower() in {
+RETAIN_ORIGIN_COUNTS = os.environ.get(
+    "ORACLE_RETAIN_ORIGIN_COUNTS", "0"
+).strip().lower() in {
     "1",
     "true",
     "yes",
