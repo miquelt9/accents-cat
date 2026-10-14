@@ -5,7 +5,9 @@ import json
 import logging
 import os
 import re
+import tempfile
 import time
+import uuid
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
@@ -63,9 +65,19 @@ logger = logging.getLogger(__name__)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MODEL_DIR = PROJECT_ROOT / "models/cv26-hubert-svm-calibrated"
+MODEL_DIR = Path(
+    os.environ.get(
+        "ORACLE_MODEL_DIR",
+        str(PROJECT_ROOT / "models/cv26-hubert-svm-calibrated"),
+    )
+)
 MODEL_PATH = MODEL_DIR / "model.joblib"
 METADATA_PATH = MODEL_DIR / "metadata.json"
+RETAIN_USER_DATA = os.environ.get("ORACLE_RETAIN_USER_DATA", "1").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
 MIN_AUDIO_SECONDS = 3.0
 MAX_AUDIO_SECONDS = float(os.environ.get("ORACLE_MAX_AUDIO_SECONDS", "20"))
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
@@ -545,30 +557,37 @@ async def analyze(
     if not _analyze_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
 
-    storage.purge_expired_pending()
+    if RETAIN_USER_DATA:
+        storage.purge_expired_pending()
     prompt_id, prompt_text = _normalize_prompt_fields(promptId, promptText)
     sentence_ids = _normalize_sentence_ids(sentenceIds)
     requested_session_id = _normalize_analysis_session_id(analysisSessionId)
-    analysis_session_id = requested_session_id or storage.create_analysis_session()
-    if requested_session_id and not storage.analysis_session_accepts_take(
-        analysis_session_id
-    ):
-        raise HTTPException(
-            status_code=409,
-            detail="La sessió d'anàlisi ja no accepta més gravacions.",
-        )
-    try:
-        take_index = storage.next_take_index(analysis_session_id)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=409,
-            detail="La sessió d'anàlisi ja no accepta més gravacions.",
-        ) from exc
-    if take_index > 3:
-        raise HTTPException(
-            status_code=409,
-            detail="Aquesta anàlisi ja ha assolit el màxim de tres gravacions.",
-        )
+    if RETAIN_USER_DATA:
+        analysis_session_id = requested_session_id or storage.create_analysis_session()
+        if requested_session_id and not storage.analysis_session_accepts_take(
+            analysis_session_id
+        ):
+            raise HTTPException(
+                status_code=409,
+                detail="La sessió d'anàlisi ja no accepta més gravacions.",
+            )
+        try:
+            take_index = storage.next_take_index(analysis_session_id)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail="La sessió d'anàlisi ja no accepta més gravacions.",
+            ) from exc
+        if take_index > 3:
+            raise HTTPException(
+                status_code=409,
+                detail="Aquesta anàlisi ja ha assolit el màxim de tres gravacions.",
+            )
+    else:
+        # Keep IDs only for the browser's multi-take flow. No session or take
+        # records are created when user-data retention is disabled.
+        analysis_session_id = requested_session_id or str(uuid.uuid4())
+        take_index = 1
     take_role = ("initial", "validation", "refine")[take_index - 1]
     set_prompt_id_tag(prompt_id)
 
@@ -598,7 +617,15 @@ async def analyze(
     audio_path: Path | None = None
     job = None
     try:
-        recording_id, audio_path = storage.save_audio(payload, suffix)
+        if RETAIN_USER_DATA:
+            recording_id, audio_path = storage.save_audio(payload, suffix)
+        else:
+            recording_id = str(uuid.uuid4())
+            with tempfile.NamedTemporaryFile(
+                prefix="accent-oracle-", suffix=suffix, delete=False
+            ) as temporary_audio:
+                temporary_audio.write(payload)
+                audio_path = Path(temporary_audio.name)
 
         try:
             if _inference_pool is None:
@@ -649,19 +676,23 @@ async def analyze(
             raise
 
         # Pending only: durable research storage requires POST /research-consent.
-        storage.insert_submission(
-            submission_id=recording_id,
-            audio_path=audio_path,
-            scores=result["scores"],
-            top_label=result["topLabel"],
-            evidence_band=result["evidenceBand"],
-            prompt_id=prompt_id,
-            prompt_text=prompt_text,
-            sentence_ids=sentence_ids,
-            analysis_session_id=analysis_session_id,
-            take_index=take_index,
-            take_role=take_role,
-        )
+        if RETAIN_USER_DATA:
+            storage.insert_submission(
+                submission_id=recording_id,
+                audio_path=audio_path,
+                scores=result["scores"],
+                top_label=result["topLabel"],
+                evidence_band=result["evidenceBand"],
+                prompt_id=prompt_id,
+                prompt_text=prompt_text,
+                sentence_ids=sentence_ids,
+                analysis_session_id=analysis_session_id,
+                take_index=take_index,
+                take_role=take_role,
+            )
+        elif audio_path is not None:
+            # The file exists only for the duration of inference.
+            audio_path.unlink(missing_ok=True)
         result["recordingId"] = recording_id
         result["analysisSessionId"] = analysis_session_id
         result["takeIndex"] = take_index
@@ -692,6 +723,14 @@ def submit_research_consent(
 ) -> dict[str, Any]:
     if not _feedback_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
+
+    if not RETAIN_USER_DATA:
+        return {
+            "analysisSessionId": body.analysisSessionId,
+            "recordingId": body.recordingId,
+            "researchConsent": False,
+            "retained": False,
+        }
 
     analysis_session_id = _normalize_analysis_session_id(body.analysisSessionId)
     recording_id = body.recordingId.strip() if body.recordingId else None
@@ -764,6 +803,9 @@ def finalize_analysis(
     if not _feedback_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
 
+    if not RETAIN_USER_DATA:
+        return {"analysisSessionId": body.analysisSessionId, "finalized": False}
+
     analysis_session_id = _normalize_analysis_session_id(body.analysisSessionId)
     if not analysis_session_id or not storage.finalize_analysis_session(
         analysis_session_id,
@@ -785,6 +827,9 @@ def finalize_analysis(
 def submit_feedback(request: Request, body: FeedbackRequest) -> dict[str, str]:
     if not _feedback_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
+
+    if not RETAIN_USER_DATA:
+        return {"feedbackId": ""}
 
     dialect = body.selfReportedDialect
     if dialect is not None and dialect not in storage.SELF_REPORTED_DIALECTS:
