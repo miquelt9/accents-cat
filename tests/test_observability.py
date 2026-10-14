@@ -26,6 +26,7 @@ def test_ui_event_allowlist() -> None:
     assert is_ui_event_allowed("analysis_unresolved")
     assert is_ui_event_allowed("share_clicked")
     assert is_ui_event_allowed("research_consent_accepted")
+    assert is_ui_event_allowed("origin_submitted")
     assert not is_ui_event_allowed("recording_id")
     assert not is_ui_event_allowed("comarca")
     assert UI_TELEMETRY_EVENTS == {
@@ -46,6 +47,7 @@ def test_ui_event_allowlist() -> None:
         "analysis_unresolved",
         "share_clicked",
         "research_consent_accepted",
+        "origin_submitted",
     }
 
 
