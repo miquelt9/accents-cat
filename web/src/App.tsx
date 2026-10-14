@@ -3,6 +3,7 @@ import { ChevronRight, MoonStar, RotateCcw, Sun } from "lucide-react";
 import "./App.css";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
+import { ResultsOriginFeedback } from "./components/ResultsOriginFeedback";
 import { DevScoreTuner } from "./components/DevScoreTuner";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
@@ -44,6 +45,8 @@ type ChromeOverlay = "manage-data" | LegalDocId;
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "accent-oracle-theme";
+// Re-enable only together with ORACLE_RETAIN_USER_DATA=1 on the API backend.
+const RESEARCH_RETENTION_ENABLED = import.meta.env.VITE_RESEARCH_RETENTION_ENABLED === "1";
 /** Slightly longer than `--theme-crossfade-duration` so the class outlives the CSS transition. */
 const THEME_CROSSFADE_CLASS_MS = 500;
 
@@ -166,6 +169,7 @@ function App() {
         accentOracleMode: mode,
       } = leavePurgeRef.current;
       if (
+        !RESEARCH_RETENTION_ENABLED ||
         (currentPhase !== "results" &&
           currentPhase !== "validation" &&
           currentPhase !== "offer-third" &&
@@ -196,7 +200,7 @@ function App() {
   }, []);
 
   function declinePendingAnalysis(sessionId: string | null) {
-    if (!sessionId || !isApiMode(accentOracleMode) || researchRetained) {
+    if (!RESEARCH_RETENTION_ENABLED || !sessionId || !isApiMode(accentOracleMode) || researchRetained) {
       return;
     }
     void submitResearchConsent({ analysisSessionId: sessionId, consent: false }).catch(() => {
@@ -313,7 +317,7 @@ function App() {
     syncDevResultsScores(next);
     setPhase("results");
 
-    if (sessionId) {
+    if (RESEARCH_RETENTION_ENABLED && sessionId) {
       try {
         await finalizeAnalysis({
           analysisSessionId: sessionId,
@@ -594,7 +598,7 @@ function App() {
               Comença
               <ChevronRight aria-hidden="true" className="hero-link-icon" />
             </button>
-            {visitResearchConsented ? (
+            {RESEARCH_RETENTION_ENABLED ? visitResearchConsented ? (
               <p className="landing-preconsent-retained">
                 <button
                   className="privacy-link legal-inline-link"
@@ -628,6 +632,12 @@ function App() {
                   </button>
                 </span>
               </label>
+            ) : (
+              <p className="landing-preconsent-retained">
+                Les gravacions es processen per calcular el resultat i s&apos;esborren en acabar l&apos;anàlisi.
+                No desem gravacions, resultats ni dades vinculades a l&apos;anàlisi. Si ho vols, pots
+                compartir la comarca que sents com a teva; només n&apos;afegim el recompte agregat.
+              </p>
             )}
           </div>
         </section>
@@ -731,15 +741,19 @@ function App() {
               {analysisError}
             </p>
           )}
-          <ResultsConsentFeedback
-            preConsented={preConsented}
-            initialComarques={rememberedComarques}
-            recordingId={result.recordingId}
-            analysisSessionId={analysisSessionId ?? result.analysisSessionId}
-            onResearchRetained={markResearchRetained}
-            onResearchDeclined={clearVisitResearchConsent}
-            onComarquesSaved={setRememberedComarques}
-          />
+          {RESEARCH_RETENTION_ENABLED ? (
+            <ResultsConsentFeedback
+              preConsented={preConsented}
+              initialComarques={rememberedComarques}
+              recordingId={result.recordingId}
+              analysisSessionId={analysisSessionId ?? result.analysisSessionId}
+              onResearchRetained={markResearchRetained}
+              onResearchDeclined={clearVisitResearchConsent}
+              onComarquesSaved={setRememberedComarques}
+            />
+          ) : (
+            <ResultsOriginFeedback />
+          )}
           {shareOpen && (
             <ShareResultsModal
               scores={resultsScores}
@@ -787,7 +801,7 @@ function App() {
           aria-label={overlayTitle(chromeOverlay)}
           tabIndex={-1}
         >
-          {chromeOverlay === "manage-data" && (
+          {RESEARCH_RETENTION_ENABLED && chromeOverlay === "manage-data" && (
             <ManageMyData
               onBack={closeOverlay}
               onOpenPrivacy={() => openLegalDoc("privacy")}
@@ -801,12 +815,14 @@ function App() {
       )}
 
       <footer className="privacy-footer">
-        <button className="privacy-link" onClick={() => openOverlay("manage-data")} type="button">
-          Gestiona les meves dades
-        </button>
-        <span className="privacy-footer-sep" aria-hidden="true">
-          ·
-        </span>
+        {RESEARCH_RETENTION_ENABLED && (
+          <>
+            <button className="privacy-link" onClick={() => openOverlay("manage-data")} type="button">
+              Gestiona les meves dades
+            </button>
+            <span className="privacy-footer-sep" aria-hidden="true">·</span>
+          </>
+        )}
         <button className="privacy-link" onClick={() => openLegalDoc("privacy")} type="button">
           Privadesa
         </button>

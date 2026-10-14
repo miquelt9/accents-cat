@@ -28,6 +28,7 @@ import { capturePostHogEvent } from "./posthog";
 
 describe("trackUiEvent", () => {
   beforeEach(() => {
+    vi.stubEnv("VITE_PRODUCT_ANALYTICS_ENABLED", "1");
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.resolve(new Response(null, { status: 204 }))),
@@ -37,6 +38,7 @@ describe("trackUiEvent", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   it("posts allowlisted event JSON without extra fields", () => {
@@ -59,6 +61,7 @@ describe("trackUiEvent", () => {
       "recording_no_speech",
       "share_clicked",
       "research_consent_accepted",
+      "origin_submitted",
     ] as const) {
       trackUiEvent(event);
       expect(capturePostHogEvent).toHaveBeenCalledWith(event);

@@ -15,6 +15,9 @@ function sentryEnvironment(): string {
 
 /** Init when DSN is set and not blocked for local development. */
 export function shouldInitSentry(): boolean {
+  if (import.meta.env.VITE_DIAGNOSTICS_ENABLED !== "1") {
+    return false;
+  }
   const dsn = (import.meta.env.VITE_SENTRY_DSN as string | undefined)?.trim();
   if (!dsn) {
     return false;

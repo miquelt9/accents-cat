@@ -1,5 +1,28 @@
 # Catalan Accent Oracle
 
+## Production privacy behavior
+
+The backend defaults to `ORACLE_RETAIN_USER_DATA=0` (audio retention is
+opt-in). The production Hugging Face Space also sets this explicitly:
+uploaded audio exists in a temporary file only during inference and is deleted
+before the response. The current results UI has no audio research-consent
+checkbox. A user may separately submit an optional comarca; the API increments
+per-comarca aggregate counts without storing an individual response or linking
+it to audio, results, or session IDs. Usage events contain allowlisted event
+names without custom event properties. When enabled, PostHog may add a random
+temporary browser identifier and technical metadata; browser persistence is
+memory-only. The Pages workflow sends events to PostHog only
+when the `VITE_POSTHOG_KEY` repository variable is configured; autocapture,
+pageview capture, and PostHog session replay are disabled. Sentry diagnostics
+are enabled in the workflow but initialize only when `VITE_SENTRY_DSN` is set;
+they send errors, sampled traces, and error-only replays with text masked and
+media blocked.
+
+The former consent and research-retention flow stays available behind
+`VITE_RESEARCH_RETENTION_ENABLED=1` and `ORACLE_RETAIN_USER_DATA=1`. Those
+settings should only be restored together with the corresponding privacy copy
+and deployment configuration.
+
 [![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-cv26--hubert--svm--calibrated-yellow)](https://huggingface.co/miquelt-9/cv26-hubert-svm-calibrated)
 [![Speech Encoder](https://img.shields.io/badge/Encoder-BSC--LT%2Fhubert--base--ca--2k-purple)](https://huggingface.co/BSC-LT/hubert-base-ca-2k)
 
@@ -189,6 +212,10 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | `VITE_SENTRY_ENVIRONMENT` | Sentry environment (default `development`; Sentry stays off in development unless `VITE_SENTRY_ENABLE_DEV=1`) |
 | `VITE_SENTRY_RELEASE` | Release string tagged on events |
 | `VITE_SENTRY_ENABLE_DEV` | `1` to allow Sentry in development when DSN is set |
+| `VITE_DIAGNOSTICS_ENABLED` | `1` to enable Sentry when `VITE_SENTRY_DSN` is present |
+| `VITE_SENTRY_DSN` | Optional Sentry project DSN; the production workflow reads it from Actions repository variables |
+| `VITE_PRODUCT_ANALYTICS_ENABLED` | `1` to send allowlisted, event-name-only usage events |
+| `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` | Optional PostHog project key and host; the production workflow reads these from Actions repository variables |
 
 Backend observability (set in the shell / process env for uvicorn — see [`.env.example`](.env.example)):
 
@@ -229,7 +256,7 @@ Deferred follow-ups for agents: [`ops/followups/`](ops/followups/) (Grafana emai
 
 ### Grafana Cloud (operational metrics)
 
-**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_press_hold`, `recording_too_short`, `recording_no_speech`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `validation_started`, `third_take_offered`, `third_take_completed`, `third_take_skipped`, `analysis_finalized`, `analysis_unresolved`, `share_clicked`, `research_consent_accepted` via `POST /telemetry/event`), plus process CPU/memory when OTLP is configured. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only.
+**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_press_hold`, `recording_too_short`, `recording_no_speech`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `validation_started`, `third_take_offered`, `third_take_completed`, `third_take_skipped`, `analysis_finalized`, `analysis_unresolved`, `share_clicked`, `research_consent_accepted`, `origin_submitted` via `POST /telemetry/event`), plus process CPU/memory when OTLP is configured. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only.
 
 **Dashboard:** [Accent Oracle — Operations](https://bigdahlia593.grafana.net/d/accent-oracle-operations) (also [`ops/grafana/accent-oracle-operations.json`](ops/grafana/accent-oracle-operations.json)).
 

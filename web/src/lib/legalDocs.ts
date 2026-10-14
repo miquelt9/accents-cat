@@ -36,7 +36,7 @@ function contactParagraph(): string {
   return `Per a preguntes sobre aquests termes o la privadesa: ${PRIVACY_EMAIL}${provisional}.`;
 }
 
-export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
+const RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
   privacy: {
     id: "privacy",
     eyebrow: "Privadesa",
@@ -197,3 +197,88 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
     ],
   },
 };
+
+const NO_RETENTION_EFFECTIVE_DATE = "14 d'octubre de 2026";
+const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
+  privacy: {
+    id: "privacy",
+    eyebrow: "Privadesa",
+    title: "Política de privadesa",
+    effectiveDate: NO_RETENTION_EFFECTIVE_DATE,
+    intro:
+      "Aquesta política explica com l'Oracle d'accents catalans tracta les dades necessàries per calcular una estimació de similitud acústica. El servei no desa les gravacions ni les dades derivades per a recerca o altres usos posteriors.",
+    sections: [
+      {
+        heading: "Responsable del tractament",
+        paragraphs: [controllerParagraph()],
+      },
+      {
+        heading: "Dades i ús",
+        paragraphs: [
+          "Quan envies una gravació, el navegador la transmet al servidor perquè el model en calculi el resultat. El projecte no desa la gravació, el text llegit, les puntuacions, el resultat final ni identificadors de sessió; el fitxer temporal d'àudio s'elimina en acabar la petició d'anàlisi. No cal donar consentiment per desar gravacions perquè aquesta funció està desactivada.",
+          "Pots indicar voluntàriament una o més comarques amb què t'identifiques. El servidor només n'incrementa els recomptes totals: no desa una resposta individual, una data ni cap identificador, i no associa la comarca a l'àudio o al resultat. La telemetria de producte, quan està configurada, envia noms d'esdeveniments sense propietats pròpies; no inclou àudio, text, puntuacions, comarca, URL amb paràmetres ni identificadors de sessió, anàlisi o compte. PostHog pot afegir un identificador aleatori temporal de navegador i metadades tècniques; la persistència és només en memòria. La captura automàtica i els enregistraments de sessió de PostHog estan desactivats. Si Sentry està configurat, rep errors, traces mostrejades i reproduccions només quan hi ha un error; el text es mascara i els continguts multimèdia es bloquegen. El projecte no utilitza gravacions ni resultats per entrenar models o fer recerca.",
+          "El model retorna una estimació de similitud acústica amb cinc zones dialectals. No determina l'origen, la residència ni la identitat de cap persona.",
+        ],
+      },
+      {
+        heading: "Conservació i proveïdors",
+        paragraphs: [
+          "El projecte no conserva l'àudio, les dades derivades ni els resultats després de completar la petició. Conservem recomptes totals per comarca i, si s'ha configurat PostHog, esdeveniments d'ús sense propietats pròpies i amb persistència de navegador només en memòria. Si Sentry està configurat, tracta errors, traces mostrejades i reproduccions només quan hi ha un error. Els proveïdors d'allotjament, analítica i diagnòstics poden tractar metadades tècniques de connexió segons les seves pròpies condicions.",
+          "El servidor pot carregar models de veu de tercers per calcular el resultat. L'àudio s'envia a aquest servidor i no s'envia al repositori dels models.",
+        ],
+      },
+      {
+        heading: "Drets i contacte",
+        paragraphs: [
+          "Com que el projecte no conserva gravacions, resultats ni identificadors de sessió, no podem recuperar una anàlisi anterior ni associar-la amb una persona. Els recomptes agregats per comarca no permeten trobar una resposta individual. Per a preguntes de privadesa, escriu a la persona responsable mitjançant el contacte indicat més avall.",
+        ],
+      },
+      {
+        heading: "Menors",
+        paragraphs: ["El servei està pensat per a persones de 18 anys o més."],
+      },
+    ],
+  },
+  terms: {
+    id: "terms",
+    eyebrow: "Termes",
+    title: "Termes d'ús",
+    effectiveDate: NO_RETENTION_EFFECTIVE_DATE,
+    intro:
+      "Aquests termes regeixen l'ús de l'Oracle d'accents catalans, un prototip que estima la similitud acústica d'una lectura en veu alta amb zones dialectals catalanes.",
+    sections: [
+      {
+        heading: "Naturalesa del servei",
+        paragraphs: [
+          "El resultat és una estimació de similitud acústica amb cinc zones macrodialectals. No és una prova d'origen geogràfic, residència, nacionalitat ni identitat personal. El model pot equivocar-se i el servei es proporciona tal com és, sense garantia de precisió o disponibilitat contínua.",
+        ],
+      },
+      {
+        heading: "Gravacions i dades",
+        paragraphs: [
+          "En mode API, l'àudio s'envia al servidor per generar el resultat i s'elimina en acabar la petició. El projecte no desa l'àudio, els textos, les puntuacions ni el resultat final. Pots indicar voluntàriament una comarca; només es conserva el recompte agregat total, sense cap resposta individual ni enllaç amb l'anàlisi. Si està configurada, l'analítica envia noms d'esdeveniments sense dades de l'àudio, resultats o comarca ni identificadors de sessió, anàlisi o compte. PostHog pot afegir un identificador aleatori temporal de navegador i metadades tècniques; la persistència és només en memòria. Si Sentry està configurat, rep errors, traces mostrejades i reproduccions només quan hi ha un error, amb el text mascarat i els continguts multimèdia bloquejats. Aquestes dades no s'utilitzen per entrenar models ni per fer recerca.",
+          "No hi ha una funció activa per donar consentiment a la conservació de gravacions. No es transfereixen drets sobre la teva veu al projecte.",
+        ],
+      },
+      {
+        heading: "Ús acceptable i propietat intel·lectual",
+        paragraphs: [
+          "No utilitzis el servei per activitats il·legals, per abusar de la infraestructura ni per suplantar tercers. No presentis els resultats com a prova jurídica, mèdica, laboral o d'identitat.",
+          "El codi, el disseny i els actius pertanyen als seus autors o llicenciants. El repositori publica el codi sota AGPL-3.0. Els models de tercers es regeixen per les seves pròpies llicències.",
+        ],
+      },
+      {
+        heading: "Privadesa, responsabilitat i contacte",
+        paragraphs: [
+          "El tractament de dades es descriu a la Política de privadesa. El servei pot limitar-se o deixar d'estar disponible en qualsevol moment. Aquests termes es regeixen per la legislació espanyola, llevat que una norma imperativa disposi una altra cosa.",
+          contactParagraph(),
+        ],
+      },
+    ],
+  },
+};
+
+export const LEGAL_DOCS =
+  import.meta.env.VITE_RESEARCH_RETENTION_ENABLED === "1"
+    ? RETENTION_LEGAL_DOCS
+    : NO_RETENTION_LEGAL_DOCS;

@@ -15,6 +15,9 @@ function posthogHost(): string {
 
 /** Init when project key is set. Cookieless, no autocapture, no session replay. */
 export function initPostHog(): boolean {
+  if (import.meta.env.VITE_PRODUCT_ANALYTICS_ENABLED !== "1") {
+    return false;
+  }
   const key = posthogKey();
   if (!key || initialized) {
     return initialized;

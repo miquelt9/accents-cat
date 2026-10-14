@@ -19,7 +19,8 @@ export type UiTelemetryEvent =
   | "analysis_finalized"
   | "analysis_unresolved"
   | "share_clicked"
-  | "research_consent_accepted";
+  | "research_consent_accepted"
+  | "origin_submitted";
 
 const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
 
@@ -31,6 +32,9 @@ function telemetryUrl(): string {
 
 /** Fire-and-forget; never throws into the UI. Event name only — no properties. */
 export function trackUiEvent(event: UiTelemetryEvent): void {
+  if (import.meta.env.VITE_PRODUCT_ANALYTICS_ENABLED !== "1") {
+    return;
+  }
   try {
     capturePostHogEvent(event);
     void fetch(telemetryUrl(), {
