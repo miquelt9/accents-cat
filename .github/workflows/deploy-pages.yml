@@ -1,0 +1,60 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    env:
+      VITE_ACCENT_ORACLE_MODE: api
+      VITE_ACCENT_ORACLE_API_URL: https://miquelt-9-accents-cat-api.hf.space
+      VITE_RESEARCH_RETENTION_ENABLED: "0"
+      VITE_PRODUCT_ANALYTICS_ENABLED: "0"
+      VITE_DIAGNOSTICS_ENABLED: "0"
+      VITE_PRIVACY_EMAIL: ${{ vars.VITE_PRIVACY_EMAIL }}
+      VITE_CONTROLLER_NAME: ${{ vars.VITE_CONTROLLER_NAME }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build frontend for project Pages URL
+        run: npm run build -- --base=/accents-cat/
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -36,7 +36,7 @@ function contactParagraph(): string {
   return `Per a preguntes sobre aquests termes o la privadesa: ${PRIVACY_EMAIL}${provisional}.`;
 }
 
-export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
+const RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
   privacy: {
     id: "privacy",
     eyebrow: "Privadesa",
@@ -197,3 +197,88 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
     ],
   },
 };
+
+const NO_RETENTION_EFFECTIVE_DATE = "14 d'octubre de 2026";
+const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
+  privacy: {
+    id: "privacy",
+    eyebrow: "Privadesa",
+    title: "Política de privadesa",
+    effectiveDate: NO_RETENTION_EFFECTIVE_DATE,
+    intro:
+      "Aquesta política explica com l'Oracle d'accents catalans tracta les dades necessàries per calcular una estimació de similitud acústica. El servei no desa les gravacions ni les dades derivades per a recerca o altres usos posteriors.",
+    sections: [
+      {
+        heading: "Responsable del tractament",
+        paragraphs: [controllerParagraph()],
+      },
+      {
+        heading: "Dades i ús",
+        paragraphs: [
+          "Quan envies una gravació, el navegador la transmet al servidor perquè el model en calculi el resultat. El projecte no desa la gravació, el text llegit, les puntuacions, el resultat final, feedback ni identificadors de sessió. El fitxer temporal d'àudio s'elimina quan acaba la petició d'anàlisi. No cal donar consentiment per desar dades perquè aquesta funció està desactivada.",
+          "El servei no utilitza les gravacions ni els resultats per entrenar models, fer recerca, analitzar producte o crear conjunts de dades. La telemetria d'esdeveniments del navegador està desactivada per defecte.",
+          "El model retorna una estimació de similitud acústica amb cinc zones dialectals. No determina l'origen, la residència ni la identitat de cap persona.",
+        ],
+      },
+      {
+        heading: "Conservació i proveïdors",
+        paragraphs: [
+          "El projecte no conserva les dades enviades ni els resultats de l'anàlisi després de completar la petició. El proveïdor d'allotjament pot generar registres tècnics necessaris per operar i protegir el servei; aquests registres els gestiona el proveïdor segons les seves pròpies condicions.",
+          "El servidor pot carregar models de veu de tercers per calcular el resultat. L'àudio s'envia a aquest servidor i no s'envia al repositori dels models.",
+        ],
+      },
+      {
+        heading: "Drets i contacte",
+        paragraphs: [
+          "Com que el projecte no conserva gravacions, resultats ni identificadors de sessió, no podem recuperar una anàlisi anterior ni associar-la amb una persona. Per a preguntes de privadesa, escriu a la persona responsable mitjançant el contacte indicat més avall.",
+        ],
+      },
+      {
+        heading: "Menors",
+        paragraphs: ["El servei està pensat per a persones de 18 anys o més."],
+      },
+    ],
+  },
+  terms: {
+    id: "terms",
+    eyebrow: "Termes",
+    title: "Termes d'ús",
+    effectiveDate: NO_RETENTION_EFFECTIVE_DATE,
+    intro:
+      "Aquests termes regeixen l'ús de l'Oracle d'accents catalans, un prototip que estima la similitud acústica d'una lectura en veu alta amb zones dialectals catalanes.",
+    sections: [
+      {
+        heading: "Naturalesa del servei",
+        paragraphs: [
+          "El resultat és una estimació de similitud acústica amb cinc zones macrodialectals. No és una prova d'origen geogràfic, residència, nacionalitat ni identitat personal. El model pot equivocar-se i el servei es proporciona tal com és, sense garantia de precisió o disponibilitat contínua.",
+        ],
+      },
+      {
+        heading: "Gravacions i dades",
+        paragraphs: [
+          "En mode API, l'àudio s'envia al servidor per generar el resultat. El projecte no desa l'àudio, els textos, les puntuacions, el resultat final ni feedback després de completar l'anàlisi. Aquestes dades no s'utilitzen per entrenar models ni per a recerca.",
+          "No hi ha una funció activa per donar consentiment a la conservació de gravacions. No es transfereixen drets sobre la teva veu al projecte.",
+        ],
+      },
+      {
+        heading: "Ús acceptable i propietat intel·lectual",
+        paragraphs: [
+          "No utilitzis el servei per activitats il·legals, per abusar de la infraestructura ni per suplantar tercers. No presentis els resultats com a prova jurídica, mèdica, laboral o d'identitat.",
+          "El codi, el disseny i els actius pertanyen als seus autors o llicenciants. El repositori publica el codi sota AGPL-3.0. Els models de tercers es regeixen per les seves pròpies llicències.",
+        ],
+      },
+      {
+        heading: "Privadesa, responsabilitat i contacte",
+        paragraphs: [
+          "El tractament de dades es descriu a la Política de privadesa. El servei pot limitar-se o deixar d'estar disponible en qualsevol moment. Aquests termes es regeixen per la legislació espanyola, llevat que una norma imperativa disposi una altra cosa.",
+          contactParagraph(),
+        ],
+      },
+    ],
+  },
+};
+
+export const LEGAL_DOCS =
+  import.meta.env.VITE_RESEARCH_RETENTION_ENABLED === "1"
+    ? RETENTION_LEGAL_DOCS
+    : NO_RETENTION_LEGAL_DOCS;

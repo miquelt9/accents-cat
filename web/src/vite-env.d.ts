@@ -4,6 +4,12 @@ interface ImportMetaEnv {
   readonly VITE_ACCENT_ORACLE_MODE?: string;
   readonly VITE_ACCENT_ORACLE_API_URL?: string;
   readonly VITE_ACCENT_ORACLE_DEV?: string;
+  /** Explicit opt-in for the research consent / retention flow. */
+  readonly VITE_RESEARCH_RETENTION_ENABLED?: string;
+  /** Explicit opt-in for PostHog and backend product event analytics. */
+  readonly VITE_PRODUCT_ANALYTICS_ENABLED?: string;
+  /** Explicit opt-in for Sentry error and replay diagnostics. */
+  readonly VITE_DIAGNOSTICS_ENABLED?: string;
   /** Real inbox for privacy / deletion requests (required before public launch). */
   readonly VITE_PRIVACY_EMAIL?: string;
   /** Natural-person controller name shown in the privacy policy. */

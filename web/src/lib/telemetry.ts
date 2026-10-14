@@ -31,6 +31,9 @@ function telemetryUrl(): string {
 
 /** Fire-and-forget; never throws into the UI. Event name only — no properties. */
 export function trackUiEvent(event: UiTelemetryEvent): void {
+  if (import.meta.env.VITE_PRODUCT_ANALYTICS_ENABLED !== "1") {
+    return;
+  }
   try {
     capturePostHogEvent(event);
     void fetch(telemetryUrl(), {
