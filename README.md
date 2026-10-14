@@ -2,7 +2,8 @@
 
 ## Production privacy behavior
 
-The production Hugging Face Space runs with `ORACLE_RETAIN_USER_DATA=0`:
+The backend defaults to `ORACLE_RETAIN_USER_DATA=0` (audio retention is
+opt-in). The production Hugging Face Space also sets this explicitly:
 uploaded audio exists in a temporary file only during inference and is deleted
 before the response. The current results UI has no audio research-consent
 checkbox. A user may separately submit an optional comarca; the API increments

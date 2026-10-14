@@ -73,7 +73,7 @@ MODEL_DIR = Path(
 )
 MODEL_PATH = MODEL_DIR / "model.joblib"
 METADATA_PATH = MODEL_DIR / "metadata.json"
-RETAIN_USER_DATA = os.environ.get("ORACLE_RETAIN_USER_DATA", "1").strip().lower() in {
+RETAIN_USER_DATA = os.environ.get("ORACLE_RETAIN_USER_DATA", "0").strip().lower() in {
     "1",
     "true",
     "yes",
