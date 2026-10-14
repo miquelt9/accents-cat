@@ -61,6 +61,7 @@ describe("trackUiEvent", () => {
       "recording_no_speech",
       "share_clicked",
       "research_consent_accepted",
+      "origin_submitted",
     ] as const) {
       trackUiEvent(event);
       expect(capturePostHogEvent).toHaveBeenCalledWith(event);

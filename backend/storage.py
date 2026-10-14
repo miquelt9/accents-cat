@@ -217,6 +217,12 @@ def ensure_storage() -> None:
                 notes TEXT,
                 FOREIGN KEY (submission_id) REFERENCES submissions(id)
             );
+
+            CREATE TABLE IF NOT EXISTS origin_comarca_counts (
+                comarca TEXT PRIMARY KEY,
+                submission_count INTEGER NOT NULL DEFAULT 0
+                    CHECK (submission_count >= 0)
+            );
             """
         )
         _ensure_column(conn, "submissions", "prompt_id", "TEXT")
@@ -1005,3 +1011,24 @@ def upsert_feedback(
             )
             conn.commit()
     return existing_id or str(uuid.uuid4())
+
+
+def increment_origin_comarca_counts(comarques: list[str]) -> None:
+    """Keep only aggregate self-reported comarca counts, with no row identifiers."""
+    normalized = list(
+        dict.fromkeys(slug.strip().lower() for slug in comarques if slug.strip())
+    )
+    if not normalized:
+        return
+
+    with _connect() as conn:
+        conn.executemany(
+            """
+            INSERT INTO origin_comarca_counts (comarca, submission_count)
+            VALUES (?, 1)
+            ON CONFLICT(comarca) DO UPDATE SET
+                submission_count = submission_count + 1
+            """,
+            [(slug,) for slug in normalized],
+        )
+        conn.commit()

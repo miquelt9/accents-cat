@@ -215,22 +215,22 @@ const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Dades i ús",
         paragraphs: [
-          "Quan envies una gravació, el navegador la transmet al servidor perquè el model en calculi el resultat. El projecte no desa la gravació, el text llegit, les puntuacions, el resultat final, feedback ni identificadors de sessió. El fitxer temporal d'àudio s'elimina quan acaba la petició d'anàlisi. No cal donar consentiment per desar dades perquè aquesta funció està desactivada.",
-          "El servei no utilitza les gravacions ni els resultats per entrenar models, fer recerca, analitzar producte o crear conjunts de dades. La telemetria d'esdeveniments del navegador està desactivada per defecte.",
+          "Quan envies una gravació, el navegador la transmet al servidor perquè el model en calculi el resultat. El projecte no desa la gravació, el text llegit, les puntuacions, el resultat final ni identificadors de sessió; el fitxer temporal d'àudio s'elimina en acabar la petició d'anàlisi. No cal donar consentiment per desar gravacions perquè aquesta funció està desactivada.",
+          "Pots indicar voluntàriament una o més comarques amb què t'identifiques. El servidor només n'incrementa els recomptes totals: no desa una resposta individual, una data ni cap identificador, i no associa la comarca a l'àudio o al resultat. La telemetria de producte, quan està configurada, envia només noms d'esdeveniments per entendre l'ús de la funció; no inclou àudio, text, puntuacions, comarca, URL amb paràmetres ni identificadors de sessió. No s'activen l'enregistrament de sessions ni la captura automàtica. El projecte no utilitza gravacions ni resultats per entrenar models o fer recerca.",
           "El model retorna una estimació de similitud acústica amb cinc zones dialectals. No determina l'origen, la residència ni la identitat de cap persona.",
         ],
       },
       {
         heading: "Conservació i proveïdors",
         paragraphs: [
-          "El projecte no conserva les dades enviades ni els resultats de l'anàlisi després de completar la petició. El proveïdor d'allotjament pot generar registres tècnics necessaris per operar i protegir el servei; aquests registres els gestiona el proveïdor segons les seves pròpies condicions.",
+          "El projecte no conserva l'àudio, les dades derivades ni els resultats després de completar la petició. Conservem recomptes totals per comarca i, si s'ha configurat PostHog, esdeveniments d'ús sense propietats de l'usuari. Els proveïdors d'allotjament i analítica poden tractar metadades tècniques de connexió segons les seves pròpies condicions.",
           "El servidor pot carregar models de veu de tercers per calcular el resultat. L'àudio s'envia a aquest servidor i no s'envia al repositori dels models.",
         ],
       },
       {
         heading: "Drets i contacte",
         paragraphs: [
-          "Com que el projecte no conserva gravacions, resultats ni identificadors de sessió, no podem recuperar una anàlisi anterior ni associar-la amb una persona. Per a preguntes de privadesa, escriu a la persona responsable mitjançant el contacte indicat més avall.",
+          "Com que el projecte no conserva gravacions, resultats ni identificadors de sessió, no podem recuperar una anàlisi anterior ni associar-la amb una persona. Els recomptes agregats per comarca no permeten trobar una resposta individual. Per a preguntes de privadesa, escriu a la persona responsable mitjançant el contacte indicat més avall.",
         ],
       },
       {
@@ -256,7 +256,7 @@ const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Gravacions i dades",
         paragraphs: [
-          "En mode API, l'àudio s'envia al servidor per generar el resultat. El projecte no desa l'àudio, els textos, les puntuacions, el resultat final ni feedback després de completar l'anàlisi. Aquestes dades no s'utilitzen per entrenar models ni per a recerca.",
+          "En mode API, l'àudio s'envia al servidor per generar el resultat i s'elimina en acabar la petició. El projecte no desa l'àudio, els textos, les puntuacions ni el resultat final. Pots indicar voluntàriament una comarca; només es conserva el recompte agregat total, sense cap resposta individual ni enllaç amb l'anàlisi. Si està configurada, l'analítica registra noms d'esdeveniments d'ús sense dades de l'àudio, resultats, comarca ni identificadors. Aquestes dades no s'utilitzen per entrenar models ni per fer recerca.",
           "No hi ha una funció activa per donar consentiment a la conservació de gravacions. No es transfereixen drets sobre la teva veu al projecte.",
         ],
       },

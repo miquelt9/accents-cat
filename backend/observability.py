@@ -39,6 +39,7 @@ UI_TELEMETRY_EVENTS: frozenset[str] = frozenset(
         "analysis_unresolved",
         "share_clicked",
         "research_consent_accepted",
+        "origin_submitted",
     }
 )
 

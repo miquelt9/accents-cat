@@ -19,7 +19,8 @@ export type UiTelemetryEvent =
   | "analysis_finalized"
   | "analysis_unresolved"
   | "share_clicked"
-  | "research_consent_accepted";
+  | "research_consent_accepted"
+  | "origin_submitted";
 
 const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
 

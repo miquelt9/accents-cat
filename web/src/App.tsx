@@ -3,6 +3,7 @@ import { ChevronRight, MoonStar, RotateCcw, Sun } from "lucide-react";
 import "./App.css";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
+import { ResultsOriginFeedback } from "./components/ResultsOriginFeedback";
 import { DevScoreTuner } from "./components/DevScoreTuner";
 import { ManageMyData } from "./components/ManageMyData";
 import { RecorderPanel } from "./components/RecorderPanel";
@@ -634,7 +635,8 @@ function App() {
             ) : (
               <p className="landing-preconsent-retained">
                 Les gravacions es processen per calcular el resultat i s&apos;esborren en acabar l&apos;anàlisi.
-                No desem gravacions, resultats ni feedback.
+                No desem gravacions, resultats ni dades vinculades a l&apos;anàlisi. Si ho vols, pots
+                compartir la comarca que sents com a teva; només n&apos;afegim el recompte agregat.
               </p>
             )}
           </div>
@@ -739,15 +741,19 @@ function App() {
               {analysisError}
             </p>
           )}
-          {RESEARCH_RETENTION_ENABLED && <ResultsConsentFeedback
-            preConsented={preConsented}
-            initialComarques={rememberedComarques}
-            recordingId={result.recordingId}
-            analysisSessionId={analysisSessionId ?? result.analysisSessionId}
-            onResearchRetained={markResearchRetained}
-            onResearchDeclined={clearVisitResearchConsent}
-            onComarquesSaved={setRememberedComarques}
-          />}
+          {RESEARCH_RETENTION_ENABLED ? (
+            <ResultsConsentFeedback
+              preConsented={preConsented}
+              initialComarques={rememberedComarques}
+              recordingId={result.recordingId}
+              analysisSessionId={analysisSessionId ?? result.analysisSessionId}
+              onResearchRetained={markResearchRetained}
+              onResearchDeclined={clearVisitResearchConsent}
+              onComarquesSaved={setRememberedComarques}
+            />
+          ) : (
+            <ResultsOriginFeedback />
+          )}
           {shareOpen && (
             <ShareResultsModal
               scores={resultsScores}

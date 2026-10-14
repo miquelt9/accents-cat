@@ -78,6 +78,11 @@ RETAIN_USER_DATA = os.environ.get("ORACLE_RETAIN_USER_DATA", "1").strip().lower(
     "true",
     "yes",
 }
+RETAIN_ORIGIN_COUNTS = os.environ.get("ORACLE_RETAIN_ORIGIN_COUNTS", "0").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
 MIN_AUDIO_SECONDS = 3.0
 MAX_AUDIO_SECONDS = float(os.environ.get("ORACLE_MAX_AUDIO_SECONDS", "20"))
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
@@ -829,6 +834,22 @@ def submit_feedback(request: Request, body: FeedbackRequest) -> dict[str, str]:
         _raise_rate_limited()
 
     if not RETAIN_USER_DATA:
+        if not RETAIN_ORIGIN_COUNTS:
+            return {"feedbackId": ""}
+        supplied = body.model_fields_set
+        comarca = _normalize_comarques(
+            comarca=body.comarca,
+            comarques=body.comarques,
+            supplied=supplied,
+        )
+        selected = (
+            []
+            if comarca is storage.UNSET or comarca is None
+            else storage.parse_comarques(comarca)
+        )
+        if not selected:
+            raise HTTPException(status_code=422, detail="Cal indicar una comarca.")
+        storage.increment_origin_comarca_counts(selected)
         return {"feedbackId": ""}
 
     dialect = body.selfReportedDialect
