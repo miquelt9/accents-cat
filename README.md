@@ -8,7 +8,9 @@ before the response. The current results UI has no audio research-consent
 checkbox. A user may separately submit an optional comarca; the API increments
 per-comarca aggregate counts without storing an individual response or linking
 it to audio, results, or session IDs. Usage events contain allowlisted event
-names without event properties. The Pages workflow sends them to PostHog only
+names without custom event properties. When enabled, PostHog may add a random
+temporary browser identifier and technical metadata; browser persistence is
+memory-only. The Pages workflow sends events to PostHog only
 when the `VITE_POSTHOG_KEY` repository variable is configured; autocapture,
 pageview capture, and session replay are disabled.
 
