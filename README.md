@@ -207,7 +207,7 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | `VITE_ACCENT_ORACLE_MODE` | `api` or omit for mock |
 | `VITE_ACCENT_ORACLE_API_URL` | Backend base URL (default `http://localhost:8000`) |
 | `VITE_ACCENT_ORACLE_DEV` | `1` to show diagnostic UI (CPU hint, validation internals) + Mode cycle (**API → mock fail → mock success**). Also `?dev=1` (persists in `localStorage`; `?dev=0` clears). |
-| `VITE_PUBLIC_SITE_URL` | Optional promo URL on the results share card (defaults to `window.location.host`). Native image share needs HTTPS (`isSecureContext`); on plain HTTP LAN, the UI downloads the PNG instead. |
+| `VITE_PUBLIC_SITE_URL` | Public URL used in result shares and Open Graph metadata. The GitHub Pages workflow sets this to `https://miquelt9.github.io/accents-cat/`; outside that build it defaults to `window.location.host`. Native image share needs HTTPS (`isSecureContext`); on plain HTTP LAN, the UI downloads the PNG instead. |
 | `VITE_SENTRY_DSN` | Frontend Sentry DSN (omit to disable) |
 | `VITE_SENTRY_ENVIRONMENT` | Sentry environment (default `development`; Sentry stays off in development unless `VITE_SENTRY_ENABLE_DEV=1`) |
 | `VITE_SENTRY_RELEASE` | Release string tagged on events |
