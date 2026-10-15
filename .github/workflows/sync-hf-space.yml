@@ -53,7 +53,9 @@ jobs:
           from huggingface_hub import HfApi
 
           model_id = os.environ["MODEL_ID"]
-          revision = HfApi().model_info(model_id).sha
+          # The Trusted Publisher token is scoped to the Space, so read the
+          # public model metadata anonymously instead of sending that token.
+          revision = HfApi(token=False).model_info(model_id).sha
           print(revision)
           PY
           )"
