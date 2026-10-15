@@ -2238,6 +2238,33 @@ h2 {
 
 .results-map-layout {
   align-items: stretch;
+  grid-template-areas:
+    "result map"
+    "confidence map"
+    "ranking map"
+    "toggle map";
+  grid-template-rows: auto auto auto auto;
+}
+
+.results-map-layout > .top-result-card {
+  grid-area: result;
+}
+
+.results-map-layout > .results-confidence-summary {
+  grid-area: confidence;
+}
+
+.results-map-layout > .dialect-map-viewport {
+  grid-area: map;
+}
+
+.results-map-layout > .dialect-rank-list {
+  grid-area: ranking;
+}
+
+.results-map-layout > .dialect-rank-toggle {
+  display: none;
+  grid-area: toggle;
 }
 
 .dialect-map-viewport {
@@ -2507,6 +2534,10 @@ h2 {
   gap: 0.45rem;
 }
 
+.dialect-rank-toggle {
+  justify-self: start;
+}
+
 .dialect-rank-item {
   background: var(--surface-soft);
   border-radius: 14px;
@@ -2589,7 +2620,28 @@ h2 {
     grid-template-columns: 1fr;
   }
 
+  .results-map-layout {
+    grid-template-areas:
+      "result"
+      "confidence"
+      "map"
+      "ranking"
+      "toggle";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+  }
+
   .hero {
     min-height: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .dialect-rank-list:not(.is-expanded) > .dialect-rank-item:nth-child(n + 4) {
+    display: none;
+  }
+
+  .results-map-layout > .dialect-rank-toggle {
+    display: inline-flex;
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   DIALECT_ZONE_LABELS,
   DIALECT_ZONES,
@@ -35,7 +35,10 @@ export function ResultsMapStage({
   const topZone = rankedZones[0];
   const [selectedZone, setSelectedZone] = useState<DialectZone>(topZone);
   const [inspectedComarca, setInspectedComarca] = useState<string | null>(null);
+  const [showAllZones, setShowAllZones] = useState(false);
   const prevTopZoneRef = useRef(topZone);
+  const rankListId = useId();
+  const remainingZoneCount = rankedZones.length - 3;
 
   useEffect(() => {
     if (prevTopZoneRef.current !== topZone && selectedZone === prevTopZoneRef.current) {
@@ -99,51 +102,16 @@ export function ResultsMapStage({
       aria-label="Resultat del mapa de similitud"
     >
       <div className="heatmap-layout geographic-heatmap-layout results-map-layout">
-        <div className="results-ranking" aria-label="Percentatges per accent">
-          <article className="top-result-card">
-            <span className="top-result-label">
-              {unresolved ? "Zona amb més similitud" : "Coincidència principal"}
-            </span>
-            <strong>{DIALECT_ZONE_LABELS[topZone]}</strong>
-            <span className="top-result-score">{Math.round(scores[topZone] * 100)}%</span>
-          </article>
-          {confidenceSummary ? (
-            <p className="results-confidence-summary">{confidenceSummary}</p>
-          ) : null}
-
-          <div className="dialect-rank-list" role="list">
-            {rankedZones.map((zone) => {
-              const pct = Math.round(scores[zone] * 100);
-              const isActive = zone === selectedZone;
-              return (
-                <div
-                  key={zone}
-                  className={`dialect-rank-item${isActive ? " is-active" : ""}`}
-                  role="listitem"
-                >
-                  <button
-                    type="button"
-                    className="dialect-rank-button"
-                    aria-pressed={isActive}
-                    onClick={() => selectZone(zone)}
-                  >
-                    <span className="dialect-rank-name">{DIALECT_ZONE_LABELS[zone]}</span>
-                    <span className="dialect-rank-pct">{pct}%</span>
-                    <div className="dialect-rank-bar-track" aria-hidden>
-                      <div
-                        className="dialect-rank-bar-fill"
-                        style={{
-                          width: `${pct}%`,
-                          transition: `width 190ms cubic-bezier(${accordionEase.join(",")})`,
-                        }}
-                      />
-                    </div>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <article className="top-result-card">
+          <span className="top-result-label">
+            {unresolved ? "Zona amb més similitud" : "Coincidència principal"}
+          </span>
+          <strong>{DIALECT_ZONE_LABELS[topZone]}</strong>
+          <span className="top-result-score">{Math.round(scores[topZone] * 100)}%</span>
+        </article>
+        {confidenceSummary ? (
+          <p className="results-confidence-summary">{confidenceSummary}</p>
+        ) : null}
 
         <DialectMap
           selectedZone={selectedZone}
@@ -153,6 +121,58 @@ export function ResultsMapStage({
           onSelect={onMapSelect}
           playEntrance
         />
+
+        <div
+          id={rankListId}
+          className={`dialect-rank-list${showAllZones ? " is-expanded" : ""}`}
+          role="list"
+          aria-label="Percentatges per accent"
+        >
+          {rankedZones.map((zone) => {
+            const pct = Math.round(scores[zone] * 100);
+            const isActive = zone === selectedZone;
+            return (
+              <div
+                key={zone}
+                className={`dialect-rank-item${isActive ? " is-active" : ""}`}
+                role="listitem"
+              >
+                <button
+                  type="button"
+                  className="dialect-rank-button"
+                  aria-pressed={isActive}
+                  onClick={() => selectZone(zone)}
+                >
+                  <span className="dialect-rank-name">{DIALECT_ZONE_LABELS[zone]}</span>
+                  <span className="dialect-rank-pct">{pct}%</span>
+                  <div className="dialect-rank-bar-track" aria-hidden>
+                    <div
+                      className="dialect-rank-bar-fill"
+                      style={{
+                        width: `${pct}%`,
+                        transition: `width 190ms cubic-bezier(${accordionEase.join(",")})`,
+                      }}
+                    />
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {remainingZoneCount > 0 && (
+          <button
+            type="button"
+            className="secondary dialect-rank-toggle"
+            aria-controls={rankListId}
+            aria-expanded={showAllZones}
+            onClick={() => setShowAllZones((expanded) => !expanded)}
+          >
+            {showAllZones
+              ? "Mostra menys accents"
+              : `Mostra els ${remainingZoneCount} accents restants`}
+          </button>
+        )}
       </div>
     </section>
   );

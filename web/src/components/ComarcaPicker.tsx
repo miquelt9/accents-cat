@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
 import { comarcaNameMatchesQuery } from "../lib/comarcaDisplay";
 import {
   COMARCA_MAP_META,
@@ -58,7 +58,6 @@ export function ComarcaPicker({
 }: ComarcaPickerProps) {
   const baseId = useId();
   const listboxId = `${baseId}-listbox`;
-  const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const hasQuery = query.trim().length > 0;
@@ -88,22 +87,6 @@ export function ComarcaPicker({
       .getElementById(`${baseId}-option-${safeActiveIndex}`)
       ?.scrollIntoView({ block: "nearest" });
   }, [baseId, safeActiveIndex]);
-
-  useEffect(() => {
-    const isNarrow = window.matchMedia?.("(max-width: 639px)").matches ?? false;
-    const isCoarse = window.matchMedia?.("(pointer: coarse)").matches ?? false;
-    if (!isNarrow && !isCoarse) {
-      return;
-    }
-
-    const focusInput = () => inputRef.current?.focus({ preventScroll: true });
-    if (typeof window.requestAnimationFrame === "function") {
-      const frame = window.requestAnimationFrame(focusInput);
-      return () => window.cancelAnimationFrame(frame);
-    }
-    const timeout = window.setTimeout(focusInput, 0);
-    return () => window.clearTimeout(timeout);
-  }, []);
 
   function toggleComarca(slug: string) {
     if (selectedSet.has(slug)) {
@@ -194,7 +177,6 @@ export function ComarcaPicker({
       <input
         id={`${baseId}-input`}
         className="comarca-picker-input"
-        ref={inputRef}
         type="text"
         role="combobox"
         aria-autocomplete="list"
