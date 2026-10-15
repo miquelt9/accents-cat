@@ -49,8 +49,7 @@ export function ResultsOriginFeedback() {
             onChange={setSelectedComarques}
           />
           <p className="quiet-recording-hint">
-            En enviar-la, només guardem el recompte per comarca, sense vincular-lo a l&apos;àudio,
-            al resultat ni a cap identificador.
+            Només guardem el recompte per comarca; no guardem l&apos;àudio ni cap identificador.
           </p>
           {error && <p className="error-message" role="alert">{error}</p>}
           <button

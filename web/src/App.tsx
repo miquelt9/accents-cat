@@ -634,9 +634,8 @@ function App() {
               </label>
             ) : (
               <p className="landing-preconsent-retained">
-                Les gravacions es processen per calcular el resultat i s&apos;esborren en acabar l&apos;anàlisi.
-                No desem gravacions, resultats ni dades vinculades a l&apos;anàlisi. Si ho vols, pots
-                compartir la comarca que sents com a teva; només n&apos;afegim el recompte agregat.
+                No desem gravacions, resultats ni dades vinculades a l&apos;anàlisi. Les gravacions
+                s&apos;esborren en acabar l&apos;anàlisi.
               </p>
             )}
           </div>

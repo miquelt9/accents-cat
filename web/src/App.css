@@ -520,7 +520,8 @@ h2 {
 .prompt-card blockquote {
   border-left: 5px solid var(--blockquote-border);
   color: var(--text-primary);
-  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  /* Keep the spoken prompt larger than prompt-card headings in every phase. */
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.45;

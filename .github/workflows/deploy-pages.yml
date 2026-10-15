@@ -21,6 +21,7 @@ jobs:
     env:
       VITE_ACCENT_ORACLE_MODE: api
       VITE_ACCENT_ORACLE_API_URL: https://miquelt-9-accents-cat-api.hf.space
+      VITE_PUBLIC_SITE_URL: https://miquelt9.github.io/accents-cat/
       VITE_RESEARCH_RETENTION_ENABLED: "0"
       VITE_PRODUCT_ANALYTICS_ENABLED: "1"
       VITE_DIAGNOSTICS_ENABLED: "1"
