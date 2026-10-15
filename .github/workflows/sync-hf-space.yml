@@ -119,7 +119,7 @@ jobs:
           pr_url = commit.pr_url
           if not pr_url:
               raise RuntimeError(f"Hugging Face did not return a pull request URL: {commit}")
-          match = re.search(r"/pull/(\d+)", pr_url)
+          match = re.search(r"/(?:pull|discussions)/(\d+)(?:$|[/?#])", pr_url)
           if not match:
               match = re.search(r"refs/pr/(\d+)", pr_url)
           if not match:
