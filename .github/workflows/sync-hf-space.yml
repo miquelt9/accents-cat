@@ -106,12 +106,11 @@ jobs:
           print("Space deployment files differ." if changed else "Space deployment files are already current.")
           PY
 
-      - name: Upload backend and pinned model revision
+      - name: Publish backend and pinned model revision
         if: steps.changes.outputs.changed == 'true'
         run: |
           python - <<'PY'
           import os
-          import re
           from huggingface_hub import HfApi
 
           commit = HfApi().upload_folder(
@@ -119,24 +118,9 @@ jobs:
               repo_type="space",
               folder_path=os.environ["SPACE_STAGE"],
               commit_message=f"Sync backend from GitHub {os.environ['GITHUB_SHA']}",
-              create_pr=True,
           )
-          pr_url = commit.pr_url
-          if not pr_url:
-              raise RuntimeError(f"Hugging Face did not return a pull request URL: {commit}")
-          match = re.search(r"/(?:pull|discussions)/(\d+)(?:$|[/?#])", pr_url)
-          if not match:
-              match = re.search(r"refs/pr/(\d+)", pr_url)
-          if not match:
-              raise RuntimeError(f"Could not determine Hugging Face pull request number from {pr_url}")
-          with open(os.environ["GITHUB_ENV"], "a") as env_file:
-              env_file.write(f"HF_PR_NUMBER={match.group(1)}\n")
-          print(f"Created Hugging Face Space pull request: {pr_url}")
+          print(f"Published Hugging Face Space commit: {commit.oid}")
           PY
-
-      - name: Merge Hugging Face Space pull request
-        if: steps.changes.outputs.changed == 'true'
-        run: hf discussions merge "$SPACE_ID" "$HF_PR_NUMBER" --type space --yes
 
       - name: Wait for Space restart
         if: steps.changes.outputs.changed == 'true'
