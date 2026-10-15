@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import tempfile
 import time
 import uuid
@@ -276,10 +277,41 @@ def load_encoder() -> tuple[Any, Any, Any]:
 
 
 def load_audio(path: Path, sampling_rate: int) -> np.ndarray:
-    import librosa
+    """Decode uploads through ffmpeg, including browser-recorded WebM/Opus."""
+    try:
+        decoded = subprocess.run(
+            [
+                "ffmpeg",
+                "-nostdin",
+                "-v",
+                "error",
+                "-i",
+                str(path),
+                "-map",
+                "0:a:0",
+                "-vn",
+                "-t",
+                str(MAX_AUDIO_SECONDS),
+                "-ac",
+                "1",
+                "-ar",
+                str(sampling_rate),
+                "-f",
+                "f32le",
+                "pipe:1",
+            ],
+            check=True,
+            capture_output=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        # Do not include ffmpeg's stderr: it can contain the temporary upload path.
+        raise HTTPException(
+            status_code=422,
+            detail="No s'ha pogut llegir l'àudio. Torna a gravar-lo i prova-ho de nou.",
+        ) from None
 
-    audio, _ = librosa.load(path, sr=sampling_rate, mono=True)
-    return audio.astype(np.float32)
+    return np.frombuffer(decoded.stdout, dtype=np.float32).copy()
 
 
 def pool_hidden_state(hidden: Any) -> np.ndarray:
