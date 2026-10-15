@@ -62,19 +62,80 @@ jobs:
           printf '%s\n' "$model_revision" > "$stage/model-revision.txt"
           echo "SPACE_STAGE=$stage" >> "$GITHUB_ENV"
 
+      - name: Check whether the Space files changed
+        id: changes
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from huggingface_hub import snapshot_download
+
+          remote = Path(os.environ["RUNNER_TEMP"]) / "accents-cat-space-current"
+          snapshot_download(
+              repo_id=os.environ["SPACE_ID"],
+              repo_type="space",
+              local_dir=remote,
+              allow_patterns=[
+                  "backend/**",
+                  "app.py",
+                  "README.md",
+                  "packages.txt",
+                  "requirements.txt",
+                  "model-revision.txt",
+              ],
+          )
+
+          stage = Path(os.environ["SPACE_STAGE"])
+          staged_files = sorted(path.relative_to(stage) for path in stage.rglob("*") if path.is_file())
+          changed = any(
+              not (remote / relative).is_file()
+              or (stage / relative).read_bytes() != (remote / relative).read_bytes()
+              for relative in staged_files
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"changed={'true' if changed else 'false'}\n")
+          print("Space deployment files differ." if changed else "Space deployment files are already current.")
+          PY
+
       - name: Upload backend and pinned model revision
+        if: steps.changes.outputs.changed == 'true'
         run: |
           if [ -z "$HF_TOKEN" ]; then
             echo "Set the HF_TOKEN GitHub Actions secret to a Hugging Face token with write access to $SPACE_ID."
             exit 1
           fi
-          hf upload "$SPACE_ID" "$SPACE_STAGE" . \
-            --type space \
-            --token "$HF_TOKEN" \
-            --commit-message "Sync backend from GitHub ${GITHUB_SHA}"
+          python - <<'PY'
+          import os
+          import re
+          from huggingface_hub import HfApi
+
+          commit = HfApi().upload_folder(
+              repo_id=os.environ["SPACE_ID"],
+              repo_type="space",
+              folder_path=os.environ["SPACE_STAGE"],
+              commit_message=f"Sync backend from GitHub {os.environ['GITHUB_SHA']}",
+              create_pr=True,
+          )
+          pr_url = commit.pr_url
+          if not pr_url:
+              raise RuntimeError(f"Hugging Face did not return a pull request URL: {commit}")
+          match = re.search(r"/pull/(\d+)", pr_url)
+          if not match:
+              match = re.search(r"refs/pr/(\d+)", pr_url)
+          if not match:
+              raise RuntimeError(f"Could not determine Hugging Face pull request number from {pr_url}")
+          with open(os.environ["GITHUB_ENV"], "a") as env_file:
+              env_file.write(f"HF_PR_NUMBER={match.group(1)}\n")
+          print(f"Created Hugging Face Space pull request: {pr_url}")
+          PY
+
+      - name: Merge Hugging Face Space pull request
+        if: steps.changes.outputs.changed == 'true'
+        run: hf discussions merge "$SPACE_ID" "$HF_PR_NUMBER" --type space --yes
 
       - name: Wait for Space restart
-        run: hf spaces wait "$SPACE_ID" --token "$HF_TOKEN" --timeout 30m
+        if: steps.changes.outputs.changed == 'true'
+        run: hf spaces wait "$SPACE_ID" --timeout 30m
 
       - name: Check Space readiness
         run: |
