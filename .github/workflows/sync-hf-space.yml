@@ -1,0 +1,114 @@
+name: Sync Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "requirements.txt"
+      - "deploy/huggingface-space/**"
+      - ".github/workflows/sync-hf-space.yml"
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-hf-space
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      SPACE_ID: miquelt-9/accents-cat-api
+      MODEL_ID: miquelt-9/cv26-hubert-svm-calibrated
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Hugging Face Hub CLI
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Prepare synchronized Space files
+        run: |
+          model_revision="$(python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          model_id = os.environ["MODEL_ID"]
+          revision = HfApi().model_info(model_id).sha
+          print(revision)
+          PY
+          )"
+          echo "MODEL_REVISION=$model_revision" >> "$GITHUB_ENV"
+
+          stage="$RUNNER_TEMP/accents-cat-space"
+          mkdir -p "$stage/backend"
+          cp -R backend/. "$stage/backend/"
+          cp deploy/huggingface-space/app.py "$stage/app.py"
+          cp deploy/huggingface-space/README.md "$stage/README.md"
+          cp deploy/huggingface-space/packages.txt "$stage/packages.txt"
+          cp requirements.txt "$stage/requirements.txt"
+          printf '%s\n' "$model_revision" > "$stage/model-revision.txt"
+          echo "SPACE_STAGE=$stage" >> "$GITHUB_ENV"
+
+      - name: Upload backend and pinned model revision
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "Set the HF_TOKEN GitHub Actions secret to a Hugging Face token with write access to $SPACE_ID."
+            exit 1
+          fi
+          hf upload "$SPACE_ID" "$SPACE_STAGE" . \
+            --type space \
+            --token "$HF_TOKEN" \
+            --commit-message "Sync backend from GitHub ${GITHUB_SHA}"
+
+      - name: Wait for Space restart
+        run: hf spaces wait "$SPACE_ID" --token "$HF_TOKEN" --timeout 30m
+
+      - name: Check Space readiness
+        run: |
+          for attempt in $(seq 1 60); do
+            status="$(curl --silent --show-error --output /tmp/space-ready.json --write-out '%{http_code}' https://miquelt-9-accents-cat-api.hf.space/ready || true)"
+            if [ "$status" = "200" ]; then
+              cat /tmp/space-ready.json
+              exit 0
+            fi
+            echo "Space readiness returned HTTP ${status}; retry ${attempt}/60"
+            sleep 10
+          done
+          cat /tmp/space-ready.json || true
+          exit 1
+
+      - name: Smoke test one synthetic audio upload
+        run: |
+          python - <<'PY'
+          import math
+          import struct
+          import wave
+
+          path = "/tmp/space-smoke-test.wav"
+          with wave.open(path, "wb") as wav:
+              wav.setnchannels(1)
+              wav.setsampwidth(2)
+              wav.setframerate(16000)
+              samples = (
+                  struct.pack("<h", int(5000 * math.sin(2 * math.pi * 220 * i / 16000)))
+                  for i in range(64000)
+              )
+              wav.writeframes(b"".join(samples))
+          PY
+          curl --fail --show-error --silent --max-time 180 \
+            -F 'audio=@/tmp/space-smoke-test.wav;type=audio/wav' \
+            https://miquelt-9-accents-cat-api.hf.space/analyze
+          rm -f /tmp/space-smoke-test.wav

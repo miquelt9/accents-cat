@@ -821,27 +821,29 @@ function App() {
               Gestiona les meves dades
             </button>
             <span className="privacy-footer-sep" aria-hidden="true">·</span>
+            <button className="privacy-link" onClick={() => openLegalDoc("privacy")} type="button">
+              Privadesa
+            </button>
+            <span className="privacy-footer-sep" aria-hidden="true">·</span>
+            <button className="privacy-link" onClick={() => openLegalDoc("terms")} type="button">
+              Termes
+            </button>
+            <span className="privacy-footer-sep" aria-hidden="true">·</span>
           </>
         )}
-        <button className="privacy-link" onClick={() => openLegalDoc("privacy")} type="button">
-          Privadesa
-        </button>
-        <span className="privacy-footer-sep" aria-hidden="true">
-          ·
-        </span>
-        <button className="privacy-link" onClick={() => openLegalDoc("terms")} type="button">
-          Termes
-        </button>
-        <span className="privacy-footer-sep" aria-hidden="true">
-          ·
-        </span>
         <a
           className="privacy-link open-source-link"
           href="https://github.com/miquelt9/accents-cat"
           rel="noreferrer"
           target="_blank"
         >
-          Projecte de codi obert ↗
+          <svg aria-hidden="true" height="15" viewBox="0 0 24 24" width="15">
+            <path
+              d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.11.82-.26.82-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.42-1.305.763-1.605-2.665-.303-5.466-1.333-5.466-5.93 0-1.31.468-2.38 1.236-3.22-.124-.303-.536-1.523.117-3.176 0 0 1.008-.323 3.3 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.29-1.553 3.295-1.23 3.295-1.23.655 1.653.243 2.873.12 3.176.77.84 1.233 1.91 1.233 3.22 0 4.61-2.804 5.624-5.475 5.92.43.372.814 1.102.814 2.222v3.293c0 .32.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+              fill="currentColor"
+            />
+          </svg>
+          Projecte de codi obert
         </a>
       </footer>
     </main>
