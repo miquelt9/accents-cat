@@ -1,8 +1,12 @@
 """Gradio Space bridge for the Accent Oracle FastAPI backend."""
 
 import os
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+# Before the model download, so startup_seconds includes that wait.
+os.environ.setdefault("ORACLE_PROCESS_START_PERF", str(time.perf_counter()))
 
 os.environ["HF_HOME"] = "/tmp/hf_cache"
 os.environ.setdefault("ORACLE_RETAIN_USER_DATA", "0")

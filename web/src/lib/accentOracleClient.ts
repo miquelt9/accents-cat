@@ -422,6 +422,9 @@ export const apiAccentOracleClient: AccentOracleClient = {
         "L'API del model no ha pogut analitzar aquesta gravació.",
       );
       const elapsedMs = performance.now() - startedAt;
+      if (response.status === 503) {
+        throw new AnalysisFailure("saturated", elapsedMs, message);
+      }
       if (response.status >= 500) {
         throw new AnalysisFailure("5xx", elapsedMs, message);
       }

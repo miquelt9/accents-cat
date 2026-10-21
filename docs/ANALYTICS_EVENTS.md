@@ -7,7 +7,7 @@ configured. There is no third-party product-analytics SDK.
 ## Privacy rules
 
 - No cookies and no browser storage for these events
-- Event name only, except `analysis_failed`, which may add `reason` (`timeout`, `5xx`, `4xx`, `network`) and `latencyBucket` (`under_15s`, `15_to_45s`, `45_to_90s`, `over_90s`)
+- Event name only, except `analysis_failed`, which may add `reason` (`timeout`, `5xx`, `saturated`, `4xx`, `network`) and `latencyBucket` (`under_15s`, `15_to_45s`, `45_to_90s`, `over_90s`)
 - The latency bucket is the whole wait, including a sleeping Space waking up
 - Never send: audio, request/response bodies, recording IDs, comarca, consent payloads, scores, prompts, or notes
 - Backend allowlist must stay in sync with `UI_TELEMETRY_EVENTS` in `backend/observability.py`
@@ -27,7 +27,7 @@ not unique browsers.
 | `04_analyze_pressed` | `analyze_pressed` |
 | `05_analysis_completed` | `analysis_completed` |
 | `06_result` | `result_shown` |
-| `07_retry_or_finalized` | `flow_retried`, `analysis_finalized` |
+| `07_retry` | `flow_retried` from the results screen |
 
 ## Events
 
@@ -42,14 +42,14 @@ not unique browsers.
 | `recording_completed` | Recording meets min duration and is handed to analyze | |
 | `analyze_pressed` | User submits a take for `/analyze` | Before the request completes |
 | `analysis_completed` | `/analyze` (or mock) returns successfully | No scores / labels attached |
-| `analysis_failed` | `/analyze` times out, returns 5xx, or the network fails | `reason` + coarse `latencyBucket` only |
+| `analysis_failed` | `/analyze` times out, returns 5xx, 503, 4xx, or the network fails | `reason` + coarse `latencyBucket` only |
 | `validation_started` | A mandatory second take is shown | Event name only |
 | `third_take_offered` | The merged result remains uncertain after two takes | Event name only |
 | `third_take_completed` | The optional third take returns successfully | Event name only |
 | `third_take_skipped` | User continues without the optional third take | Event name only |
-| `result_shown` | The results screen is shown | Event name only |
-| `analysis_finalized` | The final result snapshot is persisted | Counts toward retry/finalized |
-| `flow_retried` | «Tornar a l'inici» leaves a non-landing phase | Counts toward retry/finalized |
+| `result_shown` | The results screen is shown the first time in a flow | Event name only |
+| `analysis_finalized` | The final result snapshot is persisted | Not a funnel step; only when research retention is on |
+| `flow_retried` | «Tornar a l'inici» from the results screen | Funnel step `07_retry` |
 | `analysis_unresolved` | The terminal result remains uncertain after the available takes | Event name only |
 | `share_clicked` | User opens the results share UI | Not per social network |
 | `research_consent_accepted` | Research consent `consent: true` succeeds | No recording ID |

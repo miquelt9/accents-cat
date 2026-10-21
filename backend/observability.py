@@ -7,6 +7,7 @@ recording IDs, consent payloads, or filenames to observability vendors.
 from __future__ import annotations
 
 import logging
+import math
 import os
 import re
 import time
@@ -49,7 +50,8 @@ UI_TELEMETRY_EVENTS: frozenset[str] = frozenset(
 )
 
 # Product funnel steps, in order. Counts only — no cookies or browser storage.
-# `07_retry_or_finalized` covers an explicit retry and a persisted finalize.
+# `07_retry` is «Tornar a l'inici» from the results screen. It does not depend
+# on research retention (`analysis_finalized` stays an event, not a funnel step).
 FUNNEL_STEP_BY_EVENT: dict[str, str] = {
     "homepage_viewed": "01_homepage",
     "recording_started": "02_recording_started",
@@ -57,12 +59,11 @@ FUNNEL_STEP_BY_EVENT: dict[str, str] = {
     "analyze_pressed": "04_analyze_pressed",
     "analysis_completed": "05_analysis_completed",
     "result_shown": "06_result",
-    "analysis_finalized": "07_retry_or_finalized",
-    "flow_retried": "07_retry_or_finalized",
+    "flow_retried": "07_retry",
 }
 
 ANALYSIS_FAILURE_REASONS: frozenset[str] = frozenset(
-    {"timeout", "5xx", "4xx", "network"}
+    {"timeout", "5xx", "saturated", "4xx", "network"}
 )
 LATENCY_BUCKETS: frozenset[str] = frozenset(
     {"under_15s", "15_to_45s", "45_to_90s", "over_90s"}
@@ -106,8 +107,28 @@ _inference_active_workers_gauge: Any = None
 _http_request_counter: Any = None
 _http_duration_histogram: Any = None
 _inference_pool_metrics_provider: Callable[[], dict[str, float]] | None = None
+# Import time is the baseline when nothing recorded an earlier mark.
+# The Space sets ORACLE_PROCESS_START_PERF before the model download.
 _PROCESS_STARTED_AT = time.perf_counter()
 _startup_seconds: float | None = None
+
+
+def process_started_at() -> float:
+    """Perf-counter baseline for startup_seconds.
+
+    A finite, non-negative ``ORACLE_PROCESS_START_PERF`` wins so the gauge
+    includes work done before this module was imported, such as the Space
+    model download.
+    """
+    raw = os.environ.get("ORACLE_PROCESS_START_PERF", "").strip()
+    if raw:
+        try:
+            started = float(raw)
+        except ValueError:
+            started = -1.0
+        if math.isfinite(started) and started >= 0:
+            return started
+    return _PROCESS_STARTED_AT
 
 
 def app_version() -> str:
@@ -229,7 +250,7 @@ def mark_startup_complete() -> float:
     """Record seconds from process import until the API finished starting."""
     global _startup_seconds
     if _startup_seconds is None:
-        _startup_seconds = max(0.0, time.perf_counter() - _PROCESS_STARTED_AT)
+        _startup_seconds = max(0.0, time.perf_counter() - process_started_at())
     return _startup_seconds
 
 
@@ -530,7 +551,7 @@ def init_otel_metrics() -> bool:
     _startup_seconds_gauge = meter.create_observable_gauge(
         "accent_oracle_startup_seconds",
         callbacks=[_observe_startup_seconds],
-        description="Seconds from process start until the API finished starting",
+        description="Seconds from process start until the API finished starting, including the Space model download when that start was recorded",
         unit="s",
     )
 
@@ -615,18 +636,13 @@ def record_feedback() -> None:
         pass
 
 
-def record_ui_event(
-    event: str,
-    *,
-    reason: str | None = None,
-    latency_bucket: str | None = None,
-) -> None:
+def record_ui_event(event: str, attrs: dict[str, str]) -> None:
+    """Count an event that the route has already validated."""
     if not _otel_enabled:
         return
     try:
-        name, attrs = parse_ui_telemetry(event, reason, latency_bucket)
         _ui_event_counter.add(1, attrs)
-        step = FUNNEL_STEP_BY_EVENT.get(name)
+        step = FUNNEL_STEP_BY_EVENT.get(event)
         if step is not None and _funnel_counter is not None:
             _funnel_counter.add(1, {"step": step})
     except Exception:  # noqa: BLE001

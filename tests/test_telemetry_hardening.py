@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
+import time
 import types
 from pathlib import Path
 
@@ -149,7 +150,7 @@ def test_analysis_failed_requires_coarse_fields() -> None:
         "reason": "timeout",
         "latency_bucket": "over_90s",
     }
-    for reason in ("timeout", "5xx", "4xx", "network"):
+    for reason in ("timeout", "5xx", "saturated", "4xx", "network"):
         parse_ui_telemetry("analysis_failed", reason, "under_15s")
     try:
         parse_ui_telemetry("analysis_failed", "timeout", None)
@@ -182,8 +183,8 @@ def test_funnel_steps_cover_the_product_path() -> None:
         "05_analysis_completed",
         "06_result",
     ]
-    assert FUNNEL_STEP_BY_EVENT["flow_retried"] == "07_retry_or_finalized"
-    assert FUNNEL_STEP_BY_EVENT["analysis_finalized"] == "07_retry_or_finalized"
+    assert FUNNEL_STEP_BY_EVENT["flow_retried"] == "07_retry"
+    assert "analysis_finalized" not in FUNNEL_STEP_BY_EVENT
     assert "analysis_failed" not in FUNNEL_STEP_BY_EVENT
 
 
@@ -253,7 +254,7 @@ def test_operations_dashboard_funnel_panel() -> None:
         "04_analyze_pressed",
         "05_analysis_completed",
         "06_result",
-        "07_retry_or_finalized",
+        "07_retry",
     ):
         assert step in blob
     assert "accent_oracle_funnel_total" in blob
@@ -264,11 +265,55 @@ def test_operations_dashboard_funnel_panel() -> None:
     assert "accent_oracle_startup_seconds" in json.dumps(startup)
 
 
+def test_startup_seconds_include_an_earlier_process_mark(monkeypatch) -> None:
+    import backend.observability as obs
+
+    monkeypatch.setenv("ORACLE_PROCESS_START_PERF", str(time.perf_counter() - 2.5))
+    previous = obs._startup_seconds
+    obs._startup_seconds = None
+    try:
+        marked = mark_startup_complete()
+        assert marked >= 2.5
+    finally:
+        obs._startup_seconds = previous
+
+
+def test_telemetry_route_validates_the_payload_once(monkeypatch) -> None:
+    from fastapi.testclient import TestClient
+
+    from backend import app as oracle_app
+
+    calls: list[tuple[object, ...]] = []
+    real_parse = oracle_app.parse_ui_telemetry
+
+    def wrapped(*args: object, **kwargs: object) -> tuple[str, dict[str, str]]:
+        calls.append(args)
+        return real_parse(*args, **kwargs)  # type: ignore[arg-type]
+
+    class _Allow:
+        def allow(self, _key: str) -> bool:
+            return True
+
+    monkeypatch.setattr(oracle_app, "parse_ui_telemetry", wrapped)
+    monkeypatch.setattr(oracle_app, "_telemetry_limiter", _Allow())
+    client = TestClient(oracle_app.app)
+    response = client.post("/telemetry/event", json={"event": "homepage_viewed"})
+    assert response.status_code == 204
+    assert len(calls) == 1
+
+
 def test_deploy_workflows_carry_sha_and_drop_posthog() -> None:
     pages = (ROOT / ".github/workflows/deploy-pages.yml").read_text(encoding="utf-8")
+    job_env, _, steps = pages.partition("steps:")
+    build_step = steps.split("- name: Build frontend", 1)[1].split("- name:", 1)[0]
     assert "VITE_GIT_SHA: ${{ github.sha }}" in pages
     assert "VITE_SENTRY_RELEASE: ${{ github.sha }}" in pages
-    assert "SENTRY_AUTH_TOKEN" in pages
+    assert "SENTRY_AUTH_TOKEN" not in job_env
+    assert "SENTRY_ORG" not in job_env
+    assert "SENTRY_PROJECT" not in job_env
+    assert "SENTRY_AUTH_TOKEN" in build_step
+    assert "SENTRY_ORG" in build_step
+    assert "SENTRY_PROJECT" in build_step
     assert "find dist -name '*.map' -delete" in pages
     assert "POSTHOG" not in pages
     space = (ROOT / ".github/workflows/sync-hf-space.yml").read_text(encoding="utf-8")

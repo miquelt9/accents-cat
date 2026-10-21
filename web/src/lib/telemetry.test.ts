@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { trackUiEvent } from "./telemetry";
 import { shouldInitSentry } from "./sentry";
 import { releaseFromParts, sentryRelease, buildInfo } from "./buildInfo";
-import { sentrySourcemapUpload } from "./sentryBuild";
+import { sentrySourcemapUpload } from "../../sentryBuild";
 import {
   friendlyHttpFallback,
   isNetworkFetchError,

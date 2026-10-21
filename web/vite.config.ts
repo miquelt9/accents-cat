@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { sentrySourcemapUpload } from "./src/lib/sentryBuild";
+import { sentrySourcemapUpload } from "./sentryBuild";
 
 export default defineConfig(({ command }) => {
   const upload = command === "build" ? sentrySourcemapUpload(process.env) : null;

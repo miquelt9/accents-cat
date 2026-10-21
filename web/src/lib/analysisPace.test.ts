@@ -18,6 +18,7 @@ describe("analysis pace copy and buckets", () => {
     expect(ANALYSIS_SLOW_MESSAGE).toMatch(/despertant/);
     expect(calmFailureMessage("timeout")).toMatch(/tornar-ho a provar/);
     expect(calmFailureMessage("5xx")).toMatch(/servidor/);
+    expect(calmFailureMessage("saturated")).toMatch(/ocupat/);
     expect(calmFailureMessage("4xx")).toMatch(/gravació/);
     expect(calmFailureMessage("network")).toMatch(/connexió/);
   });
@@ -63,10 +64,18 @@ describe("api analyze failure classification", () => {
     }
   });
 
-  it("classifies HTTP 5xx separately from client errors", async () => {
+  it("classifies HTTP 503 as busy and other 5xx as server failures", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.resolve(new Response("no", { status: 503 }))),
+    );
+    await expect(apiAccentOracleClient.analyzeRecording(new Blob(["x"]), prompt)).rejects.toMatchObject({
+      reason: "saturated",
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.resolve(new Response("no", { status: 500 }))),
     );
     await expect(apiAccentOracleClient.analyzeRecording(new Blob(["x"]), prompt)).rejects.toMatchObject({
       reason: "5xx",

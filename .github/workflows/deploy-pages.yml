@@ -30,9 +30,6 @@ jobs:
       VITE_GIT_SHA: ${{ github.sha }}
       VITE_SENTRY_RELEASE: ${{ github.sha }}
       SENTRY_RELEASE: ${{ github.sha }}
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
       VITE_PRIVACY_EMAIL: ${{ vars.VITE_PRIVACY_EMAIL }}
       VITE_CONTROLLER_NAME: ${{ vars.VITE_CONTROLLER_NAME }}
     steps:
@@ -47,6 +44,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build frontend for project Pages URL
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
         run: npm run build -- --base=/accents-cat/
       - name: Delete hidden source maps before the Pages upload
         run: find dist -name '*.map' -delete

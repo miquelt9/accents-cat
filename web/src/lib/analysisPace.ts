@@ -4,7 +4,7 @@ There is no es/en catalog in this app; the strings are Catalan.
 The latency bucket covers the whole wait, including a sleeping Space waking up.
 */
 
-export type AnalysisFailureReason = "timeout" | "5xx" | "4xx" | "network";
+export type AnalysisFailureReason = "timeout" | "5xx" | "saturated" | "4xx" | "network";
 
 export type LatencyBucket = "under_15s" | "15_to_45s" | "45_to_90s" | "over_90s";
 
@@ -17,6 +17,7 @@ export const ANALYSIS_SLOW_MESSAGE =
 const FAILURE_MESSAGES: Record<AnalysisFailureReason, string> = {
   timeout: "L'anàlisi ha trigat massa estona. Quan vulguis, pots tornar-ho a provar.",
   "5xx": "El servidor no ha pogut acabar l'anàlisi. Pots tornar-ho a provar d'aquí a un moment.",
+  saturated: "El servei està ocupat. Pots tornar-ho a provar d'aquí a un moment.",
   "4xx": "No hem pogut fer servir aquesta gravació. Quan vulguis, pots tornar-ho a provar.",
   network: "No hem pogut connectar amb el servidor. Quan tinguis connexió, pots tornar-ho a provar.",
 };

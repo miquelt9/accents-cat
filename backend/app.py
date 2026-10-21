@@ -445,10 +445,10 @@ def telemetry_event(request: Request, body: TelemetryEventRequest) -> None:
     if not _telemetry_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
     try:
-        event, _attrs = parse_ui_telemetry(body.event, body.reason, body.latencyBucket)
+        event, attrs = parse_ui_telemetry(body.event, body.reason, body.latencyBucket)
     except UiTelemetryError:
         raise HTTPException(status_code=422, detail="event no és vàlid.") from None
-    record_ui_event(event, reason=body.reason, latency_bucket=body.latencyBucket)
+    record_ui_event(event, attrs)
     return None
 
 

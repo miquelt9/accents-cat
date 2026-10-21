@@ -124,6 +124,7 @@ function App() {
   const [shareOpen, setShareOpen] = useState(false);
   const [devResultsScores, setDevResultsScores] = useState<AccentScores | null>(null);
   const flowGenerationRef = useRef(0);
+  const resultShownGenerationRef = useRef<number | null>(null);
   const leavePurgeRef = useRef({
     phase,
     result,
@@ -289,7 +290,7 @@ function App() {
     setIsAnalyzing(false);
     setAnalysisError(null);
     setAnalysisPace(null);
-    if (phase !== "landing") {
+    if (phase === "results") {
       trackUiEvent("flow_retried");
     }
     setActivePrompt(null);
@@ -332,7 +333,10 @@ function App() {
     setTerminalTakeCount(takeCount);
     syncDevResultsScores(next);
     setPhase("results");
-    trackUiEvent("result_shown");
+    if (resultShownGenerationRef.current !== generation) {
+      resultShownGenerationRef.current = generation;
+      trackUiEvent("result_shown");
+    }
 
     if (RESEARCH_RETENTION_ENABLED && sessionId) {
       try {
