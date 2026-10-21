@@ -17,7 +17,7 @@ export interface LegalDocumentContent {
 }
 
 /** Keep in sync with backend ``DEFAULT_POLICY_VERSION`` / ``ORACLE_POLICY_VERSION``. */
-export const LEGAL_POLICY_VERSION = "15 d'agost de 2026";
+export const LEGAL_POLICY_VERSION = "21 d'octubre de 2026";
 
 const EFFECTIVE_DATE = LEGAL_POLICY_VERSION;
 
@@ -100,7 +100,7 @@ const RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
           "No venem les teves dades personals. El tractament i l'allotjament del servei es fan a Espanya / dins de l'Espai Econòmic Europeu. Podem fer servir proveïdors tècnics (allotjament, infraestructura) estrictament per operar el servei. Podem divulgar dades si la llei ho exigeix.",
           "Els models o components de tercers s'executen al servidor a Espanya per generar les puntuacions; no impliquen cedir el teu àudio amb finalitats de màrqueting.",
           "El codificador de veu utilitzat en mode API és HuBERT català (BSC-LT/hubert-base-ca-2k), de la Language Technologies Unit del Barcelona Supercomputing Center, sota llicència Apache-2.0. Es descarrega i s'executa al servidor; no cedim el teu àudio a BSC amb finalitats de màrqueting.",
-          "Per a mètriques d'ús del producte (esdeveniments tècnics com ara visualització de la pàgina o inici d'una gravació, sense àudio ni identificadors de sessió o gravació) podem fer servir PostHog Cloud EU (regió europea, Frankfurt), amb configuració sense galetes de seguiment persistents i sense captura de l'adreça IP. No hi enviem gravacions, puntuacions ni dades de consentiment.",
+          "Per a mètriques d'ús del producte (esdeveniments tècnics com ara visualització de la pàgina o inici d'una gravació, sense àudio ni identificadors de sessió o gravació) el navegador envia el nom de l'esdeveniment al servidor d'aquest projecte, que en publica recomptes agregats cap a Grafana. Aquesta telemetria no fa servir galetes ni emmagatzematge del navegador. No hi enviem gravacions, puntuacions ni dades de consentiment. Si una anàlisi falla, l'esdeveniment pot incloure un motiu breu (temps esgotat, error del servidor o xarxa) i un interval aproximat de durada, que inclou el temps d'espera del servidor. Si Sentry està configurat, rep errors i traces mostrejades, sense reproducció de sessió.",
         ],
       },
       {
@@ -198,7 +198,7 @@ const RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
   },
 };
 
-const NO_RETENTION_EFFECTIVE_DATE = "14 d'octubre de 2026";
+const NO_RETENTION_EFFECTIVE_DATE = "21 d'octubre de 2026";
 const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
   privacy: {
     id: "privacy",
@@ -216,14 +216,14 @@ const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
         heading: "Dades i ús",
         paragraphs: [
           "Quan envies una gravació, el navegador la transmet al servidor perquè el model en calculi el resultat. El projecte no desa la gravació, el text llegit, les puntuacions, el resultat final ni identificadors de sessió; el fitxer temporal d'àudio s'elimina en acabar la petició d'anàlisi. No cal donar consentiment per desar gravacions perquè aquesta funció està desactivada.",
-          "Pots indicar voluntàriament una o més comarques amb què t'identifiques. El servidor només n'incrementa els recomptes totals: no desa una resposta individual, una data ni cap identificador, i no associa la comarca a l'àudio o al resultat. La telemetria de producte, quan està configurada, envia noms d'esdeveniments sense propietats pròpies; no inclou àudio, text, puntuacions, comarca, URL amb paràmetres ni identificadors de sessió, anàlisi o compte. PostHog pot afegir un identificador aleatori temporal de navegador i metadades tècniques; la persistència és només en memòria. La captura automàtica i els enregistraments de sessió de PostHog estan desactivats. Si Sentry està configurat, rep errors, traces mostrejades i reproduccions només quan hi ha un error; el text es mascara i els continguts multimèdia es bloquegen. El projecte no utilitza gravacions ni resultats per entrenar models o fer recerca.",
+          "Pots indicar voluntàriament una o més comarques amb què t'identifiques. El servidor només n'incrementa els recomptes totals: no desa una resposta individual, una data ni cap identificador, i no associa la comarca a l'àudio o al resultat. La telemetria de producte, quan està configurada, envia noms d'esdeveniments al servidor d'aquest projecte perquè en faci recomptes agregats; no fa servir galetes ni emmagatzematge del navegador. No inclou àudio, text, puntuacions, comarca, URL amb paràmetres ni identificadors de sessió, anàlisi o compte. Si una anàlisi falla, pot afegir-hi un motiu breu (temps esgotat, error del servidor o xarxa) i un interval aproximat de durada. Si Sentry està configurat, rep errors i traces mostrejades, sense reproducció de sessió. El projecte no utilitza gravacions ni resultats per entrenar models o fer recerca.",
           "El model retorna una estimació de similitud acústica amb cinc zones dialectals. No determina l'origen, la residència ni la identitat de cap persona.",
         ],
       },
       {
         heading: "Conservació i proveïdors",
         paragraphs: [
-          "El projecte no conserva l'àudio, les dades derivades ni els resultats després de completar la petició. Conservem recomptes totals per comarca i, si s'ha configurat PostHog, esdeveniments d'ús sense propietats pròpies i amb persistència de navegador només en memòria. Si Sentry està configurat, tracta errors, traces mostrejades i reproduccions només quan hi ha un error. Els proveïdors d'allotjament, analítica i diagnòstics poden tractar metadades tècniques de connexió segons les seves pròpies condicions.",
+          "El projecte no conserva l'àudio, les dades derivades ni els resultats després de completar la petició. Conservem recomptes totals per comarca i, si la telemetria està configurada, recomptes agregats d'esdeveniments d'ús. Si Sentry està configurat, tracta errors i traces mostrejades, sense reproducció de sessió. Els proveïdors d'allotjament i diagnòstics poden tractar metadades tècniques de connexió segons les seves pròpies condicions.",
           "El servidor pot carregar models de veu de tercers per calcular el resultat. L'àudio s'envia a aquest servidor i no s'envia al repositori dels models.",
         ],
       },
@@ -256,7 +256,7 @@ const NO_RETENTION_LEGAL_DOCS: Record<LegalDocId, LegalDocumentContent> = {
       {
         heading: "Gravacions i dades",
         paragraphs: [
-          "En mode API, l'àudio s'envia al servidor per generar el resultat i s'elimina en acabar la petició. El projecte no desa l'àudio, els textos, les puntuacions ni el resultat final. Pots indicar voluntàriament una comarca; només es conserva el recompte agregat total, sense cap resposta individual ni enllaç amb l'anàlisi. Si està configurada, l'analítica envia noms d'esdeveniments sense dades de l'àudio, resultats o comarca ni identificadors de sessió, anàlisi o compte. PostHog pot afegir un identificador aleatori temporal de navegador i metadades tècniques; la persistència és només en memòria. Si Sentry està configurat, rep errors, traces mostrejades i reproduccions només quan hi ha un error, amb el text mascarat i els continguts multimèdia bloquejats. Aquestes dades no s'utilitzen per entrenar models ni per fer recerca.",
+          "En mode API, l'àudio s'envia al servidor per generar el resultat i s'elimina en acabar la petició. El projecte no desa l'àudio, els textos, les puntuacions ni el resultat final. Pots indicar voluntàriament una comarca; només es conserva el recompte agregat total, sense cap resposta individual ni enllaç amb l'anàlisi. Si està configurada, l'analítica envia noms d'esdeveniments al servidor, sense dades de l'àudio, resultats o comarca ni identificadors de sessió, anàlisi o compte, i sense galetes ni emmagatzematge del navegador. Si una anàlisi falla, pot afegir-hi un motiu breu i un interval aproximat de durada. Si Sentry està configurat, rep errors i traces mostrejades, sense reproducció de sessió. Aquestes dades no s'utilitzen per entrenar models ni per fer recerca.",
           "No hi ha una funció activa per donar consentiment a la conservació de gravacions. No es transfereixen drets sobre la teva veu al projecte.",
         ],
       },

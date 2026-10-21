@@ -3,7 +3,7 @@
 #
 # Layout: Caddy serves the Vite SPA from web/dist and proxies API routes to uvicorn.
 # This keeps mic/share on a secure context and lets CSP use connect-src 'self'
-# for the API (PostHog EU + Sentry still need explicit connect-src hosts).
+# for the API (Sentry still needs an explicit connect-src host).
 
 {
 	# Optional: email for ACME. Prefer env or Caddyfile snippets in production.
@@ -17,8 +17,8 @@ example.com {
 		Referrer-Policy strict-origin-when-cross-origin
 		# Microphone allowed for this origin only (API sets microphone=()).
 		Permissions-Policy "microphone=(self), camera=(), geolocation=()"
-		# Adjust Sentry/PostHog hosts to your projects; keep connect-src tight.
-		Content-Security-Policy "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://eu.i.posthog.com https://eu-assets.i.posthog.com; worker-src 'self' blob:"
+		# Adjust the Sentry host to your project; keep connect-src tight.
+		Content-Security-Policy "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.ingest.sentry.io https://*.ingest.de.sentry.io; worker-src 'self' blob:"
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Frame-Options DENY
 	}

@@ -7,6 +7,8 @@ Imported dashboard + alerts live in folder **Accent Oracle** (`ffudveos2n94wb`).
 - Title: Accent Oracle — Operations
 - UID: `accent-oracle-operations`
 - Source of truth in-repo: [`accent-oracle-operations.json`](accent-oracle-operations.json)
+- Product funnel table: counts and step-to-step % for homepage → recording started → recording completed → analyze pressed → analysis completed → result → retry/finalized
+- Startup stat: `accent_oracle_startup_seconds`
 
 ## Alert rules (group `accent-oracle`)
 

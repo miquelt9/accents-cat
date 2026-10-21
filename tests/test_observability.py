@@ -24,6 +24,9 @@ def test_ui_event_allowlist() -> None:
     assert is_ui_event_allowed("analysis_completed")
     assert is_ui_event_allowed("validation_started")
     assert is_ui_event_allowed("analysis_unresolved")
+    assert is_ui_event_allowed("analysis_failed")
+    assert is_ui_event_allowed("result_shown")
+    assert is_ui_event_allowed("flow_retried")
     assert is_ui_event_allowed("share_clicked")
     assert is_ui_event_allowed("research_consent_accepted")
     assert is_ui_event_allowed("origin_submitted")
@@ -45,6 +48,9 @@ def test_ui_event_allowlist() -> None:
         "third_take_skipped",
         "analysis_finalized",
         "analysis_unresolved",
+        "analysis_failed",
+        "result_shown",
+        "flow_retried",
         "share_clicked",
         "research_consent_accepted",
         "origin_submitted",
@@ -98,11 +104,17 @@ def test_scrub_sentry_event_strips_body_and_sensitive_keys() -> None:
     assert cleaned["tags"]["prompt_id"] == "p1"
 
 
-def test_app_version_matches_frontend_release_fallback(monkeypatch) -> None:
+def test_app_version_uses_full_git_sha(monkeypatch) -> None:
     monkeypatch.delenv("SENTRY_RELEASE", raising=False)
     monkeypatch.setenv("ORACLE_APP_VERSION", "1.2.3")
     monkeypatch.setenv("ORACLE_GIT_SHA", "abcdef123456")
-    assert app_version() == "1.2.3+abcdef1"
+    assert app_version() == "abcdef123456"
+
+
+def test_app_version_prefers_explicit_sentry_release(monkeypatch) -> None:
+    monkeypatch.setenv("SENTRY_RELEASE", "release-1")
+    monkeypatch.setenv("ORACLE_GIT_SHA", "abcdef123456")
+    assert app_version() == "release-1"
 
 
 def test_sentry_should_init_respects_dev_gate(monkeypatch) -> None:

@@ -14,6 +14,13 @@ import gradio as gr
 from huggingface_hub import snapshot_download
 
 MODEL_REPO_ID = "miquelt-9/cv26-hubert-svm-calibrated"
+GIT_SHA_FILE = Path(__file__).with_name("git-sha.txt")
+if GIT_SHA_FILE.is_file():
+    _git_sha = GIT_SHA_FILE.read_text(encoding="utf-8").strip()
+    if _git_sha:
+        # Set before importing the API so Sentry release and /version share the SHA.
+        os.environ.setdefault("ORACLE_GIT_SHA", _git_sha)
+        os.environ.setdefault("SENTRY_RELEASE", _git_sha)
 MODEL_REVISION_FILE = Path(__file__).with_name("model-revision.txt")
 MODEL_REVISION = (
     MODEL_REVISION_FILE.read_text(encoding="utf-8").strip()

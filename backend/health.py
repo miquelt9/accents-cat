@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 from pathlib import Path
 from typing import Any, Callable
@@ -11,6 +12,28 @@ from typing import Any, Callable
 from backend import storage
 
 DEFAULT_APP_VERSION = "0.1.0"
+_GIT_SHA_RE = re.compile(r"[0-9a-fA-F]{7,64}")
+
+
+def git_sha_file_candidates() -> list[Path]:
+    """Space/repo root `git-sha.txt` written by the Hugging Face sync."""
+    backend_dir = Path(__file__).resolve().parent
+    return [backend_dir.parent / "git-sha.txt"]
+
+
+def configured_git_sha() -> str | None:
+    """Release SHA from `ORACLE_GIT_SHA`, else a hex SHA file baked into the build."""
+    env = os.environ.get("ORACLE_GIT_SHA", "").strip()
+    if env:
+        return env
+    for path in git_sha_file_candidates():
+        try:
+            text = path.read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+        if _GIT_SHA_RE.fullmatch(text):
+            return text
+    return None
 
 
 def live_payload() -> dict[str, Any]:
@@ -23,7 +46,7 @@ def version_payload() -> dict[str, Any]:
         or os.environ.get("SENTRY_RELEASE", "").strip()
         or DEFAULT_APP_VERSION
     )
-    git_sha = os.environ.get("ORACLE_GIT_SHA", "").strip() or None
+    git_sha = configured_git_sha()
     built_at = os.environ.get("ORACLE_BUILT_AT", "").strip() or None
     return {
         "version": version,

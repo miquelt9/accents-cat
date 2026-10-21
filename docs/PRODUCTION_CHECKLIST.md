@@ -35,7 +35,7 @@ proves it. Items marked **deployment** are not supplied by the repository.
 - [ ] Set production `VITE_SENTRY_ENVIRONMENT` and `SENTRY_ENVIRONMENT`; keep
       development-only Sentry debug behavior disabled.
 - [ ] Set `ORACLE_POLICY_VERSION` to the same value as
-      `web/src/lib/legalDocs.ts` (`15 d'agost de 2026` in this revision), or
+      `web/src/lib/legalDocs.ts` (`21 d'octubre de 2026` in this revision), or
       update both intentionally and review the consent copy.
 - [ ] Confirm the model directory contains the expected `model.joblib` and
       `metadata.json`, and that the five labels remain in the fixed order.
@@ -60,7 +60,7 @@ proves it. Items marked **deployment** are not supplied by the repository.
       `Content-Security-Policy`, and `X-Frame-Options`.
 - [ ] Ensure the SPA policy allows `microphone=(self)` while API responses may
       deliberately use `microphone=()`. Keep `connect-src` limited to the
-      same origin plus the configured Sentry and PostHog EU hosts.
+      same origin plus the configured Sentry host.
 - [ ] Confirm microphone and Web Share work from the real HTTPS hostname, and
       that plain HTTP is not presented as a supported production path.
 - [ ] Set proxy upload/body limits to at least the application cap (20 MB) and
@@ -113,8 +113,7 @@ proves it. Items marked **deployment** are not supplied by the repository.
       projects.
 - [ ] Inspect a controlled error and trace for absence of audio, bodies,
       prompt text, comarca, consent payloads, recording IDs, filenames, user
-      identity, and query strings. Keep Replay error-only, masked, and
-      media-blocked.
+      identity, and query strings. Session Replay is off.
 - [ ] Configure `GRAFANA_OTLP_ENDPOINT` and
       `GRAFANA_OTLP_API_KEY` only through secret management. Verify metric
       ingestion, route/status labels, alert rules, retention, and dashboard
@@ -126,11 +125,9 @@ proves it. Items marked **deployment** are not supplied by the repository.
       target, and on-call coverage.
 - [ ] Verify the UI event catalog in
       [`docs/ANALYTICS_EVENTS.md`](ANALYTICS_EVENTS.md) matches the backend
-      allowlist and contains event names only.
-- [ ] Configure `VITE_POSTHOG_KEY` through the deploy secret store and set
-      `VITE_POSTHOG_HOST=https://eu.i.posthog.com`. Verify the documented EU
-      project, no autocapture, no session recording, memory persistence, no
-      `identify`, and no custom properties.
+      allowlist. Only `analysis_failed` may add a coarse reason and latency bucket.
+- [ ] Confirm the Product funnel panel on `accent-oracle-operations` shows
+      counts and step-to-step percentages, and that unknown routes are `other`.
 - [ ] Confirm collector/provider retention and access settings are compatible
       with the privacy policy. Do not put provider tokens in the repository,
       frontend source outside the intended public project key, or logs.

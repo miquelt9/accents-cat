@@ -10,7 +10,7 @@ verified before launch.
 
 The code has a deliberate observability boundary: audio, request bodies,
 prompt text, comarca values, consent payloads, session/recording IDs, and filenames
-are not intentionally sent to Sentry, Grafana, or PostHog. The backend also
+are not intentionally sent to Sentry or Grafana. The backend also
 does not persist the caller IP or User-Agent. The boundary is implemented in
 the application, but it depends on deployment configuration and on all
 upstream/downstream log collectors preserving the same policy.
@@ -22,7 +22,7 @@ The highest remaining risks are:
   purge worker;
 - backups replicate audio and deleted records outside the live database and
   therefore need their own encryption, retention, and deletion process;
-- Sentry, Grafana, PostHog, reverse-proxy, and host-log retention/access
+- Sentry, Grafana, reverse-proxy, and host-log retention/access
   settings are not established by this repository;
 - the privacy controller/contact values are build-time configuration and remain
   provisional until `VITE_PRIVACY_EMAIL` and `VITE_CONTROLLER_NAME` are set;
@@ -38,7 +38,7 @@ operational control. At minimum, record:
 - the approved controller name, privacy contact, policy version, legal basis,
   deletion workflow, hosting region, processors, and legal/privacy sign-off;
 - for live SQLite/audio, backups, restore hosts, model/training exports,
-  proxy/host logs, Sentry, Grafana, PostHog, Better Stack, and support
+  proxy/host logs, Sentry, Grafana, Better Stack, and support
   records: data classes, region, access roles, retention, deletion/expiry
   behavior, and the incident owner;
 - the installed pending-consent and research-retention schedules, including
@@ -145,29 +145,14 @@ scope, tenant access, and retention. This repository does not ship application
 log forwarding to Grafana; a later log pipeline must preserve the same
 scrubbing boundary.
 
-### PostHog Cloud EU
+### Product telemetry
 
-The frontend initializes PostHog only when `VITE_POSTHOG_KEY` is present.
-`web/src/lib/posthog.ts` configures:
-
-- default host `https://eu.i.posthog.com`;
-- memory persistence rather than persistent browser storage;
-- autocapture, automatic pageview/pageleave capture, and session recording
-  disabled;
-- client IP capture disabled with `ip: false`;
-- `person_profiles: "identified_only"` and no `identify` call in this code;
-- allowlisted event names only, with no custom event properties;
-- removal of query strings from the captured current URL when that property is
-  present.
-
-The documented project is [PostHog Cloud EU](https://eu.posthog.com/project/242521/).
-The project token and API key must never appear in this repository or in this
-document. `VITE_POSTHOG_HOST` is configurable, so a deployment can
-accidentally point the browser at a non-EU host; production configuration
-must explicitly verify the EU host, project, retention, access, and data
-processing terms. Inspect a live event to confirm there are no properties,
-autocapture events, recordings, URLs with query strings, audio, scores,
-consent payloads, comarca values, or session/recording IDs.
+The browser does not load a product-analytics SDK. Allowlisted events go to
+`POST /telemetry/event` with `credentials: "omit"` and without cookies or
+browser storage. The API exports aggregate OTLP counters, including the
+product funnel. `analysis_failed` may include a coarse reason and latency
+bucket. Unknown HTTP paths share the route label `other`. Session replay is
+not enabled.
 
 ### Request and telemetry fields
 
@@ -258,14 +243,14 @@ Record evidence for each item in the release ticket or deployment runbook:
       verify a real test soft-delete removes audio and clears the intended
       fields.
 - [ ] Trigger controlled backend and frontend Sentry events. Inspect event
-      payloads, tags, traces, and error-only Replay for request bodies,
-      prompt text, IDs, URLs, and media. Confirm release/environment values.
+      payloads, tags, and traces for request bodies, prompt text, IDs, URLs,
+      and local variables. Confirm there is no session replay and that
+      release/environment values match the git SHA.
 - [ ] Query Grafana metrics and inspect labels and alert annotations. Confirm
       the OTLP key has minimum scope and that retention/access are approved.
-- [ ] Inspect the PostHog EU project at
-      `https://eu.posthog.com/project/242521/`; verify the EU host, event-name
-      allowlist, no properties/autocapture/session recording, retention, and
-      access controls.
+- [ ] Query the product funnel and confirm events carry no recording IDs,
+      comarca, audio, or scores. Confirm `analysis_failed` labels stay inside
+      the reason and latency-bucket allowlists.
 - [ ] Run a real backup, decrypt it in an isolated environment, execute
       SQLite integrity/foreign-key checks, verify audio hashes, and document
       the restore result. Include a deletion/backup expiry procedure.

@@ -69,6 +69,7 @@ jobs:
           cp deploy/huggingface-space/packages.txt "$stage/packages.txt"
           cp requirements.txt "$stage/requirements.txt"
           printf '%s\n' "$model_revision" > "$stage/model-revision.txt"
+          printf '%s\n' "$GITHUB_SHA" > "$stage/git-sha.txt"
           echo "SPACE_STAGE=$stage" >> "$GITHUB_ENV"
 
       - name: Check whether the Space files changed
@@ -91,6 +92,7 @@ jobs:
                   "packages.txt",
                   "requirements.txt",
                   "model-revision.txt",
+                  "git-sha.txt",
               ],
           )
 

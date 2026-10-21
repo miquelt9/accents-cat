@@ -3,7 +3,7 @@
   "uid": "accent-oracle-operations",
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "refresh": "30s",
   "tags": ["accent-oracle", "operations"],
   "time": { "from": "now-6h", "to": "now" },
@@ -145,6 +145,87 @@
           "refId": "A",
           "expr": "sum by (event) (rate(accent_oracle_ui_event_total[5m])) * 60",
           "legendFormat": "{{event}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Product funnel",
+      "description": "Event counts over the dashboard range. No cookies or browser storage, so these are counts rather than unique browsers. Step-to-step % is this step divided by the previous step. Order: 01 homepage, 02 recording started, 03 recording completed, 04 analyze pressed, 05 analysis completed, 06 result, 07 retry/finalized.",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 40 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto" } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Step to step %" },
+            "properties": [
+              { "id": "unit", "value": "percent" },
+              { "id": "decimals", "value": 1 }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": { "show": false, "reducer": ["sum"], "countRows": false },
+        "sortBy": [{ "displayName": "step", "desc": false }]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "instant": true,
+          "format": "table",
+          "expr": "sum by (step) (increase(accent_oracle_funnel_total[$__range]))"
+        },
+        {
+          "refId": "B",
+          "instant": true,
+          "format": "table",
+          "expr": "label_replace(vector(100), \"step\", \"01_homepage\", \"step\", \".*\") or label_replace((sum(increase(accent_oracle_funnel_total{step=\"02_recording_started\"}[$__range])) / clamp_min(sum(increase(accent_oracle_funnel_total{step=\"01_homepage\"}[$__range])), 1)) * 100, \"step\", \"02_recording_started\", \"step\", \".*\") or label_replace((sum(increase(accent_oracle_funnel_total{step=\"03_recording_completed\"}[$__range])) / clamp_min(sum(increase(accent_oracle_funnel_total{step=\"02_recording_started\"}[$__range])), 1)) * 100, \"step\", \"03_recording_completed\", \"step\", \".*\") or label_replace((sum(increase(accent_oracle_funnel_total{step=\"04_analyze_pressed\"}[$__range])) / clamp_min(sum(increase(accent_oracle_funnel_total{step=\"03_recording_completed\"}[$__range])), 1)) * 100, \"step\", \"04_analyze_pressed\", \"step\", \".*\") or label_replace((sum(increase(accent_oracle_funnel_total{step=\"05_analysis_completed\"}[$__range])) / clamp_min(sum(increase(accent_oracle_funnel_total{step=\"04_analyze_pressed\"}[$__range])), 1)) * 100, \"step\", \"05_analysis_completed\", \"step\", \".*\") or label_replace((sum(increase(accent_oracle_funnel_total{step=\"06_result\"}[$__range])) / clamp_min(sum(increase(accent_oracle_funnel_total{step=\"05_analysis_completed\"}[$__range])), 1)) * 100, \"step\", \"06_result\", \"step\", \".*\") or label_replace((sum(increase(accent_oracle_funnel_total{step=\"07_retry_or_finalized\"}[$__range])) / clamp_min(sum(increase(accent_oracle_funnel_total{step=\"06_result\"}[$__range])), 1)) * 100, \"step\", \"07_retry_or_finalized\", \"step\", \".*\")"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": { "byField": "step", "mode": "outer" }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "Time 1": true, "Time 2": true },
+            "renameByName": {
+              "Value #A": "Count",
+              "Value #B": "Step to step %",
+              "Value 1": "Count",
+              "Value 2": "Step to step %"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Startup seconds",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 50 },
+      "datasource": { "type": "prometheus", "uid": "grafanacloud-prom" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(accent_oracle_startup_seconds)",
+          "legendFormat": "startup"
         }
       ]
     }

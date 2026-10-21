@@ -18,13 +18,13 @@
     "html-to-image": "^1.11.13",
     "lucide-react": "^1.28.0",
     "motion": "^12.42.2",
-    "posthog-js": "^1.413.3",
     "react": "latest",
     "react-dom": "latest",
     "vite": "latest"
   },
   "devDependencies": {
     "@eslint/js": "latest",
+    "@sentry/vite-plugin": "^4.9.1",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-basic-ssl": "^2.3.0",

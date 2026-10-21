@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronRight, MoonStar, RotateCcw, Sun } from "lucide-react";
 import "./App.css";
+import { AnalysisPaceNotice } from "./components/AnalysisPaceNotice";
 import { LegalDocument } from "./components/LegalDocument";
 import { ResultsMapStage } from "./components/ResultsMapStage";
 import { ResultsOriginFeedback } from "./components/ResultsOriginFeedback";
@@ -38,6 +39,12 @@ import {
   rememberLastPromptId,
   type ReadAloudPrompt,
 } from "./lib/prompts";
+import {
+  ANALYSIS_SLOW_AFTER_MS,
+  AnalysisFailure,
+  latencyBucket,
+  type AnalysisFailureReason,
+} from "./lib/analysisPace";
 import { trackUiEvent } from "./lib/telemetry";
 
 type AppPhase = "landing" | "recording" | "validation" | "offer-third" | "refine" | "results";
@@ -52,7 +59,6 @@ const THEME_CROSSFADE_CLASS_MS = 500;
 
 function applyThemeToDocument(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
-  window.localStorage.setItem(THEME_STORAGE_KEY, theme);
 }
 
 function getInitialTheme(): Theme {
@@ -100,6 +106,9 @@ function App() {
   const [terminalTakeCount, setTerminalTakeCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisPace, setAnalysisPace] = useState<
+    { mode: "slow" } | { mode: "fail"; reason: AnalysisFailureReason } | null
+  >(null);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
   const [activePrompt, setActivePrompt] = useState<ReadAloudPrompt | null>(null);
@@ -146,6 +155,7 @@ function App() {
         root.classList.remove("theme-transition");
       }, THEME_CROSSFADE_CLASS_MS);
     }
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     applyThemeToDocument(nextTheme);
     setTheme(nextTheme);
   }
@@ -276,6 +286,10 @@ function App() {
     setTerminalTakeCount(0);
     setIsAnalyzing(false);
     setAnalysisError(null);
+    setAnalysisPace(null);
+    if (phase !== "landing") {
+      trackUiEvent("flow_retried");
+    }
     setActivePrompt(null);
     setPrimaryPromptId(null);
     setUsedPromptIds([]);
@@ -316,6 +330,7 @@ function App() {
     setTerminalTakeCount(takeCount);
     syncDevResultsScores(next);
     setPhase("results");
+    trackUiEvent("result_shown");
 
     if (RESEARCH_RETENTION_ENABLED && sessionId) {
       try {
@@ -371,6 +386,7 @@ function App() {
     setTerminalUnresolved(false);
     setTerminalTakeCount(0);
     setAnalysisError(null);
+    setAnalysisPace(null);
     setPhase("recording");
   }
 
@@ -405,6 +421,7 @@ function App() {
     setActivePrompt(prompt);
     setUsedPromptIds((ids) => [...ids, prompt.id]);
     setAnalysisError(null);
+    setAnalysisPace(null);
     setPhase("refine");
   }
 
@@ -434,9 +451,15 @@ function App() {
     }
 
     setAnalysisError(null);
+    setAnalysisPace(null);
     setIsAnalyzing(true);
     const generation = flowGenerationRef.current;
     trackUiEvent("analyze_pressed");
+    const slowTimer = window.setTimeout(() => {
+      if (generation === flowGenerationRef.current) {
+        setAnalysisPace({ mode: "slow" });
+      }
+    }, ANALYSIS_SLOW_AFTER_MS);
 
     try {
       const nextResult = await getAccentOracleClient().analyzeRecording(audio, {
@@ -493,12 +516,24 @@ function App() {
       if (generation !== flowGenerationRef.current) {
         return;
       }
-      setAnalysisError(
-        error instanceof Error ? error.message : "L'anàlisi ha fallat. Prova de gravar una altra mostra.",
-      );
+      if (error instanceof AnalysisFailure) {
+        trackUiEvent("analysis_failed", {
+          reason: error.reason,
+          latencyBucket: latencyBucket(error.elapsedMs),
+        });
+        setAnalysisError(null);
+        setAnalysisPace({ mode: "fail", reason: error.reason });
+      } else {
+        setAnalysisPace(null);
+        setAnalysisError(
+          error instanceof Error ? error.message : "L'anàlisi ha fallat. Prova de gravar una altra mostra.",
+        );
+      }
     } finally {
+      window.clearTimeout(slowTimer);
       if (generation === flowGenerationRef.current) {
         setIsAnalyzing(false);
+        setAnalysisPace((current) => (current?.mode === "slow" ? null : current));
       }
     }
   }
@@ -712,6 +747,12 @@ function App() {
               onRecordingReady={analyzeRecording}
               theme={theme}
             />
+            {analysisPace && (
+              <AnalysisPaceNotice
+                mode={analysisPace.mode}
+                reason={"reason" in analysisPace ? analysisPace.reason : undefined}
+              />
+            )}
             {analysisError && (
               <p className="error-message" role="alert">
                 {analysisError}

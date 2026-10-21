@@ -27,8 +27,12 @@ jobs:
       VITE_DIAGNOSTICS_ENABLED: "1"
       VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
       VITE_SENTRY_ENVIRONMENT: production
-      VITE_POSTHOG_KEY: ${{ vars.VITE_POSTHOG_KEY }}
-      VITE_POSTHOG_HOST: ${{ vars.VITE_POSTHOG_HOST }}
+      VITE_GIT_SHA: ${{ github.sha }}
+      VITE_SENTRY_RELEASE: ${{ github.sha }}
+      SENTRY_RELEASE: ${{ github.sha }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
       VITE_PRIVACY_EMAIL: ${{ vars.VITE_PRIVACY_EMAIL }}
       VITE_CONTROLLER_NAME: ${{ vars.VITE_CONTROLLER_NAME }}
     steps:
@@ -44,6 +48,8 @@ jobs:
         run: npm ci
       - name: Build frontend for project Pages URL
         run: npm run build -- --base=/accents-cat/
+      - name: Delete hidden source maps before the Pages upload
+        run: find dist -name '*.map' -delete
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -75,7 +75,7 @@ task. Same-origin deployment is the default.
    `Referrer-Policy`, `Permissions-Policy`, a restrictive CSP, and
    `X-Frame-Options`. The SPA policy must allow `microphone=(self)`; API
    responses may use `microphone=()`. Keep `connect-src` limited to the
-   same-origin API plus the configured Sentry and PostHog EU hosts.
+   same-origin API plus the configured Sentry host.
 7. Send a bounded `X-Request-ID` and confirm the response echoes it. Send an
    invalid or overlong value and confirm the API generates a safe replacement.
    Inspect proxy, uvicorn, and host logs during a controlled upload and

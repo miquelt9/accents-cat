@@ -8,15 +8,13 @@ uploaded audio exists in a temporary file only during inference and is deleted
 before the response. The current results UI has no audio research-consent
 checkbox. A user may separately submit an optional comarca; the API increments
 per-comarca aggregate counts without storing an individual response or linking
-it to audio, results, or session IDs. Usage events contain allowlisted event
-names without custom event properties. When enabled, PostHog may add a random
-temporary browser identifier and technical metadata; browser persistence is
-memory-only. The Pages workflow sends events to PostHog only
-when the `VITE_POSTHOG_KEY` repository variable is configured; autocapture,
-pageview capture, and PostHog session replay are disabled. Sentry diagnostics
-are enabled in the workflow but initialize only when `VITE_SENTRY_DSN` is set;
-they send errors, sampled traces, and error-only replays with text masked and
-media blocked.
+it to audio, results, or session IDs. Usage events are allowlisted names sent
+to the API, which exports aggregate counters to Grafana. The browser does not
+use cookies or local storage for that telemetry. `analysis_failed` may add a
+coarse reason (`timeout`, `5xx`, or `network`) and a coarse latency bucket
+that includes Space wake-up time. Sentry diagnostics are enabled in the
+workflow but initialize only when `VITE_SENTRY_DSN` is set; they send errors
+and sampled traces, without session replay.
 
 The former consent and research-retention flow stays available behind
 `VITE_RESEARCH_RETENTION_ENABLED=1` and `ORACLE_RETAIN_USER_DATA=1`. Those
@@ -210,12 +208,12 @@ Copy [`.env.example`](.env.example) to `.env` for Mozilla Data Collective downlo
 | `VITE_PUBLIC_SITE_URL` | Public URL used in result shares and Open Graph metadata. The GitHub Pages workflow sets this to `https://miquelt9.github.io/accents-cat/`; outside that build it defaults to `window.location.host`. Native image share needs HTTPS (`isSecureContext`); on plain HTTP LAN, the UI downloads the PNG instead. |
 | `VITE_SENTRY_DSN` | Frontend Sentry DSN (omit to disable) |
 | `VITE_SENTRY_ENVIRONMENT` | Sentry environment (default `development`; Sentry stays off in development unless `VITE_SENTRY_ENABLE_DEV=1`) |
-| `VITE_SENTRY_RELEASE` | Release string tagged on events |
+| `VITE_SENTRY_RELEASE` | Release string tagged on events. The Pages workflow sets this to `github.sha` |
+| `VITE_GIT_SHA` | Full git SHA. Pages sets it from `github.sha`; it is the Sentry release when `VITE_SENTRY_RELEASE` is empty |
 | `VITE_SENTRY_ENABLE_DEV` | `1` to allow Sentry in development when DSN is set |
 | `VITE_DIAGNOSTICS_ENABLED` | `1` to enable Sentry when `VITE_SENTRY_DSN` is present |
 | `VITE_SENTRY_DSN` | Optional Sentry project DSN; the production workflow reads it from Actions repository variables |
-| `VITE_PRODUCT_ANALYTICS_ENABLED` | `1` to send allowlisted, event-name-only usage events |
-| `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` | Optional PostHog project key and host; the production workflow reads these from Actions repository variables |
+| `VITE_PRODUCT_ANALYTICS_ENABLED` | `1` to send allowlisted usage events to `POST /telemetry/event` (no cookies or browser storage) |
 
 Backend observability (set in the shell / process env for uvicorn — see [`.env.example`](.env.example)):
 
@@ -223,7 +221,7 @@ Backend observability (set in the shell / process env for uvicorn — see [`.env
 | --- | --- |
 | `SENTRY_DSN` | Backend Sentry DSN (omit to disable) |
 | `SENTRY_ENVIRONMENT` | Sentry environment (default `development`; off in development unless `SENTRY_ENABLE_DEV=1`) |
-| `SENTRY_RELEASE` / `ORACLE_APP_VERSION` / `ORACLE_GIT_SHA` | Release string (`SENTRY_RELEASE` wins; otherwise the API combines version + short SHA) |
+| `SENTRY_RELEASE` / `ORACLE_APP_VERSION` / `ORACLE_GIT_SHA` | Sentry release (`SENTRY_RELEASE` wins; otherwise the full `ORACLE_GIT_SHA`, including a `git-sha.txt` baked into the Hugging Face Space). `/version` returns that SHA as `gitSha` |
 | `SENTRY_ENABLE_DEV` | `1` to allow Sentry + `/sentry-debug` outside production |
 | `GRAFANA_OTLP_ENDPOINT` | Grafana Cloud OTLP base URL (e.g. `https://otlp-gateway-…/otlp`) |
 | `GRAFANA_OTLP_API_KEY` | Grafana Cloud OTLP Basic auth token |
@@ -236,7 +234,7 @@ Lightweight production monitoring with a hard privacy boundary: **no audio, requ
 
 ### Sentry (application errors)
 
-**Purpose:** frontend and backend exceptions, Python logs (via LoggingIntegration), and sampled request performance traces (`traces_sample_rate=0.10`). Session Replay is **error-only** on the web (`replaysSessionSampleRate=0`, `replaysOnErrorSampleRate=1`, text masked / media blocked).
+**Purpose:** frontend and backend exceptions, Python logs (via LoggingIntegration; Sentry Logs from WARNING upward), and sampled request performance traces (`traces_sample_rate=0.10`). Session Replay is off. Backend init sets `include_local_variables=False` and `max_request_body_size="never"`. The Pages build tags the release with `github.sha` and uploads hidden source maps with `@sentry/vite-plugin` only when `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` are set; `.map` files are deleted before the Pages artifact upload. The Space sync writes the same SHA into `git-sha.txt` so `GET /version` returns it.
 
 **Collected:** stack traces, release/environment tags, low-cardinality tags (`app`, `service` / `api_mode`, optional `prompt_id` id only), HTTP route/status metadata after scrubbing.
 
@@ -247,7 +245,7 @@ Lightweight production monitoring with a hard privacy boundary: **no audio, requ
 **Verify:**
 
 1. Backend: `SENTRY_DSN=… SENTRY_ENABLE_DEV=1 uvicorn …` then `curl -i http://127.0.0.1:8000/sentry-debug` → event in Sentry.
-2. Frontend: `VITE_SENTRY_DSN=… VITE_SENTRY_ENABLE_DEV=1 npm run dev` → trigger an error (or temporary `throw`) → event + optional error replay.
+2. Frontend: `VITE_SENTRY_DSN=… VITE_SENTRY_ENABLE_DEV=1 npm run dev` → trigger an error (or temporary `throw`) → event in Sentry, with no session replay.
 3. Grafana: set `GRAFANA_OTLP_*`, hit `/health` and `/telemetry/event`, then Explore `accent_oracle_*` on `grafanacloud-prom`.
 4. Better Stack: deferred until a public URL exists; use the
    [production checklist](docs/PRODUCTION_CHECKLIST.md) before enabling it.
@@ -256,7 +254,7 @@ Deferred follow-ups for agents: [`ops/followups/`](ops/followups/) (Grafana emai
 
 ### Grafana Cloud (operational metrics)
 
-**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_press_hold`, `recording_too_short`, `recording_no_speech`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `validation_started`, `third_take_offered`, `third_take_completed`, `third_take_skipped`, `analysis_finalized`, `analysis_unresolved`, `share_clicked`, `research_consent_accepted`, `origin_submitted` via `POST /telemetry/event`), plus process CPU/memory when OTLP is configured. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only.
+**Purpose:** request rate/latency, inference duration, inference queue depth, active workers, queue wait time, rejected inference jobs, analyze/consent/feedback counters, startup duration (`accent_oracle_startup_seconds`), a product funnel (`accent_oracle_funnel_total`), and allowlisted UI product events (`page_load`, `homepage_viewed`, `recording_started`, `recording_press_hold`, `recording_too_short`, `recording_no_speech`, `recording_completed`, `analyze_pressed`, `analysis_completed`, `analysis_failed`, `validation_started`, `third_take_offered`, `third_take_completed`, `third_take_skipped`, `analysis_finalized`, `analysis_unresolved`, `result_shown`, `flow_retried`, `share_clicked`, `research_consent_accepted`, `origin_submitted` via `POST /telemetry/event`). Unknown HTTP paths collapse to the route label `other`. Analyze logs include queue depth, active workers, queue wait, inference duration, and total request duration. Traces stay in Sentry — OTLP is metrics-only. The operations dashboard includes a Product funnel table (counts and step-to-step %).
 
 **Dashboard:** [Accent Oracle — Operations](https://bigdahlia593.grafana.net/d/accent-oracle-operations) (also [`ops/grafana/accent-oracle-operations.json`](ops/grafana/accent-oracle-operations.json)).
 
@@ -283,8 +281,7 @@ replicas or deploy and verify a separate shared limiter.
 
 Set the production build and runtime values in
 [`web/.env.example`](web/.env.example) and [`.env.example`](.env.example):
-`VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME`, `VITE_POSTHOG_KEY` /
-`VITE_POSTHOG_HOST=https://eu.i.posthog.com`, frontend/backend Sentry
+`VITE_PRIVACY_EMAIL`, `VITE_CONTROLLER_NAME`, frontend/backend Sentry
 settings, Grafana OTLP credentials, release metadata, exact
 `ORACLE_CORS_ORIGINS` when cross-origin access is needed, and
 `ORACLE_TRUST_PROXY=1` only behind a trusted proxy. Never commit their

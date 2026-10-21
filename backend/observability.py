@@ -13,6 +13,8 @@ import time
 from base64 import b64encode
 from typing import Any, Callable
 
+from backend.health import configured_git_sha
+
 logger = logging.getLogger(__name__)
 
 APP_NAME = "accent-oracle"
@@ -37,9 +39,46 @@ UI_TELEMETRY_EVENTS: frozenset[str] = frozenset(
         "third_take_skipped",
         "analysis_finalized",
         "analysis_unresolved",
+        "analysis_failed",
+        "result_shown",
+        "flow_retried",
         "share_clicked",
         "research_consent_accepted",
         "origin_submitted",
+    }
+)
+
+# Product funnel steps, in order. Counts only — no cookies or browser storage.
+# `07_retry_or_finalized` covers an explicit retry and a persisted finalize.
+FUNNEL_STEP_BY_EVENT: dict[str, str] = {
+    "homepage_viewed": "01_homepage",
+    "recording_started": "02_recording_started",
+    "recording_completed": "03_recording_completed",
+    "analyze_pressed": "04_analyze_pressed",
+    "analysis_completed": "05_analysis_completed",
+    "result_shown": "06_result",
+    "analysis_finalized": "07_retry_or_finalized",
+    "flow_retried": "07_retry_or_finalized",
+}
+
+ANALYSIS_FAILURE_REASONS: frozenset[str] = frozenset({"timeout", "5xx", "network"})
+LATENCY_BUCKETS: frozenset[str] = frozenset(
+    {"under_15s", "15_to_45s", "45_to_90s", "over_90s"}
+)
+
+# Low-cardinality HTTP routes. Anything else shares the `other` label.
+_KNOWN_HTTP_ROUTES: frozenset[str] = frozenset(
+    {
+        "/analyze",
+        "/analysis-finalize",
+        "/feedback",
+        "/research-consent",
+        "/health",
+        "/live",
+        "/ready",
+        "/version",
+        "/telemetry/event",
+        "/sentry-debug",
     }
 )
 
@@ -55,6 +94,8 @@ _analyze_counter: Any = None
 _consent_counter: Any = None
 _feedback_counter: Any = None
 _ui_event_counter: Any = None
+_funnel_counter: Any = None
+_startup_seconds_gauge: Any = None
 _inference_histogram: Any = None
 _queue_wait_histogram: Any = None
 _inference_rejected_counter: Any = None
@@ -63,17 +104,43 @@ _inference_active_workers_gauge: Any = None
 _http_request_counter: Any = None
 _http_duration_histogram: Any = None
 _inference_pool_metrics_provider: Callable[[], dict[str, float]] | None = None
+_PROCESS_STARTED_AT = time.perf_counter()
+_startup_seconds: float | None = None
 
 
 def app_version() -> str:
+    """Sentry release. An explicit release wins; otherwise the full git SHA."""
     explicit = os.environ.get("SENTRY_RELEASE", "").strip()
     if explicit:
         return explicit
-    version = os.environ.get("ORACLE_APP_VERSION", "").strip() or DEFAULT_RELEASE
-    git_sha = os.environ.get("ORACLE_GIT_SHA", "").strip()
+    git_sha = configured_git_sha()
     if git_sha and git_sha != "dev":
-        return f"{version}+{git_sha[:7]}"
-    return version
+        return git_sha
+    return os.environ.get("ORACLE_APP_VERSION", "").strip() or DEFAULT_RELEASE
+
+
+def sentry_logging_kwargs() -> dict[str, int]:
+    """Breadcrumbs stay at INFO. Sentry Logs (the log product) start at WARNING."""
+    return {
+        "level": logging.INFO,
+        "event_level": logging.ERROR,
+        "sentry_logs_level": logging.WARNING,
+    }
+
+
+def sentry_init_options(*, dsn: str) -> dict[str, Any]:
+    """SDK options shared by init and tests. No local variables or request bodies."""
+    return {
+        "dsn": dsn,
+        "environment": sentry_environment(),
+        "release": app_version(),
+        "send_default_pii": False,
+        "include_local_variables": False,
+        "max_request_body_size": "never",
+        "enable_logs": True,
+        "traces_sample_rate": 0.10,
+        "before_send": scrub_sentry_event,
+    }
 
 
 def sentry_environment() -> str:
@@ -105,6 +172,70 @@ def sentry_debug_enabled() -> bool:
 
 def is_ui_event_allowed(event: str) -> bool:
     return event in UI_TELEMETRY_EVENTS
+
+
+def http_route_label(path: str | None) -> str:
+    """Map an HTTP path to a low-cardinality route label. Unknown paths are `other`."""
+    if not path:
+        return "other"
+    normalized = path.split("?", 1)[0]
+    if len(normalized) > 1:
+        normalized = normalized.rstrip("/")
+    if normalized in _KNOWN_HTTP_ROUTES:
+        return normalized
+    return "other"
+
+
+class UiTelemetryError(ValueError):
+    """Rejected product-telemetry payload (unknown event or disallowed property)."""
+
+
+def parse_ui_telemetry(
+    event: str,
+    reason: str | None = None,
+    latency_bucket: str | None = None,
+) -> tuple[str, dict[str, str]]:
+    """Validate an allowlisted event. Only `analysis_failed` may carry properties."""
+    name = event.strip()
+    if not is_ui_event_allowed(name):
+        raise UiTelemetryError(name)
+    clean_reason = (
+        reason.strip() if isinstance(reason, str) and reason.strip() else None
+    )
+    clean_bucket = (
+        latency_bucket.strip()
+        if isinstance(latency_bucket, str) and latency_bucket.strip()
+        else None
+    )
+    if name == "analysis_failed":
+        if (
+            clean_reason not in ANALYSIS_FAILURE_REASONS
+            or clean_bucket not in LATENCY_BUCKETS
+        ):
+            raise UiTelemetryError(name)
+        return name, {
+            "event": name,
+            "reason": clean_reason,
+            "latency_bucket": clean_bucket,
+        }
+    if clean_reason or clean_bucket:
+        raise UiTelemetryError(name)
+    return name, {"event": name}
+
+
+def mark_startup_complete() -> float:
+    """Record seconds from process import until the API finished starting."""
+    global _startup_seconds
+    if _startup_seconds is None:
+        _startup_seconds = max(0.0, time.perf_counter() - _PROCESS_STARTED_AT)
+    return _startup_seconds
+
+
+def startup_seconds() -> float:
+    """Gauge value: 0 until startup has been marked, then the recorded duration."""
+    if _startup_seconds is None:
+        return 0.0
+    return _startup_seconds
 
 
 def _scrub_mapping(data: Any) -> Any:
@@ -200,17 +331,11 @@ def init_sentry() -> bool:
     from sentry_sdk.integrations.starlette import StarletteIntegration
 
     sentry_sdk.init(
-        dsn=os.environ["SENTRY_DSN"].strip(),
-        environment=sentry_environment(),
-        release=app_version(),
-        send_default_pii=False,
-        enable_logs=True,
-        traces_sample_rate=0.10,
-        before_send=scrub_sentry_event,
+        **sentry_init_options(dsn=os.environ["SENTRY_DSN"].strip()),
         integrations=[
             StarletteIntegration(transaction_style="endpoint"),
             FastApiIntegration(transaction_style="endpoint"),
-            LoggingIntegration(level=logging.INFO, event_level=logging.ERROR),
+            LoggingIntegration(**sentry_logging_kwargs()),
         ],
     )
     sentry_sdk.set_tag("app", APP_NAME)
@@ -277,6 +402,15 @@ def _observe_active_workers(_options: Any) -> list[Any]:
     return _observe_pool_metric("active_workers")
 
 
+def _observe_startup_seconds(_options: Any) -> list[Any]:
+    try:
+        from opentelemetry.metrics import Observation
+
+        return [Observation(startup_seconds(), {})]
+    except ImportError:
+        return []
+
+
 def _otlp_auth_header(api_key: str) -> str:
     key = api_key.strip()
     if key.lower().startswith("basic "):
@@ -292,6 +426,7 @@ def init_otel_metrics() -> bool:
     """Export process + custom metrics to Grafana Cloud via OTLP/HTTP."""
     global _otel_enabled
     global _analyze_counter, _consent_counter, _feedback_counter, _ui_event_counter
+    global _funnel_counter, _startup_seconds_gauge
     global _inference_histogram, _queue_wait_histogram, _inference_rejected_counter
     global _inference_queue_depth_gauge, _inference_active_workers_gauge
     global _http_request_counter, _http_duration_histogram
@@ -386,6 +521,16 @@ def init_otel_metrics() -> bool:
         "accent_oracle_ui_event_total",
         description="Allowlisted frontend product events",
     )
+    _funnel_counter = meter.create_counter(
+        "accent_oracle_funnel_total",
+        description="Product funnel step counts (no cookies or browser storage)",
+    )
+    _startup_seconds_gauge = meter.create_observable_gauge(
+        "accent_oracle_startup_seconds",
+        callbacks=[_observe_startup_seconds],
+        description="Seconds from process start until the API finished starting",
+        unit="s",
+    )
 
     try:
         from opentelemetry.instrumentation.system_metrics import (
@@ -468,11 +613,20 @@ def record_feedback() -> None:
         pass
 
 
-def record_ui_event(event: str) -> None:
+def record_ui_event(
+    event: str,
+    *,
+    reason: str | None = None,
+    latency_bucket: str | None = None,
+) -> None:
     if not _otel_enabled:
         return
     try:
-        _ui_event_counter.add(1, {"event": event})
+        name, attrs = parse_ui_telemetry(event, reason, latency_bucket)
+        _ui_event_counter.add(1, attrs)
+        step = FUNNEL_STEP_BY_EVENT.get(name)
+        if step is not None and _funnel_counter is not None:
+            _funnel_counter.add(1, {"step": step})
     except Exception:  # noqa: BLE001
         pass
 
@@ -490,7 +644,9 @@ class MetricsHttpMiddleware:
             await self.app(scope, receive, send)
             return
 
-        route = scope.get("path") or "unknown"
+        route = http_route_label(
+            scope.get("path") if isinstance(scope.get("path"), str) else None
+        )
         start = time.perf_counter()
         status_code = 500
 

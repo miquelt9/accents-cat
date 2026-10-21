@@ -26,7 +26,7 @@ These tasks are **agent-ready**: open one file in Cursor and ask the agent to im
 
 ## Already done (do not redo)
 
-- Sentry FE/BE init, scrubbers, `/sentry-debug`, error-only replay
+- Sentry FE/BE init, scrubbers, `/sentry-debug`, no session replay
 - Grafana OTLP metrics + dashboard `accent-oracle-operations` + three alert rules
 - Allowlisted `POST /telemetry/event`
 - Better Stack documented as pre-prod checklist only
