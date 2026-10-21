@@ -113,7 +113,7 @@ def test_live_and_version_payloads(monkeypatch) -> None:
     monkeypatch.setenv("ORACLE_BUILT_AT", "2026-08-06T00:00:00Z")
     assert version_payload() == {
         "version": "1.2.3",
-        "gitSha": "abc",
+        "gitSha": "unknown",
         "builtAt": "2026-08-06T00:00:00Z",
     }
 

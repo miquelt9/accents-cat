@@ -61,7 +61,9 @@ FUNNEL_STEP_BY_EVENT: dict[str, str] = {
     "flow_retried": "07_retry_or_finalized",
 }
 
-ANALYSIS_FAILURE_REASONS: frozenset[str] = frozenset({"timeout", "5xx", "network"})
+ANALYSIS_FAILURE_REASONS: frozenset[str] = frozenset(
+    {"timeout", "5xx", "4xx", "network"}
+)
 LATENCY_BUCKETS: frozenset[str] = frozenset(
     {"under_15s", "15_to_45s", "45_to_90s", "over_90s"}
 )

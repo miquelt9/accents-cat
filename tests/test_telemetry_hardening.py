@@ -149,7 +149,7 @@ def test_analysis_failed_requires_coarse_fields() -> None:
         "reason": "timeout",
         "latency_bucket": "over_90s",
     }
-    for reason in ("timeout", "5xx", "network"):
+    for reason in ("timeout", "5xx", "4xx", "network"):
         parse_ui_telemetry("analysis_failed", reason, "under_15s")
     try:
         parse_ui_telemetry("analysis_failed", "timeout", None)
@@ -211,6 +211,23 @@ def test_version_payload_reads_git_sha_file(monkeypatch, tmp_path: Path) -> None
     assert version_payload()["gitSha"] == sha
     monkeypatch.delenv("SENTRY_RELEASE", raising=False)
     assert app_version() == sha
+
+
+def test_oracle_git_sha_rejects_non_hex(monkeypatch, tmp_path: Path) -> None:
+    sha_file = tmp_path / "git-sha.txt"
+    sha_file.write_text("0123456789abcdef\n", encoding="utf-8")
+    monkeypatch.setattr("backend.health.git_sha_file_candidates", lambda: [sha_file])
+    monkeypatch.delenv("SENTRY_RELEASE", raising=False)
+    monkeypatch.setenv("ORACLE_GIT_SHA", "abcdef1")
+    assert version_payload()["gitSha"] == "abcdef1"
+    monkeypatch.setenv("ORACLE_GIT_SHA", "A" * 40)
+    assert version_payload()["gitSha"] == "A" * 40
+    for invalid in ("abc", "not a sha", "g" * 7, "a" * 41, "abc123\n"):
+        monkeypatch.setenv("ORACLE_GIT_SHA", invalid)
+        assert version_payload()["gitSha"] == "unknown"
+        assert app_version() == "unknown"
+    # A bad env value does not fall through to git-sha.txt.
+    assert version_payload()["gitSha"] != "0123456789abcdef"
 
 
 def test_version_payload_ignores_non_sha_file(monkeypatch, tmp_path: Path) -> None:

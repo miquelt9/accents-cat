@@ -107,7 +107,9 @@ function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisPace, setAnalysisPace] = useState<
-    { mode: "slow" } | { mode: "fail"; reason: AnalysisFailureReason } | null
+    | { mode: "slow" }
+    | { mode: "fail"; reason: AnalysisFailureReason; message?: string }
+    | null
   >(null);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
@@ -522,7 +524,11 @@ function App() {
           latencyBucket: latencyBucket(error.elapsedMs),
         });
         setAnalysisError(null);
-        setAnalysisPace({ mode: "fail", reason: error.reason });
+        setAnalysisPace({
+          mode: "fail",
+          reason: error.reason,
+          message: error.reason === "4xx" ? error.message : undefined,
+        });
       } else {
         setAnalysisPace(null);
         setAnalysisError(
@@ -751,6 +757,7 @@ function App() {
               <AnalysisPaceNotice
                 mode={analysisPace.mode}
                 reason={"reason" in analysisPace ? analysisPace.reason : undefined}
+                message={"message" in analysisPace ? analysisPace.message : undefined}
               />
             )}
             {analysisError && (

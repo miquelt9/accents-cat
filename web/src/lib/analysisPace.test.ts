@@ -18,6 +18,7 @@ describe("analysis pace copy and buckets", () => {
     expect(ANALYSIS_SLOW_MESSAGE).toMatch(/despertant/);
     expect(calmFailureMessage("timeout")).toMatch(/tornar-ho a provar/);
     expect(calmFailureMessage("5xx")).toMatch(/servidor/);
+    expect(calmFailureMessage("4xx")).toMatch(/gravació/);
     expect(calmFailureMessage("network")).toMatch(/connexió/);
   });
 
@@ -72,7 +73,7 @@ describe("api analyze failure classification", () => {
     });
   });
 
-  it("classifies network failures and leaves 4xx as ordinary errors", async () => {
+  it("classifies network failures and client HTTP errors as analysis failures", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.reject(new TypeError("Failed to fetch"))),
@@ -92,14 +93,19 @@ describe("api analyze failure classification", () => {
         ),
       ),
     );
-    let thrown: unknown;
-    try {
-      await apiAccentOracleClient.analyzeRecording(new Blob(["x"]), prompt);
-    } catch (error) {
-      thrown = error;
-    }
-    expect(thrown).toBeInstanceOf(Error);
-    expect(thrown).not.toBeInstanceOf(AnalysisFailure);
-    expect((thrown as Error).message).toMatch(/massa curta/);
+    await expect(apiAccentOracleClient.analyzeRecording(new Blob(["x"]), prompt)).rejects.toMatchObject({
+      name: "AnalysisFailure",
+      reason: "4xx",
+      message: expect.stringMatching(/massa curta/),
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.resolve(new Response("slow down", { status: 429 }))),
+    );
+    await expect(apiAccentOracleClient.analyzeRecording(new Blob(["x"]), prompt)).rejects.toMatchObject({
+      reason: "4xx",
+      message: expect.stringMatching(/massa peticions/),
+    });
   });
 });

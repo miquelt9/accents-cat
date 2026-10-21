@@ -11,7 +11,7 @@ per-comarca aggregate counts without storing an individual response or linking
 it to audio, results, or session IDs. Usage events are allowlisted names sent
 to the API, which exports aggregate counters to Grafana. The browser does not
 use cookies or local storage for that telemetry. `analysis_failed` may add a
-coarse reason (`timeout`, `5xx`, or `network`) and a coarse latency bucket
+coarse reason (`timeout`, `5xx`, `4xx`, or `network`) and a coarse latency bucket
 that includes Space wake-up time. Sentry diagnostics are enabled in the
 workflow but initialize only when `VITE_SENTRY_DSN` is set; they send errors
 and sampled traces, without session replay.

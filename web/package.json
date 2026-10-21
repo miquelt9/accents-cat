@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "latest",
-    "@sentry/vite-plugin": "^4.9.1",
+    "@sentry/vite-plugin": "^11.8.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-basic-ssl": "^2.3.0",

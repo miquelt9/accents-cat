@@ -12,6 +12,9 @@ from typing import Any, Callable
 from backend import storage
 
 DEFAULT_APP_VERSION = "0.1.0"
+UNKNOWN_GIT_SHA = "unknown"
+# Env SHAs are the 7–40 hex form GitHub publishes. The baked file may be longer.
+_ENV_GIT_SHA_RE = re.compile(r"[0-9a-fA-F]{7,40}")
 _GIT_SHA_RE = re.compile(r"[0-9a-fA-F]{7,64}")
 
 
@@ -22,10 +25,16 @@ def git_sha_file_candidates() -> list[Path]:
 
 
 def configured_git_sha() -> str | None:
-    """Release SHA from `ORACLE_GIT_SHA`, else a hex SHA file baked into the build."""
+    """Release SHA from `ORACLE_GIT_SHA`, else a hex SHA file baked into the build.
+
+    A set `ORACLE_GIT_SHA` must be 7–40 hex characters. Anything else is
+    ``unknown`` and does not fall through to the file.
+    """
     env = os.environ.get("ORACLE_GIT_SHA", "").strip()
     if env:
-        return env
+        if _ENV_GIT_SHA_RE.fullmatch(env):
+            return env
+        return UNKNOWN_GIT_SHA
     for path in git_sha_file_candidates():
         try:
             text = path.read_text(encoding="utf-8").strip()

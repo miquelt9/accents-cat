@@ -7,7 +7,7 @@ configured. There is no third-party product-analytics SDK.
 ## Privacy rules
 
 - No cookies and no browser storage for these events
-- Event name only, except `analysis_failed`, which may add `reason` (`timeout`, `5xx`, `network`) and `latencyBucket` (`under_15s`, `15_to_45s`, `45_to_90s`, `over_90s`)
+- Event name only, except `analysis_failed`, which may add `reason` (`timeout`, `5xx`, `4xx`, `network`) and `latencyBucket` (`under_15s`, `15_to_45s`, `45_to_90s`, `over_90s`)
 - The latency bucket is the whole wait, including a sleeping Space waking up
 - Never send: audio, request/response bodies, recording IDs, comarca, consent payloads, scores, prompts, or notes
 - Backend allowlist must stay in sync with `UI_TELEMETRY_EVENTS` in `backend/observability.py`
