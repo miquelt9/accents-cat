@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useAnalyzingLabel, useCyclingDotsLabel } from "../hooks/useAnalyzingLabel";
 import {
   SILENCE_DURATION_MS,
@@ -58,7 +65,6 @@ export function RecorderPanel({
   const isRecordingRef = useRef(false);
   const startingRef = useRef(false);
   const ignoreNextClickRef = useRef(false);
-  const ignoreReleaseTimerRef = useRef<number | null>(null);
   /** Primary press that should stop on release. The press that started recording does not. */
   const stopOnPointerUpRef = useRef(false);
   const startedWithThisPointerRef = useRef(false);
@@ -72,9 +78,6 @@ export function RecorderPanel({
 
   useEffect(() => {
     return () => {
-      if (ignoreReleaseTimerRef.current !== null) {
-        window.clearTimeout(ignoreReleaseTimerRef.current);
-      }
       silenceMonitorRef.current?.stop();
       silenceMonitorRef.current = null;
       if (maxDurationTimerRef.current !== null) {
@@ -136,36 +139,12 @@ export function RecorderPanel({
     setShowRetakeHint(true);
   }
 
-  function clearIgnoreReleaseTimer() {
-    if (ignoreReleaseTimerRef.current !== null) {
-      window.clearTimeout(ignoreReleaseTimerRef.current);
-      ignoreReleaseTimerRef.current = null;
-    }
-  }
-
   function disarmIgnoreClick() {
     ignoreNextClickRef.current = false;
-    clearIgnoreReleaseTimer();
   }
 
   function armIgnoreClick() {
-    clearIgnoreReleaseTimer();
     ignoreNextClickRef.current = true;
-  }
-
-  // Mouse and pen drop the click after preventDefault() plus pointer capture
-  // (pointerdown hits the icon, pointerup is retargeted to the button). Touch
-  // usually still emits it, in the same task, before this timeout. A click that
-  // never arrives must not swallow the next press.
-  function scheduleIgnoreRelease() {
-    if (!ignoreNextClickRef.current) {
-      return;
-    }
-    clearIgnoreReleaseTimer();
-    ignoreReleaseTimerRef.current = window.setTimeout(() => {
-      ignoreReleaseTimerRef.current = null;
-      ignoreNextClickRef.current = false;
-    }, 0);
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
@@ -213,22 +192,22 @@ export function RecorderPanel({
     }
     startedWithThisPointerRef.current = false;
     if (startedHere) {
-      scheduleIgnoreRelease();
       return;
     }
     if (stopOnRelease) {
       stopRecording();
-      scheduleIgnoreRelease();
     }
   }
 
   function handlePointerCancel() {
     pointerDownAtRef.current = null;
-    const startedHere = startedWithThisPointerRef.current;
     startedWithThisPointerRef.current = false;
     stopOnPointerUpRef.current = false;
-    if (startedHere) {
-      scheduleIgnoreRelease();
+  }
+
+  function handleKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (event.repeat && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
     }
   }
 
@@ -350,11 +329,14 @@ export function RecorderPanel({
     setRecording(false);
   }
 
-  function toggleRecording() {
-    if (ignoreNextClickRef.current) {
+  function toggleRecording(event: ReactMouseEvent<HTMLButtonElement>) {
+    // Pointer clicks have detail >= 1, including a touch click that arrives
+    // after pointerup. Keyboard activation uses detail 0 and must still toggle.
+    if (ignoreNextClickRef.current && event.detail > 0) {
       disarmIgnoreClick();
       return;
     }
+    disarmIgnoreClick();
     if (isRecordingRef.current) {
       pointerDownAtRef.current = null;
       startedWithThisPointerRef.current = false;
@@ -401,6 +383,7 @@ export function RecorderPanel({
           className={`mic-button${isRecording ? " recording" : ""}${analyzing ? " analyzing" : ""}`}
           disabled={disabled || analyzing}
           onClick={toggleRecording}
+          onKeyDown={handleKeyDown}
           onPointerCancel={handlePointerCancel}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}

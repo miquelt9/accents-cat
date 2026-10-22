@@ -9,6 +9,7 @@ import { RecorderPanel } from "./RecorderPanel";
  * button, and preventDefault on that pointerdown drops the mouse/pen click.
  * Touch still emits click. The second mouse click is then pointerdown →
  * pointerup → click, and a stale ignore-next-click flag swallows it.
+ * The real iOS Safari event order has not been verified on a device.
  */
 class FakeMediaRecorder {
   state: RecordingState = "inactive";
@@ -74,8 +75,8 @@ function pointerEvent(type: "pointerdown" | "pointerup", pointerType: string): P
   });
 }
 
-function clickEvent(): MouseEvent {
-  return new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+function clickEvent(detail = 1): MouseEvent {
+  return new MouseEvent("click", { bubbles: true, cancelable: true, button: 0, detail });
 }
 
 async function gesture(
@@ -103,7 +104,7 @@ async function keyActivate(button: HTMLButtonElement, key: "Enter" | " "): Promi
         new KeyboardEvent("keyup", { key, code, bubbles: true, cancelable: true }),
       );
     }
-    button.dispatchEvent(clickEvent());
+    button.dispatchEvent(clickEvent(0));
   });
 }
 
@@ -173,9 +174,6 @@ describe("RecorderPanel record button", () => {
     expect(isRecording(button)).toBe(false);
     expect(startCount).toBe(1);
 
-    await act(async () => {
-      await new Promise((resolve) => window.setTimeout(resolve, 0));
-    });
     await keyActivate(button, "Enter");
     expect(isRecording(button)).toBe(true);
     expect(startCount).toBe(2);
@@ -207,6 +205,70 @@ describe("RecorderPanel record button", () => {
       expect(startCount).toBe(1);
     },
   );
+
+  it.each([5, 50])(
+    "a touch click %dms after pointerup does not stop the take that just started",
+    async (delayMs) => {
+      const button = await renderPanel();
+
+      await act(async () => {
+        iconOf(button).dispatchEvent(pointerEvent("pointerdown", "touch"));
+        button.dispatchEvent(pointerEvent("pointerup", "touch"));
+      });
+      expect(isRecording(button)).toBe(true);
+      expect(startCount).toBe(1);
+
+      await act(async () => {
+        await new Promise((resolve) => window.setTimeout(resolve, delayMs));
+        iconOf(button).dispatchEvent(clickEvent(1));
+      });
+      expect(isRecording(button)).toBe(true);
+      expect(startCount).toBe(1);
+    },
+  );
+
+  it.each([
+    ["Enter", "Enter"],
+    ["Space", " "],
+  ] as const)("held %s toggles once across repeat keydowns", async (_label, key) => {
+    const button = await renderPanel();
+    const code = key === "Enter" ? "Enter" : "Space";
+
+    await act(async () => {
+      const down = new KeyboardEvent("keydown", {
+        key,
+        code,
+        bubbles: true,
+        cancelable: true,
+        repeat: false,
+      });
+      button.dispatchEvent(down);
+      if (!down.defaultPrevented) {
+        button.dispatchEvent(clickEvent(0));
+      }
+    });
+    expect(isRecording(button)).toBe(true);
+    expect(startCount).toBe(1);
+
+    await act(async () => {
+      for (let repeatIndex = 0; repeatIndex < 8; repeatIndex += 1) {
+        const repeat = new KeyboardEvent("keydown", {
+          key,
+          code,
+          bubbles: true,
+          cancelable: true,
+          repeat: true,
+        });
+        button.dispatchEvent(repeat);
+        expect(repeat.defaultPrevented).toBe(true);
+        if (!repeat.defaultPrevented) {
+          button.dispatchEvent(clickEvent(0));
+        }
+      }
+    });
+    expect(isRecording(button)).toBe(true);
+    expect(startCount).toBe(1);
+  });
 
   it("holding the record button does not stop on release", async () => {
     const button = await renderPanel();
