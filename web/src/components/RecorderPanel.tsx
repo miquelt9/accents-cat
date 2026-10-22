@@ -30,6 +30,27 @@ interface RecorderPanelProps {
   theme: "light" | "dark";
 }
 
+function AnalyzeWakeNotice() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setVisible(true);
+    }, ANALYZE_WAKE_NOTICE_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <p className="recorder-caption" role="status">
+      {SERVER_WAKE_NOTICE}
+    </p>
+  );
+}
+
 function getSupportedMimeType(): string | undefined {
   if (typeof MediaRecorder === "undefined") {
     return undefined;
@@ -62,19 +83,6 @@ export function RecorderPanel({
   const startedWithThisPointerRef = useRef(false);
   const analyzingLabel = useAnalyzingLabel(analyzing);
   const recordingLabel = useCyclingDotsLabel(isRecording, "Gravant");
-  const [showWakeNotice, setShowWakeNotice] = useState(false);
-
-  useEffect(() => {
-    if (!analyzing) {
-      setShowWakeNotice(false);
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setShowWakeNotice(true);
-    }, ANALYZE_WAKE_NOTICE_MS);
-    return () => window.clearTimeout(timer);
-  }, [analyzing]);
 
   function setRecording(next: boolean) {
     isRecordingRef.current = next;
@@ -377,11 +385,7 @@ export function RecorderPanel({
         <p aria-hidden="true" className="recorder-caption">
           {caption}
         </p>
-        {showWakeNotice && (
-          <p className="recorder-caption" role="status">
-            {SERVER_WAKE_NOTICE}
-          </p>
-        )}
+        {analyzing && <AnalyzeWakeNotice />}
       </div>
 
       {showRetakeHint && (
