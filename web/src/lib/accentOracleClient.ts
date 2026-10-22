@@ -1,3 +1,4 @@
+import { ANALYZE_UNAVAILABLE_MESSAGE } from "./coldStart";
 import {
   isApiMode,
   isMockMode,
@@ -97,13 +98,11 @@ const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://local
 /** Client-side fetch timeout for `/analyze` (CPU HuBERT can be slow). */
 const ANALYZE_TIMEOUT_MS = 120_000;
 
-const SERVICE_SATURATED_MESSAGE = "El servei està saturat. Torna-ho a provar.";
-const ANALYZE_TIMEOUT_MESSAGE = "La petició ha trigat massa. Torna-ho a provar.";
-const NETWORK_ERROR_MESSAGE =
-  "No s'ha pogut connectar amb el servidor. Comprova la connexió i torna-ho a provar.";
+const SERVICE_SATURATED_MESSAGE = ANALYZE_UNAVAILABLE_MESSAGE;
+const ANALYZE_TIMEOUT_MESSAGE = ANALYZE_UNAVAILABLE_MESSAGE;
+const NETWORK_ERROR_MESSAGE = ANALYZE_UNAVAILABLE_MESSAGE;
 const RATE_LIMIT_MESSAGE = "Has fet massa peticions. Espera un moment i torna-ho a provar.";
-const SERVER_ERROR_MESSAGE =
-  "El servidor ha tingut un problema. Torna-ho a provar d'aquí a uns minuts.";
+const SERVER_ERROR_MESSAGE = ANALYZE_UNAVAILABLE_MESSAGE;
 const PAYLOAD_TOO_LARGE_MESSAGE = "La gravació és massa gran. Prova una mostra més curta.";
 
 /** True for browser network failures (offline, CORS, DNS, etc.). */
