@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useAnalyzingLabel, useCyclingDotsLabel } from "../hooks/useAnalyzingLabel";
 import {
   SILENCE_DURATION_MS,
@@ -58,6 +65,8 @@ export function RecorderPanel({
   const isRecordingRef = useRef(false);
   const startingRef = useRef(false);
   const ignoreNextClickRef = useRef(false);
+  /** Primary press that should stop on release. The press that started recording does not. */
+  const stopOnPointerUpRef = useRef(false);
   const startedWithThisPointerRef = useRef(false);
   const analyzingLabel = useAnalyzingLabel(analyzing);
   const recordingLabel = useCyclingDotsLabel(isRecording, "Gravant");
@@ -130,17 +139,38 @@ export function RecorderPanel({
     setShowRetakeHint(true);
   }
 
+  function disarmIgnoreClick() {
+    ignoreNextClickRef.current = false;
+  }
+
+  function armIgnoreClick() {
+    ignoreNextClickRef.current = true;
+  }
+
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (event.button !== 0 || disabled || analyzing) {
       return;
     }
+    disarmIgnoreClick();
     pointerDownAtRef.current = performance.now();
-    if (isRecordingRef.current || startingRef.current) {
+    if (isRecordingRef.current) {
+      startedWithThisPointerRef.current = false;
+      stopOnPointerUpRef.current = true;
+      armIgnoreClick();
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // Capture is best-effort; release still stops if the pointer stays on the button.
+      }
+      return;
+    }
+    stopOnPointerUpRef.current = false;
+    if (startingRef.current) {
       startedWithThisPointerRef.current = false;
       return;
     }
     startedWithThisPointerRef.current = true;
-    ignoreNextClickRef.current = true;
+    armIgnoreClick();
     event.preventDefault();
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
@@ -154,19 +184,31 @@ export function RecorderPanel({
   function handlePointerUp() {
     const downAt = pointerDownAtRef.current;
     pointerDownAtRef.current = null;
-    if (
-      startedWithThisPointerRef.current &&
-      downAt != null &&
-      performance.now() - downAt >= PRESS_HOLD_MS
-    ) {
+    const startedHere = startedWithThisPointerRef.current;
+    const stopOnRelease = stopOnPointerUpRef.current;
+    stopOnPointerUpRef.current = false;
+    if (startedHere && downAt != null && performance.now() - downAt >= PRESS_HOLD_MS) {
       trackUiEvent("recording_press_hold");
     }
     startedWithThisPointerRef.current = false;
+    if (startedHere) {
+      return;
+    }
+    if (stopOnRelease) {
+      stopRecording();
+    }
   }
 
   function handlePointerCancel() {
     pointerDownAtRef.current = null;
     startedWithThisPointerRef.current = false;
+    stopOnPointerUpRef.current = false;
+  }
+
+  function handleKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (event.repeat && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+    }
   }
 
   function describeGetUserMediaError(caught: unknown): string {
@@ -287,11 +329,14 @@ export function RecorderPanel({
     setRecording(false);
   }
 
-  function toggleRecording() {
-    if (ignoreNextClickRef.current) {
-      ignoreNextClickRef.current = false;
+  function toggleRecording(event: ReactMouseEvent<HTMLButtonElement>) {
+    // Pointer clicks have detail >= 1, including a touch click that arrives
+    // after pointerup. Keyboard activation uses detail 0 and must still toggle.
+    if (ignoreNextClickRef.current && event.detail > 0) {
+      disarmIgnoreClick();
       return;
     }
+    disarmIgnoreClick();
     if (isRecordingRef.current) {
       pointerDownAtRef.current = null;
       startedWithThisPointerRef.current = false;
@@ -338,6 +383,7 @@ export function RecorderPanel({
           className={`mic-button${isRecording ? " recording" : ""}${analyzing ? " analyzing" : ""}`}
           disabled={disabled || analyzing}
           onClick={toggleRecording}
+          onKeyDown={handleKeyDown}
           onPointerCancel={handlePointerCancel}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
