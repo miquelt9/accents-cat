@@ -87,21 +87,25 @@ describe("buildInfo / sentryRelease", () => {
 });
 
 describe("client error mapping", () => {
-  it("maps Failed to fetch to Catalan network copy", () => {
+  it("maps Failed to fetch to Catalan copy that does not blame the connection", () => {
     expect(isNetworkFetchError(new TypeError("Failed to fetch"))).toBe(true);
     const mapped = mapTransportError(new TypeError("Failed to fetch"));
-    expect(mapped?.message).toMatch(/connectar|connexió/i);
+    expect(mapped?.message).toMatch(/despertant/i);
+    expect(mapped?.message).not.toMatch(/connexi[oó]|connectar/i);
   });
 
-  it("maps AbortError to timeout copy", () => {
+  it("maps AbortError to timeout copy that does not blame the connection", () => {
     const mapped = mapTransportError(new DOMException("Aborted", "AbortError"));
-    expect(mapped?.message).toMatch(/trigat massa/i);
+    expect(mapped?.message).toMatch(/despertant/i);
+    expect(mapped?.message).not.toMatch(/connexi[oó]|connectar/i);
   });
 
   it("uses status fallbacks instead of English validation dumps", () => {
     expect(friendlyHttpFallback(429, "fallback")).toMatch(/massa peticions/i);
-    expect(friendlyHttpFallback(503, "fallback")).toMatch(/saturat/i);
+    expect(friendlyHttpFallback(503, "fallback")).toMatch(/despertant/i);
+    expect(friendlyHttpFallback(503, "fallback")).not.toMatch(/connexi[oó]|connectar/i);
     expect(friendlyHttpFallback(500, "fallback")).toMatch(/servidor/i);
+    expect(friendlyHttpFallback(500, "fallback")).not.toMatch(/connexi[oó]|connectar/i);
     expect(
       resolveApiErrorMessage(422, [{ loc: ["body"], msg: "field required" }], "fallback"),
     ).toBe("fallback");

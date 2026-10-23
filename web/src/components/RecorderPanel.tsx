@@ -7,6 +7,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useAnalyzingLabel, useCyclingDotsLabel } from "../hooks/useAnalyzingLabel";
+import { ANALYZE_WAKE_NOTICE_MS, SERVER_WAKE_NOTICE } from "../lib/coldStart";
 import {
   SILENCE_DURATION_MS,
   SPEECH_RMS_THRESHOLD,
@@ -34,6 +35,27 @@ interface RecorderPanelProps {
   analyzing?: boolean;
   disabled?: boolean;
   theme: "light" | "dark";
+}
+
+function AnalyzeWakeNotice() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setVisible(true);
+    }, ANALYZE_WAKE_NOTICE_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <p className="recorder-caption" role="status">
+      {SERVER_WAKE_NOTICE}
+    </p>
+  );
 }
 
 function getSupportedMimeType(): string | undefined {
@@ -409,6 +431,7 @@ export function RecorderPanel({
         <p aria-hidden="true" className="recorder-caption">
           {caption}
         </p>
+        {analyzing && <AnalyzeWakeNotice />}
       </div>
 
       {showRetakeHint && (

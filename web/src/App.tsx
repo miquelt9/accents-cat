@@ -38,6 +38,11 @@ import {
   rememberLastPromptId,
   type ReadAloudPrompt,
 } from "./lib/prompts";
+import {
+  ANALYZE_UNAVAILABLE_MESSAGE,
+  RESEND_RECORDING_LABEL,
+  warmBackend,
+} from "./lib/coldStart";
 import { trackUiEvent } from "./lib/telemetry";
 
 type AppPhase = "landing" | "recording" | "validation" | "offer-third" | "refine" | "results";
@@ -100,6 +105,8 @@ function App() {
   const [terminalTakeCount, setTerminalTakeCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  /** Last take kept so a cold-start failure can be resent without re-recording. */
+  const [retryAudio, setRetryAudio] = useState<Blob | null>(null);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
   const [accentOracleMode, setAccentOracleMode] = useState<AccentOracleMode>(() => getAccentOracleMode());
   const [activePrompt, setActivePrompt] = useState<ReadAloudPrompt | null>(null);
@@ -276,6 +283,7 @@ function App() {
     setTerminalTakeCount(0);
     setIsAnalyzing(false);
     setAnalysisError(null);
+    setRetryAudio(null);
     setActivePrompt(null);
     setPrimaryPromptId(null);
     setUsedPromptIds([]);
@@ -359,6 +367,7 @@ function App() {
   }
 
   function startRecording() {
+    warmBackend();
     resetMockAnalyzeOrdinal();
     const prompt = pickPrimaryReadAloudPrompt();
     setAnalysisSessionId(isApiMode(accentOracleMode) ? null : createClientId());
@@ -433,6 +442,7 @@ function App() {
       return;
     }
 
+    setRetryAudio(audio);
     setAnalysisError(null);
     setIsAnalyzing(true);
     const generation = flowGenerationRef.current;
@@ -447,6 +457,7 @@ function App() {
       if (generation !== flowGenerationRef.current) {
         return;
       }
+      setRetryAudio(null);
       trackUiEvent("analysis_completed");
       if (nextResult.analysisSessionId && !analysisSessionId) {
         setAnalysisSessionId(nextResult.analysisSessionId);
@@ -716,6 +727,20 @@ function App() {
               <p className="error-message" role="alert">
                 {analysisError}
               </p>
+            )}
+            {analysisError === ANALYZE_UNAVAILABLE_MESSAGE && retryAudio && (
+              <div className="validation-actions">
+                <button
+                  className="secondary"
+                  disabled={isAnalyzing}
+                  onClick={() => {
+                    void analyzeRecording(retryAudio);
+                  }}
+                  type="button"
+                >
+                  {RESEND_RECORDING_LABEL}
+                </button>
+              </div>
             )}
           </section>
         </>
