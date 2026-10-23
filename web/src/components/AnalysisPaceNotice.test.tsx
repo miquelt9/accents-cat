@@ -38,12 +38,11 @@ describe("AnalysisPaceNotice", () => {
     expect(fail?.getAttribute("role")).toBe("alert");
 
     await act(async () => {
-      root.render(
-        <AnalysisPaceNotice mode="fail" reason="4xx" message="La gravació és massa curta." />,
-      );
+      root.render(<AnalysisPaceNotice mode="fail" reason="4xx" />);
     });
     const clientError = container.querySelector("[data-analysis-pace='fail']");
     expect(clientError?.className).toContain("quiet-recording-hint");
-    expect(clientError?.textContent).toBe("La gravació és massa curta.");
+    expect(clientError?.textContent).toBe(calmFailureMessage("4xx"));
+    expect(clientError?.textContent).not.toMatch(/massa curta|massa peticions/);
   });
 });

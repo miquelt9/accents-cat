@@ -282,20 +282,57 @@ export function normalizeScores(scores: AccentScores): AccentScores {
   }, {} as AccentScores);
 }
 
-function summarizeConfidence(evidenceBand: EvidenceBand, isAmbiguousTopTwo: boolean): string {
+/** Zone names mirrored from backend/scoring.py `DIALECT_LABELS`. */
+const SCORING_ZONE_LABELS: Record<DialectZone, string> = {
+  balearic: "balear",
+  central: "central",
+  northern: "septentrional",
+  northwestern: "nord-occidental",
+  valencian: "valencià",
+};
+
+function usesSimulatedCopy(): boolean {
+  return isMockMode(resolveAccentOracleMode());
+}
+
+/**
+ * Confidence sentence for one score vector.
+ * Real copy is mirrored from backend/scoring.py `confidence_summary`.
+ * Fake mode keeps the simulated wording.
+ */
+function confidenceSummaryForBand(
+  evidenceBand: EvidenceBand,
+  isAmbiguousTopTwo: boolean,
+  simulated: boolean,
+): string {
   if (isAmbiguousTopTwo) {
-    return "Les dues zones principals són properes, així que el mapa mostra un patró de similitud més ampli.";
+    return simulated
+      ? "Les dues zones principals són properes, així que el mapa mostra un patró de similitud més ampli."
+      : "Les dues zones principals són properes, així que el mapa mostra intencionadament un patró de similitud més ampli.";
   }
 
   if (evidenceBand === "strong") {
-    return "El senyal simulat és relativament concentrat, però encara no és una estimació exacta d'origen.";
+    return simulated
+      ? "El senyal simulat és relativament concentrat, però encara no és una estimació exacta d'origen."
+      : "El senyal del model és relativament concentrat, però encara no és una estimació exacta de l'origen.";
   }
 
   if (evidenceBand === "moderate") {
-    return "El senyal simulat detecta una zona principal amb incertesa significativa al voltant.";
+    return simulated
+      ? "El senyal simulat detecta una zona principal amb incertesa significativa al voltant."
+      : "El model detecta una zona principal, però hi ha una incertesa significativa al voltant.";
   }
 
   return "La gravació aporta evidència limitada, així que la incertesa és alta.";
+}
+
+/** Interpretation sentence. Real copy mirrors backend/scoring.py `build_result`. */
+function interpretationForZone(topLabel: DialectZone, simulated: boolean): string {
+  if (simulated) {
+    return `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`;
+  }
+
+  return `Aquesta gravació sona més similar a la zona del català ${SCORING_ZONE_LABELS[topLabel]} segons el model actual.`;
 }
 
 /** Build a full result from a score vector (used by mock client and validation merge). */
@@ -312,6 +349,7 @@ export function buildResultFromScores(
   const topTwoGap = Number((scores[topLabel] - scores[runnerUpLabel]).toFixed(3));
   const isAmbiguousTopTwo = topTwoGap < 0.08;
   const evidenceBand = getEvidenceBand(topTwoGap, scores[topLabel]);
+  const simulated = usesSimulatedCopy();
 
   return {
     scores,
@@ -320,8 +358,8 @@ export function buildResultFromScores(
     topTwoGap,
     isAmbiguousTopTwo,
     evidenceBand,
-    confidenceSummary: summarizeConfidence(evidenceBand, isAmbiguousTopTwo),
-    interpretation: `Aquesta gravació sona més similar a les zones catalanes ${DIALECT_ZONE_LABELS[topLabel].toLowerCase()} segons el model simulat actual.`,
+    confidenceSummary: confidenceSummaryForBand(evidenceBand, isAmbiguousTopTwo, simulated),
+    interpretation: interpretationForZone(topLabel, simulated),
     recordingId,
     analysisSessionId,
     takeIndex,

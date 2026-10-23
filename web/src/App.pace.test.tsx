@@ -204,4 +204,23 @@ describe("analysis pace messages", () => {
     );
     expect(container.textContent).not.toContain("El servei està saturat.");
   });
+
+  it("shows the generic calm line for a 4xx rejection", async () => {
+    analyzeRecording.mockRejectedValue(
+      new AnalysisFailure("4xx", 800, "La gravació és massa curta."),
+    );
+    await act(async () => {
+      root.render(<App />);
+    });
+    await act(async () => {
+      clickButton(container, "Comença");
+    });
+    await recordTake(container);
+
+    expect(container.querySelector("[data-analysis-pace='fail']")?.textContent).toBe(
+      calmFailureMessage("4xx"),
+    );
+    expect(container.textContent).not.toContain("La gravació és massa curta.");
+    expect(container.querySelector(".error-message")).toBeNull();
+  });
 });

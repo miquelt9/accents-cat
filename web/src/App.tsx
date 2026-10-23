@@ -108,7 +108,7 @@ function App() {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisPace, setAnalysisPace] = useState<
     | { mode: "slow" }
-    | { mode: "fail"; reason: AnalysisFailureReason; message?: string }
+    | { mode: "fail"; reason: AnalysisFailureReason }
     | null
   >(null);
   const [devToolsEnabled] = useState(() => getInitialDevToolsEnabled());
@@ -531,7 +531,6 @@ function App() {
         setAnalysisPace({
           mode: "fail",
           reason: error.reason,
-          message: error.reason === "4xx" ? error.message : undefined,
         });
       } else {
         setAnalysisPace(null);
@@ -761,7 +760,6 @@ function App() {
               <AnalysisPaceNotice
                 mode={analysisPace.mode}
                 reason={"reason" in analysisPace ? analysisPace.reason : undefined}
-                message={"message" in analysisPace ? analysisPace.message : undefined}
               />
             )}
             {analysisError && (

@@ -8,15 +8,11 @@ import {
 export function AnalysisPaceNotice({
   mode,
   reason,
-  message: detail,
 }: {
   mode: "slow" | "fail";
   reason?: AnalysisFailureReason;
-  /** Specific Catalan detail for a 4xx rejection. Other failures use the calm line. */
-  message?: string;
 }) {
-  const fallback = calmFailureMessage(reason ?? "network");
-  const message = mode === "slow" ? ANALYSIS_SLOW_MESSAGE : detail?.trim() || fallback;
+  const message = mode === "slow" ? ANALYSIS_SLOW_MESSAGE : calmFailureMessage(reason ?? "network");
   return (
     <p className="quiet-recording-hint" data-analysis-pace={mode} role={mode === "fail" ? "alert" : "status"}>
       {message}
