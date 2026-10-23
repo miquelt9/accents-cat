@@ -13,7 +13,7 @@ pandas
 pyarrow
 python-multipart
 scikit-learn
-sentry-sdk[fastapi]
+sentry-sdk[fastapi]>=2.35.0
 shapely
 soundfile
 torch

@@ -6,3 +6,4 @@ pandas
 pytest
 python-multipart
 ruff
+sentry-sdk[fastapi]>=2.35.0

@@ -25,7 +25,7 @@ deployed instance has the approved values.
 - Confirmed hosting/data regions, processors, backup location, access roles,
   provider retention periods, and research/legal basis
 - A privacy/legal reviewer, with the decision recorded before launch
-- Sentry, Grafana Cloud, and PostHog projects selected for production
+- Sentry and Grafana Cloud projects selected for production
 - A deployment secret/build-variable store; never place provider credentials in
   this repository
 
@@ -45,7 +45,7 @@ Do not guess an identity, email address, provider, region, or legal claim.
 - [`web/src/lib/legalDocs.ts`](../../web/src/lib/legalDocs.ts)
 - [`web/.env.example`](../../web/.env.example) and [`.env.example`](../../.env.example)
 - [`web/src/lib/sentry.ts`](../../web/src/lib/sentry.ts)
-- [`web/src/lib/posthog.ts`](../../web/src/lib/posthog.ts)
+- [`web/src/lib/telemetry.ts`](../../web/src/lib/telemetry.ts)
 - [`backend/observability.py`](../../backend/observability.py)
 - [`docs/ANALYTICS_EVENTS.md`](../../docs/ANALYTICS_EVENTS.md)
 - [`ops/followups/01-grafana-contact-points.md`](01-grafana-contact-points.md),
@@ -56,7 +56,7 @@ Do not guess an identity, email address, provider, region, or legal claim.
 ## Runbook
 
 1. Create a deployment data-flow inventory covering audio, SQLite, backups,
-   model/training exports, proxy/host logs, Sentry, Grafana, PostHog, and
+   model/training exports, proxy/host logs, Sentry, Grafana, and
    support/deletion records. For each, record the actual operator, location,
    access group, retention, deletion handling, and processor terms.
 2. Set `VITE_PRIVACY_EMAIL` and `VITE_CONTROLLER_NAME` in the approved web
@@ -68,16 +68,17 @@ Do not guess an identity, email address, provider, region, or legal claim.
 3. Configure production observability through the deployment environment:
    `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT`, `SENTRY_DSN`,
    `SENTRY_ENVIRONMENT`, `GRAFANA_OTLP_ENDPOINT`, and
-   `GRAFANA_OTLP_API_KEY`. Set `VITE_POSTHOG_KEY` and explicitly use
-   `VITE_POSTHOG_HOST=https://eu.i.posthog.com`. Keep Grafana credentials and
-   any provider-management tokens in the secret store; do not commit them.
+   `GRAFANA_OTLP_API_KEY`. Keep Grafana credentials and any
+   provider-management tokens in the secret store; do not commit them.
+   Product analytics stay on the API counters; do not add a browser analytics
+   SDK. Source-map upload needs `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and
+   `SENTRY_PROJECT` and is skipped when the token is absent.
 4. In each provider console, verify the production project, residency,
    retention, access roles, and deletion/export process. For Sentry, inspect
-   controlled backend and frontend errors plus error-only Replay. For Grafana,
-   inspect metric labels, dashboard access, alert annotations, and API-key
-   scope. For PostHog, verify EU ingestion, no autocapture, no session
-   recording, memory persistence, no `identify`, and event names/properties
-   match [`docs/ANALYTICS_EVENTS.md`](../../docs/ANALYTICS_EVENTS.md).
+   controlled backend and frontend errors and confirm session replay is off.
+   For Grafana, inspect metric labels, the product funnel, dashboard access,
+   alert annotations, and API-key scope. Event names match
+   [`docs/ANALYTICS_EVENTS.md`](../../docs/ANALYTICS_EVENTS.md).
 5. Inspect controlled provider payloads and logs for absence of audio,
    request bodies, prompt text, comarca, scores, consent payloads, recording
    IDs, filenames, user identity, and query strings. Keep the application
@@ -97,11 +98,11 @@ Do not guess an identity, email address, provider, region, or legal claim.
 - The voice remains personal data even without a name, email, IP, or
   User-Agent. Include live storage, backups, snapshots, restore hosts, and
   training exports in the data inventory.
-- The frontend privacy contact, Sentry DSN, and PostHog project key are
-  build-time values; use the approved values but never commit deployment
-  configuration or provider-management credentials.
-- Keep PostHog on the configured EU host and preserve its no-autocapture,
-  no-session-recording, no-identify, no-custom-properties boundary.
+- The frontend privacy contact and Sentry DSN are build-time values; use the
+  approved values but never commit deployment configuration or
+  provider-management credentials.
+- Keep product telemetry on the API counters, with no cookies or browser
+  storage, and keep Sentry session replay disabled.
 - Do not inspect or export real audio to providers for verification. Use
   controlled synthetic errors/metrics and aggregate evidence.
 - Do not enable a new notification channel or provider retention policy that
@@ -115,11 +116,10 @@ Do not guess an identity, email address, provider, region, or legal claim.
       intentional reviewed change is documented.
 - [ ] Actual hosting, processors, provider regions, access roles, retention,
       backup expiry, and deletion workflow match the published copy.
-- [ ] Sentry, Grafana, and PostHog production configuration is verified with
+- [ ] Sentry and Grafana production configuration is verified with
       controlled evidence and no sensitive payloads.
-- [ ] PostHog uses the approved EU host and documented event boundary; provider
-      credentials are absent from git and frontend bundles where they would be
-      secrets.
+- [ ] Product telemetry stays on the API counters (no browser analytics SDK);
+      provider credentials are absent from git.
 - [ ] Privacy/legal sign-off, data-flow inventory, and deployment evidence are
       recorded before public traffic.
 

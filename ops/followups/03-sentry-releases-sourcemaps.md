@@ -1,6 +1,6 @@
 # Task 03 — Sentry releases + web source maps
 
-Status: `pending`  
+Status: `done` (Pages and the API tag Sentry with the git SHA; hidden source maps upload only when `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` are set, and `.map` files are deleted before the Pages artifact. Session Replay was removed.)  
 Priority: medium (launch polish)  
 Depends on: Sentry projects + DSNs already configured in deploy env
 

@@ -29,11 +29,8 @@ The implementation and supporting work now include:
 - `/live`, `/ready`, `/version`, and the existing `/health` compatibility
   endpoint, plus Vite and Caddy proxy routes;
 - build/release metadata helpers for API and web Sentry releases;
-- privacy-scrubbed backend/frontend Sentry setup and metrics-only Grafana OTLP
-  instrumentation;
-- PostHog Cloud EU support configured for memory persistence, no autocapture,
-  no session recording, no identify, and allowlisted event names;
-- dual-fire UI counters to PostHog and the backend Grafana counter endpoint;
+- privacy-scrubbed backend/frontend Sentry setup (no session replay) and
+  metrics-only Grafana OTLP instrumentation, including the product funnel;
 - documented pending/consented storage behavior, retention tools, and
   same-origin HTTPS deployment guidance;
 - this backup runbook, privacy audit, repeatable launch checklist, and this
@@ -53,9 +50,10 @@ provider retention, access controls, or schedules.
 - `VITE_PRIVACY_EMAIL` and `VITE_CONTROLLER_NAME` must be set before launch.
   Until then, the in-app legal copy intentionally shows provisional identity
   or contact text.
-- Sentry DSNs/releases, Grafana OTLP credentials, PostHog EU project
-  configuration, and production CORS/trusted-proxy settings are deployment
-  secrets and have not been proven here.
+- Sentry DSNs/releases, Grafana OTLP credentials, and production
+  CORS/trusted-proxy settings are deployment secrets and have not been proven
+  here. Source-map upload also needs `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and
+  `SENTRY_PROJECT`; without the token the Pages build skips the upload.
 - Better Stack monitors and Grafana email contact points are documented
   follow-ups, not resources created by this repository.
 
@@ -122,7 +120,7 @@ named owner and verifiable evidence for each gate:
 - **HTTPS and proxy:** the real hostname redirects to HTTPS, routes
   `/analysis-finalize` and every other API path without SPA fallback, applies
   upload/timeouts and security headers, and does not expose `/sentry-debug`.
-- **Provider retention and access:** Sentry, Grafana, PostHog, Better Stack,
+- **Provider retention and access:** Sentry, Grafana, Better Stack,
   backup storage, and host/proxy logs have recorded regions, data classes,
   retention/deletion behavior, access roles, and incident contacts consistent
   with the privacy policy.
@@ -154,7 +152,7 @@ Treat these as blockers for public traffic, not optional polish:
    behavior.
 3. Choose and evidence a single-process or distributed rate-limit topology;
    do not treat `ORACLE_WORKERS` as a cross-host limiter.
-4. Configure Sentry, Grafana, PostHog EU, Better Stack, proxy logs, and backup
+4. Configure Sentry, Grafana, Better Stack, proxy logs, and backup
    storage with approved retention/access settings; assign monitoring and
    incident owners and inspect controlled payloads for the privacy boundary.
 5. Install encrypted backups, complete an isolated restore drill, and prove
