@@ -78,15 +78,7 @@ export function initSentry(): boolean {
     release: APP_VERSION,
     sendDefaultPii: false,
     tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 1,
-    integrations: [
-      Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
+    integrations: [Sentry.browserTracingIntegration()],
     beforeSend(event) {
       return scrubEvent(event);
     },

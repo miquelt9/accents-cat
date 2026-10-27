@@ -6,9 +6,9 @@ interface ImportMetaEnv {
   readonly VITE_ACCENT_ORACLE_DEV?: string;
   /** Explicit opt-in for the research consent / retention flow. */
   readonly VITE_RESEARCH_RETENTION_ENABLED?: string;
-  /** Explicit opt-in for PostHog and backend product event analytics. */
+  /** Explicit opt-in for backend product event analytics (Grafana via the API). */
   readonly VITE_PRODUCT_ANALYTICS_ENABLED?: string;
-  /** Explicit opt-in for Sentry error and replay diagnostics. */
+  /** Explicit opt-in for Sentry error diagnostics. No session replay. */
   readonly VITE_DIAGNOSTICS_ENABLED?: string;
   /** Real inbox for privacy / deletion requests (required before public launch). */
   readonly VITE_PRIVACY_EMAIL?: string;
@@ -26,10 +26,6 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_ENVIRONMENT?: string;
   readonly VITE_SENTRY_RELEASE?: string;
   readonly VITE_SENTRY_ENABLE_DEV?: string;
-  /** PostHog Cloud EU project key (omit to disable). */
-  readonly VITE_POSTHOG_KEY?: string;
-  /** Default https://eu.i.posthog.com */
-  readonly VITE_POSTHOG_HOST?: string;
 }
 
 interface ImportMeta {

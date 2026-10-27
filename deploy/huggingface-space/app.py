@@ -1,8 +1,12 @@
 """Gradio Space bridge for the Accent Oracle FastAPI backend."""
 
 import os
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+# Before the model download, so startup_seconds includes that wait.
+os.environ.setdefault("ORACLE_PROCESS_START_PERF", str(time.perf_counter()))
 
 os.environ["HF_HOME"] = "/tmp/hf_cache"
 os.environ.setdefault("ORACLE_RETAIN_USER_DATA", "0")
@@ -14,6 +18,13 @@ import gradio as gr
 from huggingface_hub import snapshot_download
 
 MODEL_REPO_ID = "miquelt-9/cv26-hubert-svm-calibrated"
+GIT_SHA_FILE = Path(__file__).with_name("git-sha.txt")
+if GIT_SHA_FILE.is_file():
+    _git_sha = GIT_SHA_FILE.read_text(encoding="utf-8").strip()
+    if _git_sha:
+        # Set before importing the API so Sentry release and /version share the SHA.
+        os.environ.setdefault("ORACLE_GIT_SHA", _git_sha)
+        os.environ.setdefault("SENTRY_RELEASE", _git_sha)
 MODEL_REVISION_FILE = Path(__file__).with_name("model-revision.txt")
 MODEL_REVISION = (
     MODEL_REVISION_FILE.read_text(encoding="utf-8").strip()

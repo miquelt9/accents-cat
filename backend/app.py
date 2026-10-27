@@ -40,14 +40,16 @@ from backend.middleware import (
 from backend.observability import (
     MetricsHttpMiddleware,
     init_observability,
-    is_ui_event_allowed,
     record_analyze,
     record_consent,
     record_feedback,
     record_inference_queue_wait,
     record_inference_rejected,
+    mark_startup_complete,
+    parse_ui_telemetry,
     record_ui_event,
     sentry_debug_enabled,
+    UiTelemetryError,
     set_inference_pool_metrics_provider,
     set_prompt_id_tag,
 )
@@ -128,7 +130,7 @@ TRUST_PROXY = os.environ.get("ORACLE_TRUST_PROXY", "").strip().lower() in {
 # Must stay aligned with web/src/lib/legalDocs.ts LEGAL_POLICY_VERSION.
 DEFAULT_POLICY_VERSION = os.environ.get(
     "ORACLE_POLICY_VERSION",
-    "15 d'agost de 2026",
+    "21 d'octubre de 2026",
 )
 MAX_POLICY_VERSION_CHARS = 64
 
@@ -153,6 +155,7 @@ async def lifespan(_: FastAPI):
     pool.start()
     _inference_pool = pool
     set_inference_pool_metrics_provider(pool.snapshot)
+    mark_startup_complete()
     logger.info(
         "inference pool started workers=%d max_queue=%d cpu_count=%d "
         "torch_threads=%d torch_interop_threads=%d",
@@ -188,6 +191,9 @@ app.add_middleware(
 
 class TelemetryEventRequest(BaseModel):
     event: str = Field(max_length=64)
+    # Only `analysis_failed` may set these. Both are coarse enums.
+    reason: str | None = Field(default=None, max_length=16)
+    latencyBucket: str | None = Field(default=None, max_length=32)
 
 
 class FeedbackRequest(BaseModel):
@@ -438,10 +444,11 @@ def telemetry_event(request: Request, body: TelemetryEventRequest) -> None:
     """Allowlisted UI product counters for Grafana (no PII)."""
     if not _telemetry_limiter.allow(_rate_limit_key(request)):
         _raise_rate_limited()
-    event = body.event.strip()
-    if not is_ui_event_allowed(event):
-        raise HTTPException(status_code=422, detail="event no és vàlid.")
-    record_ui_event(event)
+    try:
+        event, attrs = parse_ui_telemetry(body.event, body.reason, body.latencyBucket)
+    except UiTelemetryError:
+        raise HTTPException(status_code=422, detail="event no és vàlid.") from None
+    record_ui_event(event, attrs)
     return None
 
 

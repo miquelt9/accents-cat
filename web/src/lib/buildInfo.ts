@@ -11,17 +11,21 @@ export const buildInfo = {
 } as const;
 
 /**
- * Sentry release id: prefer explicit `VITE_SENTRY_RELEASE`, else
- * `version+shortSha` when a real SHA is present, else version alone.
+ * Sentry release id shared with the backend: explicit release, else the full
+ * git SHA, else the app version.
  */
+export function releaseFromParts(version: string, gitSha: string, explicit = ""): string {
+  const release = explicit.trim();
+  if (release) {
+    return release;
+  }
+  const sha = gitSha.trim();
+  if (sha && sha !== "dev") {
+    return sha;
+  }
+  return version.trim() || "0.1.0";
+}
+
 export function sentryRelease(): string {
-  const explicit = envTrim("VITE_SENTRY_RELEASE");
-  if (explicit) {
-    return explicit;
-  }
-  const { version, gitSha } = buildInfo;
-  if (gitSha && gitSha !== "dev") {
-    return `${version}+${gitSha.slice(0, 7)}`;
-  }
-  return version;
+  return releaseFromParts(buildInfo.version, buildInfo.gitSha, envTrim("VITE_SENTRY_RELEASE"));
 }

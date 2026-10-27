@@ -1,7 +1,8 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { trackUiEvent } from "./telemetry";
 import { shouldInitSentry } from "./sentry";
-import { sentryRelease, buildInfo } from "./buildInfo";
+import { releaseFromParts, sentryRelease, buildInfo } from "./buildInfo";
+import { sentrySourcemapUpload } from "../../sentryBuild";
 import {
   friendlyHttpFallback,
   isNetworkFetchError,
@@ -9,12 +10,6 @@ import {
   resolveApiErrorMessage,
   submitResearchConsent,
 } from "./accentOracleClient";
-
-vi.mock("./posthog", () => ({
-  capturePostHogEvent: vi.fn(),
-  initPostHog: vi.fn(() => false),
-  shouldInitPostHog: vi.fn(() => false),
-}));
 
 vi.mock("./devFlags", async () => {
   const actual = await vi.importActual<typeof import("./devFlags")>("./devFlags");
@@ -24,8 +19,6 @@ vi.mock("./devFlags", async () => {
   };
 });
 
-import { capturePostHogEvent } from "./posthog";
-
 describe("trackUiEvent", () => {
   beforeEach(() => {
     vi.stubEnv("VITE_PRODUCT_ANALYTICS_ENABLED", "1");
@@ -33,7 +26,6 @@ describe("trackUiEvent", () => {
       "fetch",
       vi.fn(() => Promise.resolve(new Response(null, { status: 204 }))),
     );
-    vi.mocked(capturePostHogEvent).mockClear();
   });
 
   afterEach(() => {
@@ -41,21 +33,26 @@ describe("trackUiEvent", () => {
     vi.unstubAllEnvs();
   });
 
-  it("posts allowlisted event JSON without extra fields", () => {
+  it("posts allowlisted event JSON without cookies or extra fields", () => {
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
     trackUiEvent("homepage_viewed");
     expect(fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/telemetry\/event$/),
       expect.objectContaining({
         method: "POST",
+        credentials: "omit",
         body: JSON.stringify({ event: "homepage_viewed" }),
       }),
     );
-    expect(capturePostHogEvent).toHaveBeenCalledWith("homepage_viewed");
+    expect(setItem).not.toHaveBeenCalled();
+    setItem.mockRestore();
   });
 
-  it("dual-fires new allowlisted events by name only", () => {
+  it("sends new allowlisted events by name only", () => {
     for (const event of [
       "analysis_completed",
+      "result_shown",
+      "flow_retried",
       "recording_press_hold",
       "recording_too_short",
       "recording_no_speech",
@@ -64,12 +61,35 @@ describe("trackUiEvent", () => {
       "origin_submitted",
     ] as const) {
       trackUiEvent(event);
-      expect(capturePostHogEvent).toHaveBeenCalledWith(event);
       expect(fetch).toHaveBeenCalledWith(
         expect.any(String),
-        expect.objectContaining({ body: JSON.stringify({ event }) }),
+        expect.objectContaining({
+          credentials: "omit",
+          body: JSON.stringify({ event }),
+        }),
       );
     }
+  });
+
+  it("adds a coarse reason and latency bucket only for analysis_failed", () => {
+    trackUiEvent("analysis_failed", { reason: "timeout", latencyBucket: "over_90s" });
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: JSON.stringify({
+          event: "analysis_failed",
+          reason: "timeout",
+          latencyBucket: "over_90s",
+        }),
+      }),
+    );
+    trackUiEvent("homepage_viewed", { reason: "network", latencyBucket: "under_15s" });
+    expect(fetch).toHaveBeenLastCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: JSON.stringify({ event: "homepage_viewed" }),
+      }),
+    );
   });
 });
 
@@ -83,6 +103,32 @@ describe("buildInfo / sentryRelease", () => {
   it("exposes a version string", () => {
     expect(buildInfo.version.length).toBeGreaterThan(0);
     expect(sentryRelease().length).toBeGreaterThan(0);
+  });
+
+  it("tags the release with the full git SHA", () => {
+    expect(releaseFromParts("0.1.0", "abcdef1234567890")).toBe("abcdef1234567890");
+    expect(releaseFromParts("0.1.0", "dev")).toBe("0.1.0");
+    expect(releaseFromParts("0.1.0", "abcdef1234567890", "explicit")).toBe("explicit");
+  });
+});
+
+describe("sentry source map upload", () => {
+  it("skips unless the token, org, and project are all set", () => {
+    expect(sentrySourcemapUpload({})).toBeNull();
+    expect(sentrySourcemapUpload({ SENTRY_AUTH_TOKEN: "token" })).toBeNull();
+    expect(
+      sentrySourcemapUpload({
+        SENTRY_AUTH_TOKEN: "token",
+        SENTRY_ORG: "org",
+        SENTRY_PROJECT: "web",
+        VITE_GIT_SHA: "abc123def456",
+      }),
+    ).toEqual({
+      authToken: "token",
+      org: "org",
+      project: "web",
+      release: "abc123def456",
+    });
   });
 });
 

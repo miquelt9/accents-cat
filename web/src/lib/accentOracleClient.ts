@@ -4,6 +4,7 @@ import {
   resolveAccentOracleMode,
   type AccentOracleMode,
 } from "./devFlags";
+import { AnalysisFailure } from "./analysisPace";
 import { getEvidenceBand } from "./evidenceBand";
 
 export const DIALECT_ZONES = [
@@ -94,8 +95,8 @@ export interface AccentOracleClient {
 
 const API_BASE_URL = import.meta.env.VITE_ACCENT_ORACLE_API_URL ?? "http://localhost:8000";
 
-/** Client-side fetch timeout for `/analyze` (CPU HuBERT can be slow). */
-const ANALYZE_TIMEOUT_MS = 120_000;
+/** Client-side fetch timeout for `/analyze` (CPU HuBERT can be slow, and a Space may be waking). */
+export const ANALYZE_TIMEOUT_MS = 120_000;
 
 const SERVICE_SATURATED_MESSAGE = "El servei està saturat. Torna-ho a provar.";
 const ANALYZE_TIMEOUT_MESSAGE = "La petició ha trigat massa. Torna-ho a provar.";
@@ -431,6 +432,7 @@ export const apiAccentOracleClient: AccentOracleClient = {
 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), ANALYZE_TIMEOUT_MS);
+    const startedAt = performance.now();
 
     let response: Response;
     try {
@@ -440,9 +442,12 @@ export const apiAccentOracleClient: AccentOracleClient = {
         signal: controller.signal,
       });
     } catch (error) {
-      const mapped = mapTransportError(error);
-      if (mapped) {
-        throw mapped;
+      const elapsedMs = performance.now() - startedAt;
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw new AnalysisFailure("timeout", elapsedMs, ANALYZE_TIMEOUT_MESSAGE);
+      }
+      if (isNetworkFetchError(error)) {
+        throw new AnalysisFailure("network", elapsedMs, NETWORK_ERROR_MESSAGE);
       }
       throw error;
     } finally {
@@ -450,9 +455,21 @@ export const apiAccentOracleClient: AccentOracleClient = {
     }
 
     if (!response.ok) {
-      throw new Error(
-        await readErrorMessage(response, "L'API del model no ha pogut analitzar aquesta gravació."),
+      const message = await readErrorMessage(
+        response,
+        "L'API del model no ha pogut analitzar aquesta gravació.",
       );
+      const elapsedMs = performance.now() - startedAt;
+      if (response.status === 503) {
+        throw new AnalysisFailure("saturated", elapsedMs, message);
+      }
+      if (response.status >= 500) {
+        throw new AnalysisFailure("5xx", elapsedMs, message);
+      }
+      if (response.status >= 400) {
+        throw new AnalysisFailure("4xx", elapsedMs, message);
+      }
+      throw new Error(message);
     }
     return (await response.json()) as AccentOracleResult;
   },
